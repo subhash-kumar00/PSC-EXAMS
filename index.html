@@ -10,14 +10,12 @@
     body { font-family: 'Noto Sans Malayalam', 'Manrope', sans-serif; }
     .custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
     .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-    
     @keyframes pulseGlow {
       0% { transform: scale(0.96); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.85); opacity: 0.85; }
       70% { transform: scale(1.04); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); opacity: 1; }
       100% { transform: scale(0.96); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); opacity: 0.85; }
     }
     .badge-new-pulse { animation: pulseGlow 1.2s infinite ease-in-out !important; }
-
     .hero-glow {
       background: radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.15), transparent 50%),
                   radial-gradient(circle at 20% 80%, rgba(13, 148, 136, 0.12), transparent 50%);
@@ -42,7 +40,6 @@
         </div>
       </div>
       
-      <!-- User Profile Header Status -->
       <div id="navUserBox" class="hidden text-right">
         <span id="navUserName" class="text-xs sm:text-sm font-bold text-slate-200 block"></span>
         <button onclick="logoutCandidate()" class="text-[10px] text-rose-400 hover:underline">മാറ്റുക / Logout</button>
@@ -52,7 +49,7 @@
 
   <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
     
-    <!-- Hero Branding & Motivation -->
+    <!-- Hero Branding -->
     <div class="hero-glow bg-slate-900 border border-slate-800/90 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
       <div class="max-w-3xl relative z-10 space-y-3">
         <div class="flex flex-wrap items-center gap-2">
@@ -75,20 +72,20 @@
             <span>"നിങ്ങളുടെ സ്വപ്ന ജോലിയിലേക്കുള്ള വഴിയിൽ സമ്പൂർണ്ണ പിന്തുണയുമായി SK PSC നിങ്ങളോടൊപ്പമുണ്ട്!"</span>
           </p>
           <p class="text-slate-400 text-xs">
-            സ്ഥിരമായ പരിശീലനവും നെഗറ്റീവ് മാർക്കുകൾ ഒഴിവാക്കിയുള്ള കൃത്യതയുമാണ് ആദ്യ റാങ്കിലേക്ക് നിങ്ങളെ എത്തിക്കുന്നത്. ഓരോ പരീക്ഷയും ആത്മവിശ്വാസത്തോടെ നേരിടുക.
+            സ്ഥിരമായ പരിശീലനവും നെഗറ്റീവ് മാർക്കുകൾ ഒഴിവാക്കിയുള്ള കൃത്യതയുമാണ് ആദ്യ റാങ്കിലേക്ക് നിങ്ങളെ എത്തിക്കുന്നത്. കുറഞ്ഞത് 8 മാർക്ക് നേടിയാൽ ഔദ്യോഗിക നോട്ട്സ് PDF ലഭ്യമാകും.
           </p>
         </div>
       </div>
     </div>
 
-    <!-- Step 1: Registration Screen (Only shown if user hasn't registered yet) -->
+    <!-- Registration Screen -->
     <div id="homeLoginCard" class="max-w-md mx-auto bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-4">
       <div class="text-center space-y-1">
         <span class="inline-block p-3 rounded-2xl bg-emerald-500/10 text-emerald-400 mb-1">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
         </span>
-        <h3 class="text-lg sm:text-xl font-bold text-white">പരീക്ഷാർത്ഥി രജിസ്ട്രേഷൻ</h3>
-        <p class="text-xs text-slate-400">പേരും നമ്പറും നൽകുക. പിന്നീട് എല്ലാ പരീക്ഷകളും നേരിട്ട് എഴുതാവുന്നതാണ്.</p>
+        <h3 class="text-lg sm:text-xl font-bold text-white">പരീക്ഷാർത്ഥി ലോഗിൻ / രജിസ്ട്രേഷൻ</h3>
+        <p class="text-xs text-slate-400">നിങ്ങളുടെ പേരും മൊബൈൽ നമ്പറും നൽകി ലോഗിൻ ചെയ്യുക.</p>
       </div>
 
       <form id="candidateRegisterForm" class="space-y-3.5">
@@ -106,15 +103,61 @@
         </div>
 
         <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 text-slate-950 font-bold rounded-xl transition transform active:scale-95 shadow-lg text-xs sm:text-sm">
-          തുടങ്ങാം (Continue) ›
+          പ്രൊഫൈലിലേക്ക് പ്രവേശിക്കുക ›
         </button>
       </form>
     </div>
 
-    <!-- Exam Section (Visible only after registration) -->
-    <div id="examSection" class="hidden space-y-5">
+    <!-- Student Dashboard & Exam Section -->
+    <div id="examSection" class="hidden space-y-6">
       
-      <!-- Filter & Sort Controls -->
+      <!-- Student Profile & Growth Dashboard -->
+      <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 sm:p-7 shadow-2xl space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">STUDENT PROFILE & GROWTH</span>
+            <h3 class="text-lg sm:text-xl font-black text-white flex items-center space-x-2">
+              <span id="profileDisplayName">വിദ്യാർത്ഥി</span>
+              <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/40" id="growthBadge">Beginner</span>
+            </h3>
+            <p class="text-xs text-slate-400" id="profileDisplayPhone"></p>
+          </div>
+          <div class="text-left sm:text-right">
+            <span class="text-xs text-slate-400">ഗ്രോത്ത് സ്റ്റാറ്റസ്:</span>
+            <p id="growthMessage" class="text-xs font-semibold text-emerald-400">കൂടുതൽ മോഡൽ പരീക്ഷകൾ പരിശീലിക്കുക!</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3">
+          <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 text-center">
+            <span class="text-[10px] sm:text-xs text-slate-400 block font-semibold">എഴുതിയ പരീക്ഷകൾ</span>
+            <span id="statTotalTests" class="text-xl sm:text-2xl font-black text-white font-mono">0</span>
+          </div>
+          <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 text-center">
+            <span class="text-[10px] sm:text-xs text-slate-400 block font-semibold">ശരാശരി സ്കോർ</span>
+            <span id="statAvgScore" class="text-xl sm:text-2xl font-black text-emerald-400 font-mono">0.00</span>
+          </div>
+          <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 text-center">
+            <span class="text-[10px] sm:text-xs text-slate-400 block font-semibold">ആക്യുറസി (Accuracy)</span>
+            <span id="statAccuracy" class="text-xl sm:text-2xl font-black text-teal-400 font-mono">0%</span>
+          </div>
+        </div>
+
+        <div class="border-t border-slate-800 pt-4">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center space-x-1.5">
+              <span>📋</span>
+              <span>നിങ്ങളുടെ പരീക്ഷാ ഹിസ്റ്ററി (Recent Attempts)</span>
+            </h4>
+            <span id="historyCount" class="text-[11px] text-slate-500">0 പരീക്ഷകൾ</span>
+          </div>
+          <div id="historyList" class="space-y-2 max-h-40 overflow-y-auto custom-scroll pr-1">
+            <p class="text-xs text-slate-500 text-center py-4">ഇതുവരെ പരീക്ഷകൾ ഒന്നും എഴുതിയിട്ടില്ല. താഴെ നിന്നും ഒരു പരീക്ഷ തിരഞ്ഞെടുക്കുക!</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filters & Sort -->
       <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-lg space-y-4">
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
@@ -157,7 +200,7 @@
 
       <!-- Empty State -->
       <div id="emptyState" class="hidden text-center py-16 text-slate-500 text-xs sm:text-sm bg-slate-900/40 rounded-2xl border border-slate-800">
-        നിങ്ങൾ തിരഞ്ഞ മാനദണ്ഡങ്ങൾക്കൊത്ത പരീക്ഷകൾ ഒന്നും കണ്ടെത്തിയില്ല.
+        പരീക്ഷകൾ ഒന്നും കണ്ടെത്തിയില്ല.
       </div>
 
     </div>
@@ -169,13 +212,13 @@
   </footer>
 
   <script>
+    // ⚠️ നിങ്ങളുടെ Google Sheet ID ഇവിടെ നൽകുക:
     const GOOGLE_SHEET_ID = "1ujfXFhMmZVwhTSB9yCHKgf3uNevCbcivcEbmxpw2fso";
     const CSV_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:csv`;
 
     let rawQuizList = [];
     let candidate = null;
 
-    // ബ്രൗസറിൽ നിലവിൽ കാൻഡിഡേറ്റ് ലോഗിൻ ഉണ്ടോ എന്ന് പരിശോധിക്കുന്നു
     window.addEventListener('DOMContentLoaded', () => {
       const savedUser = localStorage.getItem('sk_candidate_user');
       if (savedUser) {
@@ -206,11 +249,83 @@
       document.getElementById('navUserName').innerText = `${candidate.name} (${candidate.phone})`;
       document.getElementById('navUserBox').classList.remove('hidden');
 
+      document.getElementById('profileDisplayName').innerText = candidate.name;
+      document.getElementById('profileDisplayPhone').innerText = `ഫോൺ: +91 ${candidate.phone}`;
+
+      updateProfileAnalytics();
+
       if (rawQuizList.length === 0) {
         fetchQuizzesFromSheet();
       } else {
         applyFiltersAndRender();
       }
+    }
+
+    function updateProfileAnalytics() {
+      const historyKey = `sk_history_${candidate.phone}`;
+      const history = JSON.parse(localStorage.getItem(historyKey) || '[]');
+
+      document.getElementById('statTotalTests').innerText = history.length;
+      document.getElementById('historyCount').innerText = `${history.length} പരീക്ഷകൾ`;
+
+      if (history.length === 0) {
+        document.getElementById('statAvgScore').innerText = "0.00";
+        document.getElementById('statAccuracy').innerText = "0%";
+        document.getElementById('growthBadge').innerText = "Beginner 🚀";
+        document.getElementById('growthMessage').innerText = "ആദ്യത്തെ പരീക്ഷ എഴുതി പഠനം ആരംഭിക്കുക!";
+        return;
+      }
+
+      let totalScore = 0;
+      let totalCorrect = 0;
+      let totalQuestions = 0;
+
+      history.forEach(h => {
+        totalScore += parseFloat(h.score || 0);
+        totalCorrect += parseInt(h.correct || 0);
+        totalQuestions += (parseInt(h.correct || 0) + parseInt(h.wrong || 0) + parseInt(h.skipped || 0));
+      });
+
+      const avgScore = (totalScore / history.length).toFixed(2);
+      const accuracy = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
+
+      document.getElementById('statAvgScore').innerText = avgScore;
+      document.getElementById('statAccuracy').innerText = `${accuracy}%`;
+
+      const badge = document.getElementById('growthBadge');
+      const msg = document.getElementById('growthMessage');
+
+      if (history.length >= 5 && avgScore >= 18) {
+        badge.className = "text-xs bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full border border-amber-500/40";
+        badge.innerText = "Rank Leader 🏆";
+        msg.innerText = "അത്യുജ്ജ്വല പ്രകടനം! നിങ്ങൾ മികച്ച റാങ്കിലേക്ക് അടുക്കുന്നു.";
+      } else if (history.length >= 3 && avgScore >= 12) {
+        badge.className = "text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/40";
+        badge.innerText = "Consistent Learner 📈";
+        msg.innerText = "നല്ല പുരോഗതി! തെറ്റിയ ചോദ്യങ്ങൾ വിശകലനം ചെയ്തു മുന്നേറുക.";
+      } else {
+        badge.className = "text-xs bg-teal-500/20 text-teal-300 px-2 py-0.5 rounded-full border border-teal-500/40";
+        badge.innerText = "Active Aspirant 🎯";
+        msg.innerText = "കൂടുതൽ പരീക്ഷകൾ ആവർത്തിച്ചു പരിശീലിച്ചു സ്കോർ ഉയർത്തുക.";
+      }
+
+      const hList = document.getElementById('historyList');
+      hList.innerHTML = '';
+      history.slice(-5).reverse().forEach(item => {
+        const row = document.createElement('div');
+        row.className = "bg-slate-950 p-2.5 rounded-xl border border-slate-800/80 flex items-center justify-between text-xs";
+        row.innerHTML = `
+          <div>
+            <span class="font-bold text-slate-200 block">${item.title}</span>
+            <span class="text-[10px] text-slate-500">${item.date}</span>
+          </div>
+          <div class="text-right">
+            <span class="font-mono font-bold text-emerald-400 block">${item.score} Mark</span>
+            <span class="text-[10px] text-slate-400">ശരി: ${item.correct} | തെറ്റ്: ${item.wrong}</span>
+          </div>
+        `;
+        hList.appendChild(row);
+      });
     }
 
     function logoutCandidate() {
@@ -246,7 +361,9 @@
             questions: parseInt(clean(r[3])) || 25,
             time: clean(r[4]),
             badge: clean(r[5]),
-            fileUrl: clean(r[6])
+            fileUrl: clean(r[6]),
+            sheetUrl: clean(r[7]), // 8-ാമത്തെ കോളം: Google Apps Script Web App URL
+            pdfUrl: clean(r[8])    // 🌟 9-ാമത്തെ കോളം: ഗൂഗിൾ ഡ്രൈവ് PDF Link
           });
         }
 
@@ -326,11 +443,11 @@
 
         card.className = `bg-slate-900 border ${isNew ? 'border-emerald-500/70 shadow-lg shadow-emerald-950/40' : 'border-slate-800'} hover:border-emerald-500/80 rounded-2xl p-4 sm:p-5 shadow flex flex-col justify-between transition-all duration-200 group`;
         
-        // 🌟 ഹോം പേജിലെ പേരും നമ്പറും ക്വിസ് പേജിലേക്ക് URL ആയി പാസ്സ് ചെയ്യുന്നു:
+        // 🌟 ലിങ്കിലേക്ക് പേര്, ഫോൺ, ടൈറ്റിൽ, sheetUrl, pdfUrl എന്നിവ ഒന്നിച്ച് അയക്കുന്നു:
         let targetUrl = q.fileUrl;
         if (candidate) {
           const separator = targetUrl.includes('?') ? '&' : '?';
-          targetUrl = `${targetUrl}${separator}name=${encodeURIComponent(candidate.name)}&phone=${encodeURIComponent(candidate.phone)}`;
+          targetUrl = `${targetUrl}${separator}name=${encodeURIComponent(candidate.name)}&phone=${encodeURIComponent(candidate.phone)}&title=${encodeURIComponent(q.title)}&sheetUrl=${encodeURIComponent(q.sheetUrl || '')}&pdfUrl=${encodeURIComponent(q.pdfUrl || '')}`;
         }
 
         card.innerHTML = `
