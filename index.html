@@ -14,7 +14,6 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between">
 
-  <!-- Header -->
   <header class="bg-slate-900/95 backdrop-blur border-b border-slate-800 px-4 sm:px-8 py-4 sticky top-0 z-50">
     <div class="max-w-6xl mx-auto flex items-center justify-between">
       <div class="flex items-center space-x-3">
@@ -26,120 +25,87 @@
           <p class="text-xs text-slate-400">Special Practice Tests by Subhash Kumar</p>
         </div>
       </div>
-      <div class="hidden sm:block text-right">
-        <span class="text-xs font-semibold px-3 py-1 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-full">
-          Free Practice Series
-        </span>
-      </div>
+      <span class="text-xs font-semibold px-3 py-1 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-full">
+        Free Practice Series
+      </span>
     </div>
   </header>
 
-  <!-- Main Content -->
   <main class="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-8 space-y-8">
     
-    <!-- Welcome Banner -->
-    <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
-      <div class="max-w-2xl relative z-10 space-y-2">
-        <span class="text-xs font-bold uppercase tracking-wider text-emerald-400 bg-emerald-950/60 px-2.5 py-1 rounded-md border border-emerald-800/60">KPSC Mock Tests</span>
-        <h2 class="text-2xl sm:text-3xl font-black text-white">നിങ്ങളുടെ പരീക്ഷ തിരഞ്ഞെടുക്കുക</h2>
-        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
-          ഓരോ പരീക്ഷയ്ക്കും നിശ്ചിത സമയവും നെഗറ്റീവ് മാർക്കിംഗും (+1.00 / -0.33) ഉണ്ടായിരിക്കുന്നതാണ്. ആവശ്യമുള്ള വിഷയം തിരഞ്ഞെടുത്തു ടെസ്റ്റ് ആരംഭിക്കാം.
-        </p>
-      </div>
+    <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-2">
+      <span class="text-xs font-bold uppercase tracking-wider text-emerald-400 bg-emerald-950/60 px-2.5 py-1 rounded-md border border-emerald-800/60">KPSC Mock Tests</span>
+      <h2 class="text-2xl sm:text-3xl font-black text-white">നിങ്ങളുടെ പരീക്ഷ തിരഞ്ഞെടുക്കുക</h2>
+      <p class="text-xs sm:text-sm text-slate-300">
+        നിശ്ചിത സമയവും നെഗറ്റീവ് മാർക്കിംഗും (+1.00 / -0.33) ഉള്ള മോഡൽ പരീക്ഷകൾ.
+      </p>
     </div>
 
-    <!-- Search & Filter Controls -->
-    <div class="flex flex-col sm:flex-row gap-3 items-center justify-between">
-      <div class="relative w-full sm:w-80">
-        <input type="text" id="searchInput" placeholder="പരീക്ഷകൾ തിരയുക..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-slate-200 focus:outline-none focus:border-emerald-500 transition shadow-inner">
-      </div>
-      <div class="flex items-center space-x-2 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 custom-scroll" id="categoryFilters">
-        <button onclick="filterCategory('all')" class="cat-btn active px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500 text-slate-950 transition">എല്ലാം</button>
-        <button onclick="filterCategory('സാമ്പത്തിക ശാസ്ത്രം')" class="cat-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 transition">സാമ്പത്തിക ശാസ്ത്രം</button>
-        <button onclick="filterCategory('ഭരണഘടന')" class="cat-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 transition">ഭരണഘടന</button>
-        <button onclick="filterCategory('ഇന്ത്യൻ ചരിത്രം')" class="cat-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 transition">ഇന്ത്യൻ ചരിത്രം</button>
-      </div>
+    <!-- Search Box -->
+    <div class="w-full sm:w-80">
+      <input type="text" id="searchInput" placeholder="പരീക്ഷകൾ തിരയുക..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-slate-200 focus:outline-none focus:border-emerald-500 transition">
+    </div>
+
+    <!-- Loading Indicator -->
+    <div id="loading" class="text-center py-12 text-slate-400 text-sm animate-pulse">
+      പരീക്ഷകൾ ലോഡ് ചെയ്യുന്നു... ദയവായി കാത്തിരിക്കുക.
     </div>
 
     <!-- Exam Cards Grid -->
-    <div id="quizGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+    <div id="quizGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 hidden"></div>
 
-    <!-- Empty State -->
     <div id="emptyState" class="hidden text-center py-16 text-slate-500 text-sm">
-      നിങ്ങൾ തിരഞ്ഞ വിഷയത്തിൽ പരീക്ഷകൾ ഒന്നും കണ്ടെത്തിയില്ല.
+      പരീക്ഷകൾ ഒന്നും കണ്ടെത്തിയില്ല.
     </div>
 
   </main>
 
   <footer class="text-center py-4 text-xs text-slate-500 border-t border-slate-900 bg-slate-950">
-    © 2026 മോഡൽ എക്സാം പോർട്ടൽ | Pachavellam PSC / SK-AI PSC | Special Notes by Subhash Kumar
+    © 2026 മോഡൽ എക്സാം പോർട്ടൽ | Pachavellam PSC / SK-AI PSC
   </footer>
 
   <script>
-    // നിലവിലെ എല്ലാ ക്വിസുകളുടെയും ലിങ്കുകൾ:
-    const quizList = [
-      {
-        id: "eco-1",
-        title: "സാമ്പത്തിക ശാസ്ത്രം - സെറ്റ് 1",
-        category: "സാമ്പത്തിക ശാസ്ത്രം",
-        topics: "ബജറ്റ്, ജി.ഡി.പി, വ്യവസായം & വരുമാനം",
-        questions: 25,
-        time: "25 മിനിറ്റ്",
-        badge: "സെറ്റ് 1",
-        fileUrl: "https://subhash-kumar00.github.io/ECONOMICS-1/"
-      },
-      {
-        id: "eco-2",
-        title: "സാമ്പത്തിക ശാസ്ത്രം - സെറ്റ് 2",
-        category: "സാമ്പത്തിക ശാസ്ത്രം",
-        topics: "ധനകാര്യ സ്ഥാപനങ്ങൾ, നീതി ആയോഗ് & പഞ്ചവത്സര പദ്ധതികൾ",
-        questions: 25,
-        time: "25 മിനിറ്റ്",
-        badge: "സെറ്റ് 2",
-        fileUrl: "https://subhash-kumar00.github.io/ECONOMICS-2/"
-      },
-      {
-        id: "const-1",
-        title: "ഇന്ത്യൻ ഭരണഘടന - സെറ്റ് 1",
-        category: "ഭരണഘടന",
-        topics: "ആമുഖം, മൗലികാവകാശങ്ങൾ, നിർദ്ദേശക തത്വങ്ങൾ",
-        questions: 25,
-        time: "25 മിനിറ്റ്",
-        badge: "സെറ്റ് 1",
-        fileUrl: "https://subhash-kumar00.github.io/CONSTITUTION-1/"
-      },
-      {
-        id: "const-2",
-        title: "ഇന്ത്യൻ ഭരണഘടന - സെറ്റ് 2",
-        category: "ഭരണഘടന",
-        topics: "പാർലമെന്റ്, രാഷ്ട്രപതി, സുപ്രീം കോടതി",
-        questions: 25,
-        time: "25 മിനിറ്റ്",
-        badge: "സെറ്റ് 2",
-        fileUrl: "https://subhash-kumar00.github.io/CONSTITUTION-2-/"
-      },
-      {
-        id: "hist-2",
-        title: "ഇന്ത്യൻ ചരിത്രം - സെറ്റ് 2",
-        category: "ഇന്ത്യൻ ചരിത്രം",
-        topics: "സ്വാതന്ത്ര്യ സമരം, ദേശീയ പ്രസ്ഥാനങ്ങൾ",
-        questions: 25,
-        time: "25 മിനിറ്റ്",
-        badge: "സെറ്റ് 2",
-        fileUrl: "https://subhash-kumar00.github.io/INDIAN-HISTORY--2/"
-      },
-{
-        id: "phy-1",
-        title: " PHYSICS - സെറ്റ് 1",
-        category: " SCIENCE",
-        topics: " PHYSICS",
-        questions: 50,
-        time: "50 മിനിറ്റ്",
-        badge: "സെറ്റ് 1",
-        fileUrl: "https://subhash-kumar00.github.io/PHYSICS-1/"
+    // =========================================================================
+    // ⚠️ നിങ്ങളുടെ GOOGLE SHEET ID താഴെ നൽകുക (d/ ന് ശേഷമുള്ള ഭാഗം):
+    // =========================================================================
+    const GOOGLE_SHEET_ID = "1ujfXFhMmZVwhTSB9yCHKgf3uNevCbcivcEbmxpw2fso";
+    const CSV_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:csv`;
+
+    let quizList = [];
+
+    // Google Sheet-ൽ നിന്നും CSV ഡാറ്റ എടുക്കൽ
+    async function fetchQuizzesFromSheet() {
+      try {
+        const response = await fetch(CSV_URL);
+        const data = await response.text();
+        const rows = data.split('\n').map(row => row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/));
+        
+        quizList = [];
+        // ആദ്യത്തെ റോ ഹെഡിംഗ് ആയതിനാൽ index 1 മുതൽ തുടങ്ങുന്നു
+        for (let i = 1; i < rows.length; i++) {
+          const r = rows[i];
+          if (!r || r.length < 7) continue;
+          
+          const clean = (val) => val ? val.replace(/^"|"$/g, '').trim() : '';
+          
+          quizList.push({
+            title: clean(r[0]),
+            category: clean(r[1]),
+            topics: clean(r[2]),
+            questions: clean(r[3]),
+            time: clean(r[4]),
+            badge: clean(r[5]),
+            fileUrl: clean(r[6])
+          });
+        }
+
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('quizGrid').classList.remove('hidden');
+        renderQuizzes();
+      } catch (e) {
+        document.getElementById('loading').innerText = "ഡാറ്റ ലോഡ് ചെയ്യാൻ കഴിഞ്ഞില്ല. ഗൂഗിൾ ഷീറ്റ് ഷെയറിംഗ് 'Anyone with link' ആണെന്ന് ഉറപ്പാക്കുക.";
       }
-    ];
-    let currentCat = 'all';
+    }
 
     function renderQuizzes(filterText = '') {
       const grid = document.getElementById('quizGrid');
@@ -147,10 +113,9 @@
       grid.innerHTML = '';
 
       const filtered = quizList.filter(q => {
-        const matchesCat = (currentCat === 'all' || q.category === currentCat);
-        const matchesSearch = q.title.toLowerCase().includes(filterText.toLowerCase()) || 
-                              q.topics.toLowerCase().includes(filterText.toLowerCase());
-        return matchesCat && matchesSearch;
+        return q.title.toLowerCase().includes(filterText.toLowerCase()) || 
+               q.topics.toLowerCase().includes(filterText.toLowerCase()) ||
+               q.category.toLowerCase().includes(filterText.toLowerCase());
       });
 
       if (filtered.length === 0) {
@@ -161,7 +126,7 @@
 
       filtered.forEach(q => {
         const card = document.createElement('div');
-        card.className = "bg-slate-900 border border-slate-800 hover:border-emerald-500/60 rounded-2xl p-5 sm:p-6 shadow-lg flex flex-col justify-between transition group hover:shadow-emerald-950/20";
+        card.className = "bg-slate-900 border border-slate-800 hover:border-emerald-500/60 rounded-2xl p-5 sm:p-6 shadow-lg flex flex-col justify-between transition group";
         card.innerHTML = `
           <div class="space-y-3">
             <div class="flex items-center justify-between">
@@ -174,7 +139,7 @@
 
           <div class="pt-5 mt-4 border-t border-slate-800/80 flex items-center justify-between">
             <div class="text-[11px] text-slate-400 space-x-2">
-              <span>📝 ${q.questions} ചോദ്യങ്ങൾ</span>
+              <span>📝 ${q.questions} Qs</span>
               <span>⏱️ ${q.time}</span>
             </div>
             <a href="${q.fileUrl}" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold rounded-xl text-xs transition transform active:scale-95 shadow">
@@ -186,21 +151,11 @@
       });
     }
 
-    function filterCategory(cat) {
-      currentCat = cat;
-      const btns = document.querySelectorAll('.cat-btn');
-      btns.forEach(b => {
-        b.className = "cat-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 transition";
-      });
-      event.target.className = "cat-btn active px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500 text-slate-950 transition";
-      renderQuizzes(document.getElementById('searchInput').value);
-    }
-
     document.getElementById('searchInput').addEventListener('input', (e) => {
       renderQuizzes(e.target.value);
     });
 
-    renderQuizzes();
+    fetchQuizzesFromSheet();
   </script>
 </body>
 </html>
