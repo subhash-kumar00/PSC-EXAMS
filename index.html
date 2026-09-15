@@ -11,24 +11,28 @@
     .custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
     .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
     
-    /* ആകർഷകമായ NEW ബ്ലിങ്ക് ആനിമേഷൻ */
-    @keyframes neonBlink {
-      0%, 100% {
-        opacity: 1;
-        transform: scale(1);
-        box-shadow: 0 0 12px rgba(16, 185, 129, 0.8);
+    /* NEW എന്നതിനുള്ള പ്രത്യേക ഹൈ-വിസിബിലിറ്റി ബ്ലിങ്കിംഗ് ആനിമേഷൻ */
+    @keyframes pulseGlow {
+      0% {
+        transform: scale(0.96);
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.85);
+        opacity: 0.85;
       }
-      50% {
-        opacity: 0.35;
-        transform: scale(0.95);
-        box-shadow: 0 0 3px rgba(16, 185, 129, 0.2);
+      70% {
+        transform: scale(1.04);
+        box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(0.96);
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+        opacity: 0.85;
       }
     }
-    .badge-new-blink {
-      animation: neonBlink 1.1s infinite cubic-bezier(0.4, 0, 0.6, 1);
+    .badge-new-pulse {
+      animation: pulseGlow 1.2s infinite ease-in-out !important;
     }
 
-    /* ഹീറോ കാർഡിലെ ലൈറ്റ് ഗ്ലോ ഇഫക്റ്റ് */
     .hero-glow {
       background: radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.15), transparent 50%),
                   radial-gradient(circle at 20% 80%, rgba(13, 148, 136, 0.12), transparent 50%);
@@ -41,7 +45,7 @@
   <header class="bg-slate-900/95 backdrop-blur border-b border-slate-800 px-4 sm:px-8 py-3.5 sticky top-0 z-50">
     <div class="max-w-7xl mx-auto flex items-center justify-between">
       <div class="flex items-center space-x-3">
-        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-500 via-teal-500 to-cyan-500 flex items-center justify-center font-black text-xl shadow-lg shadow-emerald-950/50 text-slate-950 border border-emerald-400/40 tracking-tight">
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-500 via-teal-500 to-cyan-500 flex items-center justify-center font-black text-xl shadow-lg shadow-emerald-950/50 text-slate-950 border border-emerald-400/40">
           SK
         </div>
         <div>
@@ -53,7 +57,7 @@
         </div>
       </div>
       <div class="flex items-center space-x-2">
-        <span class="text-xs font-semibold px-3.5 py-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-xl hidden sm:flex items-center space-x-1.5 shadow-inner">
+        <span class="text-xs font-semibold px-3 py-1 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-xl hidden sm:flex items-center space-x-1.5">
           <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
           <span>ലൈവ് മോഡൽ പരീക്ഷകൾ</span>
         </span>
@@ -61,94 +65,89 @@
     </div>
   </header>
 
-  <!-- Main Container: Sidebar + Cards Grid -->
-  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col md:flex-row gap-6">
+  <!-- Main Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
     
-    <!-- Left Sidebar: Category Filters -->
-    <aside class="w-full md:w-64 shrink-0 space-y-4">
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-lg">
-        <div class="flex items-center justify-between mb-3 border-b border-slate-800 pb-2">
-          <h2 class="text-xs font-black uppercase tracking-wider text-slate-300 flex items-center space-x-1.5">
-            <span>📚</span>
-            <span>വിഷയങ്ങൾ (Category)</span>
-          </h2>
-          <span id="totalQuizCount" class="text-[10px] font-mono text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800/40">0 Tests</span>
+    <!-- Hero Branding & Motivation -->
+    <div class="hero-glow bg-slate-900 border border-slate-800/90 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+      <div class="max-w-3xl relative z-10 space-y-3">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-xs font-black uppercase tracking-wider text-emerald-300 bg-emerald-950/80 px-3 py-1 rounded-lg border border-emerald-500/40 flex items-center space-x-1.5">
+            <span>🎯</span>
+            <span>SK PSC EXAM HUB</span>
+          </span>
+          <span class="text-[11px] font-semibold text-teal-400/90 bg-slate-950 px-2.5 py-0.5 rounded-md border border-slate-800">
+            ലക്ഷ്യത്തിലേക്ക് ഒരു ചുവട്
+          </span>
         </div>
 
-        <!-- Filter Buttons List -->
-        <div id="categorySidebarList" class="flex md:flex-col gap-1.5 overflow-x-auto md:overflow-visible pb-2 md:pb-0 custom-scroll">
-          <button onclick="selectCategory('all')" class="cat-btn active w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold transition flex items-center justify-between bg-emerald-500 text-slate-950">
-            <span>എല്ലാ പരീക്ഷകളും</span>
-            <span class="text-[10px] opacity-80" id="count-all">...</span>
-          </button>
+        <h2 class="text-2xl sm:text-3xl font-black text-white leading-tight">
+          ഉയർന്ന റാങ്കിനായി കഠിനമായി പ്രയത്നിക്കുക!
+        </h2>
+        
+        <div class="bg-slate-950/80 border border-slate-800/80 rounded-2xl p-4 text-xs sm:text-sm text-slate-300 leading-relaxed shadow-inner space-y-1">
+          <p class="font-bold text-emerald-400 flex items-center space-x-1.5">
+            <span>🚀</span>
+            <span>"നിങ്ങളുടെ സ്വപ്ന ജോലിയിലേക്കുള്ള വഴിയിൽ സമ്പൂർണ്ണ പിന്തുണയുമായി SK PSC നിങ്ങളോടൊപ്പമുണ്ട്!"</span>
+          </p>
+          <p class="text-slate-400 text-xs">
+            സ്ഥിരമായ പരിശീലനവും നെഗറ്റീവ് മാർക്കുകൾ ഒഴിവാക്കിയുള്ള കൃത്യതയുമാണ് ആദ്യ റാങ്കിലേക്ക് നിങ്ങളെ എത്തിക്കുന്നത്. ഇവിടെ നൽകിയിട്ടുള്ള മോഡൽ പരീക്ഷകൾ പരമാവധി പ്രയോജനപ്പെടുത്തുക.
+          </p>
         </div>
       </div>
+    </div>
 
-      <!-- Quick Search Box -->
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-lg space-y-2">
-        <label class="text-xs font-bold text-slate-400 block uppercase tracking-wider">പരീക്ഷകൾ തിരയുക</label>
-        <div class="relative">
-          <input type="text" id="searchInput" placeholder="പേര് അല്ലെങ്കിൽ ടോപ്പിക്ക്..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-500 transition shadow-inner">
+    <!-- Filter & Sort Panel (Mobile-Friendly Clean Layout) -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-lg space-y-4">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        
+        <!-- Search Input -->
+        <div>
+          <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">പരീക്ഷകൾ തിരയുക</label>
+          <input type="text" id="searchInput" placeholder="പേര് അല്ലെങ്കിൽ ടോപ്പിക്ക്..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-slate-200 focus:outline-none focus:border-emerald-500 transition shadow-inner">
         </div>
-      </div>
-    </aside>
 
-    <!-- Right Side: Header Banner & Exam Cards Grid -->
-    <section class="flex-1 space-y-5">
-      
-      <!-- Attractive Hero Welcome Banner with Custom Branding -->
-      <div class="hero-glow bg-slate-900 border border-slate-800/90 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
-        <div class="max-w-2xl relative z-10 space-y-3">
-          <div class="flex flex-wrap items-center gap-2">
-            <span class="text-xs font-black uppercase tracking-wider text-emerald-300 bg-emerald-950/80 px-3 py-1 rounded-lg border border-emerald-500/40 flex items-center space-x-1.5 shadow-sm">
-              <span>🎯</span>
-              <span>SK PSC EXAM HUB</span>
-            </span>
-            <span class="text-[11px] font-semibold text-teal-400/90 bg-slate-950 px-2.5 py-0.5 rounded-md border border-slate-800">
-              ലക്ഷ്യത്തിലേക്ക് ഒരു ചുവട്
-            </span>
-          </div>
-
-          <h2 class="text-2xl sm:text-3xl font-black text-white leading-tight">
-            ഉയർന്ന റാങ്കിനായി കഠിനമായി പ്രയത്നിക്കുക!
-          </h2>
-          
-          <div class="bg-slate-950/70 border border-slate-800/80 rounded-2xl p-4 text-xs sm:text-sm text-slate-300 leading-relaxed shadow-inner space-y-1.5">
-            <p class="font-bold text-emerald-400 flex items-center space-x-1.5">
-              <span>🚀</span>
-              <span>"നിങ്ങളുടെ സ്വപ്ന ജോലിയിലേക്കുള്ള വഴിയിൽ സമ്പൂർണ്ണ പിന്തുണയുമായി SK PSC നിങ്ങളോടൊപ്പമുണ്ട്!"</span>
-            </p>
-            <p class="text-slate-400 text-xs">
-              സ്ഥിരമായ പരിശീലനവും നെഗറ്റീവ് മാർക്കുകൾ ഒഴിവാക്കിയുള്ള കൃത്യതയുമാണ് ആദ്യ റാങ്കിലേക്ക് നിങ്ങളെ എത്തിക്കുന്നത്. ഓരോ പരീക്ഷയും ആത്മവിശ്വാസത്തോടെ നേരിടുക.
-            </p>
-          </div>
+        <!-- Category Dropdown (No sideways scrolling issue) -->
+        <div>
+          <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">വിഷയം (Category)</label>
+          <select id="categorySelect" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-slate-200 focus:outline-none focus:border-emerald-500 transition cursor-pointer">
+            <option value="all">എല്ലാ വിഷയങ്ങളും (All Categories)</option>
+          </select>
         </div>
+
+        <!-- Dedicated Sort By Dropdown -->
+        <div>
+          <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">ക്രമീകരിക്കുക (Sort By)</label>
+          <select id="sortSelect" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-slate-200 focus:outline-none focus:border-emerald-500 transition cursor-pointer">
+            <option value="newest">പുതിയത് ആദ്യം (Newest First)</option>
+            <option value="oldest">പഴയത് ആദ്യം (Oldest First)</option>
+            <option value="questions_desc">കൂടുതൽ ചോദ്യങ്ങൾ ഉള്ളവ</option>
+            <option value="title_asc">പേര് ക്രമത്തിൽ (A to Z)</option>
+          </select>
+        </div>
+
       </div>
 
-      <!-- Category Header Title -->
-      <div class="flex items-center justify-between px-1">
-        <h3 class="text-sm sm:text-base font-bold text-slate-200 flex items-center space-x-2">
-          <span>📑</span>
-          <span id="currentViewingTitle">എല്ലാ പരീക്ഷകളും</span>
-        </h3>
-        <span class="text-[11px] text-slate-400 font-mono">+1.00 / -0.33 Mark</span>
+      <!-- Quick Summary Status -->
+      <div class="flex items-center justify-between border-t border-slate-800/80 pt-3 text-xs">
+        <span class="text-slate-400">ലഭ്യമായ പരീക്ഷകൾ: <strong id="examCountDisplay" class="text-emerald-400 font-mono">0</strong></span>
+        <span class="text-[11px] text-slate-500 font-mono">+1.00 / -0.33 Negative Mark</span>
       </div>
+    </div>
 
-      <!-- Loading State -->
-      <div id="loading" class="text-center py-16 text-slate-400 text-sm space-y-2 animate-pulse">
-        <div class="text-2xl">⏳</div>
-        <p>Google Sheet-ൽ നിന്നും പരീക്ഷകൾ ലോഡ് ചെയ്യുന്നു...</p>
-      </div>
+    <!-- Loading State -->
+    <div id="loading" class="text-center py-16 text-slate-400 text-sm space-y-2 animate-pulse">
+      <div class="text-2xl">⏳</div>
+      <p>Google Sheet-ൽ നിന്നും പരീക്ഷകൾ ക്രമീകരിക്കുന്നു...</p>
+    </div>
 
-      <!-- Cards Grid -->
-      <div id="quizGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 hidden"></div>
+    <!-- Cards Grid -->
+    <div id="quizGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 hidden"></div>
 
-      <!-- Empty State -->
-      <div id="emptyState" class="hidden text-center py-16 text-slate-500 text-xs sm:text-sm bg-slate-900/40 rounded-2xl border border-slate-800">
-        ഈ വിഷയത്തിൽ പരീക്ഷകൾ ഒന്നും കണ്ടെത്തിയില്ല.
-      </div>
-
-    </section>
+    <!-- Empty State -->
+    <div id="emptyState" class="hidden text-center py-16 text-slate-500 text-xs sm:text-sm bg-slate-900/40 rounded-2xl border border-slate-800">
+      നിങ്ങൾ തിരഞ്ഞ മാനദണ്ഡങ്ങൾക്കൊത്ത പരീക്ഷകൾ ഒന്നും കണ്ടെത്തിയില്ല.
+    </div>
 
   </main>
 
@@ -163,8 +162,7 @@
     const GOOGLE_SHEET_ID = "1ujfXFhMmZVwhTSB9yCHKgf3uNevCbcivcEbmxpw2fso";
     const CSV_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:csv`;
 
-    let quizList = [];
-    let selectedCat = 'all';
+    let rawQuizList = [];
 
     async function fetchQuizzesFromSheet() {
       try {
@@ -172,7 +170,7 @@
         const data = await response.text();
         const rows = data.split('\n').map(row => row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/));
         
-        let rawList = [];
+        rawQuizList = [];
         for (let i = 1; i < rows.length; i++) {
           const r = rows[i];
           if (!r || r.length < 7) continue;
@@ -182,25 +180,23 @@
           const title = clean(r[0]);
           if (!title) continue;
 
-          rawList.push({
+          rawQuizList.push({
+            originalIndex: i, // ഷീറ്റിലെ ഒറിജിനൽ ക്രമം സൂക്ഷിക്കാൻ
             title: title,
             category: clean(r[1]) || 'പൊതുവിജ്ഞാനം',
             topics: clean(r[2]),
-            questions: clean(r[3]),
+            questions: parseInt(clean(r[3])) || 25,
             time: clean(r[4]),
             badge: clean(r[5]),
             fileUrl: clean(r[6])
           });
         }
 
-        // പുതിയ പരീക്ഷകൾ മുകളിൽ വരാൻ ഷീറ്റ് ഡാറ്റ റിവേഴ്സ് ചെയ്യുന്നു
-        quizList = rawList.reverse();
-
         document.getElementById('loading').classList.add('hidden');
         document.getElementById('quizGrid').classList.remove('hidden');
         
-        buildCategorySidebar();
-        renderQuizzes();
+        populateCategories();
+        applyFiltersAndRender();
       } catch (e) {
         document.getElementById('loading').innerHTML = `
           <p class="text-rose-400">ഡാറ്റ ലോഡ് ചെയ്യാൻ കഴിഞ്ഞില്ല!</p>
@@ -209,82 +205,86 @@
       }
     }
 
-    function buildCategorySidebar() {
-      const sidebar = document.getElementById('categorySidebarList');
-      document.getElementById('totalQuizCount').innerText = `${quizList.length} Tests`;
-      document.getElementById('count-all').innerText = quizList.length;
-
-      const categories = [...new Set(quizList.map(q => q.category).filter(Boolean))];
+    // കാറ്റഗറി ഡ്രോപ്പ്ഡൗൺ തയ്യാറാക്കുന്നു
+    function populateCategories() {
+      const catSelect = document.getElementById('categorySelect');
+      const categories = [...new Set(rawQuizList.map(q => q.category).filter(Boolean))];
 
       categories.forEach(cat => {
-        const count = quizList.filter(q => q.category === cat).length;
-        const btn = document.createElement('button');
-        btn.onclick = () => selectCategory(cat);
-        btn.className = "cat-btn w-full text-left px-3.5 py-2 rounded-xl text-xs font-semibold transition flex items-center justify-between bg-slate-950/60 hover:bg-slate-800 text-slate-300 border border-slate-800/80 shrink-0";
-        btn.setAttribute('data-category', cat);
-        btn.innerHTML = `
-          <span class="truncate">${cat}</span>
-          <span class="text-[10px] font-mono text-slate-400 ml-2 bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800">${count}</span>
-        `;
-        sidebar.appendChild(btn);
+        const opt = document.createElement('option');
+        opt.value = cat;
+        opt.innerText = cat;
+        catSelect.appendChild(opt);
       });
     }
 
-    function selectCategory(cat) {
-      selectedCat = cat;
-      document.getElementById('currentViewingTitle').innerText = (cat === 'all') ? 'എല്ലാ പരീക്ഷകളും' : cat;
+    // ഫിൽട്ടറും സോർട്ടിംഗും ഒരുമിച്ച് പ്രോസസ്സ് ചെയ്യുന്നു
+    function applyFiltersAndRender() {
+      const searchText = document.getElementById('searchInput').value.trim().toLowerCase();
+      const selectedCategory = document.getElementById('categorySelect').value;
+      const sortBy = document.getElementById('sortSelect').value;
 
-      const btns = document.querySelectorAll('.cat-btn');
-      btns.forEach(b => {
-        const bCat = b.getAttribute('data-category') || 'all';
-        if (bCat === cat) {
-          b.className = "cat-btn active w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold transition flex items-center justify-between bg-emerald-500 text-slate-950 shrink-0";
-        } else {
-          b.className = "cat-btn w-full text-left px-3.5 py-2 rounded-xl text-xs font-semibold transition flex items-center justify-between bg-slate-950/60 hover:bg-slate-800 text-slate-300 border border-slate-800/80 shrink-0";
-        }
+      // 1. ഫിൽട്ടറിംഗ് (Search & Category)
+      let filtered = rawQuizList.filter(q => {
+        const matchCat = (selectedCategory === 'all' || q.category === selectedCategory);
+        const matchSearch = q.title.toLowerCase().includes(searchText) || 
+                            q.topics.toLowerCase().includes(searchText) ||
+                            q.category.toLowerCase().includes(searchText);
+        return matchCat && matchSearch;
       });
 
-      renderQuizzes(document.getElementById('searchInput').value);
+      // 2. സോർട്ടിംഗ് (Sorting Logic)
+      if (sortBy === 'newest') {
+        // ഷീറ്റിൽ ഏറ്റവും അവസാനം ചേർത്തത് ഏറ്റവും മുകളിൽ
+        filtered.sort((a, b) => b.originalIndex - a.originalIndex);
+      } else if (sortBy === 'oldest') {
+        // ഷീറ്റിൽ ആദ്യം ചേർത്തത് മുകളിൽ
+        filtered.sort((a, b) => a.originalIndex - b.originalIndex);
+      } else if (sortBy === 'questions_desc') {
+        // കൂടുതൽ ചോദ്യങ്ങൾ ഉള്ളത് മുകളിൽ
+        filtered.sort((a, b) => b.questions - a.questions);
+      } else if (sortBy === 'title_asc') {
+        // മലയാളം/ഇംഗ്ലീഷ് അക്ഷരമാലാ ക്രമത്തിൽ
+        filtered.sort((a, b) => a.title.localeCompare(b.title));
+      }
+
+      renderCards(filtered);
     }
 
-    function renderQuizzes(filterText = '') {
+    function renderCards(list) {
       const grid = document.getElementById('quizGrid');
       const empty = document.getElementById('emptyState');
+      document.getElementById('examCountDisplay').innerText = list.length;
       grid.innerHTML = '';
 
-      const filtered = quizList.filter(q => {
-        const matchesCat = (selectedCat === 'all' || q.category.toLowerCase() === selectedCat.toLowerCase());
-        const matchesSearch = q.title.toLowerCase().includes(filterText.toLowerCase()) || 
-                              q.topics.toLowerCase().includes(filterText.toLowerCase()) ||
-                              q.category.toLowerCase().includes(filterText.toLowerCase());
-        return matchesCat && matchesSearch;
-      });
-
-      if (filtered.length === 0) {
+      if (list.length === 0) {
         empty.classList.remove('hidden');
         return;
       }
       empty.classList.add('hidden');
 
-      filtered.forEach(q => {
+      list.forEach(q => {
         const card = document.createElement('div');
         
-        const isNew = q.badge && q.badge.trim().toUpperCase() === 'NEW';
+        // NEW അല്ലെങ്കിൽ new എന്ന് ഷീറ്റിൽ നൽകിയിട്ടുണ്ടെങ്കിൽ മാത്രം ആനിമേറ്റഡ് ബാഡ്ജ്
+        const badgeStr = (q.badge || '').trim().toUpperCase();
+        const isNew = badgeStr === 'NEW';
+
         const badgeMarkup = isNew 
-          ? `<span class="badge-new-blink text-[10px] font-black uppercase tracking-wider text-emerald-950 bg-emerald-400 px-2 py-0.5 rounded-md border border-emerald-300 flex items-center space-x-1">
+          ? `<span class="badge-new-pulse inline-flex items-center space-x-1 text-[11px] font-black uppercase tracking-wider text-slate-950 bg-emerald-400 px-2.5 py-0.5 rounded-md border border-emerald-300 shadow-md">
                <span>🔥</span><span>NEW</span>
              </span>`
           : `<span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800/40">${q.badge || 'Test'}</span>`;
 
-        card.className = `bg-slate-900 border ${isNew ? 'border-emerald-500/60 shadow-lg shadow-emerald-950/30' : 'border-slate-800'} hover:border-emerald-500/80 rounded-2xl p-4 sm:p-5 shadow flex flex-col justify-between transition-all duration-200 group`;
+        card.className = `bg-slate-900 border ${isNew ? 'border-emerald-500/70 shadow-lg shadow-emerald-950/40' : 'border-slate-800'} hover:border-emerald-500/80 rounded-2xl p-4 sm:p-5 shadow flex flex-col justify-between transition-all duration-200 group`;
         
         card.innerHTML = `
           <div class="space-y-2.5">
             <div class="flex items-center justify-between gap-2">
-              ${badgeMarkup}
+              <div>${badgeMarkup}</div>
               <span class="text-[11px] font-medium text-slate-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-800/80 truncate">${q.category}</span>
             </div>
-            <h3 class="text-sm sm:text-base font-bold text-white group-hover:text-emerald-300 transition line-clamp-1">${q.title}</h3>
+            <h3 class="text-sm sm:text-base font-bold text-white group-hover:text-emerald-300 transition line-clamp-2">${q.title}</h3>
             <p class="text-xs text-slate-400 leading-relaxed line-clamp-2 min-h-[32px]">${q.topics || 'പ്രധാന പരീക്ഷാ ചോദ്യങ്ങൾ'}</p>
           </div>
 
@@ -304,9 +304,10 @@
       });
     }
 
-    document.getElementById('searchInput').addEventListener('input', (e) => {
-      renderQuizzes(e.target.value);
-    });
+    // ഇവന്റുകൾ ലിസൺ ചെയ്യുന്നു
+    document.getElementById('searchInput').addEventListener('input', applyFiltersAndRender);
+    document.getElementById('categorySelect').addEventListener('change', applyFiltersAndRender);
+    document.getElementById('sortSelect').addEventListener('change', applyFiltersAndRender);
 
     fetchQuizzesFromSheet();
   </script>
