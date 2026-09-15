@@ -168,7 +168,7 @@
 
   </main>
 
-  <!-- Profile & Study Growth Modal (Opens from Top Right Button) -->
+  <!-- Profile & Study Growth Modal -->
   <div id="profileModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-xl w-full p-6 sm:p-7 shadow-2xl space-y-5 flex flex-col max-h-[85vh]">
       
@@ -223,7 +223,8 @@
   </footer>
 
   <script>
-    const GOOGLE_SHEET_ID = "1ujfXFhMmZVwhTSB9yCHKgf3uNevCbcivcEbmxpw2fso";
+    // ⚠️ നിങ്ങളുടെ യഥാർത്ഥ Google Sheet ID ഇവിടെ നൽകുക:
+    const GOOGLE_SHEET_ID = "1ujfXFhMmZVwhTSB9yCHKgf3uNevCbcivcEbmxpw2fso"; 
     const CSV_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:csv`;
 
     let rawQuizList = [];
@@ -233,7 +234,45 @@
       const savedUser = localStorage.getItem('sk_candidate_user');
       if (savedUser) {
         candidate = JSON.parse(savedUser);
+      }
+
+      // 🌟 URL വഴി റിസൾട്ട് ഡാറ്റ വന്നിട്ടുണ്ടോ എന്ന് ആദ്യം പരിശോധിക്കുന്നു:
+      const urlParams = new URLSearchParams(window.location.search);
+      const isCompleted = urlParams.get('completed') === 'true';
+
+      if (isCompleted) {
+        const examTitle = urlParams.get('title') || 'മോഡൽ പരീക്ഷ';
+        const score = urlParams.get('score') || '0.00';
+        const correct = urlParams.get('correct') || '0';
+        const wrong = urlParams.get('wrong') || '0';
+        const skipped = urlParams.get('skipped') || '0';
+
+        const phone = candidate ? candidate.phone : (localStorage.getItem('last_user_phone') || 'default');
+        const historyKey = `sk_history_${phone}`;
+        let history = JSON.parse(localStorage.getItem(historyKey) || '[]');
+
+        // പുതിയ റിസൾട്ട് ഹിസ്റ്ററിയിലേക്ക് ചേർക്കുന്നു
+        history.push({
+          title: decodeURIComponent(examTitle),
+          score: score,
+          correct: correct,
+          wrong: wrong,
+          skipped: skipped,
+          date: new Date().toLocaleDateString('ml-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+        });
+
+        localStorage.setItem(historyKey, JSON.stringify(history));
+
+        // URL ക്ലീൻ ചെയ്യുന്നു
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+
+      // ഡാറ്റ സേവ് ചെയ്ത ശേഷം മാത്രം യൂസർ സെഷൻ ആക്റ്റീവ് ആക്കുന്നു
+      if (candidate) {
         activateUserSession();
+        if (isCompleted) {
+          openProfileModal(); // റിസൾട്ട് പേജിൽ നിന്ന് എത്തിയതാണെങ്കിൽ പോപ്പ്-അപ്പ് സ്വയം തുറക്കുന്നു
+        }
       }
     });
 
@@ -249,6 +288,7 @@
 
       candidate = { name, phone };
       localStorage.setItem('sk_candidate_user', JSON.stringify(candidate));
+      localStorage.setItem('last_user_phone', phone);
       activateUserSession();
     };
 
@@ -382,8 +422,8 @@
             time: clean(r[4]),
             badge: clean(r[5]),
             fileUrl: clean(r[6]),
-            sheetUrl: clean(r[7]), // 8-ാമത്തെ കോളം: Google Apps Script Web App URL
-            pdfUrl: clean(r[8])    // 9-ാമത്തെ കോളം: Google Drive PDF Link
+            sheetUrl: clean(r[7]),
+            pdfUrl: clean(r[8])
           });
         }
 
