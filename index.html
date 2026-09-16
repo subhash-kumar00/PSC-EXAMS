@@ -258,7 +258,9 @@
     const GOOGLE_SHEET_ID = "1ujfXFhMmZVwhTSB9yCHKgf3uNevCbcivcEbmxpw2fso"; 
     const CSV_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:csv`;
     const GLOBAL_SHEET_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyIQbTTe7-oQdbDFcmgczCHC8Y9ZCnyJYgEyexRDZLZhUwVCZ3aXWfEHlqFwZzeFTds/exec";
-    const HOME_SHEET_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxWI1JjJKupE62mb5SQt6vkYkb4gAhK-Y4-e_ccNlFxgfGlErSa4fyulvgdqUlZZkwg/exec";
+    
+    // 🌟 നിങ്ങൾ നൽകിയ പുതിയ Web App URL ഇവിടെ നൽകിയിരിക്കുന്നു
+    const HOME_SHEET_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzRZTSShquCnRV1xMZ4YHv2SdpwuKOrJ8kc9EyWOlrPOdEhhwnTy79e1D2wfqjsPXna/exec";
 
     let rawQuizList = [];
     let candidate = null;
@@ -293,7 +295,6 @@
       fetch(`${HOME_SHEET_APPS_SCRIPT_URL}?action=get_latest_titles`)
         .then(res => res.json())
         .then(data => {
-          // ഡാറ്റ ലിസ്റ്റായും ഒബ്ജക്റ്റായും വന്നാൽ കൃത്യമായി സ്ട്രിംഗ് ആക്കി മാറ്റുന്നു
           if (Array.isArray(data)) {
             activeLatestTitles = data.map(item => typeof item === 'object' ? (item.title || Object.values(item)[0] || '') : String(item));
           } else if (data && typeof data === 'object') {
@@ -589,19 +590,17 @@
       applyLatestBadgesToCards();
     }
 
-    // 🌟 ലേറ്റസ്റ്റ് ടൈറ്റിലുകൾ കൃത്യമായി പരിശോധിച്ച് ബ്ലിങ്ക് ബാഡ്ജ് ചേർക്കുന്നു
+    // 🌟 ലേറ്റസ്റ്റ് ടൈറ്റിലുകൾ പരിശോധിച്ച് ബ്ലിങ്ക് ബാഡ്ജ് ചേർക്കുന്നു
     function applyLatestBadgesToCards() {
       const cards = document.querySelectorAll('#quizGrid > div');
       if (cards.length === 0) return;
 
       cards.forEach(card => {
         const cardTitle = card.getAttribute('data-card-title') || '';
-        // സ്പേസുകളും പ്രത്യേക ചിഹ്നങ്ങളും മാറ്റി താരതമ്യം ചെയ്യുന്നു
         const cleanCardTitle = cardTitle.replace(/[^a-zA-Z0-9\u0D00-\u0D7F]/g, '').toLowerCase();
 
         let isLatest = false;
 
-        // 1. ഗൂഗിൾ ഷീറ്റിൽ നിന്നും കിട്ടിയ ടൈറ്റിലുമായി മാച്ച് ചെയ്യുന്നുണ്ടോ എന്ന് നോക്കുന്നു
         if (activeLatestTitles && activeLatestTitles.length > 0) {
           isLatest = activeLatestTitles.some(targetTitle => {
             if (!targetTitle) return false;
@@ -610,7 +609,6 @@
           });
         }
 
-        // ബാഡ്ജ് ചേർക്കുന്നു
         const existingBadge = card.querySelector('.auto-latest-badge');
         if (isLatest) {
           if (!existingBadge) {
