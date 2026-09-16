@@ -56,9 +56,11 @@
 
   <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
     
-    <!-- Hero Branding -->
-    <div class="hero-glow bg-slate-900 border border-slate-800/90 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
-      <div class="max-w-3xl relative z-10 space-y-3">
+    <!-- Hero Branding (Updated with Responsive Right Logo/Image Area) -->
+    <div class="hero-glow bg-slate-900 border border-slate-800/90 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6">
+      
+      <!-- Left Content -->
+      <div class="max-w-2xl relative z-10 space-y-3 text-left flex-1">
         <div class="flex flex-wrap items-center gap-2">
           <span class="text-xs font-black uppercase tracking-wider text-emerald-300 bg-emerald-950/80 px-3 py-1 rounded-lg border border-emerald-500/40 flex items-center space-x-1.5">
             <span>🎯</span>
@@ -83,6 +85,19 @@
           </p>
         </div>
       </div>
+
+      <!-- Right Logo / Graphic Container -->
+      <div class="w-36 h-36 sm:w-44 sm:h-44 md:w-52 md:h-52 shrink-0 flex items-center justify-center relative z-10">
+        <div class="absolute inset-0 bg-emerald-500/15 rounded-full blur-2xl"></div>
+        <img 
+          id="heroLogoImg"
+          src="https://lh3.googleusercontent.com/d/https://lh3.googleusercontent.com/d/1a2B3c4D5e6F7g8H9_XYZ" 
+          alt="SK PSC Logo" 
+          class="w-full h-full object-contain relative z-10 drop-shadow-[0_10px_20px_rgba(16,185,129,0.3)] hover:scale-105 transition-transform duration-300"
+          onerror="this.onerror=null; this.src='https://via.placeholder.com/200x200/0f172a/10b981?text=SK+PSC';"
+        >
+      </div>
+
     </div>
 
     <!-- Registration Screen -->
@@ -231,12 +246,17 @@
     const GOOGLE_SHEET_ID = "1ujfXFhMmZVwhTSB9yCHKgf3uNevCbcivcEbmxpw2fso"; 
     const CSV_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:csv`;
     const GLOBAL_SHEET_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyIQbTTe7-oQdbDFcmgczCHC8Y9ZCnyJYgEyexRDZLZhUwVCZ3aXWfEHlqFwZzeFTds/exec";
+    const HOME_SHEET_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzRZTSShquCnRV1xMZ4YHv2SdpwuKOrJ8kc9EyWOlrPOdEhhwnTy79e1D2wfqjsPXna/exec";
 
     let rawQuizList = [];
     let candidate = null;
     let cloudHistoryCache = [];
+    let activeLatestTitles = [];
 
     window.addEventListener('DOMContentLoaded', () => {
+      // 1. ലേറ്റസ്റ്റ് ടൈറ്റിലുകൾ ബാക്ക്ഗ്രൗണ്ടിൽ ശേഖരിക്കുന്നു
+      fetchLatestExamTitles();
+
       const savedUser = localStorage.getItem('sk_candidate_user');
       if (savedUser) {
         candidate = JSON.parse(savedUser);
@@ -256,6 +276,18 @@
         }
       }
     });
+
+    // 🌟 ഗൂഗിൾ ഷീറ്റിൽ നിന്നും LATEST പരീക്ഷകളുടെ ടൈറ്റിലുകൾ കൊണ്ടുവരുന്നു
+    function fetchLatestExamTitles() {
+      fetch(`${HOME_SHEET_APPS_SCRIPT_URL}?action=get_latest_titles`)
+        .then(res => res.json())
+        .then(titles => {
+          activeLatestTitles = titles || [];
+          // കാർഡുകൾ ഇതിനകം റെൻഡർ ആയിട്ടുണ്ടെങ്കിൽ ബാഡ്ജുകൾ ഘടിപ്പിക്കുന്നു
+          applyLatestBadgesToCards();
+        })
+        .catch(err => console.log("Latest badge fetch error:", err));
+    }
 
     document.getElementById('candidateRegisterForm').onsubmit = (e) => {
       e.preventDefault();
@@ -282,7 +314,6 @@
       document.getElementById('profileDisplayName').innerText = candidate.name;
       document.getElementById('profileDisplayPhone').innerText = `ഫോൺ: +91 ${candidate.phone}`;
 
-      // ഗൂഗിൾ ഷീറ്റിൽ നിന്ന് ക്ലൗഡ് ഹിസ്റ്ററി ഫെച്ച് ചെയ്യുന്നു
       fetchUserExamHistoryFromCloud(candidate.phone);
 
       if (rawQuizList.length === 0) {
@@ -303,7 +334,6 @@
       document.getElementById('profileModal').classList.add('hidden');
     }
 
-    // 🌟 ഗൂഗിൾ ഷീറ്റിൽ നിന്ന് മൊബൈൽ നമ്പർ അടിസ്ഥാനമാക്കി ഹിസ്റ്ററി ഫെച്ച് ചെയ്യുന്ന ഫങ്ഷൻ
     function fetchUserExamHistoryFromCloud(phone) {
       const statusSpan = document.getElementById('modalHistoryStatus');
       const hList = document.getElementById('historyList');
@@ -504,7 +534,8 @@
              </span>`
           : `<span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800/40">${q.badge || 'Test'}</span>`;
 
-        card.className = `bg-slate-900 border ${isNew ? 'border-emerald-500/70 shadow-lg shadow-emerald-950/40' : 'border-slate-800'} hover:border-emerald-500/80 rounded-2xl p-4 sm:p-5 shadow flex flex-col justify-between transition-all duration-200 group`;
+        card.className = `bg-slate-900 border ${isNew ? 'border-emerald-500/70 shadow-lg shadow-emerald-950/40' : 'border-slate-800'} hover:border-emerald-500/80 rounded-2xl p-4 sm:p-5 shadow flex flex-col justify-between transition-all duration-200 group relative`;
+        card.setAttribute('data-card-title', q.title.trim());
         
         let targetUrl = q.fileUrl;
         if (candidate) {
@@ -515,10 +546,10 @@
         card.innerHTML = `
           <div class="space-y-2.5">
             <div class="flex items-center justify-between gap-2">
-              <div>${badgeMarkup}</div>
+              <div class="card-badge-slot flex items-center space-x-1.5">${badgeMarkup}</div>
               <span class="text-[11px] font-medium text-slate-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-800/80 truncate">${q.category}</span>
             </div>
-            <h3 class="text-sm sm:text-base font-bold text-white group-hover:text-emerald-300 transition line-clamp-2">${q.title}</h3>
+            <h3 class="exam-title-text text-sm sm:text-base font-bold text-white group-hover:text-emerald-300 transition line-clamp-2">${q.title}</h3>
             <p class="text-xs text-slate-400 leading-relaxed line-clamp-2 min-h-[32px]">${q.topics || 'പ്രധാന പരീക്ഷാ ചോദ്യങ്ങൾ'}</p>
           </div>
 
@@ -536,49 +567,42 @@
         `;
         grid.appendChild(card);
       });
+
+      // കാർഡുകൾ റെൻഡർ ചെയ്ത ഉടനെ LATEST ബാഡ്ജ് അപ്ലൈ ചെയ്യുന്നു
+      applyLatestBadgesToCards();
+    }
+
+    // 🌟 കാർഡുകളിലേക്ക് '● LATEST' ബാഡ്ജ് തനിയെ ചേർക്കുന്ന ഫങ്ഷൻ
+    function applyLatestBadgesToCards() {
+      if (!activeLatestTitles || activeLatestTitles.length === 0) return;
+
+      const cards = document.querySelectorAll('#quizGrid > div');
+      cards.forEach(card => {
+        const cardTitle = card.getAttribute('data-card-title') || '';
+        const cleanCardTitle = cardTitle.replace(/\s+/g, '').toLowerCase();
+
+        const isLatest = activeLatestTitles.some(targetTitle => {
+          const cleanTarget = targetTitle.replace(/\s+/g, '').toLowerCase();
+          return cleanCardTitle === cleanTarget || (cleanTarget.length > 4 && cleanCardTitle.includes(cleanTarget));
+        });
+
+        if (isLatest && !card.querySelector('.auto-latest-badge')) {
+          card.classList.add('ring-2', 'ring-rose-500/70', 'border-rose-500/50', 'animate-pulse');
+          
+          const badgeSlot = card.querySelector('.card-badge-slot');
+          if (badgeSlot) {
+            const latestBadge = document.createElement('span');
+            latestBadge.className = 'auto-latest-badge inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-rose-600 text-white shadow-md shadow-rose-600/50';
+            latestBadge.innerHTML = '● LATEST';
+            badgeSlot.prepend(latestBadge);
+          }
+        }
+      });
     }
 
     document.getElementById('searchInput').addEventListener('input', applyFiltersAndRender);
     document.getElementById('categorySelect').addEventListener('change', applyFiltersAndRender);
     document.getElementById('sortSelect').addEventListener('change', applyFiltersAndRender);
-    // ഹോം ഷീറ്റിന്റെ Apps Script Web App URL ഇവിടെ നൽകുക
-const HOME_SHEET_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzRZTSShquCnRV1xMZ4YHv2SdpwuKOrJ8kc9EyWOlrPOdEhhwnTy79e1D2wfqjsPXna/exec";
-
-window.addEventListener('DOMContentLoaded', () => {
-  fetch(`${HOME_SHEET_APPS_SCRIPT_URL}?action=get_latest_titles`)
-    .then(res => res.json())
-    .then(latestTitles => {
-      if (!latestTitles || latestTitles.length === 0) return;
-
-      // ഹോം പേജിലെ എല്ലാ പരീക്ഷാ കാർഡുകളിലെയും തലക്കെട്ടുകൾ പരിശോധിക്കുന്നു
-      const headings = document.querySelectorAll('h1, h2, h3, h4, p, span');
-
-      latestTitles.forEach(targetTitle => {
-        headings.forEach(elem => {
-          // പേര് ഒത്തുനോക്കുന്നു
-          if (elem.innerText.trim() === targetTitle.trim()) {
-            const card = elem.closest('.bg-slate-800') || elem.closest('.rounded-2xl') || elem.parentElement;
-
-            if (card && !card.querySelector('.auto-latest-badge')) {
-              card.style.position = 'relative';
-
-              // '● LATEST' ബാഡ്ജ് ഉണ്ടാക്കുന്നു
-              const badge = document.createElement('div');
-              badge.className = 'auto-latest-badge absolute top-3 right-3 z-10';
-              badge.innerHTML = `
-                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-600 text-white animate-pulse shadow-lg shadow-rose-500/50">
-                  ● LATEST
-                </span>
-              `;
-              card.appendChild(badge);
-              card.classList.add('ring-2', 'ring-rose-500/50', 'animate-pulse');
-            }
-          }
-        });
-      });
-    })
-    .catch(err => console.log("Latest badge error:", err));
-});
   </script>
 </body>
 </html>
