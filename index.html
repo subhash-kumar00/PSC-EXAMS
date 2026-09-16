@@ -10,20 +10,22 @@
     body { font-family: 'Noto Sans Malayalam', 'Manrope', sans-serif; }
     .custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
     .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    
     @keyframes pulseGlow {
       0% { transform: scale(0.96); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.85); opacity: 0.85; }
       70% { transform: scale(1.04); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); opacity: 1; }
       100% { transform: scale(0.96); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); opacity: 0.85; }
     }
     .badge-new-pulse { animation: pulseGlow 1.2s infinite ease-in-out !important; }
-    
-    /* 🌟 LATEST ബാഡ്ജ് മിന്നിത്തിളങ്ങാൻ (Blink ചെയ്യാൻ) ചേർത്ത സ്റ്റൈൽ */
-    @keyframes blinkLatest {
-      0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.7); }
-      50% { opacity: 0.35; transform: scale(0.95); box-shadow: 0 0 8px 2px rgba(225, 29, 72, 0); }
+
+    /* 🌟 LATEST ശക്തമായി ബ്ലിങ്ക് ചെയ്യാനുള്ള ആനിമേഷൻ */
+    @keyframes blinkEffect {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.15; transform: scale(0.92); }
     }
-    .blink-badge {
-      animation: blinkLatest 1s infinite ease-in-out !important;
+    .auto-latest-badge {
+      animation: blinkEffect 0.8s infinite ease-in-out !important;
+      display: inline-flex !important;
     }
 
     .hero-glow {
@@ -66,7 +68,7 @@
 
   <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
     
-    <!-- Hero Branding (Updated with Responsive Right Logo/Image Area) -->
+    <!-- Hero Branding -->
     <div class="hero-glow bg-slate-900 border border-slate-800/90 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6">
       
       <!-- Left Content -->
@@ -96,7 +98,7 @@
         </div>
       </div>
 
-      <!-- Right Logo / Graphic Container -->
+      <!-- Right Logo -->
       <div class="w-36 h-36 sm:w-44 sm:h-44 md:w-52 md:h-52 shrink-0 flex items-center justify-center relative z-10">
         <div class="absolute inset-0 bg-emerald-500/15 rounded-full blur-2xl"></div>
         <img 
@@ -140,7 +142,7 @@
       </form>
     </div>
 
-    <!-- Exam Section (Visible After Login) -->
+    <!-- Exam Section -->
     <div id="examSection" class="hidden space-y-6">
       
       <!-- Filters & Sort -->
@@ -264,7 +266,6 @@
     let activeLatestTitles = [];
 
     window.addEventListener('DOMContentLoaded', () => {
-      // 1. ലേറ്റസ്റ്റ് ടൈറ്റിലുകൾ ബാക്ക്ഗ്രൗണ്ടിൽ ശേഖരിക്കുന്നു
       fetchLatestExamTitles();
 
       const savedUser = localStorage.getItem('sk_candidate_user');
@@ -291,9 +292,16 @@
     function fetchLatestExamTitles() {
       fetch(`${HOME_SHEET_APPS_SCRIPT_URL}?action=get_latest_titles`)
         .then(res => res.json())
-        .then(titles => {
-          activeLatestTitles = titles || [];
-          // കാർഡുകൾ ഇതിനകം റെൻഡർ ആയിട്ടുണ്ടെങ്കിൽ ബാഡ്ജുകൾ ഘടിപ്പിക്കുന്നു
+        .then(data => {
+          // ഡാറ്റ ലിസ്റ്റായും ഒബ്ജക്റ്റായും വന്നാൽ കൃത്യമായി സ്ട്രിംഗ് ആക്കി മാറ്റുന്നു
+          if (Array.isArray(data)) {
+            activeLatestTitles = data.map(item => typeof item === 'object' ? (item.title || Object.values(item)[0] || '') : String(item));
+          } else if (data && typeof data === 'object') {
+            activeLatestTitles = Object.values(data).map(v => String(v));
+          } else {
+            activeLatestTitles = [];
+          }
+          console.log("Loaded LATEST Titles from Sheet:", activeLatestTitles);
           applyLatestBadgesToCards();
         })
         .catch(err => console.log("Latest badge fetch error:", err));
@@ -578,34 +586,46 @@
         grid.appendChild(card);
       });
 
-      // കാർഡുകൾ റെൻഡർ ചെയ്ത ഉടനെ LATEST ബാഡ്ജ് അപ്ലൈ ചെയ്യുന്നു
       applyLatestBadgesToCards();
     }
 
-    // 🌟 കാർഡുകളിലേക്ക് '● LATEST' ബാഡ്ജ് തനിയെ ചേർക്കുകയും ബ്ലിങ്ക് ചെയ്യിക്കുകയും ചെയ്യുന്ന ഫങ്ഷൻ
+    // 🌟 ലേറ്റസ്റ്റ് ടൈറ്റിലുകൾ കൃത്യമായി പരിശോധിച്ച് ബ്ലിങ്ക് ബാഡ്ജ് ചേർക്കുന്നു
     function applyLatestBadgesToCards() {
-      if (!activeLatestTitles || activeLatestTitles.length === 0) return;
-
       const cards = document.querySelectorAll('#quizGrid > div');
+      if (cards.length === 0) return;
+
       cards.forEach(card => {
         const cardTitle = card.getAttribute('data-card-title') || '';
-        const cleanCardTitle = cardTitle.replace(/\s+/g, '').toLowerCase();
+        // സ്പേസുകളും പ്രത്യേക ചിഹ്നങ്ങളും മാറ്റി താരതമ്യം ചെയ്യുന്നു
+        const cleanCardTitle = cardTitle.replace(/[^a-zA-Z0-9\u0D00-\u0D7F]/g, '').toLowerCase();
 
-        const isLatest = activeLatestTitles.some(targetTitle => {
-          const cleanTarget = targetTitle.replace(/\s+/g, '').toLowerCase();
-          return cleanCardTitle === cleanTarget || (cleanTarget.length > 4 && cleanCardTitle.includes(cleanTarget));
-        });
+        let isLatest = false;
 
-        if (isLatest && !card.querySelector('.auto-latest-badge')) {
-          card.classList.add('ring-2', 'ring-rose-500/70', 'border-rose-500/50');
-          
-          const badgeSlot = card.querySelector('.card-badge-slot');
-          if (badgeSlot) {
-            const latestBadge = document.createElement('span');
-            latestBadge.className = 'auto-latest-badge blink-badge inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-rose-600 text-white shadow-md shadow-rose-600/50';
-            latestBadge.innerHTML = '● LATEST';
-            badgeSlot.prepend(latestBadge);
+        // 1. ഗൂഗിൾ ഷീറ്റിൽ നിന്നും കിട്ടിയ ടൈറ്റിലുമായി മാച്ച് ചെയ്യുന്നുണ്ടോ എന്ന് നോക്കുന്നു
+        if (activeLatestTitles && activeLatestTitles.length > 0) {
+          isLatest = activeLatestTitles.some(targetTitle => {
+            if (!targetTitle) return false;
+            const cleanTarget = String(targetTitle).replace(/[^a-zA-Z0-9\u0D00-\u0D7F]/g, '').toLowerCase();
+            return cleanCardTitle === cleanTarget || (cleanTarget.length > 3 && cleanCardTitle.includes(cleanTarget));
+          });
+        }
+
+        // ബാഡ്ജ് ചേർക്കുന്നു
+        const existingBadge = card.querySelector('.auto-latest-badge');
+        if (isLatest) {
+          if (!existingBadge) {
+            card.classList.add('ring-2', 'ring-rose-500/70', 'border-rose-500/50');
+            const badgeSlot = card.querySelector('.card-badge-slot');
+            if (badgeSlot) {
+              const latestBadge = document.createElement('span');
+              latestBadge.className = 'auto-latest-badge px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-rose-600 text-white shadow-lg shadow-rose-600/50';
+              latestBadge.innerText = '● LATEST';
+              badgeSlot.prepend(latestBadge);
+            }
           }
+        } else if (existingBadge) {
+          existingBadge.remove();
+          card.classList.remove('ring-2', 'ring-rose-500/70', 'border-rose-500/50');
         }
       });
     }
