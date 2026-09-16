@@ -168,16 +168,16 @@
 
   </main>
 
-  <!-- Profile & Study Growth Modal -->
+  <!-- Profile & Cloud History Modal -->
   <div id="profileModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-xl w-full p-6 sm:p-7 shadow-2xl space-y-5 flex flex-col max-h-[85vh]">
       
       <div class="flex items-center justify-between border-b border-slate-800 pb-3">
         <div>
-          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">STUDENT PROFILE & GROWTH</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">STUDENT PROFILE & CLOUD HISTORY</span>
           <h3 class="text-lg font-black text-white flex items-center space-x-2">
             <span id="profileDisplayName">വിദ്യാർത്ഥി</span>
-            <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/40" id="growthBadge">Beginner</span>
+            <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/40" id="growthBadge">Cloud Sync</span>
           </h3>
           <p class="text-xs text-slate-400" id="profileDisplayPhone"></p>
         </div>
@@ -200,15 +200,20 @@
         </div>
       </div>
 
-      <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800 text-xs">
-        <span class="text-slate-400">നിലവിലെ സ്റ്റാറ്റസ്: </span>
-        <strong id="growthMessage" class="text-emerald-400 font-medium">പഠനം ആരംഭിക്കുക!</strong>
+      <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800 text-xs flex items-center justify-between">
+        <div>
+          <span class="text-slate-400">ക്ലൗഡ് സ്റ്റാറ്റസ്: </span>
+          <strong id="growthMessage" class="text-emerald-400 font-medium">ഡാറ്റ സിങ്ക് ചെയ്തു</strong>
+        </div>
+        <span id="modalHistoryStatus" class="text-[11px] text-slate-400 animate-pulse">ലോഡ് ചെയ്യുന്നു...</span>
       </div>
 
-      <!-- Recent History List -->
+      <!-- Cloud History List -->
       <div class="flex-1 overflow-y-auto custom-scroll pr-1 space-y-2">
-        <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">പരീക്ഷാ ഹിസ്റ്ററി</h4>
-        <div id="historyList" class="space-y-2"></div>
+        <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">പരീക്ഷാ ഹിസ്റ്ററി (Google Sheet)</h4>
+        <div id="historyList" class="space-y-2">
+          <p class="text-xs text-slate-500 text-center py-4">ഹിസ്റ്ററി ലോഡ് ചെയ്യുന്നു...</p>
+        </div>
       </div>
 
       <div class="pt-2 border-t border-slate-800 text-center">
@@ -223,12 +228,13 @@
   </footer>
 
   <script>
-    // ⚠️ നിങ്ങളുടെ യഥാർത്ഥ Google Sheet ID ഇവിടെ നൽകുക:
     const GOOGLE_SHEET_ID = "1ujfXFhMmZVwhTSB9yCHKgf3uNevCbcivcEbmxpw2fso"; 
     const CSV_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:csv`;
+    const GLOBAL_SHEET_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbztE9bExjlH5a9Y_O8pU9CzVZy5zl-wzycDISurGzxqwuWB71Nxquzpg00Ocf2QR9Zb/exec";
 
     let rawQuizList = [];
     let candidate = null;
+    let cloudHistoryCache = [];
 
     window.addEventListener('DOMContentLoaded', () => {
       const savedUser = localStorage.getItem('sk_candidate_user');
@@ -236,42 +242,17 @@
         candidate = JSON.parse(savedUser);
       }
 
-      // 🌟 URL വഴി റിസൾട്ട് ഡാറ്റ വന്നിട്ടുണ്ടോ എന്ന് ആദ്യം പരിശോധിക്കുന്നു:
       const urlParams = new URLSearchParams(window.location.search);
       const isCompleted = urlParams.get('completed') === 'true';
 
       if (isCompleted) {
-        const examTitle = urlParams.get('title') || 'മോഡൽ പരീക്ഷ';
-        const score = urlParams.get('score') || '0.00';
-        const correct = urlParams.get('correct') || '0';
-        const wrong = urlParams.get('wrong') || '0';
-        const skipped = urlParams.get('skipped') || '0';
-
-        const phone = candidate ? candidate.phone : (localStorage.getItem('last_user_phone') || 'default');
-        const historyKey = `sk_history_${phone}`;
-        let history = JSON.parse(localStorage.getItem(historyKey) || '[]');
-
-        // പുതിയ റിസൾട്ട് ഹിസ്റ്ററിയിലേക്ക് ചേർക്കുന്നു
-        history.push({
-          title: decodeURIComponent(examTitle),
-          score: score,
-          correct: correct,
-          wrong: wrong,
-          skipped: skipped,
-          date: new Date().toLocaleDateString('ml-IN', { day: 'numeric', month: 'short', year: 'numeric' })
-        });
-
-        localStorage.setItem(historyKey, JSON.stringify(history));
-
-        // URL ക്ലീൻ ചെയ്യുന്നു
         window.history.replaceState({}, document.title, window.location.pathname);
       }
 
-      // ഡാറ്റ സേവ് ചെയ്ത ശേഷം മാത്രം യൂസർ സെഷൻ ആക്റ്റീവ് ആക്കുന്നു
       if (candidate) {
         activateUserSession();
         if (isCompleted) {
-          openProfileModal(); // റിസൾട്ട് പേജിൽ നിന്ന് എത്തിയതാണെങ്കിൽ പോപ്പ്-അപ്പ് സ്വയം തുറക്കുന്നു
+          openProfileModal();
         }
       }
     });
@@ -288,7 +269,6 @@
 
       candidate = { name, phone };
       localStorage.setItem('sk_candidate_user', JSON.stringify(candidate));
-      localStorage.setItem('last_user_phone', phone);
       activateUserSession();
     };
 
@@ -302,7 +282,8 @@
       document.getElementById('profileDisplayName').innerText = candidate.name;
       document.getElementById('profileDisplayPhone').innerText = `ഫോൺ: +91 ${candidate.phone}`;
 
-      updateProfileAnalytics();
+      // ഗൂഗിൾ ഷീറ്റിൽ നിന്ന് ക്ലൗഡ് ഹിസ്റ്ററി ഫെച്ച് ചെയ്യുന്നു
+      fetchUserExamHistoryFromCloud(candidate.phone);
 
       if (rawQuizList.length === 0) {
         fetchQuizzesFromSheet();
@@ -312,19 +293,38 @@
     }
 
     function openProfileModal() {
-      updateProfileAnalytics();
       document.getElementById('profileModal').classList.remove('hidden');
+      if (candidate) {
+        fetchUserExamHistoryFromCloud(candidate.phone);
+      }
     }
 
     function closeProfileModal() {
       document.getElementById('profileModal').classList.add('hidden');
     }
 
-    function updateProfileAnalytics() {
-      if (!candidate) return;
-      const historyKey = `sk_history_${candidate.phone}`;
-      const history = JSON.parse(localStorage.getItem(historyKey) || '[]');
+    // 🌟 ഗൂഗിൾ ഷീറ്റിൽ നിന്ന് മൊബൈൽ നമ്പർ അടിസ്ഥാനമാക്കി ഹിസ്റ്ററി ഫെച്ച് ചെയ്യുന്ന ഫങ്ഷൻ
+    function fetchUserExamHistoryFromCloud(phone) {
+      const statusSpan = document.getElementById('modalHistoryStatus');
+      const hList = document.getElementById('historyList');
 
+      fetch(`${GLOBAL_SHEET_WEBAPP_URL}?phone=${phone}`)
+        .then(res => res.json())
+        .then(historyData => {
+          cloudHistoryCache = historyData || [];
+          if (statusSpan) statusSpan.classList.add('hidden');
+          updateProfileAnalyticsFromCloud(cloudHistoryCache);
+        })
+        .catch(err => {
+          if (statusSpan) {
+            statusSpan.innerText = "ഹിസ്റ്ററി ലോഡ് ചെയ്യുന്നതിൽ തടസ്സം നേരിട്ടു.";
+            statusSpan.className = "text-[11px] text-rose-400";
+          }
+          hList.innerHTML = '<p class="text-xs text-rose-400 text-center py-4">ഹിസ്റ്ററി ലഭ്യമാക്കാൻ കഴിഞ്ഞില്ല.</p>';
+        });
+    }
+
+    function updateProfileAnalyticsFromCloud(history) {
       document.getElementById('statTotalTests').innerText = history.length;
 
       if (history.length === 0) {
@@ -343,7 +343,10 @@
       history.forEach(h => {
         totalScore += parseFloat(h.score || 0);
         totalCorrect += parseInt(h.correct || 0);
-        totalQuestions += (parseInt(h.correct || 0) + parseInt(h.wrong || 0) + parseInt(h.skipped || 0));
+        let correctQ = parseInt(h.correct || 0);
+        let wrongQ = parseInt(h.wrong || 0);
+        let skipQ = parseInt(h.skipped || 0);
+        totalQuestions += (correctQ + wrongQ + skipQ);
       });
 
       const avgScore = (totalScore / history.length).toFixed(2);
@@ -355,11 +358,11 @@
       const badge = document.getElementById('growthBadge');
       const msg = document.getElementById('growthMessage');
 
-      if (history.length >= 5 && avgScore >= 18) {
+      if (history.length >= 5 && avgScore >= 16) {
         badge.className = "text-xs bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full border border-amber-500/40";
         badge.innerText = "Rank Leader 🏆";
         msg.innerText = "അത്യുജ്ജ്വല പ്രകടനം! നിങ്ങൾ മികച്ച റാങ്കിലേക്ക് അടുക്കുന്നു.";
-      } else if (history.length >= 3 && avgScore >= 12) {
+      } else if (history.length >= 3 && avgScore >= 10) {
         badge.className = "text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/40";
         badge.innerText = "Consistent Learner 📈";
         msg.innerText = "നല്ല പുരോഗതി! തെറ്റിയ ചോദ്യങ്ങൾ വിശകലനം ചെയ്തു മുന്നേറുക.";
@@ -371,13 +374,13 @@
 
       const hList = document.getElementById('historyList');
       hList.innerHTML = '';
-      history.slice(-10).reverse().forEach(item => {
+      history.slice().reverse().forEach(item => {
         const row = document.createElement('div');
         row.className = "bg-slate-950 p-2.5 rounded-xl border border-slate-800/80 flex items-center justify-between text-xs";
         row.innerHTML = `
           <div>
             <span class="font-bold text-slate-200 block">${item.title}</span>
-            <span class="text-[10px] text-slate-500">${item.date}</span>
+            <span class="text-[10px] text-slate-500">${item.date || 'സമീപകാലത്ത്'}</span>
           </div>
           <div class="text-right">
             <span class="font-mono font-bold text-emerald-400 block">${item.score} Mark</span>
@@ -418,7 +421,7 @@
             title: title,
             category: clean(r[1]) || 'പൊതുവിജ്ഞാനം',
             topics: clean(r[2]),
-            questions: parseInt(clean(r[3])) || 25,
+            questions: parseInt(clean(r[3])) || 20,
             time: clean(r[4]),
             badge: clean(r[5]),
             fileUrl: clean(r[6]),
@@ -472,7 +475,7 @@
       } else if (sortBy === 'questions_desc') {
         filtered.sort((a, b) => b.questions - a.questions);
       } else if (sortBy === 'title_asc') {
-        filtered.sort((a, b) => a.title.localeCompare(b.title));
+        filtered.sort((a, b) => b.title.localeCompare(a.title));
       }
 
       renderCards(filtered);
@@ -506,7 +509,7 @@
         let targetUrl = q.fileUrl;
         if (candidate) {
           const separator = targetUrl.includes('?') ? '&' : '?';
-          targetUrl = `${targetUrl}${separator}name=${encodeURIComponent(candidate.name)}&phone=${encodeURIComponent(candidate.phone)}&title=${encodeURIComponent(q.title)}&sheetUrl=${encodeURIComponent(q.sheetUrl || '')}&pdfUrl=${encodeURIComponent(q.pdfUrl || '')}`;
+          targetUrl = `${targetUrl}${separator}name=${encodeURIComponent(candidate.name)}&phone=${encodeURIComponent(candidate.phone)}&title=${encodeURIComponent(q.title)}&sheetUrl=${encodeURIComponent(GLOBAL_SHEET_WEBAPP_URL)}&pdfUrl=${encodeURIComponent(q.pdfUrl || '')}`;
         }
 
         card.innerHTML = `
