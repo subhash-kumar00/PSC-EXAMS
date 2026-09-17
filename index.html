@@ -138,7 +138,7 @@
         </div>
         <div class="flex space-x-2">
           <button type="button" onclick="resetAuthView()" class="w-1/3 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-xs transition">പിന്നോട്ട്</button>
-          <button type="submit" class="w-2/3 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 text-slate-950 font-bold rounded-xl text-xs sm:text-sm transition shadow-lg">പ്രൊഫെയ്ൽ നിർമ്മിക്കുക ›</button>
+          <button type="submit" id="saveProfileBtn" class="w-2/3 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 text-slate-950 font-bold rounded-xl text-xs sm:text-sm transition shadow-lg">പ്രൊഫെയ്ൽ നിർമ്മിക്കുക ›</button>
         </div>
       </form>
     </div>
@@ -329,21 +329,19 @@
       submitBtn.innerText = "പരിശോധിക്കുന്നു...";
       submitBtn.disabled = true;
 
-      // ക്ലൗഡിൽ ഈ നമ്പർ ഉണ്ടോ എന്ന് പരിശോധിക്കുന്നു
       fetch(`${GLOBAL_SHEET_WEBAPP_URL}?phone=${phone}`)
         .then(res => res.json())
-        .then(historyData => {
+        .then(data => {
           submitBtn.innerText = "തുടരുക ›";
           submitBtn.disabled = false;
 
-          if (historyData && historyData.length > 0 && historyData[0].name) {
-            // പഴയ യൂസർ ആണെങ്കിൽ ക്ലൗഡിലുള്ള പേര് തന്നെ ഓട്ടോമാറ്റിക്കായി എടുക്കുന്നു
-            const foundName = historyData[0].name;
+          if (data && (data.officialName || data.name)) {
+            const foundName = data.officialName || data.name;
             candidate = { name: foundName, phone: phone };
             localStorage.setItem('sk_candidate_user', JSON.stringify(candidate));
+            cloudHistoryCache = data.history || [];
             activateUserSession();
           } else {
-            // പുതിയ യൂസർ ആണെങ്കിൽ ഒഫീഷ്യൽ പേര് ചോദിക്കുന്ന ബോക്സ് കാണിക്കുന്നു
             document.getElementById('phoneCheckForm').classList.add('hidden');
             document.getElementById('registerNameForm').classList.remove('hidden');
             document.getElementById('authCardTitle').innerText = "ഒഫീഷ്യൽ പ്രൊഫൈൽ നിർമ്മിക്കുക";
@@ -368,9 +366,28 @@
         return;
       }
 
-      candidate = { name: name, phone: tempPhoneToRegister };
-      localStorage.setItem('sk_candidate_user', JSON.stringify(candidate));
-      activateUserSession();
+      const saveBtn = document.getElementById('saveProfileBtn');
+      saveBtn.innerText = "സേവ് ചെയ്യുന്നു...";
+      saveBtn.disabled = true;
+
+      fetch(GLOBAL_SHEET_WEBAPP_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: "save_profile",
+          name: name,
+          phone: tempPhoneToRegister
+        })
+      }).then(() => {
+        candidate = { name: name, phone: tempPhoneToRegister };
+        localStorage.setItem('sk_candidate_user', JSON.stringify(candidate));
+        activateUserSession();
+      }).catch(() => {
+        candidate = { name: name, phone: tempPhoneToRegister };
+        localStorage.setItem('sk_candidate_user', JSON.stringify(candidate));
+        activateUserSession();
+      });
     };
 
     function resetAuthView() {
@@ -432,6 +449,18 @@
       document.getElementById('navUserName').innerText = candidate.name;
       document.getElementById('profileDisplayName').innerText = candidate.name;
       document.getElementById('editNameBox').classList.add('hidden');
+
+      fetch(GLOBAL_SHEET_WEBAPP_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: "save_profile",
+          name: newName,
+          phone: candidate.phone
+        })
+      });
+
       alert('പ്രൊഫൈൽ പേര് വിജയകരമായി മാറ്റിയിരിക്കുന്നു!');
     }
 
@@ -441,10 +470,13 @@
 
       fetch(`${GLOBAL_SHEET_WEBAPP_URL}?phone=${phone}`)
         .then(res => res.json())
-        .then(historyData => {
-          cloudHistoryCache = historyData || [];
+        .then(data => {
+          cloudHistoryCache = (data && data.history) ? data.history : (Array.isArray(data) ? data : []);
           if (statusSpan) statusSpan.classList.add('hidden');
           updateProfileAnalyticsFromCloud(cloudHistoryCache);
+          if (rawQuizList.length > 0) {
+            applyFiltersAndRender();
+          }
         })
         .catch(err => {
           if (statusSpan) {
@@ -633,32 +665,71 @@
         card.className = `bg-slate-900 border border-slate-800 hover:border-emerald-500/80 rounded-2xl p-4 sm:p-5 shadow flex flex-col justify-between transition-all duration-200 group relative`;
         card.setAttribute('data-card-title', q.title.trim());
         
+        // വിദ്യാർത്ഥി ഈ പരീക്ഷ മുമ്പ് എഴുതിയിട്ടുണ്ടോ എന്ന് ക്ലൗഡ് ഹിസ്റ്ററിയിൽ പരിശോധിക്കുന്നു
+        const cleanCardTitle = q.title.replace(/[^a-zA-Z0-9\u0D00-\u0D7F]/g, '').toLowerCase();
+        const prevAttempt = cloudHistoryCache.find(h => {
+          if (!h.title) return false;
+          const cleanHistoryTitle = h.title.replace(/[^a-zA-Z0-9\u0D00-\u0D7F]/g, '').toLowerCase();
+          return cleanCardTitle === cleanHistoryTitle || cleanCardTitle.includes(cleanHistoryTitle) || cleanHistoryTitle.includes(cleanCardTitle);
+        });
+
         let targetUrl = q.fileUrl;
         if (candidate) {
           const separator = targetUrl.includes('?') ? '&' : '?';
           targetUrl = `${targetUrl}${separator}name=${encodeURIComponent(candidate.name)}&phone=${encodeURIComponent(candidate.phone)}&title=${encodeURIComponent(q.title)}&sheetUrl=${encodeURIComponent(GLOBAL_SHEET_WEBAPP_URL)}&pdfUrl=${encodeURIComponent(q.pdfUrl || '')}`;
         }
 
+        let actionAreaMarkup = '';
+        let scoreNoticeMarkup = '';
+
+        if (prevAttempt) {
+          // മുമ്പ് പരീക്ഷ എഴുതിയവർക്ക്: കഴിഞ്ഞ സ്കോറും Previous Results / Attempt Again ബട്ടണുകളും
+          scoreNoticeMarkup = `
+            <div class="bg-slate-950/80 border border-emerald-500/30 px-3 py-1.5 rounded-xl flex items-center justify-between text-xs mt-2">
+              <span class="text-slate-400">കഴിഞ്ഞ സ്കോർ:</span>
+              <span class="font-mono font-bold text-emerald-400">${Number(prevAttempt.score).toFixed(2)} Mark</span>
+            </div>
+          `;
+          actionAreaMarkup = `
+            <div class="grid grid-cols-2 gap-2 w-full pt-3">
+              <a href="${targetUrl}&view=solution" class="py-2 bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold rounded-xl text-xs transition text-center border border-slate-700 flex items-center justify-center">
+                Previous Results
+              </a>
+              <a href="${targetUrl}&reattempt=true" class="py-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 text-slate-950 font-black rounded-xl text-xs transition text-center shadow flex items-center justify-center">
+                Attempt Again
+              </a>
+            </div>
+          `;
+        } else {
+          // ആദ്യമായി എഴുതുന്നവർക്ക്: നേരിട്ടുള്ള സ്റ്റാർട്ട് ബട്ടൺ
+          actionAreaMarkup = `
+            <div class="pt-3 w-full">
+              <a href="${targetUrl}" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl text-xs transition transform active:scale-95 shadow flex items-center justify-center space-x-1">
+                <span>പരീക്ഷ ആരംഭിക്കുക</span>
+                <span>›</span>
+              </a>
+            </div>
+          `;
+        }
+
         card.innerHTML = `
-          <div class="space-y-2.5">
+          <div class="space-y-2">
             <div class="flex items-center justify-between gap-2">
               <div class="card-badge-slot flex items-center space-x-1.5">${badgeMarkup}</div>
               <span class="text-[11px] font-medium text-slate-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-800/80 truncate">${q.category}</span>
             </div>
             <h3 class="exam-title-text text-sm sm:text-base font-bold text-white group-hover:text-emerald-300 transition line-clamp-2">${q.title}</h3>
             <p class="text-xs text-slate-400 leading-relaxed line-clamp-2 min-h-[32px]">${q.topics || 'പ്രധാന പരീക്ഷാ ചോദ്യങ്ങൾ'}</p>
+            ${scoreNoticeMarkup}
           </div>
 
-          <div class="pt-4 mt-3 border-t border-slate-800/90 flex items-center justify-between gap-2">
-            <div class="text-[11px] text-slate-400 space-x-1.5 shrink-0">
+          <div class="mt-3 border-t border-slate-800/90">
+            <div class="text-[11px] text-slate-400 space-x-1.5 pt-2">
               <span>📝 ${q.questions} Qs</span>
               <span>•</span>
               <span>⏱️ ${q.time}</span>
             </div>
-            <a href="${targetUrl}" class="px-3.5 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl text-xs transition transform active:scale-95 shadow shrink-0 flex items-center space-x-1">
-              <span>എഴുതുക</span>
-              <span>›</span>
-            </a>
+            ${actionAreaMarkup}
           </div>
         `;
         grid.appendChild(card);
