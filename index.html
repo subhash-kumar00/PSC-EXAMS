@@ -300,7 +300,6 @@
         .catch(err => console.log("Latest badge error:", err));
     }
 
-    // Step 1: Check phone in Cloud
     document.getElementById('phoneCheckForm').onsubmit = (e) => {
       e.preventDefault();
       const phone = document.getElementById('loginPhone').value.trim();
@@ -352,7 +351,6 @@
         });
     };
 
-    // Step 2: Register Official Name in Cloud
     document.getElementById('registerNameForm').onsubmit = (e) => {
       e.preventDefault();
       const name = document.getElementById('registerName').value.trim();
@@ -646,6 +644,7 @@
       renderCards(filtered);
     }
 
+    // 🌟 കൃത്യമായ മാച്ചിംഗും മാർക്കുകളും നൽകുന്ന അപ്ഡേറ്റ് ചെയ്ത renderCards ഫംഗ്ഷൻ
     function renderCards(list) {
       const grid = document.getElementById('quizGrid');
       const empty = document.getElementById('emptyState');
@@ -665,11 +664,12 @@
         card.className = `bg-slate-900 border border-slate-800 hover:border-emerald-500/80 rounded-2xl p-4 sm:p-5 shadow flex flex-col justify-between transition-all duration-200 group relative`;
         card.setAttribute('data-card-title', q.title.trim());
         
-        const cleanCardTitle = q.title.replace(/[^a-zA-Z0-9\u0D00-\u0D7F]/g, '').toLowerCase();
-        const prevAttempt = cloudHistoryCache.find(h => {
+        // ക്ലൗഡ് ഹിസ്റ്ററിയിൽ നിന്ന് കൃത്യമായ മുൻപത്തെ ശ്രമം കണ്ടെത്തുന്നു
+        const cleanCard = q.title.replace(/[^a-zA-Z0-9\u0D00-\u0D7F]/g, '').toLowerCase();
+        const prevAttempt = cloudHistoryCache.slice().reverse().find(h => {
           if (!h.title) return false;
-          const cleanHistoryTitle = h.title.replace(/[^a-zA-Z0-9\u0D00-\u0D7F]/g, '').toLowerCase();
-          return cleanCardTitle === cleanHistoryTitle || cleanCardTitle.includes(cleanHistoryTitle) || cleanHistoryTitle.includes(cleanCardTitle);
+          const cleanHist = h.title.replace(/[^a-zA-Z0-9\u0D00-\u0D7F]/g, '').toLowerCase();
+          return cleanCard === cleanHist || cleanCard.includes(cleanHist) || cleanHist.includes(cleanCard);
         });
 
         let targetUrl = q.fileUrl;
@@ -682,15 +682,20 @@
         let scoreNoticeMarkup = '';
 
         if (prevAttempt) {
+          const scoreNum = parseFloat(prevAttempt.score || 0);
           scoreNoticeMarkup = `
             <div class="bg-slate-950/80 border border-emerald-500/30 px-3 py-1.5 rounded-xl flex items-center justify-between text-xs mt-2">
               <span class="text-slate-400">കഴിഞ്ഞ സ്കോർ:</span>
-              <span class="font-mono font-bold text-emerald-400">${Number(prevAttempt.score).toFixed(2)} Mark</span>
+              <span class="font-mono font-bold text-emerald-400">${scoreNum.toFixed(2)} Mark</span>
             </div>
           `;
+
+          // 🌟 Previous Results ക്ലിക്ക് ചെയ്യുമ്പോൾ മാർക്കുകൾ സഹിതം URL-ൽ അയക്കുന്നു
+          const solUrl = `${targetUrl}&view=solution&score=${scoreNum.toFixed(2)}&correct=${prevAttempt.correct || 0}&wrong=${prevAttempt.wrong || 0}&skipped=${prevAttempt.skipped || 0}`;
+
           actionAreaMarkup = `
             <div class="grid grid-cols-2 gap-2 w-full pt-3">
-              <a href="${targetUrl}&view=solution" class="py-2 bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold rounded-xl text-xs transition text-center border border-slate-700 flex items-center justify-center">
+              <a href="${solUrl}" class="py-2 bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold rounded-xl text-xs transition text-center border border-slate-700 flex items-center justify-center">
                 Previous Results
               </a>
               <a href="${targetUrl}&reattempt=true" class="py-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 text-slate-950 font-black rounded-xl text-xs transition text-center shadow flex items-center justify-center">
