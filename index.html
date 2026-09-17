@@ -11,7 +11,6 @@
     .custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
     .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
     
-    /* 🔥 വേഗത്തിൽ മിന്നിത്തിളങ്ങുന്ന LATEST ബാഡ്ജ് */
     @keyframes fastPulseBlink {
       0%, 100% { opacity: 1; transform: scale(1); filter: brightness(1.1); }
       50% { opacity: 0.2; transform: scale(0.93); filter: brightness(0.7); }
@@ -45,7 +44,6 @@
         </div>
       </div>
       
-      <!-- Right Header Profile Area -->
       <div id="navUserBox" class="hidden flex items-center space-x-3">
         <button id="openProfileBtn" onclick="openProfileModal()" class="text-left px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700/80 border border-slate-700 transition flex items-center space-x-2 shadow">
           <div class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">👤</div>
@@ -63,7 +61,6 @@
     
     <!-- Hero Branding -->
     <div class="hero-glow bg-slate-900 border border-slate-800/90 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6">
-      
       <div class="max-w-2xl relative z-10 space-y-3 text-left flex-1">
         <div class="flex flex-wrap items-center gap-2">
           <span class="text-xs font-black uppercase tracking-wider text-emerald-300 bg-emerald-950/80 px-3 py-1 rounded-lg border border-emerald-500/40 flex items-center space-x-1.5">
@@ -100,7 +97,6 @@
           onerror="this.onerror=null; this.src='https://via.placeholder.com/200x200/0f172a/10b981?text=SK+PSC';"
         />
       </div>
-
     </div>
 
     <!-- Registration & Login Screen -->
@@ -127,7 +123,7 @@
         </button>
       </form>
 
-      <!-- Step 2: Official Name Registration (If first time) -->
+      <!-- Step 2: Official Name Registration (New User) -->
       <form id="registerNameForm" class="space-y-3.5 hidden">
         <div class="bg-emerald-500/10 border border-emerald-500/30 p-3 rounded-xl text-xs text-emerald-300 text-center">
           ഇത് ഈ നമ്പറിലെ ആദ്യ ലോഗിൻ ആണ്. ദയവായി നിങ്ങളുടെ ഔദ്യോഗിക പേര് നൽകുക.
@@ -145,22 +141,18 @@
 
     <!-- Exam Section -->
     <div id="examSection" class="hidden space-y-6">
-      
-      <!-- Filters & Sort -->
       <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-lg space-y-4">
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
             <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">പരീക്ഷകൾ തിരയുക</label>
             <input type="text" id="searchInput" placeholder="പേര് അല്ലെങ്കിൽ ടോപ്പിക്ക്..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-slate-200 focus:outline-none focus:border-emerald-500 transition shadow-inner">
           </div>
-
           <div>
             <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">വിഷയം (Category)</label>
             <select id="categorySelect" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-slate-200 focus:outline-none focus:border-emerald-500 transition cursor-pointer">
               <option value="all">എല്ലാ വിഷയങ്ങളും (All Categories)</option>
             </select>
           </div>
-
           <div>
             <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">ക്രമീകരിക്കുക (Sort By)</label>
             <select id="sortSelect" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-slate-200 focus:outline-none focus:border-emerald-500 transition cursor-pointer">
@@ -178,20 +170,16 @@
         </div>
       </div>
 
-      <!-- Loading State -->
       <div id="loading" class="text-center py-16 text-slate-400 text-sm space-y-2 animate-pulse">
         <div class="text-2xl">⏳</div>
         <p>Google Sheet-ൽ നിന്നും പരീക്ഷകൾ ക്രമീകരിക്കുന്നു...</p>
       </div>
 
-      <!-- Cards Grid -->
       <div id="quizGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 hidden"></div>
 
-      <!-- Empty State -->
       <div id="emptyState" class="hidden text-center py-16 text-slate-500 text-xs sm:text-sm bg-slate-900/40 rounded-2xl border border-slate-800">
         പരീക്ഷകൾ ഒന്നും കണ്ടെത്തിയില്ല.
       </div>
-
     </div>
 
   </main>
@@ -199,7 +187,6 @@
   <!-- Profile & Cloud History Modal -->
   <div id="profileModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-xl w-full p-6 sm:p-7 shadow-2xl space-y-5 flex flex-col max-h-[85vh]">
-      
       <div class="flex items-center justify-between border-b border-slate-800 pb-3">
         <div>
           <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">STUDENT PROFILE & CLOUD HISTORY</span>
@@ -243,7 +230,7 @@
           <span class="text-slate-400">ക്ലൗഡ് സ്റ്റാറ്റസ്: </span>
           <strong id="growthMessage" class="text-emerald-400 font-medium">ഡാറ്റ സിങ്ക് ചെയ്തു</strong>
         </div>
-        <span id="modalHistoryStatus" class="text-[11px] text-slate-400 animate-pulse">ലോഡ് ചെയ്യുന്നു...</span>
+        <span id="modalHistoryStatus" class="text-[11px] text-slate-400">സിങ്ക് ചെയ്യുന്നു...</span>
       </div>
 
       <!-- Cloud History List -->
@@ -257,7 +244,6 @@
       <div class="pt-2 border-t border-slate-800 text-center">
         <button onclick="closeProfileModal()" class="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold rounded-xl">ക്ലോസ് ചെയ്യുക</button>
       </div>
-
     </div>
   </div>
 
@@ -266,7 +252,7 @@
   </footer>
 
   <script>
-    const GOOGLE_SHEET_ID = "1ujfXFhMmZVwhTSB9yCHKgf3uNevCbcivcEbmxpw2fso"; 
+    const GOOGLE_SHEET_ID = "1ujfXFhMmZVwhTSB9yCHKgf3uNevCbcivcEbmxpw2fso";
     const CSV_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:csv`;
     const GLOBAL_SHEET_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwKBTm6Hj11YhzZLCEMBupKa3XAuq7Ns4M5iyU4vzwxaXfppLGWIR9ZWJeWlvGBjRaG/exec";
     const HOME_SHEET_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzRZTSShquCnRV1xMZ4YHv2SdpwuKOrJ8kc9EyWOlrPOdEhhwnTy79e1D2wfqjsPXna/exec";
@@ -331,21 +317,31 @@
 
       fetch(`${GLOBAL_SHEET_WEBAPP_URL}?phone=${phone}`)
         .then(res => res.json())
-        .then(data => {
+        .then(resData => {
           submitBtn.innerText = "തുടരുക ›";
           submitBtn.disabled = false;
 
-          if (data && (data.officialName || data.name)) {
-            const foundName = data.officialName || data.name;
-            candidate = { name: foundName, phone: phone };
+          let officialName = "";
+          let histList = [];
+
+          if (resData && typeof resData === 'object' && !Array.isArray(resData)) {
+            officialName = resData.officialName || resData.name || "";
+            histList = resData.history || [];
+          } else if (Array.isArray(resData) && resData.length > 0) {
+            officialName = resData[0].name || "";
+            histList = resData;
+          }
+
+          if (officialName) {
+            candidate = { name: officialName, phone: phone };
             localStorage.setItem('sk_candidate_user', JSON.stringify(candidate));
-            cloudHistoryCache = data.history || [];
+            cloudHistoryCache = histList;
             activateUserSession();
           } else {
             document.getElementById('phoneCheckForm').classList.add('hidden');
             document.getElementById('registerNameForm').classList.remove('hidden');
-            document.getElementById('authCardTitle').innerText = "ഒഫീഷ്യൽ പ്രൊഫൈൽ നിർമ്മിക്കുക";
-            document.getElementById('authCardDesc').innerText = `നമ്പർ: +91 ${phone}`;
+            document.getElementById('authCardTitle').innerText = "ഒഫീഷ്യൽ പ്രൊഫൈൽ";
+            document.getElementById('authCardDesc').innerText = `മൊബൈൽ: +91 ${phone}`;
           }
         })
         .catch(() => {
@@ -356,7 +352,7 @@
         });
     };
 
-    // Step 2: Register Official Name for New User
+    // Step 2: Register Official Name in Cloud
     document.getElementById('registerNameForm').onsubmit = (e) => {
       e.preventDefault();
       const name = document.getElementById('registerName').value.trim();
@@ -373,7 +369,7 @@
       fetch(GLOBAL_SHEET_WEBAPP_URL, {
         method: 'POST',
         mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({
           action: "save_profile",
           name: name,
@@ -453,7 +449,7 @@
       fetch(GLOBAL_SHEET_WEBAPP_URL, {
         method: 'POST',
         mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({
           action: "save_profile",
           name: newName,
@@ -461,19 +457,24 @@
         })
       });
 
-      alert('പ്രൊഫൈൽ പേര് വിജയകരമായി മാറ്റിയിരിക്കുന്നു!');
+      alert('പ്രൊഫൈൽ പേര് വിജയകരമായി അപ്ഡേറ്റ് ചെയ്തു!');
     }
 
     function fetchUserExamHistoryFromCloud(phone) {
       const statusSpan = document.getElementById('modalHistoryStatus');
-      const hList = document.getElementById('historyList');
 
       fetch(`${GLOBAL_SHEET_WEBAPP_URL}?phone=${phone}`)
         .then(res => res.json())
-        .then(data => {
-          cloudHistoryCache = (data && data.history) ? data.history : (Array.isArray(data) ? data : []);
+        .then(resData => {
+          if (resData && typeof resData === 'object' && !Array.isArray(resData)) {
+            cloudHistoryCache = resData.history || [];
+          } else if (Array.isArray(resData)) {
+            cloudHistoryCache = resData;
+          }
+
           if (statusSpan) statusSpan.classList.add('hidden');
           updateProfileAnalyticsFromCloud(cloudHistoryCache);
+
           if (rawQuizList.length > 0) {
             applyFiltersAndRender();
           }
@@ -483,7 +484,6 @@
             statusSpan.innerText = "ഹിസ്റ്ററി ലോഡ് ചെയ്യുന്നതിൽ തടസ്സം നേരിട്ടു.";
             statusSpan.className = "text-[11px] text-rose-400";
           }
-          hList.innerHTML = '<p class="text-xs text-rose-400 text-center py-4">ഹിസ്റ്ററി ലഭ്യമാക്കാൻ കഴിഞ്ഞില്ല.</p>';
         });
     }
 
@@ -509,7 +509,7 @@
         let correctQ = parseInt(h.correct || 0);
         let wrongQ = parseInt(h.wrong || 0);
         let skipQ = parseInt(h.skipped || 0);
-        totalQuestions += (correctQ + wrongQ + skipQ);
+        totalQuestions += (correctQ + wrongQ + skipQ) || 25;
       });
 
       const avgScore = (totalScore / history.length).toFixed(2);
@@ -665,7 +665,6 @@
         card.className = `bg-slate-900 border border-slate-800 hover:border-emerald-500/80 rounded-2xl p-4 sm:p-5 shadow flex flex-col justify-between transition-all duration-200 group relative`;
         card.setAttribute('data-card-title', q.title.trim());
         
-        // വിദ്യാർത്ഥി ഈ പരീക്ഷ മുമ്പ് എഴുതിയിട്ടുണ്ടോ എന്ന് ക്ലൗഡ് ഹിസ്റ്ററിയിൽ പരിശോധിക്കുന്നു
         const cleanCardTitle = q.title.replace(/[^a-zA-Z0-9\u0D00-\u0D7F]/g, '').toLowerCase();
         const prevAttempt = cloudHistoryCache.find(h => {
           if (!h.title) return false;
@@ -683,7 +682,6 @@
         let scoreNoticeMarkup = '';
 
         if (prevAttempt) {
-          // മുമ്പ് പരീക്ഷ എഴുതിയവർക്ക്: കഴിഞ്ഞ സ്കോറും Previous Results / Attempt Again ബട്ടണുകളും
           scoreNoticeMarkup = `
             <div class="bg-slate-950/80 border border-emerald-500/30 px-3 py-1.5 rounded-xl flex items-center justify-between text-xs mt-2">
               <span class="text-slate-400">കഴിഞ്ഞ സ്കോർ:</span>
@@ -701,7 +699,6 @@
             </div>
           `;
         } else {
-          // ആദ്യമായി എഴുതുന്നവർക്ക്: നേരിട്ടുള്ള സ്റ്റാർട്ട് ബട്ടൺ
           actionAreaMarkup = `
             <div class="pt-3 w-full">
               <a href="${targetUrl}" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl text-xs transition transform active:scale-95 shadow flex items-center justify-center space-x-1">
