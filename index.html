@@ -20,7 +20,7 @@
       display: inline-flex !important;
     }
 
-    /* 🌟 Neon Green Upcoming Blink Animation */
+    /* 🌟 Neon Green Upcoming Blink */
     @keyframes neonGreenBlink {
       0%, 100% {
         opacity: 1;
@@ -127,7 +127,6 @@
         <p id="authCardDesc" class="text-xs text-slate-400">മൊബൈൽ നമ്പർ നൽകി പ്രവേശിക്കുക. പഴയ ഡാറ്റ ക്ലൗഡിൽ നിന്ന് സുരക്ഷിതമായി ലഭ്യമാകും.</p>
       </div>
 
-      <!-- Step 1: Phone Check Form -->
       <form id="phoneCheckForm" class="space-y-3.5">
         <div>
           <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">മൊബൈൽ നമ്പർ</label>
@@ -141,7 +140,6 @@
         </button>
       </form>
 
-      <!-- Step 2: Official Name Registration (New User) -->
       <form id="registerNameForm" class="space-y-3.5 hidden">
         <div class="bg-emerald-500/10 border border-emerald-500/30 p-3 rounded-xl text-xs text-emerald-300 text-center">
           ഇത് ഈ നമ്പറിലെ ആദ്യ ലോഗിൻ ആണ്. ദയവായി നിങ്ങളുടെ ഔദ്യോഗിക പേര് നൽകുക.
@@ -218,7 +216,6 @@
         <button onclick="closeProfileModal()" class="text-slate-400 hover:text-white text-2xl font-bold p-1">&times;</button>
       </div>
 
-      <!-- Edit Name Box -->
       <div id="editNameBox" class="hidden bg-slate-950 p-3 rounded-xl border border-emerald-500/40 space-y-2">
         <label class="block text-[11px] font-bold text-slate-300 uppercase">പ്രൊഫൈൽ പേര് മാറ്റുക</label>
         <div class="flex space-x-2">
@@ -227,7 +224,6 @@
         </div>
       </div>
 
-      <!-- Stats Cards -->
       <div class="grid grid-cols-3 gap-3">
         <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 text-center">
           <span class="text-[10px] text-slate-400 block font-semibold">പരീക്ഷകൾ</span>
@@ -251,7 +247,6 @@
         <span id="modalHistoryStatus" class="text-[11px] text-slate-400">സിങ്ക് ചെയ്യുന്നു...</span>
       </div>
 
-      <!-- Cloud History List -->
       <div class="flex-1 overflow-y-auto custom-scroll pr-1 space-y-2">
         <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">പരീക്ഷാ ഹിസ്റ്ററി (Google Sheet)</h4>
         <div id="historyList" class="space-y-2">
@@ -278,7 +273,7 @@
     let rawQuizList = [];
     let candidate = null;
     let cloudHistoryCache = [];
-    let examStatusMap = {}; // പരീക്ഷകളുടെ സ്റ്റാറ്റസ് (LATEST / UPCOMING) സൂക്ഷിക്കാൻ
+    let examStatusConfig = {}; 
     let tempPhoneToRegister = "";
 
     window.addEventListener('DOMContentLoaded', () => {
@@ -302,22 +297,28 @@
           openProfileModal();
         }
       }
+
+      // ഓരോ 30 സെക്കൻഡിലും ടൈം ചെക്ക് ചെയ്ത് 15 മിനിറ്റ് കൗണ്ട്ഡൗൺ തനിയെ അപ്ഡേറ്റ് ചെയ്യുന്നു
+      setInterval(() => {
+        if (rawQuizList.length > 0) {
+          applyFiltersAndRender();
+        }
+      }, 30000);
     });
 
-    // 🌟 ഷീറ്റിൽ നിന്നും LATEST / UPCOMING സ്റ്റാറ്റസ് ലഭ്യമാക്കുന്നു
     function fetchLatestExamTitles() {
       fetch(`${HOME_SHEET_APPS_SCRIPT_URL}?action=get_latest_titles`)
         .then(res => res.json())
         .then(data => {
-          examStatusMap = {};
+          examStatusConfig = {};
           if (Array.isArray(data)) {
             data.forEach(item => {
               if (typeof item === 'object' && item.title) {
                 const cleanT = item.title.replace(/[^a-zA-Z0-9\u0D00-\u0D7F]/g, '').toLowerCase();
-                examStatusMap[cleanT] = (item.status || 'LATEST').toUpperCase();
-              } else if (typeof item === 'string') {
-                const cleanT = item.replace(/[^a-zA-Z0-9\u0D00-\u0D7F]/g, '').toLowerCase();
-                examStatusMap[cleanT] = 'LATEST';
+                examStatusConfig[cleanT] = {
+                  status: (item.status || 'LATEST').toUpperCase(),
+                  releaseTime: item.releaseTime || ""
+                };
               }
             });
           }
@@ -672,7 +673,22 @@
       renderCards(filtered);
     }
 
-    // 🌟 UPCOMING, LATEST, LOCK എന്നിവ കൃത്യമായി നിയന്ത്രിക്കുന്ന renderCards
+    // 🌟 തീയതിയും സമയവും കൃത്യമായി ഫോർമാറ്റ് ചെയ്യുന്ന സഹായ ഫംഗ്ഷൻ
+    function formatScheduledDateTime(dateObj) {
+      const months = ['ജനുവരി', 'ഫെബ്രുവരി', 'മാർച്ച്', 'ഏപ്രിൽ', 'മേയ്', 'ജൂൺ', 'ജൂലൈ', 'ഓഗസ്റ്റ്', 'സെപ്റ്റംബർ', 'ഒക്ടോബർ', 'നവംബർ', 'ഡിസംബർ'];
+      const month = months[dateObj.getMonth()];
+      const day = dateObj.getDate();
+      
+      let hours = dateObj.getHours();
+      const minutes = dateObj.getMinutes().toString().padStart(2, '0');
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12;
+      hours = hours ? hours : 12; // 0 ആണെങ്കിൽ 12 ആക്കുന്നു
+
+      return `${month} ${day}, ${hours}:${minutes} ${ampm}`;
+    }
+
+    // 🌟 15 മിനിറ്റ് വരെ സ്റ്റാർട്ടിംഗ് തീയതി/സമയവും, അവസാന 15 മിനിറ്റിൽ കൗണ്ട്ഡൗണും കാണിക്കുന്ന renderCards
     function renderCards(list) {
       const grid = document.getElementById('quizGrid');
       const empty = document.getElementById('emptyState');
@@ -695,26 +711,55 @@
         "Kerala Governance Set 2": "കേരള ഗവറേൺസൻസ് 2"
       };
 
+      const currentTime = new Date().getTime();
+      const THIRTY_SIX_HOURS = 36 * 60 * 60 * 1000;
+      const FIFTEEN_MINUTES = 15 * 60 * 1000;
+
       list.forEach(q => {
         const card = document.createElement('div');
         const cleanCard = q.title.replace(/[^a-zA-Z0-9\u0D00-\u0D7F]/g, '').toLowerCase();
 
-        // ഷീറ്റിൽ നിന്നുള്ള സ്റ്റാറ്റസ് കണ്ടെത്തുന്നു (Exam Status Sheet മുൻഗണന, ഇല്ലെങ്കിൽ badge കോളം)
-        let matchedStatus = examStatusMap[cleanCard] || '';
-        if (!matchedStatus) {
-          for (const [key, val] of Object.entries(examStatusMap)) {
+        let config = examStatusConfig[cleanCard] || null;
+        if (!config) {
+          for (const [key, val] of Object.entries(examStatusConfig)) {
             if (cleanCard.includes(key) || key.includes(cleanCard)) {
-              matchedStatus = val;
+              config = val;
               break;
             }
           }
         }
-        if (!matchedStatus && (q.badge || '').trim().toUpperCase() === 'UPCOMING') {
-          matchedStatus = 'UPCOMING';
-        }
 
-        const isUpcoming = (matchedStatus === 'UPCOMING');
-        const isLatest = (matchedStatus === 'LATEST');
+        let baseStatus = config ? config.status : (q.badge || '').trim().toUpperCase();
+        let releaseTimeStr = config ? config.releaseTime : "";
+        let releaseDateObj = releaseTimeStr ? new Date(releaseTimeStr) : null;
+        let releaseDate = releaseDateObj && !isNaN(releaseDateObj.getTime()) ? releaseDateObj.getTime() : null;
+
+        let isUpcoming = false;
+        let isLatest = false;
+        let buttonDisplayText = "🔒 ഉടൻ വരുന്നു (Locked)";
+
+        // 🌟 തീയതിയും 15 മിനിറ്റ് കൗണ്ട്ഡൗണും കണക്കാക്കുന്ന പ്രധാന ഭാഗം
+        if (releaseDate) {
+          if (currentTime < releaseDate) {
+            isUpcoming = true;
+            const diffMs = releaseDate - currentTime;
+
+            // അവസാന 15 മിനിറ്റിൽ ആണെങ്കിൽ മാത്രം മിനിറ്റ് ബാക്കി എന്ന് കാണിക്കുന്നു
+            if (diffMs <= FIFTEEN_MINUTES) {
+              const diffMins = Math.max(1, Math.ceil(diffMs / (1000 * 60)));
+              buttonDisplayText = `🔒 ഉടൻ വരുന്നു (${diffMins} മിനിറ്റ് ബാക്കി)`;
+            } else {
+              // 15 മിനിറ്റിൽ കൂടുതൽ ഉണ്ടെങ്കിൽ സ്റ്റാർട്ടിങ് തീയതിയും സമയവും കാണിക്കുന്നു
+              const scheduledText = formatScheduledDateTime(releaseDateObj);
+              buttonDisplayText = `🔒 ഉടൻ വരുന്നു (${scheduledText})`;
+            }
+          } else if (currentTime >= releaseDate && (currentTime - releaseDate) <= THIRTY_SIX_HOURS) {
+            isLatest = true; // 36 മണിക്കൂർ സമയം LATEST ബാഡ്ജ്
+          }
+        } else {
+          if (baseStatus === 'UPCOMING') isUpcoming = true;
+          if (baseStatus === 'LATEST') isLatest = true;
+        }
 
         let badgeMarkup = '';
         if (isUpcoming) {
@@ -770,12 +815,11 @@
         let actionAreaMarkup = '';
         let scoreNoticeMarkup = '';
 
-        // 🌟 UPCOMING ആണെങ്കിൽ പരീക്ഷ ലോക്ക് ആകുന്നു
         if (isUpcoming) {
           actionAreaMarkup = `
             <div class="pt-3 w-full">
-              <button disabled class="w-full py-2.5 bg-slate-950 border border-emerald-500/30 text-emerald-400 font-bold rounded-xl text-xs flex items-center justify-center space-x-1.5 cursor-not-allowed opacity-90 shadow-inner select-none">
-                <span>🔒 ഉടൻ വരുന്നു (Locked)</span>
+              <button disabled class="w-full py-2.5 bg-slate-950 border border-emerald-500/30 text-emerald-400 font-bold rounded-xl text-[11px] sm:text-xs flex items-center justify-center space-x-1.5 cursor-not-allowed opacity-90 shadow-inner select-none px-2 truncate">
+                <span>${buttonDisplayText}</span>
               </button>
             </div>
           `;
