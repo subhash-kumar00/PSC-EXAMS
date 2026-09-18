@@ -25,12 +25,12 @@
       0%, 100% {
         opacity: 1;
         transform: scale(1);
-        box-shadow: 0 0 10px #22c55e, 0 0 20px #22c55e;
+        box-shadow: 0 0 10px #10b981, 0 0 20px #10b981;
       }
       50% {
         opacity: 0.35;
         transform: scale(0.95);
-        box-shadow: 0 0 2px #22c55e;
+        box-shadow: 0 0 2px #10b981;
       }
     }
     .auto-upcoming-badge {
@@ -278,7 +278,7 @@
     let rawQuizList = [];
     let candidate = null;
     let cloudHistoryCache = [];
-    let activeLatestTitles = [];
+    let examStatusMap = {}; // പരീക്ഷകളുടെ സ്റ്റാറ്റസ് (LATEST / UPCOMING) സൂക്ഷിക്കാൻ
     let tempPhoneToRegister = "";
 
     window.addEventListener('DOMContentLoaded', () => {
@@ -304,18 +304,28 @@
       }
     });
 
+    // 🌟 ഷീറ്റിൽ നിന്നും LATEST / UPCOMING സ്റ്റാറ്റസ് ലഭ്യമാക്കുന്നു
     function fetchLatestExamTitles() {
       fetch(`${HOME_SHEET_APPS_SCRIPT_URL}?action=get_latest_titles`)
         .then(res => res.json())
         .then(data => {
+          examStatusMap = {};
           if (Array.isArray(data)) {
-            activeLatestTitles = data.map(item => typeof item === 'object' ? (item.title || Object.values(item)[0] || '') : String(item));
-          } else if (data && typeof data === 'object') {
-            activeLatestTitles = Object.values(data).map(v => String(v));
+            data.forEach(item => {
+              if (typeof item === 'object' && item.title) {
+                const cleanT = item.title.replace(/[^a-zA-Z0-9\u0D00-\u0D7F]/g, '').toLowerCase();
+                examStatusMap[cleanT] = (item.status || 'LATEST').toUpperCase();
+              } else if (typeof item === 'string') {
+                const cleanT = item.replace(/[^a-zA-Z0-9\u0D00-\u0D7F]/g, '').toLowerCase();
+                examStatusMap[cleanT] = 'LATEST';
+              }
+            });
           }
-          applyLatestBadgesToCards();
+          if (rawQuizList.length > 0) {
+            applyFiltersAndRender();
+          }
         })
-        .catch(err => console.log("Latest badge error:", err));
+        .catch(err => console.log("Status fetch error:", err));
     }
 
     document.getElementById('phoneCheckForm').onsubmit = (e) => {
@@ -662,7 +672,7 @@
       renderCards(filtered);
     }
 
-    // 🌟 കൃത്യമായ മാച്ചിംഗും UPCOMING/LATEST അവസ്ഥകളും കൈകാര്യം ചെയ്യുന്ന renderCards ഫംഗ്ഷൻ
+    // 🌟 UPCOMING, LATEST, LOCK എന്നിവ കൃത്യമായി നിയന്ത്രിക്കുന്ന renderCards
     function renderCards(list) {
       const grid = document.getElementById('quizGrid');
       const empty = document.getElementById('emptyState');
@@ -687,29 +697,48 @@
 
       list.forEach(q => {
         const card = document.createElement('div');
-        
-        // ഷീറ്റിൽ Badge ഫീൽഡിൽ upcoming ആണോ എന്ന് നോക്കുന്നു
-        const isUpcoming = (q.badge || '').trim().toLowerCase() === 'upcoming';
+        const cleanCard = q.title.replace(/[^a-zA-Z0-9\u0D00-\u0D7F]/g, '').toLowerCase();
+
+        // ഷീറ്റിൽ നിന്നുള്ള സ്റ്റാറ്റസ് കണ്ടെത്തുന്നു (Exam Status Sheet മുൻഗണന, ഇല്ലെങ്കിൽ badge കോളം)
+        let matchedStatus = examStatusMap[cleanCard] || '';
+        if (!matchedStatus) {
+          for (const [key, val] of Object.entries(examStatusMap)) {
+            if (cleanCard.includes(key) || key.includes(cleanCard)) {
+              matchedStatus = val;
+              break;
+            }
+          }
+        }
+        if (!matchedStatus && (q.badge || '').trim().toUpperCase() === 'UPCOMING') {
+          matchedStatus = 'UPCOMING';
+        }
+
+        const isUpcoming = (matchedStatus === 'UPCOMING');
+        const isLatest = (matchedStatus === 'LATEST');
 
         let badgeMarkup = '';
         if (isUpcoming) {
           badgeMarkup = `
-            <span class="auto-upcoming-badge px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-emerald-500 text-slate-950 font-mono shadow-[0_0_12px_#10b981]">
+            <span class="auto-upcoming-badge px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-emerald-400 text-slate-950 font-mono shadow-[0_0_12px_#10b981]">
               ● UPCOMING
+            </span>
+          `;
+        } else if (isLatest) {
+          badgeMarkup = `
+            <span class="auto-latest-badge px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-rose-600 text-white shadow-lg shadow-rose-600/50">
+              ● LATEST
             </span>
           `;
         } else {
           badgeMarkup = `<span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800/40">${q.badge || 'Test'}</span>`;
         }
 
-        const borderClasses = isUpcoming ? 'border-emerald-400/80 shadow-[0_0_15px_rgba(16,185,129,0.2)]' : 'border-slate-800 hover:border-emerald-500/80';
-        card.className = `bg-slate-900 border ${borderClasses} rounded-2xl p-4 sm:p-5 shadow flex flex-col justify-between transition-all duration-200 group relative`;
-        card.setAttribute('data-card-title', q.title.trim());
-        if (isUpcoming) {
-          card.setAttribute('data-is-upcoming', 'true');
-        }
+        let borderClass = 'border-slate-800 hover:border-emerald-500/80';
+        if (isUpcoming) borderClass = 'border-emerald-400/80 shadow-[0_0_15px_rgba(16,185,129,0.25)]';
+        if (isLatest) borderClass = 'ring-2 ring-rose-500/70 border-rose-500/50';
 
-        const cleanCard = q.title.replace(/[^a-zA-Z0-9\u0D00-\u0D7F]/g, '').toLowerCase();
+        card.className = `bg-slate-900 border ${borderClass} rounded-2xl p-4 sm:p-5 shadow flex flex-col justify-between transition-all duration-200 group relative`;
+        card.setAttribute('data-card-title', q.title.trim());
 
         const prevAttempt = cloudHistoryCache.slice().reverse().find(h => {
           if (!h.title) return false;
@@ -741,11 +770,11 @@
         let actionAreaMarkup = '';
         let scoreNoticeMarkup = '';
 
-        // 🌟 UPCOMING ആണെങ്കിൽ പൂർണ്ണമായും LOCK ചെയ്യപ്പെടുന്നു
+        // 🌟 UPCOMING ആണെങ്കിൽ പരീക്ഷ ലോക്ക് ആകുന്നു
         if (isUpcoming) {
           actionAreaMarkup = `
             <div class="pt-3 w-full">
-              <button disabled class="w-full py-2.5 bg-slate-800/80 border border-emerald-500/30 text-emerald-400/80 font-bold rounded-xl text-xs flex items-center justify-center space-x-1.5 cursor-not-allowed opacity-90 shadow-inner select-none">
+              <button disabled class="w-full py-2.5 bg-slate-950 border border-emerald-500/30 text-emerald-400 font-bold rounded-xl text-xs flex items-center justify-center space-x-1.5 cursor-not-allowed opacity-90 shadow-inner select-none">
                 <span>🔒 ഉടൻ വരുന്നു (Locked)</span>
               </button>
             </div>
@@ -803,44 +832,6 @@
           </div>
         `;
         grid.appendChild(card);
-      });
-
-      applyLatestBadgesToCards();
-    }
-
-    function applyLatestBadgesToCards() {
-      if (!activeLatestTitles || activeLatestTitles.length === 0) return;
-
-      const cards = document.querySelectorAll('#quizGrid > div');
-      cards.forEach(card => {
-        // Upcoming ആണെങ്കിൽ LATEST ബാഡ്ജ് ഓവർറൈഡ് ചെയ്യാതെ നിലനിർത്തുന്നു
-        if (card.getAttribute('data-is-upcoming') === 'true') return;
-
-        const cardTitle = card.getAttribute('data-card-title') || '';
-        const cleanCardTitle = cardTitle.replace(/[^a-zA-Z0-9\u0D00-\u0D7F]/g, '').toLowerCase();
-
-        const isLatest = activeLatestTitles.some(targetTitle => {
-          if (!targetTitle) return false;
-          const cleanTarget = String(targetTitle).replace(/[^a-zA-Z0-9\u0D00-\u0D7F]/g, '').toLowerCase();
-          return cleanCardTitle === cleanTarget || (cleanTarget.length > 3 && cleanCardTitle.includes(cleanTarget));
-        });
-
-        const existingBadge = card.querySelector('.auto-latest-badge');
-        if (isLatest) {
-          if (!existingBadge) {
-            card.classList.add('ring-2', 'ring-rose-500/70', 'border-rose-500/50');
-            const badgeSlot = card.querySelector('.card-badge-slot');
-            if (badgeSlot) {
-              const latestBadge = document.createElement('span');
-              latestBadge.className = 'auto-latest-badge px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-rose-600 text-white shadow-lg shadow-rose-600/50';
-              latestBadge.innerText = '● LATEST';
-              badgeSlot.prepend(latestBadge);
-            }
-          }
-        } else if (existingBadge) {
-          existingBadge.remove();
-          card.classList.remove('ring-2', 'ring-rose-500/70', 'border-rose-500/50');
-        }
       });
     }
 
