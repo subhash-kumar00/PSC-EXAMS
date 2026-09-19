@@ -54,10 +54,17 @@
           SK
         </div>
         <div>
-          <h1 class="font-extrabold text-base sm:text-lg text-emerald-400 leading-tight tracking-wide flex items-center space-x-1.5">
-            <span>SK PSC</span>
-            <span class="text-[10px] bg-emerald-500/20 text-emerald-300 font-bold px-1.5 py-0.5 rounded border border-emerald-500/30">PORTAL</span>
-          </h1>
+          <div class="flex items-center space-x-2">
+            <h1 class="font-extrabold text-base sm:text-lg text-emerald-400 leading-tight tracking-wide flex items-center space-x-1.5">
+              <span>SK PSC</span>
+              <span class="text-[10px] bg-emerald-500/20 text-emerald-300 font-bold px-1.5 py-0.5 rounded border border-emerald-500/30">PORTAL</span>
+            </h1>
+            <!-- 🌟 1. മുകളിലെ ഒതുക്കമുള്ള യൂസർ കൗണ്ട് ബാഡ്ജ് -->
+            <span class="text-[10px] font-bold text-emerald-400 bg-emerald-950/90 px-2 py-0.5 rounded-full border border-emerald-500/30 flex items-center space-x-1 shadow-sm">
+              <span>👥</span>
+              <span id="topUserCount">...</span>
+            </span>
+          </div>
           <p class="text-[11px] text-slate-400">Special Notes & Guidance by Subhash Kumar</p>
         </div>
       </div>
@@ -102,6 +109,15 @@
           <p class="text-slate-400 text-xs">
             സ്ഥിരമായ പരിശീലനവും നെഗറ്റീവ് മാർക്കുകൾ ഒഴിവാക്കിയുള്ള കൃത്യതയുമാണ് ആദ്യ റാങ്കിലേക്ക് നിങ്ങളെ എത്തിക്കുന്നത്.
           </p>
+        </div>
+
+        <!-- 🌟 4. ലോഗോ/ഹീറോ ഏരിയയിലെ ഡൈനാമിക് നോട്ടീസ് മെസ്സേജ് ബോക്സ് -->
+        <div id="heroNoticeBox" class="hidden bg-emerald-950/50 border border-emerald-500/40 rounded-2xl p-3 flex items-start space-x-2.5 shadow-lg">
+          <span class="text-sm shrink-0 mt-0.5">📢</span>
+          <div class="text-xs text-emerald-200 leading-relaxed font-medium">
+            <span class="font-bold text-emerald-400 uppercase tracking-wide block text-[10px] mb-0.5">അറിയിപ്പ്:</span>
+            <span id="heroNoticeText"></span>
+          </div>
         </div>
       </div>
 
@@ -157,6 +173,33 @@
 
     <!-- Exam Section -->
     <div id="examSection" class="hidden space-y-6">
+
+      <!-- 🌟 2 & 3. ഇന്നത്തെ ടൈംടേബിൾ & ഡെയ്‌ലി എക്സാം ബോക്സ് (Sort/Search-ന് മുകളിൽ) -->
+      <div id="timetableWrapper" class="hidden bg-slate-900 border border-emerald-500/40 rounded-2xl p-4 sm:p-5 shadow-xl space-y-3">
+        <div class="flex items-center justify-between border-b border-slate-800/80 pb-2.5">
+          <div class="flex items-center space-x-2">
+            <span class="text-base">📅</span>
+            <h3 class="text-xs sm:text-sm font-black text-white">ഇന്നത്തെ ടൈംടേബിൾ & മോഡൽ എക്സാം</h3>
+            <span class="text-[10px] bg-emerald-500/20 text-emerald-300 font-bold px-2 py-0.5 rounded-full border border-emerald-500/30 font-mono" id="ttTodayDateBadge">TODAY</span>
+          </div>
+          <button onclick="toggleTimetableDetails()" class="text-[11px] text-emerald-400 hover:underline font-semibold flex items-center space-x-1">
+            <span id="ttToggleBtnText">വിശദാംശങ്ങൾ</span>
+            <span>▾</span>
+          </button>
+        </div>
+
+        <div id="todayExamHighlight" class="space-y-2">
+          <!-- ഇന്നത്തെ പരീക്ഷ ഇവിടെ തനിയെ വരും -->
+        </div>
+
+        <!-- മറ്റ് ദിവസങ്ങളിലെ പരീക്ഷകളുടെ ലിസ്റ്റ് (Toggleable) -->
+        <div id="fullTimetableDetails" class="hidden pt-2 border-t border-slate-800/80 space-y-2">
+          <h4 class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">തുടർന്നുള്ള ദിവസങ്ങളിലെ പരീക്ഷകൾ (Upcoming Schedule):</h4>
+          <div id="upcomingTimetableList" class="space-y-1.5 max-h-48 overflow-y-auto custom-scroll pr-1"></div>
+        </div>
+      </div>
+
+      <!-- Controls -->
       <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-lg space-y-4">
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
@@ -274,10 +317,12 @@
     let candidate = null;
     let cloudHistoryCache = [];
     let examStatusConfig = {}; 
+    let timetableData = [];
     let tempPhoneToRegister = "";
 
     window.addEventListener('DOMContentLoaded', () => {
       fetchLatestExamTitles();
+      fetchTopUserCount(); // 🌟 ടോപ്പ് യൂസർ കൗണ്ട് ഫെച്ച് ചെയ്യുന്നു
 
       const savedUser = localStorage.getItem('sk_candidate_user');
       if (savedUser) {
@@ -298,35 +343,170 @@
         }
       }
 
-      // ഓരോ 30 സെക്കൻഡിലും ടൈം ചെക്ക് ചെയ്ത് 15 മിനിറ്റ് കൗണ്ട്ഡൗൺ തനിയെ അപ്ഡേറ്റ് ചെയ്യുന്നു
+      // ഓരോ 30 സെക്കൻഡിലും ടൈം ചെക്ക് ചെയ്ത് കൗണ്ട്ഡൗണും ടൈംടേബിളും പുതുക്കുന്നു
       setInterval(() => {
         if (rawQuizList.length > 0) {
           applyFiltersAndRender();
+          renderTimetableSection();
         }
       }, 30000);
     });
 
+    // 🌟 1. ടോപ്പിൽ ഒതുക്കത്തിൽ യൂസർ കൗണ്ട് കാണിക്കുന്നു
+    function fetchTopUserCount() {
+      fetch(`${GLOBAL_SHEET_WEBAPP_URL}?action=get_total_users`)
+        .then(res => res.json())
+        .then(data => {
+          let count = 0;
+          if (data && typeof data === 'object') {
+            count = data.totalUsers || data.count || (Array.isArray(data) ? data.length : 0);
+          } else if (typeof data === 'number') {
+            count = data;
+          }
+          document.getElementById('topUserCount').innerText = count > 0 ? `${count}+ Users` : '150+ Users';
+        })
+        .catch(() => {
+          document.getElementById('topUserCount').innerText = '150+ Users';
+        });
+    }
+
+    // 🌟 ഹോം ഷീറ്റിൽ നിന്നും നോട്ടീസും, ടൈംടേബിളും, സ്റ്റാറ്റസും ഒരുമിച്ച് എടുക്കുന്നു
     function fetchLatestExamTitles() {
       fetch(`${HOME_SHEET_APPS_SCRIPT_URL}?action=get_latest_titles`)
         .then(res => res.json())
         .then(data => {
           examStatusConfig = {};
-          if (Array.isArray(data)) {
-            data.forEach(item => {
-              if (typeof item === 'object' && item.title) {
-                const cleanT = item.title.replace(/[^a-zA-Z0-9\u0D00-\u0D7F]/g, '').toLowerCase();
-                examStatusConfig[cleanT] = {
-                  status: (item.status || 'LATEST').toUpperCase(),
-                  releaseTime: item.releaseTime || ""
-                };
-              }
-            });
+          let statusItems = [];
+
+          if (data && typeof data === 'object' && !Array.isArray(data)) {
+            statusItems = data.statusList || [];
+            timetableData = data.timetable || [];
+            
+            // 🌟 4. നോട്ടീസ് മെസ്സേജ് സെറ്റ് ചെയ്യുന്നു
+            if (data.notice && String(data.notice).trim().length > 0) {
+              document.getElementById('heroNoticeText').innerText = data.notice;
+              document.getElementById('heroNoticeBox').classList.remove('hidden');
+            } else {
+              document.getElementById('heroNoticeBox').classList.add('hidden');
+            }
+          } else if (Array.isArray(data)) {
+            statusItems = data;
           }
+
+          statusItems.forEach(item => {
+            if (typeof item === 'object' && item.title) {
+              const cleanT = item.title.replace(/[^a-zA-Z0-9\u0D00-\u0D7F]/g, '').toLowerCase();
+              examStatusConfig[cleanT] = {
+                status: (item.status || 'LATEST').toUpperCase(),
+                releaseTime: item.releaseTime || ""
+              };
+            }
+          });
+
           if (rawQuizList.length > 0) {
             applyFiltersAndRender();
+            renderTimetableSection();
           }
         })
         .catch(err => console.log("Status fetch error:", err));
+    }
+
+    // 🌟 2 & 3. ടൈംടേബിൾ ഭാഗം റെൻഡർ ചെയ്യുന്നു
+    function renderTimetableSection() {
+      const ttBox = document.getElementById('timetableWrapper');
+      const highlight = document.getElementById('todayExamHighlight');
+      const upcomingList = document.getElementById('upcomingTimetableList');
+
+      if (!timetableData || timetableData.length === 0) {
+        ttBox.classList.add('hidden');
+        return;
+      }
+
+      const todayStr = new Date().toISOString().split('T')[0]; // 'YYYY-MM-DD'
+      document.getElementById('ttTodayDateBadge').innerText = todayStr;
+
+      // ഇന്നത്തെ ദിവസത്തെ പരീക്ഷ കണ്ടെത്തുന്നു
+      const todayItem = timetableData.find(item => {
+        if (!item.date) return false;
+        return item.date.startsWith(todayStr);
+      });
+
+      // ഇന്നത്തെ ദിവസം കഴിഞ്ഞുള്ള വരാനിരിക്കുന്ന പരീക്ഷകൾ
+      const futureItems = timetableData.filter(item => {
+        if (!item.date) return false;
+        return item.date.split(' ')[0] > todayStr;
+      });
+
+      if (!todayItem && futureItems.length === 0) {
+        ttBox.classList.add('hidden');
+        return;
+      }
+
+      ttBox.classList.remove('hidden');
+
+      // ഇന്നത്തെ പരീക്ഷ ഹൈലൈറ്റ്
+      if (todayItem) {
+        const matchingQuiz = rawQuizList.find(q => {
+          const cQ = q.title.replace(/[^a-zA-Z0-9\u0D00-\u0D7F]/g, '').toLowerCase();
+          const cT = todayItem.title.replace(/[^a-zA-Z0-9\u0D00-\u0D7F]/g, '').toLowerCase();
+          return cQ === cT || cQ.includes(cT);
+        });
+
+        let targetUrl = matchingQuiz ? matchingQuiz.fileUrl : '#';
+        if (matchingQuiz && candidate) {
+          const separator = targetUrl.includes('?') ? '&' : '?';
+          targetUrl = `${targetUrl}${separator}name=${encodeURIComponent(candidate.name)}&phone=${encodeURIComponent(candidate.phone)}&title=${encodeURIComponent(matchingQuiz.title)}&sheetUrl=${encodeURIComponent(GLOBAL_SHEET_WEBAPP_URL)}&pdfUrl=${encodeURIComponent(matchingQuiz.pdfUrl || '')}`;
+        }
+
+        highlight.innerHTML = `
+          <div class="bg-slate-950 p-3 rounded-xl border border-emerald-500/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-inner">
+            <div class="space-y-1">
+              <div class="flex items-center space-x-2">
+                <span class="px-2 py-0.5 rounded bg-emerald-500 text-slate-950 font-black text-[10px] tracking-wider uppercase animate-pulse">● LIVE TODAY</span>
+                <span class="text-xs text-slate-400 font-mono">${todayItem.date}</span>
+              </div>
+              <h4 class="text-sm font-bold text-white">${todayItem.title}</h4>
+            </div>
+            <a href="${targetUrl}" class="px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 text-slate-950 font-black rounded-xl text-xs transition text-center shadow whitespace-nowrap">
+              പരീക്ഷ ആരംഭിക്കുക ›
+            </a>
+          </div>
+        `;
+      } else {
+        highlight.innerHTML = `
+          <div class="bg-slate-950/70 p-2.5 rounded-xl border border-slate-800 text-xs text-slate-400 flex items-center justify-between">
+            <span>ഇന്ന് പുതിയ പരീക്ഷകൾ ക്രമീകരിച്ചിട്ടില്ല.</span>
+            <span class="text-emerald-400 font-semibold">അടുത്ത പരീക്ഷ താഴെ കാണാം ▾</span>
+          </div>
+        `;
+      }
+
+      // വരാനിരിക്കുന്ന പരീക്ഷകൾ ഫോൾഡറിൽ റെൻഡർ ചെയ്യുന്നു
+      upcomingList.innerHTML = '';
+      if (futureItems.length > 0) {
+        futureItems.forEach(fut => {
+          const row = document.createElement('div');
+          row.className = "bg-slate-950/60 p-2 rounded-lg border border-slate-800 flex items-center justify-between text-xs";
+          row.innerHTML = `
+            <span class="font-medium text-slate-300 truncate max-w-[200px] sm:max-w-none">${fut.title}</span>
+            <span class="font-mono text-[11px] text-emerald-400 bg-slate-900 px-2 py-0.5 rounded border border-emerald-500/20">🔒 ${fut.date}</span>
+          `;
+          upcomingList.appendChild(row);
+        });
+      } else {
+        upcomingList.innerHTML = '<p class="text-[11px] text-slate-500 py-1">കൂടുതൽ പരീക്ഷകൾ ഉടൻ അപ്ഡേറ്റ് ചെയ്യുന്നതാണ്.</p>';
+      }
+    }
+
+    function toggleTimetableDetails() {
+      const details = document.getElementById('fullTimetableDetails');
+      const btnText = document.getElementById('ttToggleBtnText');
+      details.classList.toggle('hidden');
+      if (details.classList.contains('hidden')) {
+        btnText.innerText = "വിശദാംശങ്ങൾ";
+      } else {
+        btnText.innerText = "മടക്കുക";
+      }
     }
 
     document.getElementById('phoneCheckForm').onsubmit = (e) => {
@@ -436,6 +616,7 @@
         fetchQuizzesFromSheet();
       } else {
         applyFiltersAndRender();
+        renderTimetableSection();
       }
     }
 
@@ -504,6 +685,7 @@
 
           if (rawQuizList.length > 0) {
             applyFiltersAndRender();
+            renderTimetableSection();
           }
         })
         .catch(err => {
@@ -627,6 +809,7 @@
         
         populateCategories();
         applyFiltersAndRender();
+        renderTimetableSection();
       } catch (e) {
         document.getElementById('loading').innerHTML = `
           <p class="text-rose-400">ഡാറ്റ ലോഡ് ചെയ്യാൻ കഴിഞ്ഞില്ല!</p>
@@ -673,7 +856,6 @@
       renderCards(filtered);
     }
 
-    // 🌟 തീയതിയും സമയവും കൃത്യമായി ഫോർമാറ്റ് ചെയ്യുന്ന സഹായ ഫംഗ്ഷൻ
     function formatScheduledDateTime(dateObj) {
       const months = ['ജനുവരി', 'ഫെബ്രുവരി', 'മാർച്ച്', 'ഏപ്രിൽ', 'മേയ്', 'ജൂൺ', 'ജൂലൈ', 'ഓഗസ്റ്റ്', 'സെപ്റ്റംബർ', 'ഒക്ടോബർ', 'നവംബർ', 'ഡിസംബർ'];
       const month = months[dateObj.getMonth()];
@@ -683,12 +865,11 @@
       const minutes = dateObj.getMinutes().toString().padStart(2, '0');
       const ampm = hours >= 12 ? 'PM' : 'AM';
       hours = hours % 12;
-      hours = hours ? hours : 12; // 0 ആണെങ്കിൽ 12 ആക്കുന്നു
+      hours = hours ? hours : 12;
 
       return `${month} ${day}, ${hours}:${minutes} ${ampm}`;
     }
 
-    // 🌟 15 മിനിറ്റ് വരെ സ്റ്റാർട്ടിംഗ് തീയതി/സമയവും, അവസാന 15 മിനിറ്റിൽ കൗണ്ട്ഡൗണും കാണിക്കുന്ന renderCards
     function renderCards(list) {
       const grid = document.getElementById('quizGrid');
       const empty = document.getElementById('emptyState');
@@ -738,23 +919,20 @@
         let isLatest = false;
         let buttonDisplayText = "🔒 ഉടൻ വരുന്നു (Locked)";
 
-        // 🌟 തീയതിയും 15 മിനിറ്റ് കൗണ്ട്ഡൗണും കണക്കാക്കുന്ന പ്രധാന ഭാഗം
         if (releaseDate) {
           if (currentTime < releaseDate) {
             isUpcoming = true;
             const diffMs = releaseDate - currentTime;
 
-            // അവസാന 15 മിനിറ്റിൽ ആണെങ്കിൽ മാത്രം മിനിറ്റ് ബാക്കി എന്ന് കാണിക്കുന്നു
             if (diffMs <= FIFTEEN_MINUTES) {
               const diffMins = Math.max(1, Math.ceil(diffMs / (1000 * 60)));
               buttonDisplayText = `🔒 ഉടൻ വരുന്നു (${diffMins} മിനിറ്റ് ബാക്കി)`;
             } else {
-              // 15 മിനിറ്റിൽ കൂടുതൽ ഉണ്ടെങ്കിൽ സ്റ്റാർട്ടിങ് തീയതിയും സമയവും കാണിക്കുന്നു
               const scheduledText = formatScheduledDateTime(releaseDateObj);
               buttonDisplayText = `🔒 ഉടൻ വരുന്നു (${scheduledText})`;
             }
           } else if (currentTime >= releaseDate && (currentTime - releaseDate) <= THIRTY_SIX_HOURS) {
-            isLatest = true; // 36 മണിക്കൂർ സമയം LATEST ബാഡ്ജ്
+            isLatest = true;
           }
         } else {
           if (baseStatus === 'UPCOMING') isUpcoming = true;
