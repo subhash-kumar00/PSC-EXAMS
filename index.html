@@ -358,15 +358,17 @@
         .then(data => {
           let count = 0;
           if (data && typeof data === 'object') {
-            count = data.totalUsers || data.count || (Array.isArray(data) ? data.length : 0);
+            count = data.totalUsers || data.count || 0;
           } else if (typeof data === 'number') {
             count = data;
           }
-          // 🌟 '+' ചിഹ്നം മാറ്റി കൃത്യമായ എണ്ണം മാത്രം കാണിക്കുന്നു:
-          document.getElementById('topUserCount').innerText = count > 0 ? `${count} Users` : '0 Users';
+          const displayEl = document.getElementById('topUserCount');
+          if (displayEl) {
+            displayEl.innerText = count > 0 ? `${count} Users` : '0 Users';
+          }
         })
-        .catch(() => {
-          document.getElementById('topUserCount').innerText = '0 Users';
+        .catch(err => {
+          console.log("User count error:", err);
         });
     }
 
