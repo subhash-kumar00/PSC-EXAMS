@@ -322,7 +322,7 @@
 
     window.addEventListener('DOMContentLoaded', () => {
       fetchLatestExamTitles();
-      fetchTopUserCount();
+      ;
 
       const savedUser = localStorage.getItem('sk_candidate_user');
       if (savedUser) {
@@ -362,10 +362,11 @@
           } else if (typeof data === 'number') {
             count = data;
           }
-          document.getElementById('topUserCount').innerText = count > 0 ? `${count}+ Users` : '150+ Users';
+          // 🌟 '+' ചിഹ്നം മാറ്റി കൃത്യമായ എണ്ണം മാത്രം കാണിക്കുന്നു:
+          document.getElementById('topUserCount').innerText = count > 0 ? `${count} Users` : '0 Users';
         })
         .catch(() => {
-          document.getElementById('topUserCount').innerText = '150+ Users';
+          document.getElementById('topUserCount').innerText = '0 Users';
         });
     }
 
