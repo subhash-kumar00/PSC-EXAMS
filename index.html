@@ -59,7 +59,7 @@
               <span>SK PSC</span>
               <span class="text-[10px] bg-emerald-500/20 text-emerald-300 font-bold px-1.5 py-0.5 rounded border border-emerald-500/30">PORTAL</span>
             </h1>
-            <!-- 🌟 1. മുകളിലെ ഒതുക്കമുള്ള ലൈവ് യൂസർ കൗണ്ട് ബാഡ്ജ് -->
+            <!-- 🌟 1. മുകളിലെ ലൈവ് യൂസർ കൗണ്ട് ബാഡ്ജ് -->
             <span class="text-[10px] font-bold text-emerald-400 bg-emerald-950/90 px-2 py-0.5 rounded-full border border-emerald-500/30 flex items-center space-x-1 shadow-sm">
               <span>👥</span>
               <span id="topUserCount">...</span>
@@ -111,7 +111,7 @@
           </p>
         </div>
 
-        <!-- 🌟 4. ലോഗോ/ഹീറോ ഏരിയയിലെ ഡൈനാമിക് നോട്ടീസ് മെസ്സേജ് ബോക്സ് -->
+        <!-- 🌟 4. നോട്ടീസ് മെസ്സേജ് ബോക്സ് -->
         <div id="heroNoticeBox" class="hidden bg-emerald-950/50 border border-emerald-500/40 rounded-2xl p-3 flex items-start space-x-2.5 shadow-lg">
           <span class="text-sm shrink-0 mt-0.5">📢</span>
           <div class="text-xs text-emerald-200 leading-relaxed font-medium">
@@ -174,7 +174,7 @@
     <!-- Exam Section -->
     <div id="examSection" class="hidden space-y-6">
 
-      <!-- 🌟 2 & 3. ഇന്നത്തെ ടൈംടേബിൾ & ഡെയ്‌ലി എക്സാം ബോക്സ് (Sort/Search-ന് മുകളിൽ) -->
+      <!-- 🌟 2 & 3. ടൈംടേബിൾ കാർഡ് -->
       <div id="timetableWrapper" class="hidden bg-slate-900 border border-emerald-500/40 rounded-2xl p-4 sm:p-5 shadow-xl space-y-3">
         <div class="flex items-center justify-between border-b border-slate-800/80 pb-2.5">
           <div class="flex items-center space-x-2">
@@ -192,14 +192,14 @@
           <!-- ഇന്നത്തെ എല്ലാ പരീക്ഷകളും ഇവിടെ ഒരുമിച്ച് റെൻഡർ ചെയ്യപ്പെടും -->
         </div>
 
-        <!-- മറ്റ് ദിവസങ്ങളിലെ പരീക്ഷകളുടെ ഫോൾഡിങ് ലിസ്റ്റ് -->
+        <!-- വരാനിരിക്കുന്ന പരീക്ഷകളുടെ ഫോൾഡിങ് ലിസ്റ്റ് -->
         <div id="fullTimetableDetails" class="hidden pt-2 border-t border-slate-800/80 space-y-2">
           <h4 class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">തുടർന്നുള്ള ദിവസങ്ങളിലെ പരീക്ഷകൾ (Upcoming Schedule):</h4>
           <div id="upcomingTimetableList" class="space-y-1.5 max-h-48 overflow-y-auto custom-scroll pr-1"></div>
         </div>
       </div>
 
-      <!-- Search & Filters -->
+      <!-- Controls -->
       <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-lg space-y-4">
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
@@ -243,7 +243,7 @@
 
   </main>
 
-  <!-- Profile & Cloud History Modal -->
+  <!-- Profile Modal -->
   <div id="profileModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-xl w-full p-6 sm:p-7 shadow-2xl space-y-5 flex flex-col max-h-[85vh]">
       <div class="flex items-center justify-between border-b border-slate-800 pb-3">
@@ -322,7 +322,7 @@
 
     window.addEventListener('DOMContentLoaded', () => {
       fetchLatestExamTitles();
-      fetchTopUserCount(); // 🌟 ടോപ്പ് യൂസർ കൗണ്ട് ലഭ്യമാക്കുന്നു
+      fetchTopUserCount();
 
       const savedUser = localStorage.getItem('sk_candidate_user');
       if (savedUser) {
@@ -343,7 +343,7 @@
         }
       }
 
-      // ഓരോ 30 സെക്കൻഡിലും ടൈം ചെക്ക് ചെയ്ത് 15 മിനിറ്റ് കൗണ്ട്ഡൗണും ടൈംടേബിളും പുതുക്കുന്നു
+      // ഓരോ 30 സെക്കൻഡിലും ടൈം ചെക്ക് ചെയ്ത് കൗണ്ട്ഡൗണും ടൈംടേബിളും പുതുക്കുന്നു
       setInterval(() => {
         if (rawQuizList.length > 0) {
           applyFiltersAndRender();
@@ -352,7 +352,6 @@
       }, 30000);
     });
 
-    // 🌟 1. ടോപ്പിൽ ഒതുക്കത്തിൽ യൂസർ കൗണ്ട് കാണിക്കുന്നു
     function fetchTopUserCount() {
       fetch(`${GLOBAL_SHEET_WEBAPP_URL}?action=get_total_users`)
         .then(res => res.json())
@@ -370,7 +369,6 @@
         });
     }
 
-    // 🌟 ഹോം ഷീറ്റിൽ നിന്നും നോട്ടീസും, ടൈംടേബിളും, സ്റ്റാറ്റസും ഒരുമിച്ച് എടുക്കുന്നു
     function fetchLatestExamTitles() {
       fetch(`${HOME_SHEET_APPS_SCRIPT_URL}?action=get_latest_titles`)
         .then(res => res.json())
@@ -382,7 +380,6 @@
             statusItems = data.statusList || [];
             timetableData = data.timetable || [];
             
-            // 🌟 4. നോട്ടീസ് മെസ്സേജ് സെറ്റ് ചെയ്യുന്നു
             if (data.notice && String(data.notice).trim().length > 0) {
               document.getElementById('heroNoticeText').innerText = data.notice;
               document.getElementById('heroNoticeBox').classList.remove('hidden');
@@ -411,7 +408,7 @@
         .catch(err => console.log("Status fetch error:", err));
     }
 
-    // 🌟 2 & 3. ഒരേ ദിവസത്തെ എല്ലാ പരീക്ഷകളും LIVE ആയി ടൈംടേബിളിൽ കാണിക്കുന്നു
+    // 🌟 സമയം പരിശോധിച്ചു മാത്രം പരീക്ഷകൾ അൺലോക്ക് ചെയ്യുന്ന ടൈംടേബിൾ ഫംഗ്ഷൻ
     function renderTimetableSection() {
       const ttBox = document.getElementById('timetableWrapper');
       const highlight = document.getElementById('todayExamHighlight');
@@ -422,16 +419,18 @@
         return;
       }
 
-      const todayStr = new Date().toISOString().split('T')[0]; // 'YYYY-MM-DD'
+      const now = new Date();
+      const currentTime = now.getTime();
+      const todayStr = now.toISOString().split('T')[0]; // 'YYYY-MM-DD'
       document.getElementById('ttTodayDateBadge').innerText = todayStr;
 
-      // 🌟 ഇന്നത്തെ ദിവസത്തെ എല്ലാ പരീക്ഷകളും ഫിൽട്ടർ ചെയ്യുന്നു
+      // ഇന്നത്തെ ദിവസത്തെ പരീക്ഷകൾ
       const todayItems = timetableData.filter(item => {
         if (!item.date) return false;
         return item.date.startsWith(todayStr);
       });
 
-      // ഇന്നത്തെ ദിവസം കഴിഞ്ഞുള്ള വരാനിരിക്കുന്ന പരീക്ഷകൾ
+      // തുടർന്നുള്ള ദിവസങ്ങളിലെ പരീക്ഷകൾ
       const futureItems = timetableData.filter(item => {
         if (!item.date) return false;
         return item.date.split(' ')[0] > todayStr;
@@ -443,10 +442,11 @@
       }
 
       ttBox.classList.remove('hidden');
-
-      // 🌟 ഇന്നത്തെ എല്ലാ പരീക്ഷകളും ഓരോ കാർഡുകളായി ഒന്നിനു താഴെ ഒന്നായി ലിസ്റ്റ് ചെയ്യുന്നു
       highlight.innerHTML = '';
+
       if (todayItems.length > 0) {
+        const FIFTEEN_MINUTES = 15 * 60 * 1000;
+
         todayItems.forEach(todayItem => {
           const matchingQuiz = rawQuizList.find(q => {
             const cQ = q.title.replace(/[^a-zA-Z0-9\u0D00-\u0D7F]/g, '').toLowerCase();
@@ -460,19 +460,55 @@
             targetUrl = `${targetUrl}${separator}name=${encodeURIComponent(candidate.name)}&phone=${encodeURIComponent(candidate.phone)}&title=${encodeURIComponent(matchingQuiz.title)}&sheetUrl=${encodeURIComponent(GLOBAL_SHEET_WEBAPP_URL)}&pdfUrl=${encodeURIComponent(matchingQuiz.pdfUrl || '')}`;
           }
 
+          // റിലീസ് സമയം പരിശോധിക്കുന്നു
+          const releaseDateObj = new Date(todayItem.date);
+          const releaseTime = releaseDateObj.getTime();
+          const isTimeReached = !isNaN(releaseTime) && (currentTime >= releaseTime);
+
+          let badgeMarkup = '';
+          let actionMarkup = '';
+
+          if (isTimeReached) {
+            // സമയം എത്തിക്കഴിഞ്ഞാൽ: ലൈവ് ആയി ഓപ്പൺ ആകുന്നു
+            badgeMarkup = `<span class="px-2 py-0.5 rounded bg-emerald-500 text-slate-950 font-black text-[10px] tracking-wider uppercase animate-pulse">● LIVE NOW</span>`;
+            actionMarkup = `
+              <a href="${targetUrl}" class="px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 text-slate-950 font-black rounded-xl text-xs transition text-center shadow whitespace-nowrap">
+                പരീക്ഷ ആരംഭിക്കുക ›
+              </a>
+            `;
+          } else {
+            // സമയം ആയിട്ടില്ലെങ്കിൽ: UPCOMING ബാഡ്ജും ലോക്ക് ചെയ്ത ബട്ടണും
+            badgeMarkup = `<span class="auto-upcoming-badge px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-emerald-400 text-slate-950 font-mono shadow-[0_0_10px_#10b981]">● UPCOMING</span>`;
+            
+            let btnLabel = "🔒 ഉടൻ വരുന്നു (Locked)";
+            if (!isNaN(releaseTime)) {
+              const diffMs = releaseTime - currentTime;
+              if (diffMs <= FIFTEEN_MINUTES) {
+                const diffMins = Math.max(1, Math.ceil(diffMs / (1000 * 60)));
+                btnLabel = `🔒 ഉടൻ വരുന്നു (${diffMins} മിനിറ്റ് ബാക്കി)`;
+              } else {
+                btnLabel = `🔒 ഉടൻ വരുന്നു (${formatScheduledDateTime(releaseDateObj)})`;
+              }
+            }
+
+            actionMarkup = `
+              <button disabled class="px-4 py-2.5 bg-slate-900 border border-emerald-500/30 text-emerald-400 font-bold rounded-xl text-xs cursor-not-allowed opacity-85 shadow-inner select-none whitespace-nowrap">
+                <span>${btnLabel}</span>
+              </button>
+            `;
+          }
+
           const cardDiv = document.createElement('div');
-          cardDiv.className = "bg-slate-950 p-3 rounded-xl border border-emerald-500/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-inner";
+          cardDiv.className = "bg-slate-950 p-3 rounded-xl border border-emerald-500/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-inner";
           cardDiv.innerHTML = `
             <div class="space-y-1">
               <div class="flex items-center space-x-2">
-                <span class="px-2 py-0.5 rounded bg-emerald-500 text-slate-950 font-black text-[10px] tracking-wider uppercase animate-pulse">● LIVE TODAY</span>
+                ${badgeMarkup}
                 <span class="text-xs text-slate-400 font-mono">${todayItem.date}</span>
               </div>
               <h4 class="text-sm font-bold text-white">${todayItem.title}</h4>
             </div>
-            <a href="${targetUrl}" class="px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 text-slate-950 font-black rounded-xl text-xs transition text-center shadow whitespace-nowrap">
-              പരീക്ഷ ആരംഭിക്കുക ›
-            </a>
+            ${actionMarkup}
           `;
           highlight.appendChild(cardDiv);
         });
@@ -485,7 +521,7 @@
         `;
       }
 
-      // വരാനിരിക്കുന്ന പരീക്ഷകൾ ഫോൾഡറിൽ റെൻഡർ ചെയ്യുന്നു
+      // വരാനിരിക്കുന്ന ദിവസങ്ങളിലെ പരീക്ഷകൾ
       upcomingList.innerHTML = '';
       if (futureItems.length > 0) {
         futureItems.forEach(fut => {
