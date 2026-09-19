@@ -59,7 +59,7 @@
               <span>SK PSC</span>
               <span class="text-[10px] bg-emerald-500/20 text-emerald-300 font-bold px-1.5 py-0.5 rounded border border-emerald-500/30">PORTAL</span>
             </h1>
-            <!-- 🌟 1. മുകളിലെ ഒതുക്കമുള്ള യൂസർ കൗണ്ട് ബാഡ്ജ് -->
+            <!-- 🌟 1. മുകളിലെ ഒതുക്കമുള്ള ലൈവ് യൂസർ കൗണ്ട് ബാഡ്ജ് -->
             <span class="text-[10px] font-bold text-emerald-400 bg-emerald-950/90 px-2 py-0.5 rounded-full border border-emerald-500/30 flex items-center space-x-1 shadow-sm">
               <span>👥</span>
               <span id="topUserCount">...</span>
@@ -188,18 +188,18 @@
           </button>
         </div>
 
-        <div id="todayExamHighlight" class="space-y-2">
-          <!-- ഇന്നത്തെ പരീക്ഷ ഇവിടെ തനിയെ വരും -->
+        <div id="todayExamHighlight" class="space-y-2.5">
+          <!-- ഇന്നത്തെ എല്ലാ പരീക്ഷകളും ഇവിടെ ഒരുമിച്ച് റെൻഡർ ചെയ്യപ്പെടും -->
         </div>
 
-        <!-- മറ്റ് ദിവസങ്ങളിലെ പരീക്ഷകളുടെ ലിസ്റ്റ് (Toggleable) -->
+        <!-- മറ്റ് ദിവസങ്ങളിലെ പരീക്ഷകളുടെ ഫോൾഡിങ് ലിസ്റ്റ് -->
         <div id="fullTimetableDetails" class="hidden pt-2 border-t border-slate-800/80 space-y-2">
           <h4 class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">തുടർന്നുള്ള ദിവസങ്ങളിലെ പരീക്ഷകൾ (Upcoming Schedule):</h4>
           <div id="upcomingTimetableList" class="space-y-1.5 max-h-48 overflow-y-auto custom-scroll pr-1"></div>
         </div>
       </div>
 
-      <!-- Controls -->
+      <!-- Search & Filters -->
       <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-lg space-y-4">
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
@@ -322,7 +322,7 @@
 
     window.addEventListener('DOMContentLoaded', () => {
       fetchLatestExamTitles();
-      fetchTopUserCount(); // 🌟 ടോപ്പ് യൂസർ കൗണ്ട് ഫെച്ച് ചെയ്യുന്നു
+      fetchTopUserCount(); // 🌟 ടോപ്പ് യൂസർ കൗണ്ട് ലഭ്യമാക്കുന്നു
 
       const savedUser = localStorage.getItem('sk_candidate_user');
       if (savedUser) {
@@ -343,7 +343,7 @@
         }
       }
 
-      // ഓരോ 30 സെക്കൻഡിലും ടൈം ചെക്ക് ചെയ്ത് കൗണ്ട്ഡൗണും ടൈംടേബിളും പുതുക്കുന്നു
+      // ഓരോ 30 സെക്കൻഡിലും ടൈം ചെക്ക് ചെയ്ത് 15 മിനിറ്റ് കൗണ്ട്ഡൗണും ടൈംടേബിളും പുതുക്കുന്നു
       setInterval(() => {
         if (rawQuizList.length > 0) {
           applyFiltersAndRender();
@@ -411,7 +411,7 @@
         .catch(err => console.log("Status fetch error:", err));
     }
 
-    // 🌟 2 & 3. ടൈംടേബിൾ ഭാഗം റെൻഡർ ചെയ്യുന്നു
+    // 🌟 2 & 3. ഒരേ ദിവസത്തെ എല്ലാ പരീക്ഷകളും LIVE ആയി ടൈംടേബിളിൽ കാണിക്കുന്നു
     function renderTimetableSection() {
       const ttBox = document.getElementById('timetableWrapper');
       const highlight = document.getElementById('todayExamHighlight');
@@ -425,8 +425,8 @@
       const todayStr = new Date().toISOString().split('T')[0]; // 'YYYY-MM-DD'
       document.getElementById('ttTodayDateBadge').innerText = todayStr;
 
-      // ഇന്നത്തെ ദിവസത്തെ പരീക്ഷ കണ്ടെത്തുന്നു
-      const todayItem = timetableData.find(item => {
+      // 🌟 ഇന്നത്തെ ദിവസത്തെ എല്ലാ പരീക്ഷകളും ഫിൽട്ടർ ചെയ്യുന്നു
+      const todayItems = timetableData.filter(item => {
         if (!item.date) return false;
         return item.date.startsWith(todayStr);
       });
@@ -437,29 +437,32 @@
         return item.date.split(' ')[0] > todayStr;
       });
 
-      if (!todayItem && futureItems.length === 0) {
+      if (todayItems.length === 0 && futureItems.length === 0) {
         ttBox.classList.add('hidden');
         return;
       }
 
       ttBox.classList.remove('hidden');
 
-      // ഇന്നത്തെ പരീക്ഷ ഹൈലൈറ്റ്
-      if (todayItem) {
-        const matchingQuiz = rawQuizList.find(q => {
-          const cQ = q.title.replace(/[^a-zA-Z0-9\u0D00-\u0D7F]/g, '').toLowerCase();
-          const cT = todayItem.title.replace(/[^a-zA-Z0-9\u0D00-\u0D7F]/g, '').toLowerCase();
-          return cQ === cT || cQ.includes(cT);
-        });
+      // 🌟 ഇന്നത്തെ എല്ലാ പരീക്ഷകളും ഓരോ കാർഡുകളായി ഒന്നിനു താഴെ ഒന്നായി ലിസ്റ്റ് ചെയ്യുന്നു
+      highlight.innerHTML = '';
+      if (todayItems.length > 0) {
+        todayItems.forEach(todayItem => {
+          const matchingQuiz = rawQuizList.find(q => {
+            const cQ = q.title.replace(/[^a-zA-Z0-9\u0D00-\u0D7F]/g, '').toLowerCase();
+            const cT = todayItem.title.replace(/[^a-zA-Z0-9\u0D00-\u0D7F]/g, '').toLowerCase();
+            return cQ === cT || cQ.includes(cT);
+          });
 
-        let targetUrl = matchingQuiz ? matchingQuiz.fileUrl : '#';
-        if (matchingQuiz && candidate) {
-          const separator = targetUrl.includes('?') ? '&' : '?';
-          targetUrl = `${targetUrl}${separator}name=${encodeURIComponent(candidate.name)}&phone=${encodeURIComponent(candidate.phone)}&title=${encodeURIComponent(matchingQuiz.title)}&sheetUrl=${encodeURIComponent(GLOBAL_SHEET_WEBAPP_URL)}&pdfUrl=${encodeURIComponent(matchingQuiz.pdfUrl || '')}`;
-        }
+          let targetUrl = matchingQuiz ? matchingQuiz.fileUrl : '#';
+          if (matchingQuiz && candidate) {
+            const separator = targetUrl.includes('?') ? '&' : '?';
+            targetUrl = `${targetUrl}${separator}name=${encodeURIComponent(candidate.name)}&phone=${encodeURIComponent(candidate.phone)}&title=${encodeURIComponent(matchingQuiz.title)}&sheetUrl=${encodeURIComponent(GLOBAL_SHEET_WEBAPP_URL)}&pdfUrl=${encodeURIComponent(matchingQuiz.pdfUrl || '')}`;
+          }
 
-        highlight.innerHTML = `
-          <div class="bg-slate-950 p-3 rounded-xl border border-emerald-500/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-inner">
+          const cardDiv = document.createElement('div');
+          cardDiv.className = "bg-slate-950 p-3 rounded-xl border border-emerald-500/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-inner";
+          cardDiv.innerHTML = `
             <div class="space-y-1">
               <div class="flex items-center space-x-2">
                 <span class="px-2 py-0.5 rounded bg-emerald-500 text-slate-950 font-black text-[10px] tracking-wider uppercase animate-pulse">● LIVE TODAY</span>
@@ -470,8 +473,9 @@
             <a href="${targetUrl}" class="px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 text-slate-950 font-black rounded-xl text-xs transition text-center shadow whitespace-nowrap">
               പരീക്ഷ ആരംഭിക്കുക ›
             </a>
-          </div>
-        `;
+          `;
+          highlight.appendChild(cardDiv);
+        });
       } else {
         highlight.innerHTML = `
           <div class="bg-slate-950/70 p-2.5 rounded-xl border border-slate-800 text-xs text-slate-400 flex items-center justify-between">
