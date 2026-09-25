@@ -359,7 +359,6 @@
     }
 
     window.addEventListener('DOMContentLoaded', () => {
-      // കാഷ് ചെയ്ത സ്റ്റാറ്റസും ടൈറ്റിലുകളും ഉണ്ടെങ്കിൽ പെട്ടെന്ന് എടുക്കുന്നു
       const cachedStatus = sessionStorage.getItem('sk_cached_status_config');
       if (cachedStatus) {
         try {
@@ -451,7 +450,6 @@
             }
           });
 
-          // കാഷിലേക്ക് സേവ് ചെയ്യുന്നു
           sessionStorage.setItem('sk_cached_status_config', JSON.stringify({
             examStatusConfig: examStatusConfig,
             timetableData: timetableData
@@ -861,11 +859,9 @@
       }
     }
 
-    // 🚀 വേഗത്തിലുള്ള ലോഡിംഗിനായി കാഷിംഗ് ഉൾപ്പെടുത്തിയ fetch ഫംഗ്ഷൻ
     async function fetchQuizzesFromSheet() {
       const cached = sessionStorage.getItem('sk_cached_quizzes');
       
-      // ബ്രൗസർ സെഷനിൽ ഡാറ്റ ഉണ്ടെങ്കിൽ കാത്തിരിക്കാതെ ഉടൻ തന്നെ കാണിക്കുന്നു
       if (cached) {
         try {
           rawQuizList = JSON.parse(cached);
@@ -953,20 +949,36 @@
       return `${month} ${day}, ${hours}:${minutes} ${ampm}`;
     }
 
-    // 🌟 പരീക്ഷകളുടെ ലൈവ് റാങ്ക് ലിസ്റ്റ് കാണിക്കുന്ന ഫംഗ്ഷൻ
+    // 🌟 പരീക്ഷകളുടെ ലൈവ് റാങ്ക് ലിസ്റ്റ് കാണിക്കുന്ന ഫംഗ്ഷൻ (ബ്ലാങ്ക് വരികൾ ഒഴിവാക്കിയത്)
     function showExamLiveRankList(sheetTargetUrl, examTitle) {
       document.getElementById('rankListModal').classList.remove('hidden');
       document.getElementById('rankModalTitle').innerText = `🏆 ${examTitle} - ലൈവ് റാങ്ക് ലിസ്റ്റ്`;
       const tbody = document.getElementById('rankListTableBody');
       tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-400">റാങ്ക് ലിസ്റ്റ് ശേഖരിക്കുന്നു...</td></tr>';
 
-      const targetUrl = `${GLOBAL_SHEET_WEBAPP_URL}?action=admin_get_exam_details&sheet=${encodeURIComponent(examTitle.replace(/\s+/g, '_'))}`;
+      const targetUrl = `${GLOBAL_SHEET_WEBAPP_URL}?action=admin_get_exam_details&sheet=${encodeURIComponent(examTitle)}`;
 
       fetch(targetUrl)
         .then(res => res.json())
         .then(data => {
           tbody.innerHTML = '';
-          const ranks = data.rankList || [];
+          
+          let rawRanks = [];
+          if (data && data.rankList) {
+            rawRanks = data.rankList;
+          } else if (Array.isArray(data)) {
+            rawRanks = data;
+          }
+
+          // 🛑 ശൂന്യമായ / വ്യാജ വരികളെ ഫിൽട്ടർ ചെയ്യുന്നു[cite: 1]
+          const ranks = rawRanks.filter(r => {
+            const cleanP = String(r.phone || '').replace(/\D/g, '');
+            const isValidPhone = cleanP.length >= 10 && cleanP !== "0000000000";
+            const isValidName = r.name && r.name !== "വിദ്യാർത്ഥി" && String(r.name).trim() !== "";
+            const hasScore = Number(r.score) > 0 || Number(r.correct) > 0 || Number(r.wrong) > 0;
+            
+            return (isValidPhone || isValidName) && (r.phone !== '-' || hasScore);
+          });
 
           if (ranks.length === 0) {
             tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-500">ഇതുവരെ ആരും പരീക്ഷ പൂർത്തിയാക്കിയിട്ടില്ല.</td></tr>';
@@ -985,7 +997,7 @@
               <td class="p-2.5 text-center">${rankBadge}</td>
               <td class="p-2.5 font-bold text-white">${r.name || 'വിദ്യാർത്ഥി'}</td>
               <td class="p-2.5 font-mono text-slate-400 text-[11px]">${maskPhone(r.phone)}</td>
-              <td class="p-2.5 text-center font-mono font-bold text-emerald-400">${r.score}</td>
+              <td class="p-2.5 text-center font-mono font-bold text-emerald-400">${Number(r.score).toFixed(2)}</td>
             `;
             tbody.appendChild(tr);
           });
@@ -999,7 +1011,6 @@
       document.getElementById('rankListModal').classList.add('hidden');
     }
 
-    // 🚀 DocumentFragment & Fast History Lookup വഴി ഒപ്റ്റിമൈസ് ചെയ്ത renderCards
     function renderCards(list) {
       const grid = document.getElementById('quizGrid');
       const empty = document.getElementById('emptyState');
@@ -1016,7 +1027,6 @@
       const THIRTY_SIX_HOURS = 36 * 60 * 60 * 1000;
       const FIFTEEN_MINUTES = 15 * 60 * 1000;
 
-      // അതിവേഗ മാച്ചിംഗിനായി ഹിസ്റ്ററി മാപ്പ് ചെയ്യുന്നു
       const historyMap = new Map();
       cloudHistoryCache.forEach(h => {
         if (h && h.title) {
