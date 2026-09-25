@@ -59,7 +59,6 @@
               <span>SK PSC</span>
               <span class="text-[10px] bg-emerald-500/20 text-emerald-300 font-bold px-1.5 py-0.5 rounded border border-emerald-500/30">PORTAL</span>
             </h1>
-            <!-- 🌟 1. കൃത്യമായ ലൈവ് യൂസർ കൗണ്ട് ബാഡ്ജ് -->
             <span class="text-[10px] font-bold text-emerald-400 bg-emerald-950/90 px-2 py-0.5 rounded-full border border-emerald-500/30 flex items-center space-x-1 shadow-sm">
               <span>👥</span>
               <span id="topUserCount">...</span>
@@ -111,7 +110,7 @@
           </p>
         </div>
 
-        <!-- 🌟 4. നോട്ടീസ് മെസ്സേജ് ബോക്സ് -->
+        <!-- നോട്ടീസ് മെസ്സേജ് ബോക്സ് -->
         <div id="heroNoticeBox" class="hidden bg-emerald-950/50 border border-emerald-500/40 rounded-2xl p-3 flex items-start space-x-2.5 shadow-lg">
           <span class="text-sm shrink-0 mt-0.5">📢</span>
           <div class="text-xs text-emerald-200 leading-relaxed font-medium">
@@ -174,7 +173,7 @@
     <!-- Exam Section -->
     <div id="examSection" class="hidden space-y-6">
 
-      <!-- 🌟 2 & 3. ടൈംടേബിൾ കാർഡ് -->
+      <!-- ടൈംടേബിൾ കാർഡ് -->
       <div id="timetableWrapper" class="hidden bg-slate-900 border border-emerald-500/40 rounded-2xl p-4 sm:p-5 shadow-xl space-y-3">
         <div class="flex items-center justify-between border-b border-slate-800/80 pb-2.5">
           <div class="flex items-center space-x-2">
@@ -188,11 +187,8 @@
           </button>
         </div>
 
-        <div id="todayExamHighlight" class="space-y-2.5">
-          <!-- ഇന്നത്തെ എല്ലാ പരീക്ഷകളും ഇവിടെ ഒരുമിച്ച് റെൻഡർ ചെയ്യപ്പെടും -->
-        </div>
+        <div id="todayExamHighlight" class="space-y-2.5"></div>
 
-        <!-- വരാനിരിക്കുന്ന പരീക്ഷകളുടെ ഫോൾഡിങ് ലിസ്റ്റ് -->
         <div id="fullTimetableDetails" class="hidden pt-2 border-t border-slate-800/80 space-y-2">
           <h4 class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">തുടർന്നുള്ള ദിവസങ്ങളിലെ പരീക്ഷകൾ (Upcoming Schedule):</h4>
           <div id="upcomingTimetableList" class="space-y-1.5 max-h-48 overflow-y-auto custom-scroll pr-1"></div>
@@ -242,6 +238,43 @@
     </div>
 
   </main>
+
+  <!-- ലൈവ് റാങ്ക് ലിസ്റ്റ് MODAL POPUP -->
+  <div id="rankListModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-emerald-500/40 rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl space-y-4 flex flex-col max-h-[85vh]">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div>
+          <h3 class="text-base sm:text-lg font-black text-cyan-400 flex items-center space-x-2" id="rankModalTitle">
+            <span>ലൈവ് റാങ്ക് ലിസ്റ്റ്</span>
+          </h3>
+          <p class="text-[11px] text-slate-400">ആദ്യ ശ്രമത്തിലെ സ്കോർ അടിസ്ഥാനമാക്കി ക്രമീകരിച്ചത്</p>
+        </div>
+        <button onclick="closeRankListModal()" class="text-slate-400 hover:text-white text-2xl font-bold p-1">&times;</button>
+      </div>
+
+      <div class="overflow-x-auto custom-scroll border border-slate-800 rounded-xl">
+        <table class="w-full text-left text-xs text-slate-300">
+          <thead class="bg-slate-950 text-slate-400 uppercase text-[10px] border-b border-slate-800">
+            <tr>
+              <th class="p-2.5 text-center">റാങ്ക്</th>
+              <th class="p-2.5">പേര്</th>
+              <th class="p-2.5">മൊബൈൽ</th>
+              <th class="p-2.5 text-center">മാർക്ക്</th>
+            </tr>
+          </thead>
+          <tbody id="rankListTableBody" class="divide-y divide-slate-800/60 bg-slate-900/60">
+            <tr>
+              <td colspan="4" class="p-4 text-center text-slate-500">റാങ്ക് ലിസ്റ്റ് ശേഖരിക്കുന്നു...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pt-2 border-t border-slate-800 text-center">
+        <button onclick="closeRankListModal()" class="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold rounded-xl">ക്ലോസ് ചെയ്യുക</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Profile Modal -->
   <div id="profileModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
@@ -308,8 +341,6 @@
   </footer>
 
   <script>
-    const GOOGLE_SHEET_ID = "1ujfXFhMmZVwhTSB9yCHKgf3uNevCbcivcEbmxpw2fso";
-    const CSV_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:csv`;
     const GLOBAL_SHEET_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwKBTm6Hj11YhzZLCEMBupKa3XAuq7Ns4M5iyU4vzwxaXfppLGWIR9ZWJeWlvGBjRaG/exec";
     const HOME_SHEET_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzRZTSShquCnRV1xMZ4YHv2SdpwuKOrJ8kc9EyWOlrPOdEhhwnTy79e1D2wfqjsPXna/exec";
 
@@ -320,9 +351,26 @@
     let timetableData = [];
     let tempPhoneToRegister = "";
 
+    function maskPhone(p) {
+      if (!p) return '-';
+      const clean = String(p).replace(/\D/g, '');
+      if (clean.length === 10) return `${clean.substring(0, 3)}••••${clean.substring(7)}`;
+      return p;
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
+      // കാഷ് ചെയ്ത സ്റ്റാറ്റസും ടൈറ്റിലുകളും ഉണ്ടെങ്കിൽ പെട്ടെന്ന് എടുക്കുന്നു
+      const cachedStatus = sessionStorage.getItem('sk_cached_status_config');
+      if (cachedStatus) {
+        try {
+          const parsed = JSON.parse(cachedStatus);
+          examStatusConfig = parsed.examStatusConfig || {};
+          timetableData = parsed.timetableData || [];
+        } catch(e) {}
+      }
+
       fetchLatestExamTitles();
-      fetchTopUserCount(); // 🌟 യൂസർ കൗണ്ട് ഫെച്ച് ചെയ്യുന്നത് പുനഃസ്ഥാപിച്ചു
+      fetchTopUserCount();
 
       const savedUser = localStorage.getItem('sk_candidate_user');
       if (savedUser) {
@@ -343,7 +391,6 @@
         }
       }
 
-      // ഓരോ 30 സെക്കൻഡിലും ടൈം ചെക്ക് ചെയ്ത് കൗണ്ട്ഡൗണും ടൈംടേബിളും പുതുക്കുന്നു
       setInterval(() => {
         if (rawQuizList.length > 0) {
           applyFiltersAndRender();
@@ -352,7 +399,6 @@
       }, 30000);
     });
 
-    // 🌟 ഗ്ലോബൽ സ്ക്രിപ്റ്റിൽ നിന്നും കൃത്യമായ യൂസർ കൗണ്ട് മാത്രം എടുക്കുന്നു
     function fetchTopUserCount() {
       fetch(`${GLOBAL_SHEET_WEBAPP_URL}?action=get_total_users`)
         .then(res => res.json())
@@ -368,11 +414,9 @@
             displayEl.innerText = count > 0 ? `${count} Users` : '18 Users';
           }
         })
-        .catch(err => {
+        .catch(() => {
           const displayEl = document.getElementById('topUserCount');
-          if (displayEl) {
-            displayEl.innerText = '18 Users';
-          }
+          if (displayEl) displayEl.innerText = '18 Users';
         });
     }
 
@@ -407,6 +451,12 @@
             }
           });
 
+          // കാഷിലേക്ക് സേവ് ചെയ്യുന്നു
+          sessionStorage.setItem('sk_cached_status_config', JSON.stringify({
+            examStatusConfig: examStatusConfig,
+            timetableData: timetableData
+          }));
+
           if (rawQuizList.length > 0) {
             applyFiltersAndRender();
             renderTimetableSection();
@@ -415,7 +465,6 @@
         .catch(err => console.log("Status fetch error:", err));
     }
 
-    // 🌟 സമയം എത്തിയാൽ മാത്രം പരീക്ഷ തുറന്നു നൽകുന്ന ടൈംടേബിൾ ഫംഗ്ഷൻ
     function renderTimetableSection() {
       const ttBox = document.getElementById('timetableWrapper');
       const highlight = document.getElementById('todayExamHighlight');
@@ -428,16 +477,14 @@
 
       const now = new Date();
       const currentTime = now.getTime();
-      const todayStr = now.toISOString().split('T')[0]; // 'YYYY-MM-DD'
+      const todayStr = now.toISOString().split('T')[0];
       document.getElementById('ttTodayDateBadge').innerText = todayStr;
 
-      // ഇന്നത്തെ ദിവസത്തെ പരീക്ഷകൾ
       const todayItems = timetableData.filter(item => {
         if (!item.date) return false;
         return item.date.startsWith(todayStr);
       });
 
-      // തുടർന്നുള്ള ദിവസങ്ങളിലെ പരീക്ഷകൾ
       const futureItems = timetableData.filter(item => {
         if (!item.date) return false;
         return item.date.split(' ')[0] > todayStr;
@@ -467,7 +514,6 @@
             targetUrl = `${targetUrl}${separator}name=${encodeURIComponent(candidate.name)}&phone=${encodeURIComponent(candidate.phone)}&title=${encodeURIComponent(matchingQuiz.title)}&sheetUrl=${encodeURIComponent(GLOBAL_SHEET_WEBAPP_URL)}&pdfUrl=${encodeURIComponent(matchingQuiz.pdfUrl || '')}`;
           }
 
-          // റിലീസ് സമയം പരിശോധിക്കുന്നു
           const releaseDateObj = new Date(todayItem.date);
           const releaseTime = releaseDateObj.getTime();
           const isTimeReached = !isNaN(releaseTime) && (currentTime >= releaseTime);
@@ -476,7 +522,6 @@
           let actionMarkup = '';
 
           if (isTimeReached) {
-            // സമയം എത്തിക്കഴിഞ്ഞാൽ: ലൈവ് ആയി ഓപ്പൺ ആകുന്നു
             badgeMarkup = `<span class="px-2 py-0.5 rounded bg-emerald-500 text-slate-950 font-black text-[10px] tracking-wider uppercase animate-pulse">● LIVE NOW</span>`;
             actionMarkup = `
               <a href="${targetUrl}" class="px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 text-slate-950 font-black rounded-xl text-xs transition text-center shadow whitespace-nowrap">
@@ -484,7 +529,6 @@
               </a>
             `;
           } else {
-            // സമയം ആയിട്ടില്ലെങ്കിൽ: UPCOMING ബാഡ്ജും ലോക്ക് ചെയ്ത ബട്ടണും
             badgeMarkup = `<span class="auto-upcoming-badge px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-emerald-400 text-slate-950 font-mono shadow-[0_0_10px_#10b981]">● UPCOMING</span>`;
             
             let btnLabel = "🔒 ഉടൻ വരുന്നു (Locked)";
@@ -528,7 +572,6 @@
         `;
       }
 
-      // വരാനിരിക്കുന്ന ദിവസങ്ങളിലെ പരീക്ഷകൾ
       upcomingList.innerHTML = '';
       if (futureItems.length > 0) {
         futureItems.forEach(fut => {
@@ -549,11 +592,7 @@
       const details = document.getElementById('fullTimetableDetails');
       const btnText = document.getElementById('ttToggleBtnText');
       details.classList.toggle('hidden');
-      if (details.classList.contains('hidden')) {
-        btnText.innerText = "വിശദാംശങ്ങൾ";
-      } else {
-        btnText.innerText = "മടക്കുക";
-      }
+      btnText.innerText = details.classList.contains('hidden') ? "വിശദാംശങ്ങൾ" : "മടക്കുക";
     }
 
     document.getElementById('phoneCheckForm').onsubmit = (e) => {
@@ -735,7 +774,7 @@
             renderTimetableSection();
           }
         })
-        .catch(err => {
+        .catch(() => {
           if (statusSpan) {
             statusSpan.innerText = "ഹിസ്റ്ററി ലോഡ് ചെയ്യുന്നതിൽ തടസ്സം നേരിട്ടു.";
             statusSpan.className = "text-[11px] text-rose-400";
@@ -822,34 +861,28 @@
       }
     }
 
+    // 🚀 വേഗത്തിലുള്ള ലോഡിംഗിനായി കാഷിംഗ് ഉൾപ്പെടുത്തിയ fetch ഫംഗ്ഷൻ
     async function fetchQuizzesFromSheet() {
-      try {
-        const response = await fetch(CSV_URL);
-        const data = await response.text();
-        const rows = data.split('\n').map(row => row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/));
-        
-        rawQuizList = [];
-        for (let i = 1; i < rows.length; i++) {
-          const r = rows[i];
-          if (!r || r.length < 7) continue;
-          
-          const clean = (val) => val ? val.replace(/^"|"$/g, '').trim() : '';
-          const title = clean(r[0]);
-          if (!title) continue;
+      const cached = sessionStorage.getItem('sk_cached_quizzes');
+      
+      // ബ്രൗസർ സെഷനിൽ ഡാറ്റ ഉണ്ടെങ്കിൽ കാത്തിരിക്കാതെ ഉടൻ തന്നെ കാണിക്കുന്നു
+      if (cached) {
+        try {
+          rawQuizList = JSON.parse(cached);
+          document.getElementById('loading').classList.add('hidden');
+          document.getElementById('quizGrid').classList.remove('hidden');
+          populateCategories();
+          applyFiltersAndRender();
+          renderTimetableSection();
+        } catch(e) {}
+      }
 
-          rawQuizList.push({
-            originalIndex: i,
-            title: title,
-            category: clean(r[1]) || 'പൊതുവിജ്ഞാനം',
-            topics: clean(r[2]),
-            questions: parseInt(clean(r[3])) || 20,
-            time: clean(r[4]),
-            badge: clean(r[5]),
-            fileUrl: clean(r[6]),
-            sheetUrl: clean(r[7]),
-            pdfUrl: clean(r[8])
-          });
-        }
+      try {
+        const response = await fetch(HOME_SHEET_APPS_SCRIPT_URL);
+        const data = await response.json();
+        
+        rawQuizList = Array.isArray(data) ? data : [];
+        sessionStorage.setItem('sk_cached_quizzes', JSON.stringify(rawQuizList));
 
         document.getElementById('loading').classList.add('hidden');
         document.getElementById('quizGrid').classList.remove('hidden');
@@ -858,15 +891,18 @@
         applyFiltersAndRender();
         renderTimetableSection();
       } catch (e) {
-        document.getElementById('loading').innerHTML = `
-          <p class="text-rose-400">ഡാറ്റ ലോഡ് ചെയ്യാൻ കഴിഞ്ഞില്ല!</p>
-          <p class="text-xs text-slate-500 mt-1">ഗൂഗിൾ ഷീറ്റിൽ 'Anyone with the link' നൽകിയിട്ടുണ്ടോ എന്ന് പരിശോധിക്കുക.</p>
-        `;
+        if (!cached) {
+          document.getElementById('loading').innerHTML = `
+            <p class="text-rose-400">ഡാറ്റ ലോഡ് ചെയ്യാൻ കഴിഞ്ഞില്ല!</p>
+            <p class="text-xs text-slate-500 mt-1">കണക്ഷൻ തകരാർ: ${e.toString()}</p>
+          `;
+        }
       }
     }
 
     function populateCategories() {
       const catSelect = document.getElementById('categorySelect');
+      catSelect.innerHTML = '<option value="all">എല്ലാ വിഷയങ്ങളും (All Categories)</option>';
       const categories = [...new Set(rawQuizList.map(q => q.category).filter(Boolean))];
 
       categories.forEach(cat => {
@@ -884,20 +920,20 @@
 
       let filtered = rawQuizList.filter(q => {
         const matchCat = (selectedCategory === 'all' || q.category === selectedCategory);
-        const matchSearch = q.title.toLowerCase().includes(searchText) || 
-                            q.topics.toLowerCase().includes(searchText) || 
-                            q.category.toLowerCase().includes(searchText);
+        const matchSearch = (q.title && q.title.toLowerCase().includes(searchText)) || 
+                            (q.topics && q.topics.toLowerCase().includes(searchText)) || 
+                            (q.category && q.category.toLowerCase().includes(searchText));
         return matchCat && matchSearch;
       });
 
       if (sortBy === 'newest') {
-        filtered.sort((a, b) => b.originalIndex - a.originalIndex);
+        filtered.sort((a, b) => (b.originalIndex || 0) - (a.originalIndex || 0));
       } else if (sortBy === 'oldest') {
-        filtered.sort((a, b) => a.originalIndex - b.originalIndex);
+        filtered.sort((a, b) => (a.originalIndex || 0) - (b.originalIndex || 0));
       } else if (sortBy === 'questions_desc') {
-        filtered.sort((a, b) => b.questions - a.questions);
+        filtered.sort((a, b) => (b.questions || 0) - (a.questions || 0));
       } else if (sortBy === 'title_asc') {
-        filtered.sort((a, b) => a.title.localeCompare(b.title));
+        filtered.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
       }
 
       renderCards(filtered);
@@ -917,6 +953,53 @@
       return `${month} ${day}, ${hours}:${minutes} ${ampm}`;
     }
 
+    // 🌟 പരീക്ഷകളുടെ ലൈവ് റാങ്ക് ലിസ്റ്റ് കാണിക്കുന്ന ഫംഗ്ഷൻ
+    function showExamLiveRankList(sheetTargetUrl, examTitle) {
+      document.getElementById('rankListModal').classList.remove('hidden');
+      document.getElementById('rankModalTitle').innerText = `🏆 ${examTitle} - ലൈവ് റാങ്ക് ലിസ്റ്റ്`;
+      const tbody = document.getElementById('rankListTableBody');
+      tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-400">റാങ്ക് ലിസ്റ്റ് ശേഖരിക്കുന്നു...</td></tr>';
+
+      const targetUrl = `${GLOBAL_SHEET_WEBAPP_URL}?action=admin_get_exam_details&sheet=${encodeURIComponent(examTitle.replace(/\s+/g, '_'))}`;
+
+      fetch(targetUrl)
+        .then(res => res.json())
+        .then(data => {
+          tbody.innerHTML = '';
+          const ranks = data.rankList || [];
+
+          if (ranks.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-500">ഇതുവരെ ആരും പരീക്ഷ പൂർത്തിയാക്കിയിട്ടില്ല.</td></tr>';
+            return;
+          }
+
+          ranks.forEach((r, idx) => {
+            const tr = document.createElement('tr');
+            let rankBadge = `<span class="font-mono font-bold text-slate-400">${idx + 1}</span>`;
+            if (idx === 0) rankBadge = `<span class="bg-amber-400 text-slate-950 font-black px-2 py-0.5 rounded text-[10px]">🥇 1st</span>`;
+            else if (idx === 1) rankBadge = `<span class="bg-slate-200 text-slate-950 font-black px-2 py-0.5 rounded text-[10px]">🥈 2nd</span>`;
+            else if (idx === 2) rankBadge = `<span class="bg-amber-700 text-white font-black px-2 py-0.5 rounded text-[10px]">🥉 3rd</span>`;
+
+            tr.className = "hover:bg-slate-800/40 transition";
+            tr.innerHTML = `
+              <td class="p-2.5 text-center">${rankBadge}</td>
+              <td class="p-2.5 font-bold text-white">${r.name || 'വിദ്യാർത്ഥി'}</td>
+              <td class="p-2.5 font-mono text-slate-400 text-[11px]">${maskPhone(r.phone)}</td>
+              <td class="p-2.5 text-center font-mono font-bold text-emerald-400">${r.score}</td>
+            `;
+            tbody.appendChild(tr);
+          });
+        })
+        .catch(() => {
+          tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-rose-400">റാങ്ക് ലിസ്റ്റ് ലോഡ് ചെയ്യാൻ കഴിഞ്ഞില്ല.</td></tr>';
+        });
+    }
+
+    function closeRankListModal() {
+      document.getElementById('rankListModal').classList.add('hidden');
+    }
+
+    // 🚀 DocumentFragment & Fast History Lookup വഴി ഒപ്റ്റിമൈസ് ചെയ്ത renderCards
     function renderCards(list) {
       const grid = document.getElementById('quizGrid');
       const empty = document.getElementById('emptyState');
@@ -929,19 +1012,20 @@
       }
       empty.classList.add('hidden');
 
-      const titleAliases = {
-        "economics set 3": "സാമ്പത്തിക ശാസ്ത്രം - സെറ്റ് 3",
-        "economics set 4": "സാമ്പത്തിക ശാസ്ത്രം - സെറ്റ് 4",
-        "world history set 1": "ലോക വിപ്ലവങ്ങൾ - സെറ്റ് 1",
-        "world history set 2": "ലോക വിപ്ലവങ്ങൾ - സെറ്റ് 2",
-        "computer science set 1": "കമ്പ്യൂട്ടർ സെറ്റ് 1",
-        "computer science set 2": "കമ്പ്യൂട്ടർ സെറ്റ് 2",
-        "Kerala Governance Set 2": "കേരള ഗവറേൺസൻസ് 2"
-      };
-
       const currentTime = new Date().getTime();
       const THIRTY_SIX_HOURS = 36 * 60 * 60 * 1000;
       const FIFTEEN_MINUTES = 15 * 60 * 1000;
+
+      // അതിവേഗ മാച്ചിംഗിനായി ഹിസ്റ്ററി മാപ്പ് ചെയ്യുന്നു
+      const historyMap = new Map();
+      cloudHistoryCache.forEach(h => {
+        if (h && h.title) {
+          const cleanH = h.title.replace(/[^a-zA-Z0-9\u0D00-\u0D7F]/g, '').toLowerCase();
+          historyMap.set(cleanH, h);
+        }
+      });
+
+      const fragment = document.createDocumentFragment();
 
       list.forEach(q => {
         const card = document.createElement('div');
@@ -1008,28 +1092,8 @@
         if (isLatest) borderClass = 'ring-2 ring-rose-500/70 border-rose-500/50';
 
         card.className = `bg-slate-900 border ${borderClass} rounded-2xl p-4 sm:p-5 shadow flex flex-col justify-between transition-all duration-200 group relative`;
-        card.setAttribute('data-card-title', q.title.trim());
 
-        const prevAttempt = cloudHistoryCache.slice().reverse().find(h => {
-          if (!h.title) return false;
-          const cleanHist = h.title.replace(/[^a-zA-Z0-9\u0D00-\u0D7F]/g, '').toLowerCase();
-
-          if (cleanCard === cleanHist || cleanCard.includes(cleanHist) || cleanHist.includes(cleanCard)) {
-            return true;
-          }
-
-          for (const [eng, mal] of Object.entries(titleAliases)) {
-            const cleanEng = eng.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
-            const cleanMal = mal.replace(/[^a-zA-Z0-9\u0D00-\u0D7F]/g, '').toLowerCase();
-
-            if ((cleanCard === cleanMal && cleanHist.includes(cleanEng)) || 
-                (cleanCard === cleanEng && cleanHist.includes(cleanMal))) {
-              return true;
-            }
-          }
-
-          return false;
-        });
+        const prevAttempt = historyMap.get(cleanCard);
 
         let targetUrl = q.fileUrl;
         if (candidate) {
@@ -1080,6 +1144,13 @@
           `;
         }
 
+        const rankListBtnMarkup = `
+          <button onclick="showExamLiveRankList('${encodeURIComponent(q.sheetUrl || GLOBAL_SHEET_WEBAPP_URL)}', '${q.title}')" class="text-[11px] font-bold text-cyan-400 hover:text-cyan-300 bg-slate-950 px-2.5 py-1 rounded-lg border border-cyan-500/30 hover:border-cyan-400 transition flex items-center space-x-1 shadow-sm">
+            <span>🏆</span>
+            <span>റാങ്ക് ലിസ്റ്റ്</span>
+          </button>
+        `;
+
         card.innerHTML = `
           <div class="space-y-2">
             <div class="flex items-center justify-between gap-2">
@@ -1091,17 +1162,22 @@
             ${scoreNoticeMarkup}
           </div>
 
-          <div class="mt-3 border-t border-slate-800/90">
-            <div class="text-[11px] text-slate-400 space-x-1.5 pt-2">
-              <span>📝 ${q.questions} Qs</span>
-              <span>•</span>
-              <span>⏱️ ${q.time}</span>
+          <div class="mt-3 border-t border-slate-800/90 pt-2">
+            <div class="flex items-center justify-between text-[11px] text-slate-400">
+              <div class="space-x-1">
+                <span>📝 ${q.questions} Qs</span>
+                <span>•</span>
+                <span>⏱️ ${q.time}</span>
+              </div>
+              ${rankListBtnMarkup}
             </div>
             ${actionAreaMarkup}
           </div>
         `;
-        grid.appendChild(card);
+        fragment.appendChild(card);
       });
+
+      grid.appendChild(fragment);
     }
 
     document.getElementById('searchInput').addEventListener('input', applyFiltersAndRender);
