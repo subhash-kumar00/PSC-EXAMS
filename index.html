@@ -4,8 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SK PSC - മോഡൽ എക്സാം പോർട്ടൽ</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Speed Booster: DNS Preconnects for Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Noto+Sans+Malayalam:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { font-family: 'Noto Sans Malayalam', 'Manrope', sans-serif; }
     .custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
@@ -126,20 +131,23 @@
           id="heroLogoImg"
           src="https://lh3.googleusercontent.com/d/1BCHlkHFIaxwhUfLzIRtCkncAztfC3U44" 
           alt="SK PSC Logo" 
+          loading="eager"
+          width="200"
+          height="200"
           class="w-full h-full object-contain relative z-10 drop-shadow-[0_10px_20px_rgba(16,185,129,0.3)] hover:scale-105 transition-transform duration-300"
           onerror="this.onerror=null; this.src='https://via.placeholder.com/200x200/0f172a/10b981?text=SK+PSC';"
         />
       </div>
     </div>
 
-    <!-- 🌟 ടോപ്പ് 3 സ്റ്റുഡന്റ്സ് ലീഡർബോർഡ് (Hall of Fame) - Percentage Based -->
+    <!-- 🌟 ടോപ്പ് 3 സ്റ്റുഡന്റ്സ് ലീഡർബോർഡ് (Balanced: Tests Attempted + Accuracy) -->
     <div id="topStudentsSection" class="hidden bg-slate-900/90 border border-amber-500/30 rounded-2xl p-4 shadow-xl">
       <div class="flex items-center justify-between mb-3 border-b border-slate-800 pb-2">
         <div class="flex items-center space-x-2">
           <span class="text-lg">👑</span>
           <h3 class="text-xs sm:text-sm font-black text-amber-400 uppercase tracking-wider">ടോപ്പ് പെർഫോമേഴ്സ് (Hall of Fame)</h3>
         </div>
-        <span class="text-[10px] text-slate-400 font-mono">Accuracy Percentage (%)</span>
+        <span class="text-[10px] text-slate-400 font-mono">Attempted Tests & Accuracy Score</span>
       </div>
       <div id="topStudentsList" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5"></div>
     </div>
@@ -245,7 +253,7 @@
         </div>
       </div>
 
-      <!-- 🌟 3. സബ്ജക്റ്റ് ഫോൾഡറുകൾ (മൊബൈലിൽ 2 വരി സ്വൈപ്പ് & ലാപ്ടോപ്പിൽ ഫ്ലെക്സ് ഗ്രിഡ്) -->
+      <!-- 🌟 3. സബ്ജക്റ്റ് ഫോൾഡറുകൾ -->
       <div class="space-y-3">
         <div class="flex items-center justify-between">
           <h3 class="text-xs sm:text-sm font-black text-white uppercase tracking-wider flex items-center space-x-2">
@@ -258,7 +266,7 @@
         <div id="foldersContainer" class="grid grid-rows-2 sm:grid-rows-none sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 grid-flow-col sm:grid-flow-row auto-cols-[180px] sm:auto-cols-auto gap-2.5 overflow-x-auto sm:overflow-visible custom-scroll pb-2.5 pt-1 snap-x"></div>
       </div>
 
-      <!-- 🌟 4. തിരഞ്ഞെടുക്കുമ്പോൾ മാത്രം വരുന്ന പരീക്ഷാ കാർഡുകൾ (Default Hidden) -->
+      <!-- 🌟 4. തിരഞ്ഞെടുക്കുമ്പോൾ മാത്രം വരുന്ന പരീക്ഷാ കാർഡുകൾ -->
       <div id="examsDisplayArea" class="hidden space-y-3 pt-2 border-t border-slate-800/80">
         <div class="flex items-center justify-between">
           <h4 class="text-xs sm:text-sm font-bold text-emerald-400 flex items-center space-x-1.5" id="activeCategoryHeader">
@@ -327,7 +335,7 @@
           <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">STUDENT PROFILE & CLOUD HISTORY</span>
           <div class="flex items-center space-x-2 mt-1">
             <h3 class="text-lg font-black text-white" id="profileDisplayName">വിദ്യാർത്ഥി</h3>
-            <button onclick="toggleEditProfile()" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-emerald-400 px-2 py-0.5 rounded border border-slate-700 transition">✏️️ Edit Name</button>
+            <button onclick="toggleEditProfile()" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-emerald-400 px-2 py-0.5 rounded border border-slate-700 transition">✏ Edit Name</button>
             <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/40" id="growthBadge">Cloud Sync</span>
           </div>
           <p class="text-xs text-slate-400" id="profileDisplayPhone"></p>
@@ -451,12 +459,13 @@
         }
       }
 
+      // സ്പീഡ് വർധിപ്പിക്കാൻ ഇന്റർവെൽ 60 സെക്കൻഡാക്കി (Network latency കുറയ്ക്കും)
       setInterval(() => {
         fetchAllInitialData();
-      }, 30000);
+      }, 60000);
     });
 
-    // 🌟 അതിവേഗ സമാന്തര ഫെച്ചിംഗ് (Parallel Fresh Fetch)
+    // 🌟 സമാന്തര ഫെച്ചിംഗ് (Parallel Fetch with Fast State)
     async function fetchAllInitialData() {
       try {
         const timestamp = Date.now();
@@ -538,7 +547,7 @@
         });
     }
 
-    // 🌟 ആവറേജിന് പകരം ഓരോ പരീക്ഷയിലെയും ശരിയായ മാർക്ക് ശതമാനം (Percentage) നോക്കി റാങ്ക് നൽകുന്നു
+    // 🌟 പരിഷ്കരിച്ച ടോപ്പ് 3 റാങ്ക്: ആകെ Attempt ചെയ്ത എക്സാമുകൾക്കും Accuracy-ക്കും തുല്യ പ്രാധാന്യം
     function fetchTopRankedStudents() {
       fetch(`${GLOBAL_SHEET_WEBAPP_URL}?action=admin_get_overview&_t=${Date.now()}`)
         .then(res => res.json())
@@ -546,39 +555,46 @@
           const candidates = data.candidates || [];
           if (candidates.length === 0) return;
 
-          const totalAvailableExams = (rawQuizList && rawQuizList.length > 0) ? rawQuizList.length : 77;
+          // ആകെ ലഭ്യമായ പരീക്ഷകളുടെ എണ്ണം
+          const totalAvailableExams = (rawQuizList && rawQuizList.length > 0) ? rawQuizList.length : 50;
 
           let validCandidates = candidates.map(c => {
             let actualUniqueExams = Number(c.uniqueExams) || Number(c.totalExams) || 1;
             actualUniqueExams = Math.min(actualUniqueExams, totalAvailableExams);
             
-            // 🌟 മാർക്ക് ശതമാനം (Percentage Calculation: (Avg Mark / 25) * 100 അല്ലെങ്കിൽ പൊതുവായ ശതമാനം)
-            // ഇവിടെ avgScore എന്നത് ആകെ ശരിയുടെ ശതമാനമായോ മാർക്ക് ആയോ വരുന്നത് കൊണ്ട് ശതമാനത്തിലേക്ക് മാറ്റുന്നു
             let rawScore = Number(c.avgScore) || 0;
-            // ഒരു പരീക്ഷ പൊതുവെ 25 ചോദ്യങ്ങൾ ആണെങ്കിൽ ശതമാനം കാണാം (അല്ലെങ്കിൽ ലഭിച്ച മാർക്ക് ശതമാനം)
-            let percentage = rawScore <= 25 ? (rawScore / 25) * 100 : rawScore;
+            // 25 മാർക്കിന്റെ എക്സാമാണെങ്കിൽ അതിനെ ശതമാനത്തിലേക്ക് മാറ്റുന്നു
+            let accuracyPercent = rawScore <= 25 ? (rawScore / 25) * 100 : Math.min(rawScore, 100);
+
+            // എക്സാം പാർട്ടിസിപ്പേഷൻ സ്കോർ (100-ൽ)
+            let examParticipationRate = (actualUniqueExams / totalAvailableExams) * 100;
+
+            // 50% Accuracy + 50% Exam Participation
+            let compositeRankScore = (accuracyPercent * 0.50) + (examParticipationRate * 0.50);
 
             return {
               name: c.name || "വിദ്യാർത്ഥി",
               phone: c.phone,
               totalExams: actualUniqueExams,
-              percentage: percentage,
-              displayMark: rawScore,
-              performancePower: (percentage * 0.75) + (Math.min(actualUniqueExams, totalAvailableExams) * 0.25)
+              accuracy: accuracyPercent,
+              compositeScore: compositeRankScore
             };
           });
 
-          let seriousCandidates = validCandidates.filter(c => c.totalExams >= 4);
-          if (seriousCandidates.length < 3) {
-            seriousCandidates = validCandidates.filter(c => c.totalExams >= 1);
+          // കൂടുതൽ പരീക്ഷ എഴുതിയവരെ കൃത്യമായി ഫിൽട്ടർ ചെയ്യുന്നു
+          let qualifiedCandidates = validCandidates.filter(c => c.totalExams >= 3);
+          if (qualifiedCandidates.length < 3) {
+            qualifiedCandidates = validCandidates;
           }
 
-          seriousCandidates.sort((a, b) => {
-            if (b.performancePower !== a.performancePower) return b.performancePower - a.performancePower;
-            return b.percentage - a.percentage;
+          // സമഗ്ര സ്കോർ അനുസരിച്ച് സോർട്ട് ചെയ്യുന്നു
+          qualifiedCandidates.sort((a, b) => {
+            if (b.compositeScore !== a.compositeScore) return b.compositeScore - a.compositeScore;
+            if (b.totalExams !== a.totalExams) return b.totalExams - a.totalExams;
+            return b.accuracy - a.accuracy;
           });
 
-          const top3 = seriousCandidates.slice(0, 3);
+          const top3 = qualifiedCandidates.slice(0, 3);
           const container = document.getElementById('topStudentsList');
           if (!container) return;
           container.innerHTML = '';
@@ -595,12 +611,12 @@
                 <span class="font-bold text-xs ${textColors[i]} font-mono bg-slate-950 px-2 py-0.5 rounded border border-slate-800">${badges[i]}</span>
                 <div>
                   <h4 class="text-xs font-bold text-white truncate max-w-[110px] sm:max-w-[130px]">${std.name}</h4>
-                  <span class="text-[10px] text-slate-400 font-mono">${std.totalExams} / ${totalAvailableExams} Tests</span>
+                  <span class="text-[10px] text-slate-400 font-mono">${std.totalExams} Tests Attempted</span>
                 </div>
               </div>
               <div class="text-right">
-                <span class="text-xs font-black text-emerald-400 font-mono block">${std.percentage.toFixed(1)}%</span>
-                <span class="text-[9px] text-slate-500 uppercase">ACCURACY</span>
+                <span class="text-xs font-black text-emerald-400 font-mono block">${std.accuracy.toFixed(1)}%</span>
+                <span class="text-[9px] text-slate-500 uppercase tracking-tighter">Accuracy</span>
               </div>
             `;
             container.appendChild(card);
@@ -638,15 +654,8 @@
         return;
       }
 
-      const todayItems = timetableData.filter(item => {
-        if (!item.date) return false;
-        return item.date.startsWith(todayStr);
-      });
-
-      const futureItems = timetableData.filter(item => {
-        if (!item.date) return false;
-        return item.date.split(' ')[0] > todayStr;
-      });
+      const todayItems = timetableData.filter(item => item.date && item.date.startsWith(todayStr));
+      const futureItems = timetableData.filter(item => item.date && item.date.split(' ')[0] > todayStr);
 
       if (todayItems.length === 0 && futureItems.length === 0) {
         ttBox.classList.add('hidden');
@@ -997,22 +1006,22 @@
       }
 
       const hList = document.getElementById('historyList');
-      hList.innerHTML = '';
+      let histHTML = '';
       history.slice().reverse().forEach(item => {
-        const row = document.createElement('div');
-        row.className = "bg-slate-950 p-2.5 rounded-xl border border-slate-800/80 flex items-center justify-between text-xs";
-        row.innerHTML = `
-          <div>
-            <span class="font-bold text-slate-200 block">${item.title}</span>
-            <span class="text-[10px] text-slate-500">${item.date || 'സമീപകാലത്ത്'}</span>
-          </div>
-          <div class="text-right">
-            <span class="font-mono font-bold text-emerald-400 block">${item.score} Mark</span>
-            <span class="text-[10px] text-slate-400">ശരി: ${item.correct} | തെറ്റ്: ${item.wrong}</span>
+        histHTML += `
+          <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800/80 flex items-center justify-between text-xs">
+            <div>
+              <span class="font-bold text-slate-200 block">${item.title}</span>
+              <span class="text-[10px] text-slate-500">${item.date || 'സമീപകാലത്ത്'}</span>
+            </div>
+            <div class="text-right">
+              <span class="font-mono font-bold text-emerald-400 block">${item.score} Mark</span>
+              <span class="text-[10px] text-slate-400">ശരി: ${item.correct} | തെറ്റ്: ${item.wrong}</span>
+            </div>
           </div>
         `;
-        hList.appendChild(row);
       });
+      hList.innerHTML = histHTML;
     }
 
     function logoutCandidate() {
@@ -1027,7 +1036,6 @@
       }
     }
 
-    // 🌟 അഡ്മിൻ നൽകിയ LATEST പരീക്ഷകളെ കൃത്യമായി കണ്ടെത്തുന്നു
     function checkIsRealLatest(quiz) {
       const cleanQuizTitle = cleanTitleForMatch(quiz.title);
       let cfg = examStatusConfig[cleanQuizTitle];
@@ -1045,7 +1053,6 @@
       return st === 'LATEST';
     }
 
-    // 🌟 രണ്ട് വരികളിൽ സൈഡിലേക്ക് സ്വൈപ്പ് ചെയ്യുന്ന സബ്ജക്റ്റ് ഫോൾഡറുകൾ
     function renderFolders() {
       const container = document.getElementById('foldersContainer');
       if (!container) return;
@@ -1062,7 +1069,6 @@
         }
       });
 
-      // 1. "എല്ലാ പരീക്ഷകളും" ഫോൾഡർ കാർഡ്
       const allActive = selectedCategory === 'all';
       const allFolder = document.createElement('div');
       allFolder.className = `p-3 rounded-2xl border cursor-pointer transition transform active:scale-95 flex items-center justify-between snap-start ${allActive ? 'bg-emerald-950/90 border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.35)] ring-1 ring-emerald-400' : 'bg-slate-900 border-slate-800 hover:border-slate-700'}`;
@@ -1079,7 +1085,6 @@
       `;
       container.appendChild(allFolder);
 
-      // 2. പുതിയ പരീക്ഷകൾ ഉള്ള വിഷയങ്ങൾ മുന്നിൽ വരുന്നു
       const catList = Object.keys(counts);
       catList.sort((a, b) => {
         const aNew = catHasLatest[a] ? 1 : 0;
@@ -1120,7 +1125,6 @@
       });
     }
 
-    // 🌟 ഫോൾഡറിൽ ക്ലിക്ക് ചെയ്യുമ്പോൾ മാത്രം കാർഡുകൾ ഓപ്പൺ ആക്കുന്നു
     function selectFolder(cat) {
       if (selectedCategory === cat) {
         closeSelectedCategory();
@@ -1144,7 +1148,7 @@
       
       setTimeout(() => {
         area.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 100);
+      }, 50);
     }
 
     function closeSelectedCategory() {
@@ -1161,7 +1165,8 @@
 
       let filtered = rawQuizList.filter(q => {
         const matchCat = (selectedCategory === 'all' || q.category === selectedCategory);
-        const matchSearch = (q.title && q.title.toLowerCase().includes(searchText)) || 
+        const matchSearch = !searchText || 
+                            (q.title && q.title.toLowerCase().includes(searchText)) || 
                             (q.topics && q.topics.toLowerCase().includes(searchText)) || 
                             (q.category && q.category.toLowerCase().includes(searchText));
         return matchCat && matchSearch;
@@ -1180,12 +1185,10 @@
       renderCompactCards(filtered);
     }
 
-    // 🌟 മുകളിലെ ലേറ്റസ്റ്റ് റീൽ
     function renderLatestReel() {
       const reelBox = document.getElementById('latestReelWrapper');
       const reelList = document.getElementById('latestReelList');
       if (!reelBox || !reelList) return;
-      reelList.innerHTML = '';
 
       const latestItems = rawQuizList.filter(q => checkIsRealLatest(q));
 
@@ -1196,6 +1199,7 @@
 
       reelBox.classList.remove('hidden');
 
+      let cardsHtml = '';
       latestItems.forEach(q => {
         let targetUrl = q.fileUrl;
         if (candidate) {
@@ -1203,28 +1207,28 @@
           targetUrl = `${targetUrl}${separator}name=${encodeURIComponent(candidate.name)}&phone=${encodeURIComponent(candidate.phone)}&title=${encodeURIComponent(q.title)}&sheetUrl=${encodeURIComponent(GLOBAL_SHEET_WEBAPP_URL)}&pdfUrl=${encodeURIComponent(q.pdfUrl || '')}`;
         }
 
-        const reelCard = document.createElement('div');
-        reelCard.className = "w-64 sm:w-72 bg-slate-900 border-2 border-rose-500/50 rounded-2xl p-3.5 shadow-lg flex-shrink-0 snap-start flex flex-col justify-between space-y-2 relative";
-        reelCard.innerHTML = `
-          <div>
-            <div class="flex items-center justify-between mb-1.5">
-              <span class="auto-latest-badge px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-rose-600 text-white shadow-sm">
-                ● LATEST
-              </span>
-              <span class="text-[10px] text-slate-400 bg-slate-950 px-2 py-0.5 rounded truncate max-w-[110px]">${q.category}</span>
+        cardsHtml += `
+          <div class="w-64 sm:w-72 bg-slate-900 border-2 border-rose-500/50 rounded-2xl p-3.5 shadow-lg flex-shrink-0 snap-start flex flex-col justify-between space-y-2 relative">
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="auto-latest-badge px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-rose-600 text-white shadow-sm">
+                  ● LATEST
+                </span>
+                <span class="text-[10px] text-slate-400 bg-slate-950 px-2 py-0.5 rounded truncate max-w-[110px]">${q.category}</span>
+              </div>
+              <h4 class="text-xs sm:text-sm font-bold text-white line-clamp-2 leading-tight">${q.title}</h4>
+              <p class="text-[11px] text-slate-400 line-clamp-1 mt-1">${q.topics || 'പ്രധാന പരീക്ഷാ ചോദ്യങ്ങൾ'}</p>
             </div>
-            <h4 class="text-xs sm:text-sm font-bold text-white line-clamp-2 leading-tight">${q.title}</h4>
-            <p class="text-[11px] text-slate-400 line-clamp-1 mt-1">${q.topics || 'പ്രധാന പരീക്ഷാ ചോദ്യങ്ങൾ'}</p>
-          </div>
-          <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between">
-            <span class="text-[10px] text-slate-500 font-mono">📝 ${q.questions} Qs • ⏱️️ ${q.time}</span>
-            <a href="${targetUrl}" class="px-3 py-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-lg text-[11px] transition shadow">
-              ആരംഭിക്കുക ›
-            </a>
+            <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between">
+              <span class="text-[10px] text-slate-500 font-mono">📝 ${q.questions} Qs • ⏱ ${q.time}</span>
+              <a href="${targetUrl}" class="px-3 py-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-lg text-[11px] transition shadow">
+                ആരംഭിക്കുക ›
+              </a>
+            </div>
           </div>
         `;
-        reelList.appendChild(reelCard);
       });
+      reelList.innerHTML = cardsHtml;
     }
 
     function formatScheduledDateTime(dateObj) {
@@ -1250,7 +1254,6 @@
       fetch(targetUrl)
         .then(res => res.json())
         .then(data => {
-          tbody.innerHTML = '';
           let rawRanks = [];
           if (data && data.rankList) {
             rawRanks = data.rankList;
@@ -1271,22 +1274,23 @@
             return;
           }
 
+          let rankHtml = '';
           ranks.forEach((r, idx) => {
-            const tr = document.createElement('tr');
             let rankBadge = `<span class="font-mono font-bold text-slate-400">${idx + 1}</span>`;
             if (idx === 0) rankBadge = `<span class="bg-amber-400 text-slate-950 font-black px-2 py-0.5 rounded text-[10px]">🥇 1st</span>`;
             else if (idx === 1) rankBadge = `<span class="bg-slate-200 text-slate-950 font-black px-2 py-0.5 rounded text-[10px]">🥈 2nd</span>`;
             else if (idx === 2) rankBadge = `<span class="bg-amber-700 text-white font-black px-2 py-0.5 rounded text-[10px]">🥉 3rd</span>`;
 
-            tr.className = "hover:bg-slate-800/40 transition";
-            tr.innerHTML = `
-              <td class="p-2.5 text-center">${rankBadge}</td>
-              <td class="p-2.5 font-bold text-white">${r.name || 'വിദ്യാർത്ഥി'}</td>
-              <td class="p-2.5 font-mono text-slate-400 text-[11px]">${maskPhone(r.phone)}</td>
-              <td class="p-2.5 text-center font-mono font-bold text-emerald-400">${Number(r.score).toFixed(2)}</td>
+            rankHtml += `
+              <tr class="hover:bg-slate-800/40 transition">
+                <td class="p-2.5 text-center">${rankBadge}</td>
+                <td class="p-2.5 font-bold text-white">${r.name || 'വിദ്യാർത്ഥി'}</td>
+                <td class="p-2.5 font-mono text-slate-400 text-[11px]">${maskPhone(r.phone)}</td>
+                <td class="p-2.5 text-center font-mono font-bold text-emerald-400">${Number(r.score).toFixed(2)}</td>
+              </tr>
             `;
-            tbody.appendChild(tr);
           });
+          tbody.innerHTML = rankHtml;
         })
         .catch(() => {
           tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-rose-400">റാങ്ക് ലിസ്റ്റ് ലോഡ് ചെയ്യാൻ കഴിഞ്ഞില്ല.</td></tr>';
@@ -1462,4 +1466,4 @@
     document.getElementById('sortSelect').addEventListener('change', applyFiltersAndRender);
   </script>
 </body>
-</html>
+  </html>
