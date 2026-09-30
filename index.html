@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Noto+Sans+Malayalam:wght@400;500;600;700&display=swap" rel="stylesheet">
   
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
   <style>
     body { font-family: 'Noto Sans Malayalam', 'Manrope', sans-serif; }
     .custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
@@ -417,54 +417,35 @@
       return String(str).replace(/[\s\-_,.:;()\/\\|\[\]]+/g, '').toLowerCase();
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
-      // 1. ഇൻസ്റ്റന്റ് കാഷെ ലോഡിങ്
-      const instantCachedQuizzes = localStorage.getItem('sk_ultra_cached_quizzes');
-      if (instantCachedQuizzes) {
-        try {
-          rawQuizList = JSON.parse(instantCachedQuizzes);
-          renderFolders();
-          renderLatestReel();
-        } catch(e) {}
-      }
+   window.addEventListener('DOMContentLoaded', () => {
+  // 1. ഫോണിലുള്ള ഡാറ്റ വെച്ച് 0 സെക്കൻഡിൽ പേജ് റെൻഡർ ചെയ്യുന്നു
+  const instantCachedQuizzes = localStorage.getItem('sk_ultra_cached_quizzes');
+  if (instantCachedQuizzes) {
+    try {
+      rawQuizList = JSON.parse(instantCachedQuizzes);
+      renderFolders();
+      renderLatestReel();
+    } catch(e) {}
+  }
 
-      const cachedStatus = sessionStorage.getItem('sk_cached_status_config');
-      if (cachedStatus) {
-        try {
-          const parsed = JSON.parse(cachedStatus);
-          examStatusConfig = parsed.examStatusConfig || {};
-          timetableData = parsed.timetableData || [];
-          renderTimetableSection();
-          renderLatestReel();
-        } catch(e) {}
-      }
+  // 2. യൂസർ വിവരങ്ങൾ ലോഡ് ചെയ്യുന്നു
+  const savedUser = localStorage.getItem('sk_candidate_user');
+  if (savedUser) {
+    candidate = JSON.parse(savedUser);
+    activateUserSession();
+  }
 
-      fetchTopUserCount();
-      fetchAllInitialData();
-
-      const savedUser = localStorage.getItem('sk_candidate_user');
-      if (savedUser) {
-        candidate = JSON.parse(savedUser);
-      }
-
-      const urlParams = new URLSearchParams(window.location.search);
-      const isCompleted = urlParams.get('completed') === 'true';
-
-      if (isCompleted) {
-        window.history.replaceState({}, document.title, window.location.pathname);
-      }
-
-      if (candidate) {
-        activateUserSession();
-        if (isCompleted) {
-          openProfileModal();
-        }
-      }
+  // 3. പേജ് സ്ക്രീനിൽ തെളിഞ്ഞ ശേഷം മാത്രം ബാക്ക്ഗ്രൗണ്ടിൽ പുതിയ ഡാറ്റ കൊണ്ടുവരുന്നു
+  setTimeout(() => {
+    fetchAllInitialData();
+    fetchTopUserCount();
+  }, 100);
+});
 
       // സ്പീഡ് വർധിപ്പിക്കാൻ ഇന്റർവെൽ 60 സെക്കൻഡാക്കി (Network latency കുറയ്ക്കും)
-      setInterval(() => {
-        fetchAllInitialData();
-      }, 60000);
+     setInterval(() => {
+  fetchAllInitialData();
+}, 120000); // 2 മിനിറ്റ് കൂടുമ്പോൾ മാത്രം
     });
 
     // 🌟 സമാന്തര ഫെച്ചിംഗ് (Parallel Fetch with Fast State)
