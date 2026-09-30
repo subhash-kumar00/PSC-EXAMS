@@ -10,6 +10,8 @@
     body { font-family: 'Noto Sans Malayalam', 'Manrope', sans-serif; }
     .custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
     .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     
     @keyframes fastPulseBlink {
       0%, 100% { opacity: 1; transform: scale(1); filter: brightness(1.1); }
@@ -20,7 +22,6 @@
       display: inline-flex !important;
     }
 
-    /* 🌟 Neon Green Upcoming Blink */
     @keyframes neonGreenBlink {
       0%, 100% {
         opacity: 1;
@@ -110,7 +111,6 @@
           </p>
         </div>
 
-        <!-- നോട്ടീസ് മെസ്സേജ് ബോക്സ് -->
         <div id="heroNoticeBox" class="hidden bg-emerald-950/50 border border-emerald-500/40 rounded-2xl p-3 flex items-start space-x-2.5 shadow-lg">
           <span class="text-sm shrink-0 mt-0.5">📢</span>
           <div class="text-xs text-emerald-200 leading-relaxed font-medium">
@@ -130,6 +130,18 @@
           onerror="this.onerror=null; this.src='https://via.placeholder.com/200x200/0f172a/10b981?text=SK+PSC';"
         />
       </div>
+    </div>
+
+    <!-- 🌟 ടോപ്പ് 3 സ്റ്റുഡന്റ്സ് ലീഡർബോർഡ് (Hall of Fame) - Percentage Based -->
+    <div id="topStudentsSection" class="hidden bg-slate-900/90 border border-amber-500/30 rounded-2xl p-4 shadow-xl">
+      <div class="flex items-center justify-between mb-3 border-b border-slate-800 pb-2">
+        <div class="flex items-center space-x-2">
+          <span class="text-lg">👑</span>
+          <h3 class="text-xs sm:text-sm font-black text-amber-400 uppercase tracking-wider">ടോപ്പ് പെർഫോമേഴ്സ് (Hall of Fame)</h3>
+        </div>
+        <span class="text-[10px] text-slate-400 font-mono">Accuracy Percentage (%)</span>
+      </div>
+      <div id="topStudentsList" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5"></div>
     </div>
 
     <!-- Registration & Login Screen -->
@@ -177,8 +189,6 @@
       <div id="timetableWrapper" class="hidden bg-slate-900 border border-emerald-500/40 rounded-2xl p-4 sm:p-5 shadow-xl space-y-3">
         <div class="flex items-center justify-between border-b border-slate-800/80 pb-2.5">
           <div class="flex items-center space-x-2.5 min-w-0">
-            
-            <!-- മിനി കലണ്ടർ ഐക്കൺ ബോക്സ് -->
             <div class="w-8 h-8 rounded-lg bg-slate-950 border border-emerald-500/40 flex flex-col items-center justify-between overflow-hidden shadow-sm flex-shrink-0">
               <div class="w-full bg-emerald-500 text-[8px] font-black text-slate-950 text-center py-0.5 leading-none uppercase font-mono tracking-tighter" id="calMiniMonth">
                 TODAY
@@ -187,13 +197,10 @@
                 --
               </div>
             </div>
-
-            <!-- ടൈറ്റിൽ & തീയതി -->
             <div class="min-w-0">
               <h3 class="text-xs sm:text-sm font-black text-white truncate leading-tight">ഇന്നത്തെ ടൈംടേബിൾ & മോഡൽ എക്സാം</h3>
               <span class="text-[10px] text-emerald-400 font-mono font-semibold" id="ttTodayDateBadge">TODAY</span>
             </div>
-
           </div>
 
           <button onclick="toggleTimetableDetails()" class="text-[11px] text-emerald-400 hover:underline font-semibold flex items-center space-x-1 flex-shrink-0 ml-2">
@@ -210,46 +217,67 @@
         </div>
       </div>
 
-      <!-- Controls -->
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-lg space-y-4">
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div>
-            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">പരീക്ഷകൾ തിരയുക</label>
-            <input type="text" id="searchInput" placeholder="പേര് അല്ലെങ്കിൽ ടോപ്പിക്ക്..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-slate-200 focus:outline-none focus:border-emerald-500 transition shadow-inner">
+      <!-- 🌟 1. ഹൊറിസോണ്ടൽ ലേറ്റസ്റ്റ് പരീക്ഷാ റീൽ (Swipe Reel) -->
+      <div id="latestReelWrapper" class="hidden space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <span class="text-sm">🔥</span>
+            <h3 class="text-xs sm:text-sm font-black text-white uppercase tracking-wider">പുതിയ പരീക്ഷകൾ (Latest Releases)</h3>
           </div>
-          <div>
-            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">വിഷയം (Category)</label>
-            <select id="categorySelect" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-slate-200 focus:outline-none focus:border-emerald-500 transition cursor-pointer">
-              <option value="all">എല്ലാ വിഷയങ്ങളും (All Categories)</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">ക്രമീകരിക്കുക (Sort By)</label>
-            <select id="sortSelect" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-slate-200 focus:outline-none focus:border-emerald-500 transition cursor-pointer">
-              <option value="newest">പുതിയത് ആദ്യം (Newest First)</option>
-              <option value="oldest">പഴയത് ആദ്യം (Oldest First)</option>
-              <option value="questions_desc">കൂടുതൽ ചോദ്യങ്ങൾ ഉള്ളവ</option>
-              <option value="title_asc">പേര് ക്രമത്തിൽ (A to Z)</option>
-            </select>
-          </div>
+          <span class="text-[10px] text-slate-400 font-mono">സ്വൈപ്പ് ചെയ്യുക ⇄</span>
         </div>
+        <div id="latestReelList" class="flex space-x-3.5 overflow-x-auto custom-scroll pb-2.5 pt-1 snap-x"></div>
+      </div>
 
-        <div class="flex items-center justify-between border-t border-slate-800/80 pt-3 text-xs">
-          <span class="text-slate-400">ലഭ്യമായ പരീക്ഷകൾ: <strong id="examCountDisplay" class="text-emerald-400 font-mono">0</strong></span>
-          <span class="text-[11px] text-slate-500 font-mono">+1.00 / -0.33 Negative Mark</span>
+      <!-- 🌟 2. സ്മാർട്ട് സെർച്ച് & സോർട്ടിംഗ് ബാർ -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-lg flex flex-col sm:flex-row gap-3 items-center justify-between">
+        <div class="w-full sm:flex-1 relative">
+          <input type="text" id="searchInput" placeholder="പരീക്ഷയുടെ പേരോ വിഷയമോ തിരയുക..." class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-3.5 pr-8 py-2.5 text-xs sm:text-sm text-slate-200 focus:outline-none focus:border-emerald-500 transition shadow-inner">
+          <span class="absolute right-3 top-3 text-xs text-slate-500">🔍</span>
+        </div>
+        <div class="w-full sm:w-48">
+          <select id="sortSelect" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500 transition cursor-pointer">
+            <option value="newest">പുതിയത് ആദ്യം</option>
+            <option value="oldest">പഴയത് ആദ്യം</option>
+            <option value="questions_desc">കൂടുതൽ ചോദ്യങ്ങൾ</option>
+            <option value="title_asc">പേര് (A to Z)</option>
+          </select>
         </div>
       </div>
 
-      <div id="loading" class="text-center py-16 text-slate-400 text-sm space-y-2 animate-pulse">
-        <div class="text-2xl">⏳</div>
-        <p>Google Sheet-ൽ നിന്നും പരീക്ഷകൾ ക്രമീകരിക്കുന്നു...</p>
+      <!-- 🌟 3. സബ്ജക്റ്റ് ഫോൾഡറുകൾ (മൊബൈലിൽ 2 വരി സ്വൈപ്പ് & ലാപ്ടോപ്പിൽ ഫ്ലെക്സ് ഗ്രിഡ്) -->
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xs sm:text-sm font-black text-white uppercase tracking-wider flex items-center space-x-2">
+            <span>📁</span>
+            <span>വിഷയങ്ങൾ തിരഞ്ഞെടുക്കുക (Subject Folders)</span>
+          </h3>
+          <span class="text-[10px] text-slate-400 font-mono">ക്ലിക്ക് ചെയ്ത് പരീക്ഷകൾ കാണുക ▾</span>
+        </div>
+        
+        <div id="foldersContainer" class="grid grid-rows-2 sm:grid-rows-none sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 grid-flow-col sm:grid-flow-row auto-cols-[180px] sm:auto-cols-auto gap-2.5 overflow-x-auto sm:overflow-visible custom-scroll pb-2.5 pt-1 snap-x"></div>
       </div>
 
-      <div id="quizGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 hidden"></div>
+      <!-- 🌟 4. തിരഞ്ഞെടുക്കുമ്പോൾ മാത്രം വരുന്ന പരീക്ഷാ കാർഡുകൾ (Default Hidden) -->
+      <div id="examsDisplayArea" class="hidden space-y-3 pt-2 border-t border-slate-800/80">
+        <div class="flex items-center justify-between">
+          <h4 class="text-xs sm:text-sm font-bold text-emerald-400 flex items-center space-x-1.5" id="activeCategoryHeader">
+            <span>📑</span>
+            <span>പരീക്ഷകൾ</span>
+          </h4>
+          <div class="flex items-center space-x-3">
+            <span class="text-[11px] text-slate-400 font-mono">ലഭ്യമായവ: <strong id="examCountDisplay" class="text-emerald-400">0</strong></span>
+            <button onclick="closeSelectedCategory()" class="text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700 transition">✕ മടക്കുക</button>
+          </div>
+        </div>
 
-      <div id="emptyState" class="hidden text-center py-16 text-slate-500 text-xs sm:text-sm bg-slate-900/40 rounded-2xl border border-slate-800">
-        പരീക്ഷകൾ ഒന്നും കണ്ടെത്തിയില്ല.
+        <div id="quizGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5"></div>
+
+        <div id="emptyState" class="hidden text-center py-16 text-slate-500 text-xs sm:text-sm bg-slate-900/40 rounded-2xl border border-slate-800">
+          പരീക്ഷകൾ ഒന്നും കണ്ടെത്തിയില്ല.
+        </div>
       </div>
+
     </div>
 
   </main>
@@ -299,7 +327,7 @@
           <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">STUDENT PROFILE & CLOUD HISTORY</span>
           <div class="flex items-center space-x-2 mt-1">
             <h3 class="text-lg font-black text-white" id="profileDisplayName">വിദ്യാർത്ഥി</h3>
-            <button onclick="toggleEditProfile()" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-emerald-400 px-2 py-0.5 rounded border border-slate-700 transition">✏️ Edit Name</button>
+            <button onclick="toggleEditProfile()" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-emerald-400 px-2 py-0.5 rounded border border-slate-700 transition">✏️️ Edit Name</button>
             <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/40" id="growthBadge">Cloud Sync</span>
           </div>
           <p class="text-xs text-slate-400" id="profileDisplayPhone"></p>
@@ -321,8 +349,8 @@
           <span id="statTotalTests" class="text-lg sm:text-xl font-black text-white font-mono">0</span>
         </div>
         <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 text-center">
-          <span class="text-[10px] text-slate-400 block font-semibold">ശരാശരി സ്കോർ</span>
-          <span id="statAvgScore" class="text-lg sm:text-xl font-black text-emerald-400 font-mono">0.00</span>
+          <span class="text-[10px] text-slate-400 block font-semibold">ശരാശരി ശതമാനം</span>
+          <span id="statAvgScore" class="text-lg sm:text-xl font-black text-emerald-400 font-mono">0%</span>
         </div>
         <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 text-center">
           <span class="text-[10px] text-slate-400 block font-semibold">ആക്യുറസി</span>
@@ -365,6 +393,7 @@
     let examStatusConfig = {}; 
     let timetableData = [];
     let tempPhoneToRegister = "";
+    let selectedCategory = null;
 
     function maskPhone(p) {
       if (!p) return '-';
@@ -373,17 +402,19 @@
       return p;
     }
 
-    // 🌟 അൾട്രാ-ഫാസ്റ്റ് ഇൻസ്റ്റന്റ് ലോഡിങ്
+    function cleanTitleForMatch(str) {
+      if (!str) return "";
+      return String(str).replace(/[\s\-_,.:;()\/\\|\[\]]+/g, '').toLowerCase();
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
-      // 1. മുൻപ് സേവ് ചെയ്ത എക്സാം കാർഡുകൾ ഉണ്ടെങ്കിൽ ഉടൻ തന്നെ റെൻഡർ ചെയ്യുന്നു (Instant Render)
+      // 1. ഇൻസ്റ്റന്റ് കാഷെ ലോഡിങ്
       const instantCachedQuizzes = localStorage.getItem('sk_ultra_cached_quizzes');
       if (instantCachedQuizzes) {
         try {
           rawQuizList = JSON.parse(instantCachedQuizzes);
-          document.getElementById('loading').classList.add('hidden');
-          document.getElementById('quizGrid').classList.remove('hidden');
-          populateCategories();
-          applyFiltersAndRender();
+          renderFolders();
+          renderLatestReel();
         } catch(e) {}
       }
 
@@ -393,12 +424,13 @@
           const parsed = JSON.parse(cachedStatus);
           examStatusConfig = parsed.examStatusConfig || {};
           timetableData = parsed.timetableData || [];
+          renderTimetableSection();
+          renderLatestReel();
         } catch(e) {}
       }
 
-      // 2. ബാക്ക്ഗ്രൗണ്ടിൽ പുതിയ ഡാറ്റ കൊണ്ടുവരുന്നു
-      fetchLatestExamTitles();
       fetchTopUserCount();
+      fetchAllInitialData();
 
       const savedUser = localStorage.getItem('sk_candidate_user');
       if (savedUser) {
@@ -420,12 +452,70 @@
       }
 
       setInterval(() => {
-        if (rawQuizList.length > 0) {
-          applyFiltersAndRender();
-          renderTimetableSection();
-        }
+        fetchAllInitialData();
       }, 30000);
     });
+
+    // 🌟 അതിവേഗ സമാന്തര ഫെച്ചിംഗ് (Parallel Fresh Fetch)
+    async function fetchAllInitialData() {
+      try {
+        const timestamp = Date.now();
+        const titlesPromise = fetch(`${HOME_SHEET_APPS_SCRIPT_URL}?action=get_latest_titles&_t=${timestamp}`)
+          .then(res => res.json())
+          .catch(() => null);
+
+        const quizPromise = fetch(`${HOME_SHEET_APPS_SCRIPT_URL}?_t=${timestamp}`)
+          .then(res => res.json())
+          .catch(() => null);
+
+        const [titlesData, quizzesData] = await Promise.all([titlesPromise, quizPromise]);
+
+        if (titlesData) {
+          examStatusConfig = {};
+          let statusItems = titlesData.statusList || [];
+          timetableData = titlesData.timetable || [];
+
+          if (titlesData.notice && String(titlesData.notice).trim().length > 0) {
+            document.getElementById('heroNoticeText').innerText = titlesData.notice;
+            document.getElementById('heroNoticeBox').classList.remove('hidden');
+          } else {
+            document.getElementById('heroNoticeBox').classList.add('hidden');
+          }
+
+          statusItems.forEach(item => {
+            if (item && item.title) {
+              const cleanT = cleanTitleForMatch(item.title);
+              examStatusConfig[cleanT] = {
+                status: (item.status || 'NORMAL').toUpperCase(),
+                releaseTime: item.releaseTime || ""
+              };
+            }
+          });
+
+          sessionStorage.setItem('sk_cached_status_config', JSON.stringify({
+            examStatusConfig: examStatusConfig,
+            timetableData: timetableData
+          }));
+        }
+
+        if (Array.isArray(quizzesData) && quizzesData.length > 0) {
+          rawQuizList = quizzesData;
+          localStorage.setItem('sk_ultra_cached_quizzes', JSON.stringify(rawQuizList));
+        }
+
+        renderTimetableSection();
+        renderLatestReel();
+        renderFolders();
+        fetchTopRankedStudents();
+
+        if (selectedCategory) {
+          applyFiltersAndRender();
+        }
+
+      } catch (err) {
+        console.log("Fetch error:", err);
+      }
+    }
 
     function fetchTopUserCount() {
       fetch(`${GLOBAL_SHEET_WEBAPP_URL}?action=get_total_users`)
@@ -448,66 +538,89 @@
         });
     }
 
-    function fetchLatestExamTitles() {
-      fetch(`${HOME_SHEET_APPS_SCRIPT_URL}?action=get_latest_titles`)
+    // 🌟 ആവറേജിന് പകരം ഓരോ പരീക്ഷയിലെയും ശരിയായ മാർക്ക് ശതമാനം (Percentage) നോക്കി റാങ്ക് നൽകുന്നു
+    function fetchTopRankedStudents() {
+      fetch(`${GLOBAL_SHEET_WEBAPP_URL}?action=admin_get_overview&_t=${Date.now()}`)
         .then(res => res.json())
         .then(data => {
-          examStatusConfig = {};
-          let statusItems = [];
+          const candidates = data.candidates || [];
+          if (candidates.length === 0) return;
 
-          if (data && typeof data === 'object' && !Array.isArray(data)) {
-            statusItems = data.statusList || [];
-            timetableData = data.timetable || [];
+          const totalAvailableExams = (rawQuizList && rawQuizList.length > 0) ? rawQuizList.length : 77;
+
+          let validCandidates = candidates.map(c => {
+            let actualUniqueExams = Number(c.uniqueExams) || Number(c.totalExams) || 1;
+            actualUniqueExams = Math.min(actualUniqueExams, totalAvailableExams);
             
-            if (data.notice && String(data.notice).trim().length > 0) {
-              document.getElementById('heroNoticeText').innerText = data.notice;
-              document.getElementById('heroNoticeBox').classList.remove('hidden');
-            } else {
-              document.getElementById('heroNoticeBox').classList.add('hidden');
-            }
-          } else if (Array.isArray(data)) {
-            statusItems = data;
-          }
+            // 🌟 മാർക്ക് ശതമാനം (Percentage Calculation: (Avg Mark / 25) * 100 അല്ലെങ്കിൽ പൊതുവായ ശതമാനം)
+            // ഇവിടെ avgScore എന്നത് ആകെ ശരിയുടെ ശതമാനമായോ മാർക്ക് ആയോ വരുന്നത് കൊണ്ട് ശതമാനത്തിലേക്ക് മാറ്റുന്നു
+            let rawScore = Number(c.avgScore) || 0;
+            // ഒരു പരീക്ഷ പൊതുവെ 25 ചോദ്യങ്ങൾ ആണെങ്കിൽ ശതമാനം കാണാം (അല്ലെങ്കിൽ ലഭിച്ച മാർക്ക് ശതമാനം)
+            let percentage = rawScore <= 25 ? (rawScore / 25) * 100 : rawScore;
 
-          statusItems.forEach(item => {
-            if (typeof item === 'object' && item.title) {
-              const cleanT = item.title.replace(/[^a-zA-Z0-9\u0D00-\u0D7F]/g, '').toLowerCase();
-              examStatusConfig[cleanT] = {
-                status: (item.status || 'LATEST').toUpperCase(),
-                releaseTime: item.releaseTime || ""
-              };
-            }
+            return {
+              name: c.name || "വിദ്യാർത്ഥി",
+              phone: c.phone,
+              totalExams: actualUniqueExams,
+              percentage: percentage,
+              displayMark: rawScore,
+              performancePower: (percentage * 0.75) + (Math.min(actualUniqueExams, totalAvailableExams) * 0.25)
+            };
           });
 
-          sessionStorage.setItem('sk_cached_status_config', JSON.stringify({
-            examStatusConfig: examStatusConfig,
-            timetableData: timetableData
-          }));
-
-          if (rawQuizList.length > 0) {
-            applyFiltersAndRender();
-            renderTimetableSection();
+          let seriousCandidates = validCandidates.filter(c => c.totalExams >= 4);
+          if (seriousCandidates.length < 3) {
+            seriousCandidates = validCandidates.filter(c => c.totalExams >= 1);
           }
+
+          seriousCandidates.sort((a, b) => {
+            if (b.performancePower !== a.performancePower) return b.performancePower - a.performancePower;
+            return b.percentage - a.percentage;
+          });
+
+          const top3 = seriousCandidates.slice(0, 3);
+          const container = document.getElementById('topStudentsList');
+          if (!container) return;
+          container.innerHTML = '';
+
+          const badges = ['🥇 1st Rank', '🥈 2nd Rank', '🥉 3rd Rank'];
+          const borders = ['border-amber-400/50 bg-amber-950/20', 'border-slate-400/40 bg-slate-900/80', 'border-amber-700/40 bg-amber-950/15'];
+          const textColors = ['text-amber-400', 'text-slate-300', 'text-amber-500'];
+
+          top3.forEach((std, i) => {
+            const card = document.createElement('div');
+            card.className = `p-2.5 rounded-xl border ${borders[i]} flex items-center justify-between shadow`;
+            card.innerHTML = `
+              <div class="flex items-center space-x-2.5">
+                <span class="font-bold text-xs ${textColors[i]} font-mono bg-slate-950 px-2 py-0.5 rounded border border-slate-800">${badges[i]}</span>
+                <div>
+                  <h4 class="text-xs font-bold text-white truncate max-w-[110px] sm:max-w-[130px]">${std.name}</h4>
+                  <span class="text-[10px] text-slate-400 font-mono">${std.totalExams} / ${totalAvailableExams} Tests</span>
+                </div>
+              </div>
+              <div class="text-right">
+                <span class="text-xs font-black text-emerald-400 font-mono block">${std.percentage.toFixed(1)}%</span>
+                <span class="text-[9px] text-slate-500 uppercase">ACCURACY</span>
+              </div>
+            `;
+            container.appendChild(card);
+          });
+
+          document.getElementById('topStudentsSection').classList.remove('hidden');
         })
-        .catch(err => console.log("Status fetch error:", err));
+        .catch(err => console.log("Top students error:", err));
     }
 
-    // 🌟 മിനി കലണ്ടറിനുള്ളിൽ ഇന്നത്തെ മാസവും തീയതിയും കൃത്യമായി സെറ്റ് ചെയ്യുന്നു
+    // 🌟 മിനി കലണ്ടർ ടൈംടേബിൾ
     function renderTimetableSection() {
       const ttBox = document.getElementById('timetableWrapper');
       const highlight = document.getElementById('todayExamHighlight');
       const upcomingList = document.getElementById('upcomingTimetableList');
 
-      if (!timetableData || timetableData.length === 0) {
-        ttBox.classList.add('hidden');
-        return;
-      }
-
       const now = new Date();
       const currentTime = now.getTime();
       const todayStr = now.toISOString().split('T')[0];
 
-      // 🌟 കലണ്ടറിന് ഉള്ളിൽ ഇന്നത്തെ ദിവസത്തിന്റെ നമ്പറും മാസവും
       const dayNum = String(now.getDate()).padStart(2, '0');
       const monthNames = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
       const monthShort = monthNames[now.getMonth()];
@@ -519,6 +632,11 @@
 
       const dateBadgeEl = document.getElementById('ttTodayDateBadge');
       if (dateBadgeEl) dateBadgeEl.innerText = todayStr;
+
+      if (!timetableData || timetableData.length === 0) {
+        ttBox.classList.add('hidden');
+        return;
+      }
 
       const todayItems = timetableData.filter(item => {
         if (!item.date) return false;
@@ -543,8 +661,8 @@
 
         todayItems.forEach(todayItem => {
           const matchingQuiz = rawQuizList.find(q => {
-            const cQ = q.title.replace(/[^a-zA-Z0-9\u0D00-\u0D7F]/g, '').toLowerCase();
-            const cT = todayItem.title.replace(/[^a-zA-Z0-9\u0D00-\u0D7F]/g, '').toLowerCase();
+            const cQ = cleanTitleForMatch(q.title);
+            const cT = cleanTitleForMatch(todayItem.title);
             return cQ === cT || cQ.includes(cT);
           });
 
@@ -737,13 +855,7 @@
       document.getElementById('profileDisplayPhone').innerText = `ഫോൺ: +91 ${candidate.phone}`;
 
       fetchUserExamHistoryFromCloud(candidate.phone);
-
-      if (rawQuizList.length === 0) {
-        fetchQuizzesFromSheet();
-      } else {
-        applyFiltersAndRender();
-        renderTimetableSection();
-      }
+      fetchAllInitialData();
     }
 
     function openProfileModal() {
@@ -810,8 +922,10 @@
           updateProfileAnalyticsFromCloud(cloudHistoryCache);
 
           if (rawQuizList.length > 0) {
-            applyFiltersAndRender();
+            renderFolders();
+            renderLatestReel();
             renderTimetableSection();
+            if (selectedCategory) applyFiltersAndRender();
           }
         })
         .catch(() => {
@@ -823,10 +937,9 @@
     }
 
     function updateProfileAnalyticsFromCloud(history) {
-      document.getElementById('statTotalTests').innerText = history.length;
-
-      if (history.length === 0) {
-        document.getElementById('statAvgScore').innerText = "0.00";
+      if (!history || history.length === 0) {
+        document.getElementById('statTotalTests').innerText = "0";
+        document.getElementById('statAvgScore').innerText = "0%";
         document.getElementById('statAccuracy').innerText = "0%";
         document.getElementById('growthBadge').innerText = "Beginner 🚀";
         document.getElementById('growthMessage').innerText = "ആദ്യത്തെ പരീക്ഷ എഴുതി പഠനം ആരംഭിക്കുക!";
@@ -834,11 +947,23 @@
         return;
       }
 
+      const firstAttemptsMap = new Map();
+      history.forEach(item => {
+        const cleanTitle = cleanTitleForMatch(item.title);
+        if (!firstAttemptsMap.has(cleanTitle)) {
+          firstAttemptsMap.set(cleanTitle, item);
+        }
+      });
+
+      const uniqueHistory = Array.from(firstAttemptsMap.values());
+      const totalTests = uniqueHistory.length;
+      document.getElementById('statTotalTests').innerText = totalTests;
+
       let totalScore = 0;
       let totalCorrect = 0;
       let totalQuestions = 0;
 
-      history.forEach(h => {
+      uniqueHistory.forEach(h => {
         totalScore += parseFloat(h.score || 0);
         totalCorrect += parseInt(h.correct || 0);
         let correctQ = parseInt(h.correct || 0);
@@ -847,20 +972,21 @@
         totalQuestions += (correctQ + wrongQ + skipQ) || 25;
       });
 
-      const avgScore = (totalScore / history.length).toFixed(2);
+      const avgScoreNum = totalTests > 0 ? (totalScore / totalTests) : 0;
+      const avgPercentage = avgScoreNum <= 25 ? (avgScoreNum / 25) * 100 : avgScoreNum;
       const accuracy = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
 
-      document.getElementById('statAvgScore').innerText = avgScore;
+      document.getElementById('statAvgScore').innerText = `${avgPercentage.toFixed(1)}%`;
       document.getElementById('statAccuracy').innerText = `${accuracy}%`;
 
       const badge = document.getElementById('growthBadge');
       const msg = document.getElementById('growthMessage');
 
-      if (history.length >= 5 && avgScore >= 16) {
+      if (totalTests >= 5 && avgPercentage >= 70) {
         badge.className = "text-xs bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full border border-amber-500/40";
         badge.innerText = "Rank Leader 🏆";
         msg.innerText = "അത്യുജ്ജ്വല പ്രകടനം! നിങ്ങൾ മികച്ച റാങ്കിലേക്ക് അടുക്കുന്നു.";
-      } else if (history.length >= 3 && avgScore >= 10) {
+      } else if (totalTests >= 3 && avgPercentage >= 40) {
         badge.className = "text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/40";
         badge.innerText = "Consistent Learner 📈";
         msg.innerText = "നല്ല പുരോഗതി! തെറ്റിയ ചോദ്യങ്ങൾ വിശകലനം ചെയ്തു മുന്നേറുക.";
@@ -901,57 +1027,136 @@
       }
     }
 
-    // 🌟 ഓട്ടോ-റീട്രൈയും ലോക്കൽ കാഷെയും ഉള്ള അതിവേഗ ഡാറ്റാ ഫെച്ച്
-    async function fetchQuizzesFromSheet(retryCount = 2) {
-      try {
-        const response = await fetch(HOME_SHEET_APPS_SCRIPT_URL);
-        if (!response.ok) throw new Error("Network response was not ok");
-        const data = await response.json();
-        
-        if (Array.isArray(data) && data.length > 0) {
-          rawQuizList = data;
-          localStorage.setItem('sk_ultra_cached_quizzes', JSON.stringify(rawQuizList));
-        }
+    // 🌟 അഡ്മിൻ നൽകിയ LATEST പരീക്ഷകളെ കൃത്യമായി കണ്ടെത്തുന്നു
+    function checkIsRealLatest(quiz) {
+      const cleanQuizTitle = cleanTitleForMatch(quiz.title);
+      let cfg = examStatusConfig[cleanQuizTitle];
 
-        document.getElementById('loading').classList.add('hidden');
-        document.getElementById('quizGrid').classList.remove('hidden');
-        
-        populateCategories();
-        applyFiltersAndRender();
-        renderTimetableSection();
-      } catch (e) {
-        if (retryCount > 0) {
-          setTimeout(() => fetchQuizzesFromSheet(retryCount - 1), 1200);
-          return;
-        }
-
-        if (rawQuizList.length === 0) {
-          document.getElementById('loading').innerHTML = `
-            <div class="space-y-2 py-4">
-              <p class="text-rose-400 font-bold">ഡാറ്റ ലോഡ് ചെയ്യുന്നതിൽ ചെറിയ തടസ്സം നേരിട്ടു!</p>
-              <button onclick="location.reload()" class="px-4 py-1.5 bg-emerald-500 text-slate-950 rounded-xl text-xs font-bold shadow">വീണ്ടും ശ്രമിക്കുക 🔄</button>
-            </div>
-          `;
+      if (!cfg) {
+        for (const [k, v] of Object.entries(examStatusConfig)) {
+          if (cleanQuizTitle.includes(k) || k.includes(cleanQuizTitle)) {
+            cfg = v;
+            break;
+          }
         }
       }
+
+      const st = cfg ? cfg.status : (quiz.badge || '').trim().toUpperCase();
+      return st === 'LATEST';
     }
 
-    function populateCategories() {
-      const catSelect = document.getElementById('categorySelect');
-      catSelect.innerHTML = '<option value="all">എല്ലാ വിഷയങ്ങളും (All Categories)</option>';
-      const categories = [...new Set(rawQuizList.map(q => q.category).filter(Boolean))];
+    // 🌟 രണ്ട് വരികളിൽ സൈഡിലേക്ക് സ്വൈപ്പ് ചെയ്യുന്ന സബ്ജക്റ്റ് ഫോൾഡറുകൾ
+    function renderFolders() {
+      const container = document.getElementById('foldersContainer');
+      if (!container) return;
+      container.innerHTML = '';
 
-      categories.forEach(cat => {
-        const opt = document.createElement('option');
-        opt.value = cat;
-        opt.innerText = cat;
-        catSelect.appendChild(opt);
+      const counts = {};
+      const catHasLatest = {};
+
+      rawQuizList.forEach(q => {
+        const cat = q.category || 'പൊതുവിജ്ഞാനം';
+        counts[cat] = (counts[cat] || 0) + 1;
+        if (checkIsRealLatest(q)) {
+          catHasLatest[cat] = true;
+        }
+      });
+
+      // 1. "എല്ലാ പരീക്ഷകളും" ഫോൾഡർ കാർഡ്
+      const allActive = selectedCategory === 'all';
+      const allFolder = document.createElement('div');
+      allFolder.className = `p-3 rounded-2xl border cursor-pointer transition transform active:scale-95 flex items-center justify-between snap-start ${allActive ? 'bg-emerald-950/90 border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.35)] ring-1 ring-emerald-400' : 'bg-slate-900 border-slate-800 hover:border-slate-700'}`;
+      allFolder.onclick = () => { selectFolder('all'); };
+      allFolder.innerHTML = `
+        <div class="flex items-center space-x-2.5 min-w-0">
+          <div class="w-8 h-8 rounded-xl ${allActive ? 'bg-emerald-500 text-slate-950' : 'bg-slate-950 text-emerald-400'} flex items-center justify-center font-bold text-sm shadow flex-shrink-0">🌟</div>
+          <div class="min-w-0">
+            <h4 class="text-xs font-bold text-white truncate">എല്ലാ പരീക്ഷകളും</h4>
+            <span class="text-[9px] text-slate-400 font-mono block">${rawQuizList.length} പരീക്ഷകൾ</span>
+          </div>
+        </div>
+        <span class="text-xs ${allActive ? 'text-emerald-400 font-bold' : 'text-slate-600'} flex-shrink-0 ml-1">›</span>
+      `;
+      container.appendChild(allFolder);
+
+      // 2. പുതിയ പരീക്ഷകൾ ഉള്ള വിഷയങ്ങൾ മുന്നിൽ വരുന്നു
+      const catList = Object.keys(counts);
+      catList.sort((a, b) => {
+        const aNew = catHasLatest[a] ? 1 : 0;
+        const bNew = catHasLatest[b] ? 1 : 0;
+        if (bNew !== aNew) return bNew - aNew;
+        return a.localeCompare(b);
+      });
+
+      catList.forEach(cat => {
+        const isActive = selectedCategory === cat;
+        const hasNew = catHasLatest[cat];
+
+        const folder = document.createElement('div');
+        let borderClass = isActive ? 'bg-emerald-950/90 border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.35)] ring-1 ring-emerald-400' : 'bg-slate-900 border-slate-800 hover:border-slate-700';
+        if (hasNew && !isActive) {
+          borderClass = 'bg-slate-900 border-rose-500/50 hover:border-rose-400';
+        }
+
+        folder.className = `p-3 rounded-2xl border cursor-pointer transition transform active:scale-95 flex items-center justify-between snap-start relative ${borderClass}`;
+        folder.onclick = () => { selectFolder(cat); };
+
+        const newBadge = hasNew 
+          ? `<span class="auto-latest-badge px-1.5 py-0.2 rounded text-[8px] font-black uppercase tracking-wider bg-rose-600 text-white absolute -top-1.5 -right-1 shadow">● NEW</span>` 
+          : '';
+
+        folder.innerHTML = `
+          ${newBadge}
+          <div class="flex items-center space-x-2.5 min-w-0">
+            <div class="w-8 h-8 rounded-xl ${isActive ? 'bg-emerald-500 text-slate-950' : 'bg-slate-950 text-emerald-400'} flex items-center justify-center font-bold text-sm shadow flex-shrink-0">📁</div>
+            <div class="min-w-0">
+              <h4 class="text-xs font-bold text-white truncate">${cat}</h4>
+              <span class="text-[9px] text-slate-400 font-mono block">${counts[cat]} പരീക്ഷകൾ</span>
+            </div>
+          </div>
+          <span class="text-xs ${isActive ? 'text-emerald-400 font-bold' : 'text-slate-600'} flex-shrink-0 ml-1">›</span>
+        `;
+        container.appendChild(folder);
       });
     }
 
+    // 🌟 ഫോൾഡറിൽ ക്ലിക്ക് ചെയ്യുമ്പോൾ മാത്രം കാർഡുകൾ ഓപ്പൺ ആക്കുന്നു
+    function selectFolder(cat) {
+      if (selectedCategory === cat) {
+        closeSelectedCategory();
+        return;
+      }
+
+      selectedCategory = cat;
+      renderFolders();
+
+      const area = document.getElementById('examsDisplayArea');
+      area.classList.remove('hidden');
+
+      const headerTitle = document.getElementById('activeCategoryHeader');
+      if (cat === 'all') {
+        headerTitle.innerHTML = '<span>📑</span><span>എല്ലാ പരീക്ഷകളും</span>';
+      } else {
+        headerTitle.innerHTML = `<span>📁</span><span>${cat} - പരീക്ഷകൾ</span>`;
+      }
+
+      applyFiltersAndRender();
+      
+      setTimeout(() => {
+        area.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+
+    function closeSelectedCategory() {
+      selectedCategory = null;
+      renderFolders();
+      document.getElementById('examsDisplayArea').classList.add('hidden');
+    }
+
     function applyFiltersAndRender() {
+      if (!selectedCategory) return;
+
       const searchText = document.getElementById('searchInput').value.trim().toLowerCase();
-      const selectedCategory = document.getElementById('categorySelect').value;
       const sortBy = document.getElementById('sortSelect').value;
 
       let filtered = rawQuizList.filter(q => {
@@ -972,24 +1177,68 @@
         filtered.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
       }
 
-      renderCards(filtered);
+      renderCompactCards(filtered);
+    }
+
+    // 🌟 മുകളിലെ ലേറ്റസ്റ്റ് റീൽ
+    function renderLatestReel() {
+      const reelBox = document.getElementById('latestReelWrapper');
+      const reelList = document.getElementById('latestReelList');
+      if (!reelBox || !reelList) return;
+      reelList.innerHTML = '';
+
+      const latestItems = rawQuizList.filter(q => checkIsRealLatest(q));
+
+      if (latestItems.length === 0) {
+        reelBox.classList.add('hidden');
+        return;
+      }
+
+      reelBox.classList.remove('hidden');
+
+      latestItems.forEach(q => {
+        let targetUrl = q.fileUrl;
+        if (candidate) {
+          const separator = targetUrl.includes('?') ? '&' : '?';
+          targetUrl = `${targetUrl}${separator}name=${encodeURIComponent(candidate.name)}&phone=${encodeURIComponent(candidate.phone)}&title=${encodeURIComponent(q.title)}&sheetUrl=${encodeURIComponent(GLOBAL_SHEET_WEBAPP_URL)}&pdfUrl=${encodeURIComponent(q.pdfUrl || '')}`;
+        }
+
+        const reelCard = document.createElement('div');
+        reelCard.className = "w-64 sm:w-72 bg-slate-900 border-2 border-rose-500/50 rounded-2xl p-3.5 shadow-lg flex-shrink-0 snap-start flex flex-col justify-between space-y-2 relative";
+        reelCard.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="auto-latest-badge px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-rose-600 text-white shadow-sm">
+                ● LATEST
+              </span>
+              <span class="text-[10px] text-slate-400 bg-slate-950 px-2 py-0.5 rounded truncate max-w-[110px]">${q.category}</span>
+            </div>
+            <h4 class="text-xs sm:text-sm font-bold text-white line-clamp-2 leading-tight">${q.title}</h4>
+            <p class="text-[11px] text-slate-400 line-clamp-1 mt-1">${q.topics || 'പ്രധാന പരീക്ഷാ ചോദ്യങ്ങൾ'}</p>
+          </div>
+          <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between">
+            <span class="text-[10px] text-slate-500 font-mono">📝 ${q.questions} Qs • ⏱️️ ${q.time}</span>
+            <a href="${targetUrl}" class="px-3 py-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-lg text-[11px] transition shadow">
+              ആരംഭിക്കുക ›
+            </a>
+          </div>
+        `;
+        reelList.appendChild(reelCard);
+      });
     }
 
     function formatScheduledDateTime(dateObj) {
       const months = ['ജനുവരി', 'ഫെബ്രുവരി', 'മാർച്ച്', 'ഏപ്രിൽ', 'മേയ്', 'ജൂൺ', 'ജൂലൈ', 'ഓഗസ്റ്റ്', 'സെപ്റ്റംബർ', 'ഒക്ടോബർ', 'നവംബർ', 'ഡിസംബർ'];
       const month = months[dateObj.getMonth()];
       const day = dateObj.getDate();
-      
       let hours = dateObj.getHours();
       const minutes = dateObj.getMinutes().toString().padStart(2, '0');
       const ampm = hours >= 12 ? 'PM' : 'AM';
       hours = hours % 12;
       hours = hours ? hours : 12;
-
       return `${month} ${day}, ${hours}:${minutes} ${ampm}`;
     }
 
-    // 🌟 പരീക്ഷകളുടെ ലൈവ് റാങ്ക് ലിസ്റ്റ് കാണിക്കുന്ന ഫംഗ്ഷൻ (ശൂന്യമായ വരികൾ ഒഴിവാക്കിയത്)
     function showExamLiveRankList(sheetTargetUrl, examTitle) {
       document.getElementById('rankListModal').classList.remove('hidden');
       document.getElementById('rankModalTitle').innerText = `🏆 ${examTitle} - ലൈവ് റാങ്ക് ലിസ്റ്റ്`;
@@ -1002,7 +1251,6 @@
         .then(res => res.json())
         .then(data => {
           tbody.innerHTML = '';
-          
           let rawRanks = [];
           if (data && data.rankList) {
             rawRanks = data.rankList;
@@ -1010,13 +1258,11 @@
             rawRanks = data;
           }
 
-          // 🛑 അനാവശ്യമായ/ശൂന്യമായ വരികൾ ഫിൽട്ടർ ചെയ്യുന്നു
           const ranks = rawRanks.filter(r => {
             const cleanP = String(r.phone || '').replace(/\D/g, '');
             const isValidPhone = cleanP.length >= 10 && cleanP !== "0000000000";
             const isValidName = r.name && r.name !== "വിദ്യാർത്ഥി" && String(r.name).trim() !== "";
             const hasScore = Number(r.score) > 0 || Number(r.correct) > 0 || Number(r.wrong) > 0;
-            
             return (isValidPhone || isValidName) && (r.phone !== '-' || hasScore);
           });
 
@@ -1051,7 +1297,7 @@
       document.getElementById('rankListModal').classList.add('hidden');
     }
 
-    function renderCards(list) {
+    function renderCompactCards(list) {
       const grid = document.getElementById('quizGrid');
       const empty = document.getElementById('emptyState');
       document.getElementById('examCountDisplay').innerText = list.length;
@@ -1064,32 +1310,26 @@
       empty.classList.add('hidden');
 
       const currentTime = new Date().getTime();
-      const THIRTY_SIX_HOURS = 36 * 60 * 60 * 1000;
       const FIFTEEN_MINUTES = 15 * 60 * 1000;
 
-      // 🌟 അതിവേഗ സെർച്ചിനായി Map ഉപയോഗിക്കുന്നു
       const historyMap = new Map();
       cloudHistoryCache.forEach(h => {
         if (h && h.title) {
-          const cleanH = h.title.replace(/[^a-zA-Z0-9\u0D00-\u0D7F]/g, '').toLowerCase();
+          const cleanH = cleanTitleForMatch(h.title);
           historyMap.set(cleanH, h);
         }
       });
 
-      // 🌟 ഫ്ലാഷ് റെൻഡറിങ്ങിനായി DocumentFragment ഉപയോഗിക്കുന്നു
       const fragment = document.createDocumentFragment();
 
       list.forEach(q => {
         const card = document.createElement('div');
-        const cleanCard = q.title.replace(/[^a-zA-Z0-9\u0D00-\u0D7F]/g, '').toLowerCase();
+        const cleanCard = cleanTitleForMatch(q.title);
 
         let config = examStatusConfig[cleanCard] || null;
         if (!config) {
           for (const [key, val] of Object.entries(examStatusConfig)) {
-            if (cleanCard.includes(key) || key.includes(cleanCard)) {
-              config = val;
-              break;
-            }
+            if (cleanCard.includes(key) || key.includes(cleanCard)) { config = val; break; }
           }
         }
 
@@ -1099,51 +1339,35 @@
         let releaseDate = releaseDateObj && !isNaN(releaseDateObj.getTime()) ? releaseDateObj.getTime() : null;
 
         let isUpcoming = false;
-        let isLatest = false;
-        let buttonDisplayText = "🔒 ഉടൻ വരുന്നു (Locked)";
+        let isLatest = (baseStatus === 'LATEST');
+        let buttonDisplayText = "🔒 ഉടൻ വരുന്നു";
 
-        if (releaseDate) {
-          if (currentTime < releaseDate) {
-            isUpcoming = true;
-            const diffMs = releaseDate - currentTime;
-
-            if (diffMs <= FIFTEEN_MINUTES) {
-              const diffMins = Math.max(1, Math.ceil(diffMs / (1000 * 60)));
-              buttonDisplayText = `🔒 ഉടൻ വരുന്നു (${diffMins} മിനിറ്റ് ബാക്കി)`;
-            } else {
-              const scheduledText = formatScheduledDateTime(releaseDateObj);
-              buttonDisplayText = `🔒 ഉടൻ വരുന്നു (${scheduledText})`;
-            }
-          } else if (currentTime >= releaseDate && (currentTime - releaseDate) <= THIRTY_SIX_HOURS) {
-            isLatest = true;
+        if (releaseDate && currentTime < releaseDate) {
+          isUpcoming = true;
+          isLatest = false;
+          const diffMs = releaseDate - currentTime;
+          if (diffMs <= FIFTEEN_MINUTES) {
+            const diffMins = Math.max(1, Math.ceil(diffMs / (1000 * 60)));
+            buttonDisplayText = `🔒 ഉടൻ (${diffMins} മിനിറ്റ്)`;
+          } else {
+            buttonDisplayText = `🔒 ഉടൻ (${formatScheduledDateTime(releaseDateObj)})`;
           }
-        } else {
-          if (baseStatus === 'UPCOMING') isUpcoming = true;
-          if (baseStatus === 'LATEST') isLatest = true;
         }
 
         let badgeMarkup = '';
         if (isUpcoming) {
-          badgeMarkup = `
-            <span class="auto-upcoming-badge px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-emerald-400 text-slate-950 font-mono shadow-[0_0_12px_#10b981]">
-              ● UPCOMING
-            </span>
-          `;
+          badgeMarkup = `<span class="auto-upcoming-badge px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-emerald-400 text-slate-950 font-mono">● UPCOMING</span>`;
         } else if (isLatest) {
-          badgeMarkup = `
-            <span class="auto-latest-badge px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-rose-600 text-white shadow-lg shadow-rose-600/50">
-              ● LATEST
-            </span>
-          `;
+          badgeMarkup = `<span class="auto-latest-badge px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-rose-600 text-white">● LATEST</span>`;
         } else {
-          badgeMarkup = `<span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800/40">${q.badge || 'Test'}</span>`;
+          badgeMarkup = `<span class="text-[9px] font-bold uppercase tracking-wider text-emerald-400 bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-800/40">${q.badge || 'Test'}</span>`;
         }
 
         let borderClass = 'border-slate-800 hover:border-emerald-500/80';
-        if (isUpcoming) borderClass = 'border-emerald-400/80 shadow-[0_0_15px_rgba(16,185,129,0.25)]';
-        if (isLatest) borderClass = 'ring-2 ring-rose-500/70 border-rose-500/50';
+        if (isUpcoming) borderClass = 'border-emerald-400/80 shadow-[0_0_12px_rgba(16,185,129,0.2)]';
+        if (isLatest) borderClass = 'border-rose-500/60 ring-1 ring-rose-500/50';
 
-        card.className = `bg-slate-900 border ${borderClass} rounded-2xl p-4 sm:p-5 shadow flex flex-col justify-between transition-all duration-200 group relative`;
+        card.className = `bg-slate-900 border ${borderClass} rounded-2xl p-3.5 shadow flex flex-col justify-between transition-all duration-200`;
 
         const prevAttempt = historyMap.get(cleanCard);
 
@@ -1158,17 +1382,17 @@
 
         if (isUpcoming) {
           actionAreaMarkup = `
-            <div class="pt-3 w-full">
-              <button disabled class="w-full py-2.5 bg-slate-950 border border-emerald-500/30 text-emerald-400 font-bold rounded-xl text-[11px] sm:text-xs flex items-center justify-center space-x-1.5 cursor-not-allowed opacity-90 shadow-inner select-none px-2 truncate">
-                <span>${buttonDisplayText}</span>
+            <div class="pt-2 w-full">
+              <button disabled class="w-full py-2 bg-slate-950 border border-emerald-500/30 text-emerald-400 font-bold rounded-xl text-[11px] cursor-not-allowed opacity-90 truncate">
+                ${buttonDisplayText}
               </button>
             </div>
           `;
         } else if (prevAttempt) {
           const scoreNum = parseFloat(prevAttempt.score || 0);
           scoreNoticeMarkup = `
-            <div class="bg-slate-950/80 border border-emerald-500/30 px-3 py-1.5 rounded-xl flex items-center justify-between text-xs mt-2">
-              <span class="text-slate-400">കഴിഞ്ഞ സ്കോർ:</span>
+            <div class="bg-slate-950/80 border border-emerald-500/20 px-2.5 py-1 rounded-lg flex items-center justify-between text-[11px] mt-1.5">
+              <span class="text-slate-400">സ്കോർ:</span>
               <span class="font-mono font-bold text-emerald-400">${scoreNum.toFixed(2)} Mark</span>
             </div>
           `;
@@ -1176,19 +1400,19 @@
           const solUrl = `${targetUrl}&view=solution&score=${scoreNum.toFixed(2)}&correct=${prevAttempt.correct || 0}&wrong=${prevAttempt.wrong || 0}&skipped=${prevAttempt.skipped || 0}`;
 
           actionAreaMarkup = `
-            <div class="grid grid-cols-2 gap-2 w-full pt-3">
-              <a href="${solUrl}" class="py-2 bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold rounded-xl text-xs transition text-center border border-slate-700 flex items-center justify-center">
-                Previous Results
+            <div class="grid grid-cols-2 gap-1.5 w-full pt-2">
+              <a href="${solUrl}" class="py-1.5 bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold rounded-xl text-[11px] text-center border border-slate-700">
+                Result
               </a>
-              <a href="${targetUrl}&reattempt=true" class="py-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 text-slate-950 font-black rounded-xl text-xs transition text-center shadow flex items-center justify-center">
-                Attempt Again
+              <a href="${targetUrl}&reattempt=true" class="py-1.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-slate-950 font-black rounded-xl text-[11px] text-center shadow">
+                Reattempt
               </a>
             </div>
           `;
         } else {
           actionAreaMarkup = `
-            <div class="pt-3 w-full">
-              <a href="${targetUrl}" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl text-xs transition transform active:scale-95 shadow flex items-center justify-center space-x-1">
+            <div class="pt-2 w-full">
+              <a href="${targetUrl}" class="w-full py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl text-xs transition text-center shadow flex items-center justify-center space-x-1">
                 <span>പരീക്ഷ ആരംഭിക്കുക</span>
                 <span>›</span>
               </a>
@@ -1197,30 +1421,26 @@
         }
 
         const rankListBtnMarkup = `
-          <button onclick="showExamLiveRankList('${encodeURIComponent(q.sheetUrl || GLOBAL_SHEET_WEBAPP_URL)}', '${q.title}')" class="text-[11px] font-bold text-cyan-400 hover:text-cyan-300 bg-slate-950 px-2.5 py-1 rounded-lg border border-cyan-500/30 hover:border-cyan-400 transition flex items-center space-x-1 shadow-sm">
+          <button onclick="showExamLiveRankList('${encodeURIComponent(q.sheetUrl || GLOBAL_SHEET_WEBAPP_URL)}', '${q.title}')" class="text-[10px] font-bold text-cyan-400 bg-slate-950 px-2 py-0.5 rounded-lg border border-cyan-500/30 hover:border-cyan-400 transition flex items-center space-x-1">
             <span>🏆</span>
             <span>റാങ്ക് ലിസ്റ്റ്</span>
           </button>
         `;
 
         card.innerHTML = `
-          <div class="space-y-2">
-            <div class="flex items-center justify-between gap-2">
-              <div class="card-badge-slot flex items-center space-x-1.5">${badgeMarkup}</div>
-              <span class="text-[11px] font-medium text-slate-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-800/80 truncate">${q.category}</span>
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between gap-1.5">
+              <div class="flex items-center space-x-1">${badgeMarkup}</div>
+              <span class="text-[10px] font-medium text-slate-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-800/80 truncate max-w-[120px]">${q.category}</span>
             </div>
-            <h3 class="exam-title-text text-sm sm:text-base font-bold text-white group-hover:text-emerald-300 transition line-clamp-2">${q.title}</h3>
-            <p class="text-xs text-slate-400 leading-relaxed line-clamp-2 min-h-[32px]">${q.topics || 'പ്രധാന പരീക്ഷാ ചോദ്യങ്ങൾ'}</p>
+            <h3 class="text-xs sm:text-sm font-bold text-white leading-tight line-clamp-2">${q.title}</h3>
+            <p class="text-[11px] text-slate-400 line-clamp-1">${q.topics || 'പ്രധാന പരീക്ഷാ ചോദ്യങ്ങൾ'}</p>
             ${scoreNoticeMarkup}
           </div>
 
-          <div class="mt-3 border-t border-slate-800/90 pt-2">
-            <div class="flex items-center justify-between text-[11px] text-slate-400">
-              <div class="space-x-1">
-                <span>📝 ${q.questions} Qs</span>
-                <span>•</span>
-                <span>⏱️ ${q.time}</span>
-              </div>
+          <div class="mt-2.5 border-t border-slate-800/80 pt-1.5">
+            <div class="flex items-center justify-between text-[10px] text-slate-400">
+              <span>📝 ${q.questions} Qs • ⏱️ ${q.time}</span>
               ${rankListBtnMarkup}
             </div>
             ${actionAreaMarkup}
@@ -1232,8 +1452,13 @@
       grid.appendChild(fragment);
     }
 
-    document.getElementById('searchInput').addEventListener('input', applyFiltersAndRender);
-    document.getElementById('categorySelect').addEventListener('change', applyFiltersAndRender);
+    document.getElementById('searchInput').addEventListener('input', () => {
+      if (!selectedCategory) selectedCategory = 'all';
+      renderFolders();
+      document.getElementById('examsDisplayArea').classList.add('hidden');
+      applyFiltersAndRender();
+    });
+
     document.getElementById('sortSelect').addEventListener('change', applyFiltersAndRender);
   </script>
 </body>
