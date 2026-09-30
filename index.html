@@ -4,15 +4,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SK PSC - മോഡൽ എക്സാം പോർട്ടൽ</title>
-  
-  <!-- Speed Booster: DNS Preconnects for Google Fonts -->
+
+  <!-- Speed Boost: ഗൂഗിൾ ഫോണ്ട്സ് വേഗത്തിൽ കണക്ട് ചെയ്യാൻ -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Noto+Sans+Malayalam:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+
+  <!-- Tailwind CSS Engine (v3 Dark Slate Colors കൃത്യമായി ലഭിക്കാൻ) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
   <style>
-    body { font-family: 'Noto Sans Malayalam', 'Manrope', sans-serif; }
+    /* പേജ് ലോഡ് ആകുമ്പോൾ വെള്ള സ്ക്രീൻ വരുന്നത് തടയാൻ ഡാർക്ക് ഫോൾബാക്ക് */
+    html, body {
+      background-color: #020617 !important; /* slate-950 */
+      color: #f8fafc !important;
+      font-family: 'Noto Sans Malayalam', 'Manrope', sans-serif;
+    }
     .custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
     .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -127,29 +134,30 @@
 
       <div class="w-36 h-36 sm:w-44 sm:h-44 md:w-52 md:h-52 shrink-0 flex items-center justify-center relative z-10">
         <div class="absolute inset-0 bg-emerald-500/15 rounded-full blur-2xl"></div>
+        <!-- GitHub Direct Logo (High Speed & Zero Latency) -->
         <img 
-  id="heroLogoImg"
-  src="logo.png" 
-  alt="SK PSC Logo" 
-  width="200"
-  height="200"
-  loading="eager"
-  fetchpriority="high"
-  decoding="async"
-  class="w-full h-full object-contain relative z-10 drop-shadow-[0_10px_20px_rgba(16,185,129,0.3)] hover:scale-105 transition-transform duration-300"
-  onerror="this.onerror=null; this.src='https://via.placeholder.com/200x200/0f172a/10b981?text=SK+PSC';"
-/>
+          id="heroLogoImg"
+          src="logo.png" 
+          alt="SK PSC Logo" 
+          width="200"
+          height="200"
+          loading="eager"
+          fetchpriority="high"
+          decoding="async"
+          class="w-full h-full object-contain relative z-10 drop-shadow-[0_10px_20px_rgba(16,185,129,0.3)] hover:scale-105 transition-transform duration-300"
+          onerror="this.onerror=null; this.src='https://lh3.googleusercontent.com/d/1BCHlkHFIaxwhUfLzIRtCkncAztfC3U44';"
+        />
       </div>
     </div>
 
-    <!-- 🌟 ടോപ്പ് 3 സ്റ്റുഡന്റ്സ് ലീഡർബോർഡ് (Balanced: Tests Attempted + Accuracy) -->
+    <!-- 🌟 ടോപ്പ് 3 സ്റ്റുഡന്റ്സ് ലീഡർബോർഡ് (Attempted Tests + Accuracy 50:50 Balance) -->
     <div id="topStudentsSection" class="hidden bg-slate-900/90 border border-amber-500/30 rounded-2xl p-4 shadow-xl">
       <div class="flex items-center justify-between mb-3 border-b border-slate-800 pb-2">
         <div class="flex items-center space-x-2">
           <span class="text-lg">👑</span>
           <h3 class="text-xs sm:text-sm font-black text-amber-400 uppercase tracking-wider">ടോപ്പ് പെർഫോമേഴ്സ് (Hall of Fame)</h3>
         </div>
-        <span class="text-[10px] text-slate-400 font-mono">Attempted Tests & Accuracy Score</span>
+        <span class="text-[10px] text-slate-400 font-mono">Tests Attempted & Accuracy</span>
       </div>
       <div id="topStudentsList" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5"></div>
     </div>
@@ -417,38 +425,62 @@
       return String(str).replace(/[\s\-_,.:;()\/\\|\[\]]+/g, '').toLowerCase();
     }
 
-   window.addEventListener('DOMContentLoaded', () => {
-  // 1. ഫോണിലുള്ള ഡാറ്റ വെച്ച് 0 സെക്കൻഡിൽ പേജ് റെൻഡർ ചെയ്യുന്നു
-  const instantCachedQuizzes = localStorage.getItem('sk_ultra_cached_quizzes');
-  if (instantCachedQuizzes) {
-    try {
-      rawQuizList = JSON.parse(instantCachedQuizzes);
-      renderFolders();
-      renderLatestReel();
-    } catch(e) {}
-  }
+    // 🚀 അൾട്രാ ഫാസ്റ്റ് സ്റ്റാർട്ടപ്പ് (Zero Latency DOM Init)
+    window.addEventListener('DOMContentLoaded', () => {
+      // 1. ഫോണിലുള്ള കാഷെയിൽ നിന്ന് ഞൊടിയിടയിൽ UI വരയ്ക്കുന്നു
+      const instantCachedQuizzes = localStorage.getItem('sk_ultra_cached_quizzes');
+      if (instantCachedQuizzes) {
+        try {
+          rawQuizList = JSON.parse(instantCachedQuizzes);
+          renderFolders();
+          renderLatestReel();
+        } catch(e) {}
+      }
 
-  // 2. യൂസർ വിവരങ്ങൾ ലോഡ് ചെയ്യുന്നു
-  const savedUser = localStorage.getItem('sk_candidate_user');
-  if (savedUser) {
-    candidate = JSON.parse(savedUser);
-    activateUserSession();
-  }
+      const cachedStatus = sessionStorage.getItem('sk_cached_status_config');
+      if (cachedStatus) {
+        try {
+          const parsed = JSON.parse(cachedStatus);
+          examStatusConfig = parsed.examStatusConfig || {};
+          timetableData = parsed.timetableData || [];
+          renderTimetableSection();
+          renderLatestReel();
+        } catch(e) {}
+      }
 
-  // 3. പേജ് സ്ക്രീനിൽ തെളിഞ്ഞ ശേഷം മാത്രം ബാക്ക്ഗ്രൗണ്ടിൽ പുതിയ ഡാറ്റ കൊണ്ടുവരുന്നു
-  setTimeout(() => {
-    fetchAllInitialData();
-    fetchTopUserCount();
-  }, 100);
-});
+      // 2. യൂസർ സെഷൻ ആക്റ്റിവേഷൻ
+      const savedUser = localStorage.getItem('sk_candidate_user');
+      if (savedUser) {
+        candidate = JSON.parse(savedUser);
+      }
 
-      // സ്പീഡ് വർധിപ്പിക്കാൻ ഇന്റർവെൽ 60 സെക്കൻഡാക്കി (Network latency കുറയ്ക്കും)
-     setInterval(() => {
-  fetchAllInitialData();
-}, 120000); // 2 മിനിറ്റ് കൂടുമ്പോൾ മാത്രം
+      const urlParams = new URLSearchParams(window.location.search);
+      const isCompleted = urlParams.get('completed') === 'true';
+
+      if (isCompleted) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+
+      if (candidate) {
+        activateUserSession();
+        if (isCompleted) {
+          openProfileModal();
+        }
+      }
+
+      // 3. പേജ് സ്ക്രീനിൽ തെളിഞ്ഞതിന് ശേഷം മാത്രം ബാക്ക്ഗ്രൗണ്ടിൽ പുതിയ ഡാറ്റ കൊണ്ടുവരുന്നു
+      setTimeout(() => {
+        fetchTopUserCount();
+        fetchAllInitialData();
+      }, 50);
+
+      // ഫോൺ ഹാംഗ് ആകാതിരിക്കാൻ ഇടവേള 2 മിനിറ്റാക്കി (120000 ms)
+      setInterval(() => {
+        fetchAllInitialData();
+      }, 120000);
     });
 
-    // 🌟 സമാന്തര ഫെച്ചിംഗ് (Parallel Fetch with Fast State)
+    // 🌟 പാരലൽ ഫെച്ചിംഗ് (Parallel Background Data Fetch)
     async function fetchAllInitialData() {
       try {
         const timestamp = Date.now();
@@ -530,7 +562,7 @@
         });
     }
 
-    // 🌟 പരിഷ്കരിച്ച ടോപ്പ് 3 റാങ്ക്: ആകെ Attempt ചെയ്ത എക്സാമുകൾക്കും Accuracy-ക്കും തുല്യ പ്രാധാന്യം
+    // 🌟 ടോപ്പ് 3 റാങ്കിംഗ് ഫോർമുല: Attempt ചെയ്ത എക്സാമുകൾക്കും Accuracy-ക്കും തുല്യ പ്രാധാന്യം (50:50)
     function fetchTopRankedStudents() {
       fetch(`${GLOBAL_SHEET_WEBAPP_URL}?action=admin_get_overview&_t=${Date.now()}`)
         .then(res => res.json())
@@ -538,7 +570,6 @@
           const candidates = data.candidates || [];
           if (candidates.length === 0) return;
 
-          // ആകെ ലഭ്യമായ പരീക്ഷകളുടെ എണ്ണം
           const totalAvailableExams = (rawQuizList && rawQuizList.length > 0) ? rawQuizList.length : 50;
 
           let validCandidates = candidates.map(c => {
@@ -546,7 +577,6 @@
             actualUniqueExams = Math.min(actualUniqueExams, totalAvailableExams);
             
             let rawScore = Number(c.avgScore) || 0;
-            // 25 മാർക്കിന്റെ എക്സാമാണെങ്കിൽ അതിനെ ശതമാനത്തിലേക്ക് മാറ്റുന്നു
             let accuracyPercent = rawScore <= 25 ? (rawScore / 25) * 100 : Math.min(rawScore, 100);
 
             // എക്സാം പാർട്ടിസിപ്പേഷൻ സ്കോർ (100-ൽ)
@@ -564,13 +594,11 @@
             };
           });
 
-          // കൂടുതൽ പരീക്ഷ എഴുതിയവരെ കൃത്യമായി ഫിൽട്ടർ ചെയ്യുന്നു
           let qualifiedCandidates = validCandidates.filter(c => c.totalExams >= 3);
           if (qualifiedCandidates.length < 3) {
             qualifiedCandidates = validCandidates;
           }
 
-          // സമഗ്ര സ്കോർ അനുസരിച്ച് സോർട്ട് ചെയ്യുന്നു
           qualifiedCandidates.sort((a, b) => {
             if (b.compositeScore !== a.compositeScore) return b.compositeScore - a.compositeScore;
             if (b.totalExams !== a.totalExams) return b.totalExams - a.totalExams;
@@ -1449,4 +1477,4 @@
     document.getElementById('sortSelect').addEventListener('change', applyFiltersAndRender);
   </script>
 </body>
-  </html>
+</html>
