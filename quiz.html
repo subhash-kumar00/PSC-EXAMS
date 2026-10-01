@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SK PSC - മോഡൽ എക്സാം</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Noto+Sans+Malayalam:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    body { font-family: 'Noto Sans Malayalam', 'Manrope', sans-serif; }
+    .custom-scroll::-webkit-scrollbar { width: 6px; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between select-none">
+
+  <!-- Header -->
+  <header class="bg-slate-800/95 backdrop-blur border-b border-slate-700 px-4 sm:px-6 py-3 flex items-center justify-between sticky top-0 z-50">
+    <div class="flex items-center space-x-3">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center font-black text-lg shadow-lg text-slate-950">SK</div>
+      <div>
+        <h1 class="font-bold text-sm sm:text-base text-cyan-400 leading-tight" id="headerExamTitle">മോഡൽ എക്സാം</h1>
+        <p class="text-[11px] text-slate-400" id="headerSubTitle">പരീക്ഷാ വിവരങ്ങൾ</p>
+      </div>
+    </div>
+    <div class="text-right">
+      <span id="displayUser" class="text-xs sm:text-sm font-semibold text-cyan-300">പഠിതാവ്</span>
+      <p class="text-[10px] text-emerald-400 font-mono">+1.00 / -0.33 Mark</p>
+    </div>
+  </header>
+
+  <main class="flex-1 flex flex-col items-center justify-center p-3 sm:p-6 w-full max-w-4xl mx-auto">
+    
+    <!-- Loading -->
+    <div id="loadingScreen" class="text-center py-20 space-y-3">
+      <div class="w-10 h-10 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+      <p class="text-cyan-400 text-sm font-semibold animate-pulse">ഫയർബേസിൽ നിന്ന് ചോദ്യങ്ങൾ തയ്യാറാക്കുന്നു...</p>
+    </div>
+
+    <!-- Start Screen -->
+    <div id="motivationScreen" class="w-full max-w-lg bg-slate-800 border-2 border-cyan-500/60 rounded-3xl p-8 sm:p-10 shadow-2xl text-center space-y-6 hidden">
+      <div class="w-20 h-20 bg-gradient-to-tr from-cyan-500 to-blue-600 rounded-full flex items-center justify-center mx-auto text-4xl shadow-xl">🎯</div>
+      <div>
+        <h2 id="motivateName" class="text-2xl sm:text-3xl font-black text-white">ഹലോ! ✨</h2>
+        <p class="text-cyan-400 font-extrabold text-xs sm:text-sm mt-1 uppercase tracking-widest" id="motivateSubTitle">പരീക്ഷയിലേക്ക് സ്വാഗതം!</p>
+      </div>
+      <button type="button" onclick="startExamDirectly()" class="w-full py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 text-slate-950 font-black rounded-2xl shadow-xl text-base cursor-pointer">
+        പരീക്ഷ ആരംഭിക്കുക 🚀
+      </button>
+    </div>
+
+    <!-- Quiz Question Screen -->
+    <div id="quizScreen" class="w-full hidden flex-col space-y-4">
+      <div class="bg-slate-800 border border-slate-700 rounded-xl p-3 sm:p-4 flex flex-wrap items-center justify-between gap-3 shadow-md">
+        <span class="px-3 py-1 bg-cyan-500/20 text-cyan-300 font-bold rounded-lg text-xs" id="questionBadge">ചോദ്യം 1</span>
+        <div class="flex items-center space-x-2 bg-slate-900 border border-slate-700 px-3.5 py-1 rounded-xl">
+          <span class="text-xs text-slate-400">സമയം:</span>
+          <span id="examTimer" class="font-mono text-sm font-black text-cyan-400">30:00</span>
+        </div>
+        <button onclick="if(confirm('പരീക്ഷ അവസാനിപ്പിക്കണമെന്നുറപ്പാണോ?')) finishExam();" class="px-3 py-1 bg-rose-500/20 text-rose-300 border border-rose-500/30 text-xs font-semibold rounded-lg">ഫിനിഷ് ചെയ്യുക</button>
+      </div>
+
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 sm:p-8 shadow-2xl relative">
+        <div class="flex justify-end mb-2">
+          <button onclick="handleReportQuestion(currentIndex + 1)" class="px-2.5 py-1 bg-rose-950/70 border border-rose-600/60 rounded-lg text-[11px] font-bold text-rose-300">Report 🚩</button>
+        </div>
+        <h2 id="qText" class="font-semibold leading-relaxed text-slate-100 whitespace-pre-line mb-5"></h2>
+        <div id="optionsContainer" class="space-y-2.5 mb-6"></div>
+        <div class="flex items-center justify-between pt-3 border-t border-slate-700">
+          <button id="prevBtn" onclick="if(currentIndex > 0){ currentIndex--; renderQuestion(currentIndex); }" class="px-4 py-2 bg-slate-700 text-slate-200 text-xs rounded-xl disabled:opacity-40">‹ Previous</button>
+          <button id="nextBtn" onclick="nextQuestion()" class="px-5 py-2 bg-cyan-500 text-slate-950 font-bold text-xs rounded-xl">Next ›</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Result Screen -->
+    <div id="resultScreen" class="w-full hidden space-y-6">
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl text-center space-y-5">
+        <h2 class="text-2xl font-black text-cyan-400" id="resultHeaderTitle">പരീക്ഷാ ഫലം</h2>
+        <p class="text-sm text-slate-400" id="resultCandidateInfo"></p>
+        <div class="text-3xl font-black text-cyan-400 font-mono" id="finalScore">0.00</div>
+        <div id="sheetStatus" class="text-xs text-emerald-400">മാർക്ക് രേഖപ്പെടുത്തിയിരിക്കുന്നു!</div>
+        <div class="pt-2">
+          <button onclick="returnToHomeWithData()" class="px-5 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black rounded-xl text-xs">
+            🏠 ഹോം പേജിലേക്ക് മടങ്ങുക
+          </button>
+        </div>
+      </div>
+      <div id="solutionsContainer" class="bg-slate-800 border border-slate-700 rounded-2xl p-6 space-y-6"></div>
+    </div>
+
+  </main>
+
+  <script>
+    const FIREBASE_DB_URL = "https://sk-psc-portal-default-rtdb.asia-southeast1.firebasedatabase.app";
+    let questionsData = [];
+    let examTitle = "മോഡൽ എക്സാം";
+    let quizKey = "plus_one_geo_1";
+    let currentUser = { name: "പഠിതാവ്", phone: "0000000000" };
+    let currentIndex = 0;
+    let userAnswers = [];
+    let timeLeft = 30 * 60;
+    let timerInterval = null;
+
+    function cleanTitleForMatch(str) {
+      if (!str) return "";
+      return String(str).replace(/[\s\-_,.:;()\/\\|\[\]]+/g, '').toLowerCase();
+    }
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('name')) currentUser.name = decodeURIComponent(urlParams.get('name'));
+      if (urlParams.get('phone')) currentUser.phone = decodeURIComponent(urlParams.get('phone'));
+      if (urlParams.get('title')) examTitle = decodeURIComponent(urlParams.get('title'));
+      if (urlParams.get('key')) quizKey = urlParams.get('key');
+
+      document.getElementById('headerExamTitle').innerText = examTitle;
+      document.getElementById('motivateName').innerText = `ഹലോ, ${currentUser.name}! ✨`;
+      document.getElementById('displayUser').innerText = `${currentUser.name} (${currentUser.phone})`;
+
+      // ഫയർബേസിൽ നിന്ന് ചോദ്യങ്ങൾ എടുക്കുന്നു
+      try {
+        const res = await fetch(`${FIREBASE_DB_URL}/quiz_contents/${quizKey}.json`);
+        const data = await res.json();
+
+        if (data && data.questions) {
+          questionsData = data.questions;
+          if (data.examTitle) examTitle = data.examTitle;
+          document.getElementById('headerExamTitle').innerText = examTitle;
+          document.getElementById('headerSubTitle').innerText = `${questionsData.length} ചോദ്യങ്ങൾ`;
+          userAnswers = new Array(questionsData.length).fill(null);
+
+          document.getElementById('loadingScreen').classList.add('hidden');
+
+          if (urlParams.get('review') === 'true' || urlParams.get('viewResult') === 'true') {
+            document.getElementById('resultScreen').classList.remove('hidden');
+            renderSolutions();
+          } else {
+            document.getElementById('motivationScreen').classList.remove('hidden');
+          }
+        } else {
+          document.getElementById('loadingScreen').innerHTML = `<p class="text-rose-400">ചോദ്യങ്ങൾ ലഭ്യമായിട്ടില്ല.</p>`;
+        }
+      } catch (err) {
+        document.getElementById('loadingScreen').innerHTML = `<p class="text-rose-400">കണക്ഷൻ തകരാർ!</p>`;
+      }
+    });
+
+    function startExamDirectly() {
+      document.getElementById('motivationScreen').classList.add('hidden');
+      document.getElementById('quizScreen').classList.remove('hidden');
+      document.getElementById('quizScreen').classList.add('flex');
+      renderQuestion(0);
+      startTimer();
+    }
+
+    function startTimer() {
+      timerInterval = setInterval(() => {
+        if (timeLeft <= 0) { clearInterval(timerInterval); finishExam(); return; }
+        timeLeft--;
+        let m = Math.floor(timeLeft / 60), s = timeLeft % 60;
+        document.getElementById('examTimer').innerText = `${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
+      }, 1000);
+    }
+
+    function renderQuestion(index) {
+      const q = questionsData[index];
+      currentIndex = index;
+      document.getElementById('questionBadge').innerText = `ചോദ്യം ${index + 1} / ${questionsData.length}`;
+      document.getElementById('qText').innerText = `${index + 1}. ${q.q}`;
+
+      const optionsDiv = document.getElementById('optionsContainer');
+      optionsDiv.innerHTML = '';
+      const letters = ['A', 'B', 'C', 'D'];
+
+      q.options.forEach((opt, idx) => {
+        const isSelected = userAnswers[index] === idx;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `w-full text-left p-3.5 rounded-xl border transition flex items-start space-x-3 ${isSelected ? 'bg-cyan-500/20 border-cyan-500 text-cyan-200' : 'bg-slate-900/60 border-slate-700 text-slate-200'}`;
+        btn.innerHTML = `<span class="w-6 h-6 rounded-lg flex items-center justify-center text-xs font-bold ${isSelected ? 'bg-cyan-500 text-slate-950' : 'bg-slate-800 text-slate-400'}">${letters[idx]}</span><span class="text-xs sm:text-sm mt-0.5">${opt}</span>`;
+        btn.onclick = () => { userAnswers[index] = idx; renderQuestion(index); };
+        optionsDiv.appendChild(btn);
+      });
+
+      document.getElementById('prevBtn').disabled = (index === 0);
+      document.getElementById('nextBtn').innerText = (index === questionsData.length - 1) ? "സബ്മിറ്റ് ചെയ്യുക ✓" : "Next ›";
+    }
+
+    function nextQuestion() {
+      if (currentIndex < questionsData.length - 1) { currentIndex++; renderQuestion(currentIndex); }
+      else { finishExam(); }
+    }
+
+    async function finishExam() {
+      if (timerInterval) clearInterval(timerInterval);
+      let correct = 0, wrong = 0, skipped = 0;
+
+      for (let i = 0; i < questionsData.length; i++) {
+        if (userAnswers[i] === null) skipped++;
+        else if (userAnswers[i] === questionsData[i].ans) correct++;
+        else wrong++;
+      }
+
+      let netScore = Math.max(0, (correct * 1.0) - (wrong * 0.33333333));
+      const formattedScore = netScore.toFixed(2);
+
+      document.getElementById('finalScore').innerText = `${formattedScore} Mark`;
+      document.getElementById('resultCandidateInfo').innerText = `വിദ്യാർത്ഥി: ${currentUser.name} | ശരി: ${correct} | തെറ്റ്: ${wrong} | ഒഴിച്ചത്: ${skipped}`;
+
+      document.getElementById('quizScreen').classList.add('hidden');
+      document.getElementById('resultScreen').classList.remove('hidden');
+
+      renderSolutions();
+
+      if (currentUser.phone && currentUser.phone !== "0000000000") {
+        const todayDate = new Date().toISOString().split('T')[0];
+        const cleanKey = cleanTitleForMatch(examTitle);
+
+        await fetch(`${FIREBASE_DB_URL}/ranks/${cleanKey}/${currentUser.phone}.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: currentUser.name, phone: currentUser.phone, score: Number(formattedScore), date: todayDate })
+        });
+
+        await fetch(`${FIREBASE_DB_URL}/users_history/${currentUser.phone}.json`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title: examTitle, score: Number(formattedScore), correct, wrong, skipped, date: todayDate, timestamp: Date.now() })
+        });
+      }
+    }
+
+    function renderSolutions() {
+      const cont = document.getElementById('solutionsContainer');
+      cont.innerHTML = '<h3 class="text-lg font-bold text-cyan-400 mb-4 border-b border-slate-700 pb-2">ഉത്തരസൂചിക & വിശദീകരണം</h3>';
+      questionsData.forEach((q, idx) => {
+        cont.innerHTML += `
+          <div class="p-4 rounded-xl border border-slate-700 bg-slate-900/60 space-y-2 text-xs sm:text-sm">
+            <span class="font-bold text-cyan-400">ചോദ്യം ${idx + 1}</span>
+            <p class="text-white">${q.q}</p>
+            <p class="text-emerald-400 font-bold">ശരിയുത്തരം: ${q.options[q.ans]}</p>
+            <p class="text-slate-400 text-xs mt-1">വിശദീകരണം: ${q.exp}</p>
+          </div>
+        `;
+      });
+    }
+
+    async function handleReportQuestion(qNum) {
+      const reason = prompt(`ചോദ്യം ${qNum} ലെ സംശയം നൽകുക:`);
+      if (reason && reason.trim()) {
+        await fetch(`${FIREBASE_DB_URL}/reported_questions.json`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            exam: examTitle,
+            question: `ചോദ്യം ${qNum}`,
+            reason: reason.trim(),
+            candidate: currentUser.name,
+            phone: currentUser.phone,
+            date: new Date().toISOString().split('T')[0]
+          })
+        });
+        alert('സംശയം വിജയകരമായി റിപ്പോർട്ട് ചെയ്തു!');
+      }
+    }
+
+    function returnToHomeWithData() {
+      window.location.href = `https://subhash-kumar00.github.io/PSC-EXAMS/?completed=true`;
+    }
+  </script>
+</body>
+</html>
