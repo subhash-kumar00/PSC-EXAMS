@@ -120,12 +120,12 @@
           </p>
         </div>
 
-        <!-- നോട്ടീസ് ബോർഡ് -->
+        <!-- മൾട്ടി-ലൈൻ നോട്ടീസ് ബോർഡ് -->
         <div id="heroNoticeBox" class="hidden bg-emerald-950/50 border border-emerald-500/40 rounded-2xl p-3 flex items-start space-x-2.5 shadow-lg">
           <span class="text-sm shrink-0 mt-0.5">📢</span>
           <div class="text-xs text-emerald-200 leading-relaxed font-medium">
             <span class="font-bold text-emerald-400 uppercase tracking-wide block text-[10px] mb-0.5">അറിയിപ്പ്:</span>
-            <span id="heroNoticeText"></span>
+            <div id="heroNoticeText" class="whitespace-pre-line"></div>
           </div>
         </div>
       </div>
@@ -134,7 +134,7 @@
         <div class="absolute inset-0 bg-emerald-500/15 rounded-full blur-2xl"></div>
         <img 
           id="heroLogoImg"
-          src="logo.png" 
+          src="https://raw.githubusercontent.com/subhash-kumar00/PSC-EXAMS/main/logo.png" 
           alt="SK PSC Logo" 
           width="200"
           height="200"
@@ -142,12 +142,12 @@
           fetchpriority="high"
           decoding="async"
           class="w-full h-full object-contain relative z-10 drop-shadow-[0_10px_20px_rgba(16,185,129,0.3)] hover:scale-105 transition-transform duration-300"
-          onerror="this.onerror=null; this.src='https://via.placeholder.com/200x200/0f172a/10b981?text=SK+PSC';"
+          onerror="this.onerror=null; this.src='logo.png';"
         />
       </div>
     </div>
 
-    <!-- 🌟 ടോപ്പ് 3 സ്റ്റുഡന്റ്സ് ലീഡർബോർഡ് (Attempted Tests + Accuracy 50:50) -->
+    <!-- 🌟 ടോപ്പ് 3 സ്റ്റുഡന്റ്സ് ലീഡർബോർഡ് -->
     <div id="topStudentsSection" class="hidden bg-slate-900/90 border border-amber-500/30 rounded-2xl p-4 shadow-xl">
       <div class="flex items-center justify-between mb-3 border-b border-slate-800 pb-2">
         <div class="flex items-center space-x-2">
@@ -416,7 +416,7 @@
 
     function cleanTitleForMatch(str) {
       if (!str) return "";
-      return String(str).replace(/[\s\-_,.:;()\/\\|\[\]]+/g, '').toLowerCase();
+      return String(str).replace(/[\s\-_,.:;()\/\\|\[\]+]+/g, '').toLowerCase();
     }
 
     function parseReleaseTimestamp(dateStr) {
@@ -434,7 +434,6 @@
       return Date.now() < releaseTime;
     }
 
-    // 🌟 പരീക്ഷാ ലിങ്ക് നിർമ്മിക്കുന്നു
     function buildExamUrl(rawItem) {
       let examUrl = rawItem.FILEURL || rawItem.fileUrl || '';
       let webscriptUrl = rawItem.sheetUrl || '';
@@ -466,14 +465,12 @@
       return targetUrl;
     }
 
-    // 🌟 റിസൾട്ടും എക്സ്പ്ലനേഷനും നേരിട്ട് കാണാനുള്ള ലിങ്ക് (Review Mode)
     function buildReviewUrl(fileUrl, title) {
       if (!fileUrl || fileUrl.startsWith('javascript:')) return '#';
       const separator = fileUrl.includes('?') ? '&' : '?';
       return `${fileUrl}${separator}review=true&viewResult=true`;
     }
 
-    // 🌟 ഒബ്ജക്റ്റിലെ ഏത് ഫീൽഡിൽ നിന്നുമുള്ള മാർക്ക് കൃത്യമായി കണ്ടെത്തുന്നു
     function extractActualScore(obj) {
       if (!obj) return 0;
       const possibleKeys = ['MARK', 'mark', 'Mark', 'MARKS', 'marks', 'score', 'SCORE', 'Score', 'Total_Score', 'മാർക്ക്'];
@@ -525,17 +522,20 @@
 
         const [examsData, usersData, configData, userHistData] = await Promise.all([examsPromise, usersPromise, configPromise, userHistPromise]);
 
-        // വിദ്യാർത്ഥിയുടെ മുൻപത്തെ അറ്റംപ്റ്റുകൾ കാഷെ ചെയ്യുന്നു
+        // 🚀 വിദ്യാർത്ഥിയുടെ ആദ്യത്തെ അറ്റംപ്റ്റ് (First Attempt) മാത്രം മാപ്പ് ചെയ്യുന്നു (Duplicates ഒഴിവാക്കുന്നു)
         userAttemptsMap = {};
         if (userHistData) {
           let hList = Object.values(userHistData);
           hList.forEach(h => {
             const cleanTitle = cleanTitleForMatch(h.title);
-            userAttemptsMap[cleanTitle] = h;
+            // ആദ്യ അറ്റംപ്റ്റ് മാത്രം നിലനിർത്തുന്നു
+            if (!userAttemptsMap[cleanTitle]) {
+              userAttemptsMap[cleanTitle] = h;
+            }
           });
         }
 
-        // 1. നോട്ടീസ് ബോർഡ്
+        // 1. മൾട്ടി-ലൈൻ നോട്ടീസ് ബോർഡ്
         if (configData && configData.notice && String(configData.notice).trim() !== "") {
           document.getElementById('heroNoticeText').innerText = configData.notice;
           document.getElementById('heroNoticeBox').classList.remove('hidden');
@@ -545,12 +545,13 @@
 
         const adminControls = (configData && configData.exam_controls) ? configData.exam_controls : {};
 
-        // 2. പരീക്ഷകൾ
+        // 2. പരീക്ഷകൾ (അഡ്മിൻ പാനലിൽ Publish ചെയ്തവ മാത്രം ലിസ്റ്റ് ചെയ്യുന്നു)
         if (examsData) {
           let list = Array.isArray(examsData) ? examsData : Object.values(examsData);
           list = list.filter(item => item !== null && item !== undefined);
 
-          rawQuizList = list.map((item, idx) => {
+          let parsedList = [];
+          list.forEach((item, idx) => {
             let title = item.TITLE || item.title || `Exam ${idx + 1}`;
             let category = item.CATEGORY || item.category || 'പൊതുവിജ്ഞാനം';
             let topics = item.TOPICS || item.topics || 'പ്രധാന പരീക്ഷാ ചോദ്യങ്ങൾ';
@@ -569,10 +570,17 @@
               }
             }
 
+            // Publish ചെയ്യാത്തവ ഒഴിവാക്കുന്നു
+            const isPublished = (ctrl && ctrl.isPublished !== undefined) ? ctrl.isPublished : (item.isPublished === true);
+
+            if (!isPublished) {
+              return;
+            }
+
             let badge = (ctrl && ctrl.status) ? ctrl.status : (item.BADGE || 'NORMAL');
             let relDate = (ctrl && ctrl.releaseDate) ? ctrl.releaseDate : (item.Release_Date || '');
 
-            return {
+            parsedList.push({
               originalIndex: idx,
               title: String(title).trim(),
               fileUrl: buildExamUrl(item),
@@ -583,8 +591,10 @@
               topics: topics,
               pdfUrl: pdf,
               releaseDate: relDate
-            };
+            });
           });
+
+          rawQuizList = parsedList;
 
           renderFolders();
           renderLatestReel();
@@ -595,7 +605,7 @@
           }
         }
 
-        // 3. ലീഡർബോർഡ് (50:50 ഫോർമുല)
+        // 3. ലീഡർബോർഡ് & യൂസർ അനലിറ്റിക്സ്
         if (usersData) {
           let uList = Array.isArray(usersData) ? usersData : Object.values(usersData);
           allUsersCache = uList.filter(u => u !== null && u !== undefined);
@@ -604,26 +614,30 @@
           calculateTopRankersFromFirebase(allUsersCache);
         }
 
+        if (candidate) {
+          updateProfileAnalytics();
+        }
+
       } catch (err) {
         console.log("Firebase fetch error:", err);
       }
     }
 
+    // 🌟 ടോപ്പ് 3 റാങ്കേഴ്സ് കണക്കുകൂട്ടൽ (First Attempts + Accuracy 50:50)
     function calculateTopRankersFromFirebase(users) {
       if (!users || users.length === 0) return;
 
-      const totalAvailableExams = (rawQuizList && rawQuizList.length > 0) ? rawQuizList.length : 50;
+      const totalAvailableExams = (rawQuizList && rawQuizList.length > 0) ? rawQuizList.length : 34;
 
       let validCandidates = users.map(u => {
-        let phone = String(u.Phone || u.phone || '');
+        let phone = String(u.Phone || u.phone || u.key || '');
         let name = u.Official_Name || u.name || "വിദ്യാർത്ഥി";
-        let uniqueExams = Number(u.Unique_Exams || u.unique_Exams || u.Total_Attempts || 1);
-        uniqueExams = Math.min(uniqueExams, totalAvailableExams);
-
+        
+        let uniqueExams = Number(u.Unique_Exams || u.Total_Attempts || 0);
         let rawAvg = Number(u.First_Attempt_Avg || u.avgScore || 0);
-        let accuracyPercent = rawAvg <= 25 ? (rawAvg / 25) * 100 : Math.min(rawAvg, 100);
-        let examParticipationRate = (uniqueExams / totalAvailableExams) * 100;
 
+        let accuracyPercent = rawAvg <= 25 ? (rawAvg / 25) * 100 : Math.min(rawAvg, 100);
+        let examParticipationRate = totalAvailableExams > 0 ? (uniqueExams / totalAvailableExams) * 100 : 0;
         let compositeRankScore = (accuracyPercent * 0.50) + (examParticipationRate * 0.50);
 
         return {
@@ -636,8 +650,7 @@
         };
       });
 
-      let qualifiedCandidates = validCandidates.filter(c => c.totalExams >= 3);
-      if (qualifiedCandidates.length < 3) qualifiedCandidates = validCandidates;
+      let qualifiedCandidates = validCandidates.filter(c => c.totalExams >= 1);
 
       qualifiedCandidates.sort((a, b) => {
         if (b.compositeScore !== a.compositeScore) return b.compositeScore - a.compositeScore;
@@ -923,7 +936,6 @@
       renderCompactCards(filtered);
     }
 
-    // 🌟 പരീക്ഷാ കാർഡുകൾ (Screenshot 1-ലെ അതേ ഡിസൈനും ബട്ടണുകളും)
     function renderCompactCards(list) {
       const grid = document.getElementById('quizGrid');
       const empty = document.getElementById('emptyState');
@@ -1034,7 +1046,6 @@
       grid.appendChild(fragment);
     }
 
-    // 🌟 ലൈവ് റാങ്ക് ലിസ്റ്റ് (യഥാർത്ഥ സ്കോറും റാങ്കും കണക്കാക്കുന്നു)
     async function showExamLiveRankList(sheetTargetUrl, examTitle) {
       document.getElementById('rankListModal').classList.remove('hidden');
       document.getElementById('rankModalTitle').innerText = `🏆 ${examTitle} - ലൈവ് റാങ്ക് ലിസ്റ്റ്`;
@@ -1043,15 +1054,29 @@
 
       const cleanKey = cleanTitleForMatch(examTitle);
       try {
-        const res = await fetch(`${FIREBASE_DB_URL}/ranks/${cleanKey}.json`);
-        const data = await res.json();
+        let ranks = null;
+        let res = await fetch(`${FIREBASE_DB_URL}/ranks/${cleanKey}.json?_t=${Date.now()}`);
+        let data = await res.json();
+
+        if (!data) {
+          const allRanksRes = await fetch(`${FIREBASE_DB_URL}/ranks.json?_t=${Date.now()}`);
+          const allRanksData = await allRanksRes.json();
+          if (allRanksData) {
+            for (const [rKey, rVal] of Object.entries(allRanksData)) {
+              if (cleanTitleForMatch(rKey) === cleanKey || cleanKey.includes(cleanTitleForMatch(rKey)) || cleanTitleForMatch(rKey).includes(cleanKey)) {
+                data = rVal;
+                break;
+              }
+            }
+          }
+        }
 
         if (!data) {
           tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-500">ഈ പരീക്ഷയിൽ ഇതുവരെ ആരും പങ്കെടുത്തിട്ടില്ല.</td></tr>';
           return;
         }
 
-        let ranks = Object.values(data);
+        ranks = Array.isArray(data) ? data : Object.values(data);
         ranks.sort((a, b) => extractActualScore(b) - extractActualScore(a));
 
         let rankHtml = '';
@@ -1087,7 +1112,7 @@
       hList.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">ഹിസ്റ്ററി ലഭ്യമാക്കുന്നു...</p>';
 
       try {
-        const res = await fetch(`${FIREBASE_DB_URL}/users_history/${phone}.json`);
+        const res = await fetch(`${FIREBASE_DB_URL}/users_history/${phone}.json?_t=${Date.now()}`);
         const data = await res.json();
 
         if (!data) {
@@ -1229,14 +1254,36 @@
       document.getElementById('authCardDesc').innerText = "മൊബൈൽ നമ്പർ നൽകി പ്രവേശിക്കുക.";
     }
 
+    // 🚀 പ്രൊഫൈൽ അനലിറ്റിക്സ് കൃത്യമായി First Attempt മാത്രം വെച്ച് അപ്ഡേറ്റ് ചെയ്യുന്നു (Mismatch പൂർണ്ണമായി പരിഹരിച്ചു)
     function updateProfileAnalytics() {
-      const matchedUser = allUsersCache.find(u => String(u.Phone || u.phone || '').includes(candidate.phone));
-      const totalTests = matchedUser ? Number(matchedUser.Unique_Exams || matchedUser.Total_Attempts || 0) : 0;
-      const avgScore = matchedUser ? Number(matchedUser.First_Attempt_Avg || 0).toFixed(1) : "0";
+      if (!candidate) return;
 
-      document.getElementById('statTotalTests').innerText = totalTests;
+      const uniqueAttemptList = Object.values(userAttemptsMap);
+      const totalUniqueExams = uniqueAttemptList.length;
+
+      let totalScore = 0;
+      uniqueAttemptList.forEach(item => {
+        totalScore += extractActualScore(item);
+      });
+
+      const avgScore = totalUniqueExams > 0 ? (totalScore / totalUniqueExams).toFixed(2) : "0.00";
+      const accuracy = Math.min(100, Math.round((Number(avgScore) / 25) * 100));
+
+      document.getElementById('statTotalTests').innerText = totalUniqueExams;
       document.getElementById('statAvgScore').innerText = avgScore;
-      document.getElementById('statAccuracy').innerText = `${Math.min(100, Math.round((Number(avgScore) / 25) * 100))}%`;
+      document.getElementById('statAccuracy').innerText = `${accuracy}%`;
+
+      // അഡ്മിൻ പാനലിലെയും ഹോം പേജിലെയും ഡാറ്റ തുല്യമാക്കാൻ ഫയർബേസ് /users-ലേക്ക് തനിയെ അപ്ഡേറ്റ് ചെയ്യുന്നു
+      if (candidate.phone && totalUniqueExams > 0) {
+        fetch(`${FIREBASE_DB_URL}/users/${candidate.phone}.json`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            Unique_Exams: totalUniqueExams,
+            First_Attempt_Avg: parseFloat(avgScore)
+          })
+        }).catch(() => null);
+      }
     }
 
     document.getElementById('searchInput').addEventListener('input', () => {
