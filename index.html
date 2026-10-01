@@ -147,7 +147,7 @@
       </div>
     </div>
 
-    <!-- 🌟 ടോപ്പ് 3 സ്റ്റുഡന്റ്സ് ലീഡർബോർഡ് -->
+    <!-- 🌟 ടോപ്പ് 3 സ്റ്റുഡന്റ്സ് ലീഡർബോർഡ് (ഡ്യൂപ്ലിക്കേറ്റ് രഹിത യഥാർത്ഥ 3 പേർ) -->
     <div id="topStudentsSection" class="hidden bg-slate-900/90 border border-amber-500/30 rounded-2xl p-4 shadow-xl">
       <div class="flex items-center justify-between mb-3 border-b border-slate-800 pb-2">
         <div class="flex items-center space-x-2">
@@ -522,13 +522,12 @@
 
         const [examsData, usersData, configData, userHistData] = await Promise.all([examsPromise, usersPromise, configPromise, userHistPromise]);
 
-        // 🚀 വിദ്യാർത്ഥിയുടെ ആദ്യത്തെ അറ്റംപ്റ്റ് (First Attempt) മാത്രം മാപ്പ് ചെയ്യുന്നു (Duplicates ഒഴിവാക്കുന്നു)
+        // 🚀 ആദ്യത്തെ അറ്റംപ്റ്റ് (First Attempt) മാത്രം മാപ്പ് ചെയ്യുന്നു (Duplicates ഒഴിവാക്കുന്നു)
         userAttemptsMap = {};
         if (userHistData) {
           let hList = Object.values(userHistData);
           hList.forEach(h => {
             const cleanTitle = cleanTitleForMatch(h.title);
-            // ആദ്യ അറ്റംപ്റ്റ് മാത്രം നിലനിർത്തുന്നു
             if (!userAttemptsMap[cleanTitle]) {
               userAttemptsMap[cleanTitle] = h;
             }
@@ -570,7 +569,6 @@
               }
             }
 
-            // Publish ചെയ്യാത്തവ ഒഴിവാക്കുന്നു
             const isPublished = (ctrl && ctrl.isPublished !== undefined) ? ctrl.isPublished : (item.isPublished === true);
 
             if (!isPublished) {
@@ -605,7 +603,7 @@
           }
         }
 
-        // 3. ലീഡർബോർഡ് & യൂസർ അനലിറ്റിക്സ്
+        // 3. ലീഡർബോർഡ്
         if (usersData) {
           let uList = Array.isArray(usersData) ? usersData : Object.values(usersData);
           allUsersCache = uList.filter(u => u !== null && u !== undefined);
@@ -623,26 +621,49 @@
       }
     }
 
-    // 🌟 ടോപ്പ് 3 റാങ്കേഴ്സ് കണക്കുകൂട്ടൽ (First Attempts + Accuracy 50:50)
+    // 🌟 ടോപ്പ് 3 റാങ്കേഴ്സ് (ഡ്യൂപ്ലിക്കേറ്റ് നമ്പറുകൾ ഒഴിവാക്കി യഥാർത്ഥ 3 കുട്ടികൾ വരാൻ)
     function calculateTopRankersFromFirebase(users) {
       if (!users || users.length === 0) return;
 
       const totalAvailableExams = (rawQuizList && rawQuizList.length > 0) ? rawQuizList.length : 34;
 
-      let validCandidates = users.map(u => {
-        let phone = String(u.Phone || u.phone || u.key || '');
+      // 1. ഒരേ ഫോൺ നമ്പറിലുള്ള ഡ്യൂപ്ലിക്കേറ്റുകൾ ലയിപ്പിക്കുന്നു
+      const uniqueUsersMap = {};
+
+      users.forEach(u => {
+        let rawP = String(u.Phone || u.phone || u.key || '').replace(/\D/g, '');
+        let phone = rawP.length >= 10 ? rawP.slice(-10) : rawP;
+        if (!phone) return;
+
         let name = u.Official_Name || u.name || "വിദ്യാർത്ഥി";
-        
-        let uniqueExams = Number(u.Unique_Exams || u.Total_Attempts || 0);
-        let rawAvg = Number(u.First_Attempt_Avg || u.avgScore || 0);
+        let exams = Number(u.Unique_Exams || u.Total_Attempts || 0);
+        let avg = Number(u.First_Attempt_Avg || u.avgScore || 0);
+
+        if (!uniqueUsersMap[phone]) {
+          uniqueUsersMap[phone] = { phone, name, exams, avg };
+        } else {
+          if (uniqueUsersMap[phone].name === 'വിദ്യാർത്ഥി' && name !== 'വിദ്യാർത്ഥി') {
+            uniqueUsersMap[phone].name = name;
+          }
+          if (exams > uniqueUsersMap[phone].exams) {
+            uniqueUsersMap[phone].exams = exams;
+            uniqueUsersMap[phone].avg = avg;
+          }
+        }
+      });
+
+      // 2. റാങ്ക് സ്കോർ കണക്കാക്കുന്നു
+      let validCandidates = Object.values(uniqueUsersMap).map(std => {
+        let uniqueExams = std.exams;
+        let rawAvg = std.avg;
 
         let accuracyPercent = rawAvg <= 25 ? (rawAvg / 25) * 100 : Math.min(rawAvg, 100);
         let examParticipationRate = totalAvailableExams > 0 ? (uniqueExams / totalAvailableExams) * 100 : 0;
         let compositeRankScore = (accuracyPercent * 0.50) + (examParticipationRate * 0.50);
 
         return {
-          name: name,
-          phone: phone,
+          name: std.name,
+          phone: std.phone,
           totalExams: uniqueExams,
           accuracy: accuracyPercent,
           rawScore: rawAvg,
@@ -650,6 +671,7 @@
         };
       });
 
+      // 3. പരീക്ഷ എഴുതിയവരെ റാങ്ക് അടിസ്ഥാനത്തിൽ സോർട്ട് ചെയ്യുന്നു
       let qualifiedCandidates = validCandidates.filter(c => c.totalExams >= 1);
 
       qualifiedCandidates.sort((a, b) => {
@@ -1172,6 +1194,16 @@
       document.getElementById('navUserName').innerText = candidate.name;
       document.getElementById('profileDisplayName').innerText = candidate.name;
       document.getElementById('editNameBox').classList.add('hidden');
+
+      // ഫയർബേസിലും പുതിയ പേര് അപ്ഡേറ്റ് ചെയ്യുന്നു
+      if (candidate.phone) {
+        fetch(`${FIREBASE_DB_URL}/users/${candidate.phone}.json`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ Official_Name: newName })
+        }).catch(() => null);
+      }
+
       alert('പേര് അപ്ഡേറ്റ് ചെയ്തു!');
     }
 
@@ -1204,9 +1236,9 @@
       if (phone.length !== 10) return alert('10 അക്ക മൊബൈൽ നമ്പർ നൽകുക.');
 
       tempPhoneToRegister = phone;
-      const matchedUser = allUsersCache.find(u => String(u.Phone || u.phone || '').includes(phone));
+      const matchedUser = allUsersCache.find(u => String(u.Phone || u.phone || u.key || '').includes(phone));
 
-      if (matchedUser && (matchedUser.Official_Name || matchedUser.name)) {
+      if (matchedUser && (matchedUser.Official_Name || matchedUser.name) && (matchedUser.Official_Name !== 'വിദ്യാർത്ഥി' && matchedUser.name !== 'വിദ്യാർത്ഥി')) {
         candidate = {
           name: matchedUser.Official_Name || matchedUser.name,
           phone: phone
@@ -1235,8 +1267,8 @@
         Registered_At: new Date().toISOString()
       };
 
-      await fetch(`${FIREBASE_DB_URL}/users.json`, {
-        method: 'POST',
+      await fetch(`${FIREBASE_DB_URL}/users/${tempPhoneToRegister}.json`, {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newUserObj)
       }).catch(() => null);
