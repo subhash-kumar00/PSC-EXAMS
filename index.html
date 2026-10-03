@@ -120,7 +120,6 @@
           </p>
         </div>
 
-        <!-- മൾട്ടി-ലൈൻ നോട്ടീസ് ബോർഡ് -->
         <div id="heroNoticeBox" class="hidden bg-emerald-950/50 border border-emerald-500/40 rounded-2xl p-3 flex items-start space-x-2.5 shadow-lg">
           <span class="text-sm shrink-0 mt-0.5">📢</span>
           <div class="text-xs text-emerald-200 leading-relaxed font-medium">
@@ -407,17 +406,22 @@
     let allUsersCache = [];
     let userAttemptsMap = {}; 
 
+    function sanitizePhone(rawPhone) {
+      if (!rawPhone) return "";
+      let clean = String(rawPhone).replace(/\D/g, '');
+      return clean.length >= 10 ? clean.slice(-10) : clean;
+    }
+
     function maskPhone(p) {
       if (!p) return '-';
-      const clean = String(p).replace(/\D/g, '');
+      const clean = sanitizePhone(p);
       if (clean.length === 10) return `${clean.substring(0, 3)}••••${clean.substring(7)}`;
       return p;
     }
 
-    // അഡ്മിൻ പാനലിലെ cleanTitle-ന് സമാനമായ ക്ലീനിംഗ്
     function cleanTitleForMatch(str) {
       if (!str) return "";
-      return String(str).replace(/[\s\-_,.:;()\/\\|\[\]+&]+/g, '').toLowerCase();
+      return String(str).replace(/[\s\-_,.:;()\/\\|\[\]+]+/g, '').toLowerCase();
     }
 
     function parseReleaseTimestamp(dateStr) {
@@ -497,6 +501,9 @@
       const savedUser = localStorage.getItem('sk_candidate_user');
       if (savedUser) {
         candidate = JSON.parse(savedUser);
+        if (candidate && candidate.phone) {
+          candidate.phone = sanitizePhone(candidate.phone);
+        }
       }
 
       const urlParams = new URLSearchParams(window.location.search);
@@ -548,7 +555,7 @@
 
         const adminControls = (configData && configData.exam_controls) ? configData.exam_controls : {};
 
-        // 🌟 അഡ്മിൻ പാനലിൽ Publish കൊടുത്തതും അൺപബ്ലിഷ്ഡ് അല്ലാത്ത മുഴുവൻ എക്സാമുകളും കൃത്യമായി ലഭ്യമാക്കുന്നു
+        // 🌟 അഡ്മിൻ പാനൽ പബ്ലിഷ് മാനേജ്‌മെന്റും ബാക്കി ലഭ്യമായ എല്ലാ പരീക്ഷകളും കൃത്യമായി ലോഡ് ചെയ്യുന്നു
         if (examsData) {
           let list = Array.isArray(examsData) ? examsData : Object.values(examsData);
           list = list.filter(item => item !== null && item !== undefined);
@@ -564,7 +571,6 @@
 
             const cleanT = cleanTitleForMatch(title);
             
-            // അഡ്മിൻ പാനലിലെ കൺട്രോളുകളുമായി കൃത്യമായ ഫസി മാച്ചിംഗ്
             let ctrl = adminControls[cleanT] || null;
             if (!ctrl) {
               for (let k in adminControls) {
@@ -576,8 +582,6 @@
               }
             }
 
-            // അഡ്മിൻ പാനൽ വഴി നേരിട്ട് isPublished: false എന്ന് നൽകിയവയെ മാത്രം മറയ്ക്കുന്നു.
-            // അഡ്മിൻ പാനലിൽ Publish കൊടുത്തതും (true) ബാക്കി ലഭ്യമായ എല്ലാ പരീക്ഷകളും കാണിക്കും.
             let isUnpublished = (ctrl && ctrl.isPublished === false);
             if (isUnpublished) return;
 
@@ -639,8 +643,7 @@
       if (allUsersObj) {
         let uArr = Array.isArray(allUsersObj) ? allUsersObj : Object.values(allUsersObj);
         uArr.forEach(u => {
-          let p = String(u.Phone || u.phone || u.key || '').replace(/\D/g, '');
-          if (p.length >= 10) p = p.slice(-10);
+          let p = sanitizePhone(u.Phone || u.phone || u.key);
           if (p) {
             usersProfileMap[p] = u.Official_Name || u.name || '';
           }
@@ -651,9 +654,8 @@
 
       for (const [rawPhone, historyData] of Object.entries(allHistory)) {
         if (!historyData) continue;
-        let p = String(rawPhone).replace(/\D/g, '');
-        if (p.length >= 10) p = p.slice(-10);
-        if (!p || p === "0000000000") continue;
+        let p = sanitizePhone(rawPhone);
+        if (!p || p === "0000000000" || p.length < 10) continue;
 
         let attemptsList = Object.values(historyData);
         if (attemptsList.length === 0) continue;
@@ -1169,12 +1171,19 @@
       document.getElementById('rankListModal').classList.add('hidden');
     }
 
+    // 🌟 പ്രൊഫൈൽ എക്സാം ഹിസ്റ്ററി (100% കൃത്യമായി ഫെച്ച് ചെയ്യുന്നത്)
     async function fetchUserExamHistory(phone) {
       const hList = document.getElementById('historyList');
       hList.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">ഹിസ്റ്ററി ലഭ്യമാക്കുന്നു...</p>';
 
+      const cleanPhone = sanitizePhone(phone);
+      if (!cleanPhone || cleanPhone.length < 10) {
+        hList.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">മൊബൈൽ നമ്പർ ശരിയല്ല.</p>';
+        return;
+      }
+
       try {
-        const res = await fetch(`${FIREBASE_DB_URL}/users_history/${phone}.json?_t=${Date.now()}`);
+        const res = await fetch(`${FIREBASE_DB_URL}/users_history/${cleanPhone}.json?_t=${Date.now()}`);
         const data = await res.json();
 
         if (!data) {
@@ -1183,13 +1192,18 @@
         }
 
         let historyArray = Object.values(data);
+        if (historyArray.length === 0) {
+          hList.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">ഇതുവരെ പരീക്ഷകൾ ഒന്നും എഴുതിയിട്ടില്ല.</p>';
+          return;
+        }
+
         let histHTML = '';
         historyArray.slice().reverse().forEach(item => {
           let scoreVal = extractActualScore(item);
           histHTML += `
             <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800/80 flex items-center justify-between text-xs">
               <div>
-                <span class="font-bold text-slate-200 block">${item.title}</span>
+                <span class="font-bold text-slate-200 block">${item.title || 'Exam'}</span>
                 <span class="text-[10px] text-slate-500">${item.date || ''}</span>
               </div>
               <div class="text-right">
@@ -1201,14 +1215,14 @@
         });
         hList.innerHTML = histHTML;
       } catch(e) {
-        hList.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">ഹിസ്റ്ററി ലഭ്യമല്ല.</p>';
+        hList.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">ഹിസ്റ്ററി ലഭ്യമാക്കുന്നതിൽ തടസ്സം നേരിട്ടു.</p>';
       }
     }
 
     function openProfileModal() {
       document.getElementById('profileModal').classList.remove('hidden');
       document.getElementById('editNameBox').classList.add('hidden');
-      if (candidate) {
+      if (candidate && candidate.phone) {
         fetchUserExamHistory(candidate.phone);
         updateProfileAnalytics();
       }
@@ -1221,14 +1235,14 @@
     function toggleEditProfile() {
       const box = document.getElementById('editNameBox');
       box.classList.toggle('hidden');
-      if (!box.classList.contains('hidden')) {
+      if (!box.classList.contains('hidden') && candidate) {
         document.getElementById('updatedNameInput').value = candidate.name;
       }
     }
 
     function saveUpdatedName() {
       const newName = document.getElementById('updatedNameInput').value.trim();
-      if (!newName) return;
+      if (!newName || !candidate) return;
       candidate.name = newName;
       localStorage.setItem('sk_candidate_user', JSON.stringify(candidate));
       document.getElementById('navUserName').innerText = candidate.name;
@@ -1247,6 +1261,7 @@
     }
 
     function activateUserSession() {
+      if (!candidate) return;
       document.getElementById('homeLoginCard').classList.add('hidden');
       document.getElementById('examSection').classList.remove('hidden');
       document.getElementById('navUserName').innerText = candidate.name;
@@ -1271,11 +1286,12 @@
 
     document.getElementById('phoneCheckForm').onsubmit = (e) => {
       e.preventDefault();
-      const phone = document.getElementById('loginPhone').value.trim();
+      const phoneInput = document.getElementById('loginPhone').value.trim();
+      const phone = sanitizePhone(phoneInput);
       if (phone.length !== 10) return alert('10 അക്ക മൊബൈൽ നമ്പർ നൽകുക.');
 
       tempPhoneToRegister = phone;
-      const matchedUser = allUsersCache.find(u => String(u.Phone || u.phone || u.key || '').includes(phone));
+      const matchedUser = allUsersCache.find(u => sanitizePhone(u.Phone || u.phone || u.key) === phone);
 
       if (matchedUser && (matchedUser.Official_Name || matchedUser.name) && (matchedUser.Official_Name !== 'വിദ്യാർത്ഥി' && matchedUser.name !== 'വിദ്യാർത്ഥി')) {
         candidate = {
@@ -1326,7 +1342,7 @@
     }
 
     function updateProfileAnalytics() {
-      if (!candidate) return;
+      if (!candidate || !candidate.phone) return;
 
       const uniqueAttemptList = Object.values(userAttemptsMap);
       const totalUniqueExams = uniqueAttemptList.length;
@@ -1343,7 +1359,7 @@
       document.getElementById('statAvgScore').innerText = avgScore;
       document.getElementById('statAccuracy').innerText = `${accuracy}%`;
 
-      if (candidate.phone && totalUniqueExams > 0) {
+      if (totalUniqueExams > 0) {
         fetch(`${FIREBASE_DB_URL}/users/${candidate.phone}.json`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
