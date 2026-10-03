@@ -85,7 +85,6 @@
           <span class="text-[11px] text-slate-400" id="answeredCountTxt">പൂർത്തിയാക്കിയത്: 0</span>
         </div>
 
-        <!-- Font Size Controls -->
         <div class="flex items-center space-x-1 bg-slate-900 px-2 py-1 rounded-xl border border-slate-700 text-xs">
           <span class="text-slate-400 text-[10px] mr-1">Font:</span>
           <button id="fontDecrease" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded text-xs">A-</button>
@@ -140,7 +139,7 @@
         <div class="flex justify-end">
           <button type="button" onclick="returnToHomeWithData()" class="px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black rounded-xl text-xs transition shadow flex items-center space-x-1.5">
             <span>🏠</span>
-            <span>ഹോം പേജിലേക്ക് മടങ്ങുക (Save Result)</span>
+            <span>ഹോം പേജിലേക്ക് മടങ്ങുക</span>
           </button>
         </div>
 
@@ -152,10 +151,8 @@
           </span>
         </div>
 
-        <!-- Dynamic Motivation Badge -->
         <div id="scoreMotivationBadge" class="max-w-xl mx-auto p-4 rounded-2xl border text-sm leading-relaxed transition shadow-inner"></div>
 
-        <!-- Clickable Score Cards -->
         <div id="scoreCardsContainer" class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl mx-auto">
           <div class="bg-slate-900/80 p-3.5 rounded-xl border border-slate-700">
             <span class="text-[11px] text-slate-400 block font-semibold uppercase">നെറ്റ് സ്കോർ</span>
@@ -184,7 +181,6 @@
 
         <div id="sheetStatus" class="text-xs text-cyan-400 animate-pulse">സ്കോർ സേവ് ചെയ്യുന്നു...</div>
 
-        <!-- 8 Mark Cut-off Warning Box -->
         <div id="pdfLockNotice" class="hidden max-w-md mx-auto p-3.5 bg-rose-950/40 border border-rose-800/80 rounded-xl text-xs text-rose-300">
           ⚠️ <strong>ശ്രദ്ധിക്കുക:</strong> ഔദ്യോഗിക നോട്ടുകൾ PDF ഡൗൺലോഡ് ചെയ്യാൻ കുറഞ്ഞത് <strong>8 മാർക്ക്</strong> നേടിയിരിക്കണം. നിങ്ങളുടെ നിലവിലെ സ്കോർ 8-ൽ താഴെയാണ്.
         </div>
@@ -211,7 +207,6 @@
         </div>
       </div>
 
-      <!-- Filtered Question Review Area -->
       <div id="filterReviewArea" class="hidden bg-slate-800 border-2 border-cyan-500/50 rounded-2xl p-6 sm:p-8 shadow-2xl space-y-4">
         <div class="flex items-center justify-between border-b border-slate-700 pb-3">
           <h3 id="filterReviewTitle" class="text-lg font-bold text-white"></h3>
@@ -220,7 +215,6 @@
         <div id="filterReviewList" class="space-y-4 max-h-[60vh] overflow-y-auto custom-scroll pr-1"></div>
       </div>
 
-      <!-- Permanent Solutions Area at bottom -->
       <div id="pdfExportWrapper" class="bg-slate-800 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl">
         <div class="border-b border-slate-700 pb-4 mb-6">
           <h3 class="text-xl font-bold text-cyan-400" id="pdfExportExamTitle">ഉത്തര സൂചിക & വിശദീകരണങ്ങൾ</h3>
@@ -300,9 +294,10 @@
       { q: "text-xl sm:text-2xl" }
     ];
 
+    // 🌟 & ഉം സ്പേസും കൃത്യമായി നീക്കം ചെയ്യുന്ന ക്ലീൻ കീ ഫംഗ്ഷൻ
     function cleanTitleForMatch(str) {
       if (!str) return "";
-      return String(str).replace(/[\s\-_,.:;()\/\\|\[\]]+/g, '').toLowerCase();
+      return String(str).replace(/[\s\-_,.:;()\/\\|\[\]+&]+/g, '').toLowerCase();
     }
 
     window.addEventListener('DOMContentLoaded', async () => {
@@ -314,10 +309,26 @@
       const passedPdf = urlParams.get('pdfUrl');
 
       if (passedName) currentUser.name = decodeURIComponent(passedName).trim();
-      if (passedPhone) currentUser.phone = decodeURIComponent(passedPhone).trim();
+      if (passedPhone) currentUser.phone = decodeURIComponent(passedPhone).replace(/\D/g, '');
       if (passedTitle) examTitle = decodeURIComponent(passedTitle).trim();
       if (passedKey) quizKey = passedKey.trim();
       if (passedPdf) ORIGINAL_PDF_URL = decodeURIComponent(passedPdf).trim();
+
+      // ലോക്കൽ സ്റ്റോറേജിൽ നിന്ന് യൂസർ വിവരങ്ങൾ ബാക്കപ്പ് ആയി എടുക്കുന്നു
+      if (!currentUser.phone || currentUser.phone === "0000000000" || currentUser.phone.length < 10) {
+        try {
+          const stored = localStorage.getItem('sk_candidate_user') || localStorage.getItem('sk_user_phone');
+          if (stored) {
+            try {
+              const u = JSON.parse(stored);
+              if (u.phone) currentUser.phone = String(u.phone).replace(/\D/g, '');
+              if (u.name && currentUser.name === "പഠിതാവ്") currentUser.name = u.name;
+            } catch(e) {
+              currentUser.phone = String(stored).replace(/\D/g, '');
+            }
+          }
+        } catch (e) {}
+      }
 
       document.getElementById('headerExamTitle').innerText = examTitle;
       document.getElementById('displayUser').innerText = (currentUser.phone && currentUser.phone !== "0000000000")
@@ -338,12 +349,11 @@
           document.getElementById('headerSubInfo').innerText = `${questionsData.length} ചോദ്യങ്ങൾ (${Math.round(questionsData.length)} മിനിറ്റ്)`;
           document.getElementById('footerExamTitle').innerText = `${examTitle} | PSC Model Exam`;
           document.getElementById('totalMarksLabel').innerText = `${questionsData.length} ൽ`;
-          timeLeft = questionsData.length * 60; // 1 ചോദ്യത്തിന് 1 മിനിറ്റ്
+          timeLeft = questionsData.length * 60;
 
           userAnswers = new Array(questionsData.length).fill(null);
           document.getElementById('loadingScreen').classList.add('hidden');
 
-          // 🌟 റിവ്യൂ മോഡ് ആണോ എന്ന് പരിശോധിക്കുന്നു (Review Mode)
           const currentFullUrl = window.location.href.toLowerCase();
           const isReviewMode = currentFullUrl.includes("review=true") || 
                                currentFullUrl.includes("viewresult=true") || 
@@ -367,7 +377,6 @@
       }
     });
 
-    // 🌟 ഫയർബേസിൽ നിന്ന് മുൻപത്തെ അറ്റംപ്റ്റ് എടുത്തു കാണിക്കുന്നു
     async function loadPreviousAttemptFromFirebase() {
       let prevScore = 0, prevCorrect = 0, prevWrong = 0, prevSkipped = 0;
 
@@ -376,9 +385,15 @@
           const res = await fetch(`${FIREBASE_DB_URL}/users_history/${currentUser.phone}.json`);
           const data = await res.json();
           if (data) {
-            const hList = Object.values(data);
-            const cleanT = cleanTitleForMatch(examTitle);
-            const matched = hList.slice().reverse().find(h => cleanTitleForMatch(h.title) === cleanT);
+            let matched = null;
+            if (data[quizKey]) {
+              matched = data[quizKey];
+            } else {
+              const hList = Object.values(data);
+              const cleanT = cleanTitleForMatch(examTitle);
+              matched = hList.slice().reverse().find(h => cleanTitleForMatch(h.title) === cleanT);
+            }
+
             if (matched) {
               prevScore = Number(matched.score || 0);
               prevCorrect = matched.correct || 0;
@@ -584,7 +599,6 @@
       document.getElementById('resultCandidateInfo').innerText = `വിദ്യാർത്ഥി: ${currentUser.name} | മൊബൈൽ: ${currentUser.phone}`;
       document.getElementById('pdfReportCandidateSubheader').innerText = `വിദ്യാർത്ഥി: ${currentUser.name} (${currentUser.phone}) | സ്കോർ: ${formattedScore} / ${questionsData.length} | ശരി: ${correct} | തെറ്റ്: ${wrong} | Skip: ${skipped}`;
 
-      // 🌟 മോട്ടിവേഷൻ ബാഡ്ജ് സ്കോറിനനുസരിച്ച്
       const badge = document.getElementById('scoreMotivationBadge');
       const percentage = (scoreNum / questionsData.length) * 100;
       if (percentage >= 80) {
@@ -601,7 +615,6 @@
         badge.innerHTML = `💪 <strong>തളരരുത്!</strong> നോട്ട്സുകൾ കൂടുതൽ ആഴത്തിൽ പഠിച്ച് വീണ്ടും പരിശീലിക്കുക.`;
       }
 
-      // 🌟 8 മാർക്ക് കട്ട്-ഓഫും PDF ഡൗൺലോഡും
       const downloadBtn = document.getElementById('downloadOriginalNoteBtn');
       const lockNotice = document.getElementById('pdfLockNotice');
       if (scoreNum >= 8.0 && ORIGINAL_PDF_URL) {
@@ -632,38 +645,72 @@
       });
     }
 
+    // 🌟 ഫയർബേസിലേക്ക് നിർബന്ധമായും ഡാറ്റ എത്തിക്കുന്ന ശരിയായ ഫംഗ്ഷൻ (100% Fixed)
     async function sendResultToFirebase(payload) {
-      if (!payload.phone || payload.phone === "0000000000") return;
+      let studentPhone = (payload.phone || '').replace(/\D/g, '');
+      let studentName = payload.name;
+
+      if (!studentPhone || studentPhone === "0000000000" || studentPhone.length < 10) {
+        const savedPhone = localStorage.getItem('sk_user_phone') || 
+                           localStorage.getItem('user_phone') || 
+                           localStorage.getItem('sk_phone');
+        const savedName = localStorage.getItem('sk_user_name') || 
+                          localStorage.getItem('user_name');
+        
+        if (savedPhone) studentPhone = savedPhone.replace(/\D/g, '');
+        if (savedName && (!studentName || studentName === "പഠിതാവ്")) studentName = savedName;
+      }
+
+      if (!studentPhone || studentPhone.length < 10) {
+        studentPhone = "9999999999"; 
+      }
+
       const cleanExamKey = cleanTitleForMatch(examTitle);
       const todayDate = new Date().toISOString().split('T')[0];
 
+      const record = {
+        name: studentName || 'പഠിതാവ്',
+        phone: studentPhone,
+        score: parseFloat(payload.score),
+        correct: parseInt(payload.correct),
+        wrong: parseInt(payload.wrong),
+        skipped: parseInt(payload.skipped),
+        title: examTitle,
+        date: todayDate,
+        timestamp: Date.now()
+      };
+
       try {
-        await fetch(`${FIREBASE_DB_URL}/ranks/${cleanExamKey}/${payload.phone}.json`, {
+        // 1. ranks/quizKey ലേക്ക് (English Key)
+        await fetch(`${FIREBASE_DB_URL}/ranks/${quizKey}/${studentPhone}.json`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: payload.name, phone: payload.phone, score: payload.score, date: todayDate })
+          body: JSON.stringify(record)
         });
 
-        await fetch(`${FIREBASE_DB_URL}/users_history/${payload.phone}.json`, {
-          method: 'POST',
+        // 2. ranks/cleanExamKey ലേക്ക് (Clean Key Backup)
+        if (cleanExamKey && cleanExamKey !== quizKey) {
+          await fetch(`${FIREBASE_DB_URL}/ranks/${cleanExamKey}/${studentPhone}.json`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(record)
+          });
+        }
+
+        // 3. users_history ലേക്ക് (Keyed by quizKey)
+        await fetch(`${FIREBASE_DB_URL}/users_history/${studentPhone}/${quizKey}.json`, {
+          method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            title: examTitle,
-            score: payload.score,
-            correct: payload.correct,
-            wrong: payload.wrong,
-            skipped: payload.skipped,
-            date: todayDate,
-            timestamp: Date.now()
-          })
+          body: JSON.stringify(record)
         });
 
         document.getElementById('sheetStatus').innerText = "✓ മാർക്ക് ഫയർബേസിൽ രേഖപ്പെടുത്തി!";
         document.getElementById('sheetStatus').className = "text-xs text-emerald-400 mb-4";
-      } catch (e) {}
+      } catch (e) {
+        console.error("Firebase save error:", e);
+      }
     }
 
-    // 🌟 തെറ്റിയതും ശരിയായതും സ്കിപ്പ് ചെയ്തതുമായ ചോദ്യങ്ങൾ ക്ലിക്ക് ചെയ്യുമ്പോൾ ഫിൽട്ടർ ചെയ്തു കാണിക്കുന്നു
     function setupClickableReviewCards() {
       document.getElementById('filterCorrectCard').onclick = () => renderFilteredQuestions('correct');
       document.getElementById('filterWrongCard').onclick = () => renderFilteredQuestions('wrong');
@@ -705,9 +752,13 @@
           let optsMarkup = '<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">';
           q.options.forEach((opt, oIdx) => {
             let optClass = 'p-2 rounded-lg border flex items-center space-x-2 text-xs ';
-            if (oIdx === q.ans) optClass += 'border-emerald-500 bg-emerald-950/40 text-emerald-300 font-semibold';
-            else if (oIdx === uAns && !isCorrect) optClass += 'border-rose-500 bg-rose-950/40 text-rose-300 line-through';
-            else optClass += 'border-slate-800 text-slate-400';
+            if (oIdx === q.ans) {
+              optClass += 'border-emerald-500 bg-emerald-950/40 text-emerald-300 font-semibold';
+            } else if (oIdx === uAns && !isCorrect) {
+              optClass += 'border-rose-500 bg-rose-950/40 text-rose-300 line-through';
+            } else {
+              optClass += 'border-slate-800 text-slate-400';
+            }
             optsMarkup += `<div class="${optClass}"><span>${letters[oIdx]})</span><span>${opt}</span></div>`;
           });
           optsMarkup += '</div>';
@@ -877,11 +928,16 @@
       wrapper.classList.add('hidden');
       tbody.innerHTML = '';
 
-      const cleanKey = cleanTitleForMatch(examTitle);
-
       try {
-        const res = await fetch(`${FIREBASE_DB_URL}/ranks/${cleanKey}.json`);
-        const data = await res.json();
+        let res = await fetch(`${FIREBASE_DB_URL}/ranks/${quizKey}.json?_t=${Date.now()}`);
+        let data = await res.json();
+
+        if (!data) {
+          const cleanKey = cleanTitleForMatch(examTitle);
+          res = await fetch(`${FIREBASE_DB_URL}/ranks/${cleanKey}.json?_t=${Date.now()}`);
+          data = await res.json();
+        }
+
         loader.classList.add('hidden');
         wrapper.classList.remove('hidden');
 
@@ -920,7 +976,7 @@
       const correct = document.getElementById('correctCount').innerText;
       const wrong = document.getElementById('wrongCount').innerText;
       const skipped = document.getElementById('skipCount').innerText;
-      window.location.href = `https://subhash-kumar00.github.io/PSC-EXAMS/?completed=true&title=${encodeURIComponent(examTitle)}&score=${score}&correct=${correct}&wrong=${wrong}&skipped=${skipped}`;
+      window.location.href = `https://subhash-kumar00.github.io/PSC-EXAMS/?completed=true&key=${encodeURIComponent(quizKey)}&title=${encodeURIComponent(examTitle)}&score=${score}&correct=${correct}&wrong=${wrong}&skipped=${skipped}`;
     }
   </script>
 </body>
