@@ -414,6 +414,7 @@
       return p;
     }
 
+    // അഡ്മിൻ പാനലിലെ cleanTitle-ന് സമാനമായ ക്ലീനിംഗ്
     function cleanTitleForMatch(str) {
       if (!str) return "";
       return String(str).replace(/[\s\-_,.:;()\/\\|\[\]+&]+/g, '').toLowerCase();
@@ -547,6 +548,7 @@
 
         const adminControls = (configData && configData.exam_controls) ? configData.exam_controls : {};
 
+        // 🌟 അഡ്മിൻ പാനലിൽ Publish കൊടുത്തതും അൺപബ്ലിഷ്ഡ് അല്ലാത്ത മുഴുവൻ എക്സാമുകളും കൃത്യമായി ലഭ്യമാക്കുന്നു
         if (examsData) {
           let list = Array.isArray(examsData) ? examsData : Object.values(examsData);
           list = list.filter(item => item !== null && item !== undefined);
@@ -561,18 +563,23 @@
             let pdf = item.pdfUrl || item.pdfurl || '';
 
             const cleanT = cleanTitleForMatch(title);
+            
+            // അഡ്മിൻ പാനലിലെ കൺട്രോളുകളുമായി കൃത്യമായ ഫസി മാച്ചിംഗ്
             let ctrl = adminControls[cleanT] || null;
             if (!ctrl) {
               for (let k in adminControls) {
-                if (k.includes(cleanT) || cleanT.includes(k)) {
+                let cleanK = cleanTitleForMatch(k);
+                if (cleanK === cleanT || cleanK.includes(cleanT) || cleanT.includes(cleanK)) {
                   ctrl = adminControls[k];
                   break;
                 }
               }
             }
 
-            const isPublished = (ctrl && ctrl.isPublished !== undefined) ? ctrl.isPublished : (item.isPublished === true);
-            if (!isPublished) return;
+            // അഡ്മിൻ പാനൽ വഴി നേരിട്ട് isPublished: false എന്ന് നൽകിയവയെ മാത്രം മറയ്ക്കുന്നു.
+            // അഡ്മിൻ പാനലിൽ Publish കൊടുത്തതും (true) ബാക്കി ലഭ്യമായ എല്ലാ പരീക്ഷകളും കാണിക്കും.
+            let isUnpublished = (ctrl && ctrl.isPublished === false);
+            if (isUnpublished) return;
 
             let badge = (ctrl && ctrl.status) ? ctrl.status : (item.BADGE || 'NORMAL');
             let relDate = (ctrl && ctrl.releaseDate) ? ctrl.releaseDate : (item.Release_Date || '');
@@ -1106,17 +1113,14 @@
       try {
         let ranks = null;
 
-        // 🌟 1. ആദ്യം കുട്ടികൾ എഴുതിയ live_ranks നോക്കുന്നു (ഷീറ്റ് ഓവർറൈറ്റിൽ പെടാത്ത ഡാറ്റ)
         let res = await fetch(`${FIREBASE_DB_URL}/live_ranks/${encodedKey}.json?_t=${Date.now()}`);
         let data = await res.json();
 
-        // 🌟 2. live_ranks ൽ ഇല്ലെങ്കിൽ മാത്രം ഗൂഗിൾ ഷീറ്റിന്റെ ranks നോക്കുന്നു
         if (!data) {
           res = await fetch(`${FIREBASE_DB_URL}/ranks/${encodedKey}.json?_t=${Date.now()}`);
           data = await res.json();
         }
 
-        // 🌟 3. പഴയ ഫോൾഡറുകളിൽ തിരയൽ
         if (!data) {
           const allRanksRes = await fetch(`${FIREBASE_DB_URL}/live_ranks.json?_t=${Date.now()}`);
           const allRanksData = await allRanksRes.json();
