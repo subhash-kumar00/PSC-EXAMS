@@ -294,7 +294,7 @@
       { q: "text-xl sm:text-2xl" }
     ];
 
-    // 🌟 & ഉം സ്പേസും കൃത്യമായി നീക്കം ചെയ്യുന്ന ക്ലീൻ കീ ഫംഗ്ഷൻ
+    // 🌟 & ചിഹ്നവും സ്പേസും കൃത്യമായി നീക്കം ചെയ്യുന്ന ഫംഗ്ഷൻ (ഫയർബേസ് നോഡുകളുടെ അതേ ഫോർമാറ്റ്)
     function cleanTitleForMatch(str) {
       if (!str) return "";
       return String(str).replace(/[\s\-_,.:;()\/\\|\[\]+&]+/g, '').toLowerCase();
@@ -314,7 +314,7 @@
       if (passedKey) quizKey = passedKey.trim();
       if (passedPdf) ORIGINAL_PDF_URL = decodeURIComponent(passedPdf).trim();
 
-      // ലോക്കൽ സ്റ്റോറേജിൽ നിന്ന് യൂസർ വിവരങ്ങൾ ബാക്കപ്പ് ആയി എടുക്കുന്നു
+      // ഫോൺ നമ്പർ ഇല്ലെങ്കിൽ ലോക്കൽ സ്റ്റോറേജിൽ നിന്ന് എടുക്കുന്നു
       if (!currentUser.phone || currentUser.phone === "0000000000" || currentUser.phone.length < 10) {
         try {
           const stored = localStorage.getItem('sk_candidate_user') || localStorage.getItem('sk_user_phone');
@@ -386,11 +386,14 @@
           const data = await res.json();
           if (data) {
             let matched = null;
+            const cleanT = cleanTitleForMatch(examTitle);
+
             if (data[quizKey]) {
               matched = data[quizKey];
+            } else if (data[cleanT]) {
+              matched = data[cleanT];
             } else {
               const hList = Object.values(data);
-              const cleanT = cleanTitleForMatch(examTitle);
               matched = hList.slice().reverse().find(h => cleanTitleForMatch(h.title) === cleanT);
             }
 
@@ -645,11 +648,12 @@
       });
     }
 
-    // 🌟 ഫയർബേസിലേക്ക് നിർബന്ധമായും ഡാറ്റ എത്തിക്കുന്ന ശരിയായ ഫംഗ്ഷൻ (100% Fixed)
+    // 🌟 ഫയർബേസിലേക്ക് ഡാറ്റ നിർബന്ധമായും എത്തിക്കുന്ന ശാശ്വത ഫംഗ്ഷൻ (100% Fixed & Universal)
     async function sendResultToFirebase(payload) {
       let studentPhone = (payload.phone || '').replace(/\D/g, '');
       let studentName = payload.name;
 
+      // ഫോൺ നമ്പർ ഇല്ലെങ്കിൽ ലോക്കൽ സ്റ്റോറേജിലെ എല്ലാ വഴികളിലൂടെയും കണ്ടെത്തുന്നു
       if (!studentPhone || studentPhone === "0000000000" || studentPhone.length < 10) {
         const savedPhone = localStorage.getItem('sk_user_phone') || 
                            localStorage.getItem('user_phone') || 
@@ -661,10 +665,12 @@
         if (savedName && (!studentName || studentName === "പഠിതാവ്")) studentName = savedName;
       }
 
+      // ഫോൺ നമ്പർ ഒട്ടും കിട്ടിയില്ലെങ്കിൽ സേവിംഗ് മുടങ്ങാതിരിക്കാൻ ഡിഫോൾട്ട് നൽകുന്നു
       if (!studentPhone || studentPhone.length < 10) {
         studentPhone = "9999999999"; 
       }
 
+      // ഫയർബേസിലെ മറ്റ് പരീക്ഷകളുടെ അതേ ക്ലീൻ കീ രൂപം (ഉദാ: പക്ഷിസങ്കേതങ്ങൾകാലാവസ്ഥസെറ്റ്2)
       const cleanExamKey = cleanTitleForMatch(examTitle);
       const todayDate = new Date().toISOString().split('T')[0];
 
@@ -681,30 +687,39 @@
       };
 
       try {
-        // 1. ranks/quizKey ലേക്ക് (English Key)
-        await fetch(`${FIREBASE_DB_URL}/ranks/${quizKey}/${studentPhone}.json`, {
+        // 1. ranks നോഡിലേക്ക് (ക്ലീൻ കീ വഴി - ഹോം പേജും അഡ്മിനും തപ്പുന്ന ഫോർമാറ്റിൽ)
+        await fetch(`${FIREBASE_DB_URL}/ranks/${cleanExamKey}/${studentPhone}.json`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(record)
         });
 
-        // 2. ranks/cleanExamKey ലേക്ക് (Clean Key Backup)
-        if (cleanExamKey && cleanExamKey !== quizKey) {
-          await fetch(`${FIREBASE_DB_URL}/ranks/${cleanExamKey}/${studentPhone}.json`, {
+        // 2. ranks നോഡിലേക്ക് (quizKey ബാക്കപ്പ്)
+        if (quizKey && quizKey !== cleanExamKey) {
+          await fetch(`${FIREBASE_DB_URL}/ranks/${quizKey}/${studentPhone}.json`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(record)
           });
         }
 
-        // 3. users_history ലേക്ക് (Keyed by quizKey)
-        await fetch(`${FIREBASE_DB_URL}/users_history/${studentPhone}/${quizKey}.json`, {
+        // 3. users_history ലേക്ക് (ക്ലീൻ കീ വഴി)
+        await fetch(`${FIREBASE_DB_URL}/users_history/${studentPhone}/${cleanExamKey}.json`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(record)
         });
 
-        document.getElementById('sheetStatus').innerText = "✓ മാർക്ക് ഫയർബേസിൽ രേഖപ്പെടുത്തി!";
+        // 4. users_history ലേക്ക് (quizKey വഴി)
+        if (quizKey && quizKey !== cleanExamKey) {
+          await fetch(`${FIREBASE_DB_URL}/users_history/${studentPhone}/${quizKey}.json`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(record)
+          });
+        }
+
+        document.getElementById('sheetStatus').innerText = "✓ മാർക്ക് ഫയർബേസിൽ വിജയകരമായി രേഖപ്പെടുത്തി!";
         document.getElementById('sheetStatus').className = "text-xs text-emerald-400 mb-4";
       } catch (e) {
         console.error("Firebase save error:", e);
@@ -752,13 +767,9 @@
           let optsMarkup = '<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">';
           q.options.forEach((opt, oIdx) => {
             let optClass = 'p-2 rounded-lg border flex items-center space-x-2 text-xs ';
-            if (oIdx === q.ans) {
-              optClass += 'border-emerald-500 bg-emerald-950/40 text-emerald-300 font-semibold';
-            } else if (oIdx === uAns && !isCorrect) {
-              optClass += 'border-rose-500 bg-rose-950/40 text-rose-300 line-through';
-            } else {
-              optClass += 'border-slate-800 text-slate-400';
-            }
+            if (oIdx === q.ans) optClass += 'border-emerald-500 bg-emerald-950/40 text-emerald-300 font-semibold';
+            else if (oIdx === uAns && !isCorrect) optClass += 'border-rose-500 bg-rose-950/40 text-rose-300 line-through';
+            else optClass += 'border-slate-800 text-slate-400';
             optsMarkup += `<div class="${optClass}"><span>${letters[oIdx]})</span><span>${opt}</span></div>`;
           });
           optsMarkup += '</div>';
@@ -928,13 +939,14 @@
       wrapper.classList.add('hidden');
       tbody.innerHTML = '';
 
+      const cleanKey = cleanTitleForMatch(examTitle);
+
       try {
-        let res = await fetch(`${FIREBASE_DB_URL}/ranks/${quizKey}.json?_t=${Date.now()}`);
+        let res = await fetch(`${FIREBASE_DB_URL}/ranks/${cleanKey}.json?_t=${Date.now()}`);
         let data = await res.json();
 
-        if (!data) {
-          const cleanKey = cleanTitleForMatch(examTitle);
-          res = await fetch(`${FIREBASE_DB_URL}/ranks/${cleanKey}.json?_t=${Date.now()}`);
+        if (!data && quizKey) {
+          res = await fetch(`${FIREBASE_DB_URL}/ranks/${quizKey}.json?_t=${Date.now()}`);
           data = await res.json();
         }
 
