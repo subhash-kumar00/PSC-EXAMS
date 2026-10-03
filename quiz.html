@@ -294,7 +294,6 @@
       { q: "text-xl sm:text-2xl" }
     ];
 
-    // 🌟 & ചിഹ്നവും സ്പേസും കൃത്യമായി നീക്കം ചെയ്യുന്ന ഫംഗ്ഷൻ (ഫയർബേസ് നോഡുകളുടെ അതേ ഫോർമാറ്റ്)
     function cleanTitleForMatch(str) {
       if (!str) return "";
       return String(str).replace(/[\s\-_,.:;()\/\\|\[\]+&]+/g, '').toLowerCase();
@@ -314,7 +313,6 @@
       if (passedKey) quizKey = passedKey.trim();
       if (passedPdf) ORIGINAL_PDF_URL = decodeURIComponent(passedPdf).trim();
 
-      // ഫോൺ നമ്പർ ഇല്ലെങ്കിൽ ലോക്കൽ സ്റ്റോറേജിൽ നിന്ന് എടുക്കുന്നു
       if (!currentUser.phone || currentUser.phone === "0000000000" || currentUser.phone.length < 10) {
         try {
           const stored = localStorage.getItem('sk_candidate_user') || localStorage.getItem('sk_user_phone');
@@ -337,7 +335,6 @@
       document.getElementById('motivateName').innerText = `ഹലോ, ${currentUser.name}! ✨`;
       document.getElementById('motivateSubTitle').innerText = `${examTitle} പരീക്ഷയിലേക്ക് സ്വാഗതം!`;
 
-      // 🌟 ഫയർബേസിൽ നിന്ന് ചോദ്യങ്ങൾ ലോഡ് ചെയ്യുന്നു
       try {
         const res = await fetch(`${FIREBASE_DB_URL}/quiz_contents/${quizKey}.json`);
         const data = await res.json();
@@ -638,7 +635,7 @@
       document.getElementById('resultScreen').style.setProperty('display', 'block', 'important');
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
-      // ഫയർബേസിലേക്ക് ഡാറ്റ നിർബന്ധമായും അയക്കുന്നു
+      // 🌟 ഫയർബേസിലേക്ക് നിർബന്ധമായും അയക്കുന്നു
       await sendResultToFirebase({
         name: currentUser.name,
         phone: currentUser.phone,
@@ -649,7 +646,7 @@
       });
     }
 
-    // 🌟 ഫയർബേസിലേക്ക് ഡാറ്റ പൂർണ്ണമായി സേവ് ചെയ്യുന്ന ഫംഗ്ഷൻ (100% Guaranteed)
+    // 🌟 ഗൂഗിൾ ഷീറ്റ് ഓവർറൈറ്റ് പൂർണ്ണമായി തടയുന്ന പുതിയ ഫംഗ്ഷൻ (live_ranks + ranks)
     async function sendResultToFirebase(payload) {
       const statusDiv = document.getElementById('sheetStatus');
       let studentPhone = (payload.phone || '').replace(/\D/g, '');
@@ -692,44 +689,31 @@
       try {
         if (statusDiv) statusDiv.innerText = "സ്കോർ ഫയർബേസിലേക്ക് രേഖപ്പെടുത്തുന്നു...";
 
-        // 1. ranks നോഡിലേക്ക് (ക്ലീൻ കീ വഴി)
-        const p1 = fetch(`${FIREBASE_DB_URL}/ranks/${cleanExamKey}/${studentPhone}.json`, {
+        // 🌟 1. live_ranks ലേക്ക് അയക്കുന്നു (ഗൂഗിൾ ഷീറ്റ് ഓവർറൈറ്റിൽ നിന്ന് 100% സംരക്ഷണം)
+        const p1 = fetch(`${FIREBASE_DB_URL}/live_ranks/${cleanExamKey}/${studentPhone}.json`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(record)
         });
 
-        // 2. ranks നോഡിലേക്ക് (quizKey ബാക്കപ്പ്)
-        let p2 = Promise.resolve();
-        if (quizKey && quizKey !== cleanExamKey) {
-          p2 = fetch(`${FIREBASE_DB_URL}/ranks/${quizKey}/${studentPhone}.json`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(record)
-          });
-        }
+        // 🌟 2. ബാക്കപ്പിനായി ranks ലേക്കും അയക്കുന്നു
+        const p2 = fetch(`${FIREBASE_DB_URL}/ranks/${cleanExamKey}/${studentPhone}.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(record)
+        });
 
-        // 3. users_history ലേക്ക് (ക്ലീൻ കീ വഴി)
+        // 🌟 3. users_history ലേക്ക് സേവ് ചെയ്യുന്നു
         const p3 = fetch(`${FIREBASE_DB_URL}/users_history/${studentPhone}/${cleanExamKey}.json`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(record)
         });
 
-        // 4. users_history ലേക്ക് (quizKey വഴി)
-        let p4 = Promise.resolve();
-        if (quizKey && quizKey !== cleanExamKey) {
-          p4 = fetch(`${FIREBASE_DB_URL}/users_history/${studentPhone}/${quizKey}.json`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(record)
-          });
-        }
-
-        await Promise.all([p1, p2, p3, p4]);
+        await Promise.all([p1, p2, p3]);
 
         if (statusDiv) {
-          statusDiv.innerText = "✓ മാർക്ക് ഫയർബേസിൽ വിജയകരമായി രേഖപ്പെടുത്തി!";
+          statusDiv.innerText = "✓ മാർക്ക് ഫയർബേസിൽ സ്ഥിരമായി രേഖപ്പെടുത്തി!";
           statusDiv.className = "text-xs text-emerald-400 mb-4";
         }
       } catch (e) {
@@ -961,11 +945,11 @@
       const cleanKey = cleanTitleForMatch(examTitle);
 
       try {
-        let res = await fetch(`${FIREBASE_DB_URL}/ranks/${cleanKey}.json?_t=${Date.now()}`);
+        let res = await fetch(`${FIREBASE_DB_URL}/live_ranks/${cleanKey}.json?_t=${Date.now()}`);
         let data = await res.json();
 
-        if (!data && quizKey) {
-          res = await fetch(`${FIREBASE_DB_URL}/ranks/${quizKey}.json?_t=${Date.now()}`);
+        if (!data) {
+          res = await fetch(`${FIREBASE_DB_URL}/ranks/${cleanKey}.json?_t=${Date.now()}`);
           data = await res.json();
         }
 
