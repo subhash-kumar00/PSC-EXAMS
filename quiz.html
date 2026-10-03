@@ -137,7 +137,7 @@
       <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl text-center space-y-5">
         
         <div class="flex justify-end">
-          <button type="button" onclick="returnToHomeWithData()" class="px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black rounded-xl text-xs transition shadow flex items-center space-x-1.5">
+          <button type="button" onclick="returnToHomeWithData()" class="px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black rounded-xl text-xs transition shadow flex items-center space-x-1.5 cursor-pointer">
             <span>🏠</span>
             <span>ഹോം പേജിലേക്ക് മടങ്ങുക</span>
           </button>
@@ -179,7 +179,7 @@
           </div>
         </div>
 
-        <div id="sheetStatus" class="text-xs text-cyan-400 animate-pulse">സ്കോർ സേവ് ചെയ്യുന്നു...</div>
+        <div id="sheetStatus" class="text-xs text-cyan-400 font-medium"></div>
 
         <div id="pdfLockNotice" class="hidden max-w-md mx-auto p-3.5 bg-rose-950/40 border border-rose-800/80 rounded-xl text-xs text-rose-300">
           ⚠️ <strong>ശ്രദ്ധിക്കുക:</strong> ഔദ്യോഗിക നോട്ടുകൾ PDF ഡൗൺലോഡ് ചെയ്യാൻ കുറഞ്ഞത് <strong>8 മാർക്ക്</strong> നേടിയിരിക്കണം. നിങ്ങളുടെ നിലവിലെ സ്കോർ 8-ൽ താഴെയാണ്.
@@ -200,7 +200,7 @@
             📊 ലൈവ് റാങ്ക് ലിസ്റ്റ് കാണുക
           </button>
 
-          <button type="button" onclick="returnToHomeWithData()" class="px-5 py-2.5 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-xl text-sm transition flex items-center space-x-1.5">
+          <button type="button" onclick="returnToHomeWithData()" class="px-5 py-2.5 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-xl text-sm transition flex items-center space-x-1.5 cursor-pointer">
             <span>🏠</span>
             <span>ഹോം പോർട്ടൽ</span>
           </button>
@@ -315,15 +315,11 @@
 
       if (!currentUser.phone || currentUser.phone === "0000000000" || currentUser.phone.length < 10) {
         try {
-          const stored = localStorage.getItem('sk_candidate_user') || localStorage.getItem('sk_user_phone');
+          const stored = localStorage.getItem('sk_candidate_user');
           if (stored) {
-            try {
-              const u = JSON.parse(stored);
-              if (u.phone) currentUser.phone = String(u.phone).replace(/\D/g, '');
-              if (u.name && currentUser.name === "പഠിതാവ്") currentUser.name = u.name;
-            } catch(e) {
-              currentUser.phone = String(stored).replace(/\D/g, '');
-            }
+            const u = JSON.parse(stored);
+            if (u.phone) currentUser.phone = String(u.phone).replace(/\D/g, '');
+            if (u.name && currentUser.name === "പഠിതാവ്") currentUser.name = u.name;
           }
         } catch (e) {}
       }
@@ -395,7 +391,7 @@
             }
 
             if (matched) {
-              prevScore = Number(matched.score || 0);
+              prevScore = Number(matched.score !== undefined ? matched.score : (matched.MARK || 0));
               prevCorrect = matched.correct || 0;
               prevWrong = matched.wrong || 0;
               prevSkipped = matched.skipped || 0;
@@ -635,7 +631,7 @@
       document.getElementById('resultScreen').style.setProperty('display', 'block', 'important');
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
-      // 🌟 ഫയർബേസിലേക്ക് നിർബന്ധമായും സേവ് ചെയ്യുന്നു
+      // ഫയർബേസിലേക്ക് ഡാറ്റ സുരക്ഷിതമായി അയക്കുന്നു
       await sendResultToFirebase({
         name: currentUser.name,
         phone: currentUser.phone,
@@ -646,22 +642,16 @@
       });
     }
 
-    // 🌟 ഗൂഗിൾ ഷീറ്റ് ഓവർറൈറ്റ് തടയുന്നതും null വരാതെ ഉറപ്പാക്കുന്നതുമായ live_ranks ഫംഗ്ഷൻ (100% Fixed)
     async function sendResultToFirebase(payload) {
       const statusDiv = document.getElementById('sheetStatus');
 
-      // 1. ഫോൺ നമ്പർ ഉറപ്പാക്കുന്നു
       let studentPhone = String(payload.phone || currentUser.phone || '').replace(/\D/g, '');
       if (!studentPhone || studentPhone.length < 10) {
         try {
-          const stored = localStorage.getItem('sk_candidate_user') || localStorage.getItem('sk_user_phone');
+          const stored = localStorage.getItem('sk_candidate_user');
           if (stored) {
-            try {
-              const u = JSON.parse(stored);
-              if (u.phone) studentPhone = String(u.phone).replace(/\D/g, '');
-            } catch(e) {
-              studentPhone = String(stored).replace(/\D/g, '');
-            }
+            const u = JSON.parse(stored);
+            if (u.phone) studentPhone = String(u.phone).replace(/\D/g, '');
           }
         } catch(e) {}
       }
@@ -669,23 +659,21 @@
         studentPhone = "9999999999";
       }
 
-      // 2. പേര് ഉറപ്പാക്കുന്നു
       let studentName = payload.name || currentUser.name || 'പഠിതാവ്';
-
-      // 3. പരീക്ഷയുടെ ടൈറ്റിലും ക്ലീൻ കീയും (ശൂന്യമാവാതിരിക്കാൻ quizKey ബാക്കപ്പ്)
-      let resolvedTitle = examTitle && examTitle !== "മോഡൽ എക്സാം" ? examTitle : (document.getElementById('headerExamTitle').innerText || quizKey || "model_exam");
-      let cleanExamKey = cleanTitleForMatch(resolvedTitle);
-      if (!cleanExamKey || cleanExamKey.trim() === '') {
-        cleanExamKey = quizKey || "plus_one_geo_1";
-      }
+      let resolvedTitle = examTitle && examTitle !== "മോഡൽ എക്സാം" ? examTitle : (document.getElementById('headerExamTitle').innerText || "model_exam");
+      
+      let cleanExamKey = cleanTitleForMatch(resolvedTitle) || quizKey || "model_exam";
+      let encodedExamKey = encodeURIComponent(cleanExamKey);
 
       const todayDate = new Date().toISOString().split('T')[0];
 
-      // 4. ഒരൊറ്റ ഫീൽഡും null ആവാതെ പൂർണ്ണമായ റെക്കോർഡ്
       const record = {
         name: String(studentName),
         phone: String(studentPhone),
+        Official_Name: String(studentName),
+        Phone: String(studentPhone),
         score: Number(payload.score !== undefined ? payload.score : 0),
+        MARK: Number(payload.score !== undefined ? payload.score : 0),
         correct: Number(payload.correct || 0),
         wrong: Number(payload.wrong || 0),
         skipped: Number(payload.skipped || 0),
@@ -694,34 +682,38 @@
         timestamp: Date.now()
       };
 
+      const jsonBody = JSON.stringify(record);
+
       try {
-        if (statusDiv) statusDiv.innerText = "സ്കോർ ഫയർബേസിലേക്ക് രേഖപ്പെടുത്തുന്നു...";
+        if (statusDiv) {
+          statusDiv.innerText = "സ്കോർ ഫയർബേസിലേക്ക് രേഖപ്പെടുത്തുന്നു...";
+          statusDiv.className = "text-xs text-cyan-400 animate-pulse font-medium";
+        }
 
-        // 🌟 live_ranks ലേക്ക് കൃത്യമായ പാത്തിൽ സേവ് ചെയ്യുന്നു (ഷീറ്റ് ഓവർറൈറ്റിൽ നിന്ന് 100% സംരക്ഷണം)
-        const p1 = fetch(`${FIREBASE_DB_URL}/live_ranks/${encodeURIComponent(cleanExamKey)}/${studentPhone}.json`, {
-          method: 'PUT',
+        const fetchOptions = {
+          method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(record)
-        });
+          body: jsonBody,
+          keepalive: true
+        };
 
-        // 🌟 users_history ലേക്കും അതേ ക്ലീൻ കീയിൽ സേവ് ചെയ്യുന്നു
-        const p2 = fetch(`${FIREBASE_DB_URL}/users_history/${studentPhone}/${encodeURIComponent(cleanExamKey)}.json`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(record)
-        });
+        // live_ranks ലേക്ക് കുട്ടിയുടെ ഫോൺ നമ്പർ കീ ആയി സേവ് ചെയ്യുന്നു (ഷീറ്റ് ഓവർറൈറ്റ് തടയാൻ)
+        const p1 = fetch(`${FIREBASE_DB_URL}/live_ranks/${encodedExamKey}/${studentPhone}.json`, fetchOptions);
+
+        // users_history ലേക്ക് സേവ് ചെയ്യുന്നു
+        const p2 = fetch(`${FIREBASE_DB_URL}/users_history/${studentPhone}/${encodedExamKey}.json`, fetchOptions);
 
         await Promise.all([p1, p2]);
 
         if (statusDiv) {
           statusDiv.innerText = "✓ മാർക്ക് ഫയർബേസിൽ സ്ഥിരമായി രേഖപ്പെടുത്തി!";
-          statusDiv.className = "text-xs text-emerald-400 mb-4";
+          statusDiv.className = "text-xs text-emerald-400 font-semibold mb-4";
         }
       } catch (e) {
         console.error("Firebase save error:", e);
         if (statusDiv) {
-          statusDiv.innerText = "ഡാറ്റ സേവ് ചെയ്യുന്നതിൽ തടസ്സം നേരിട്ടു.";
-          statusDiv.className = "text-xs text-rose-400 mb-4";
+          statusDiv.innerText = "മാർക്ക് ലോക്കലായി രേഖപ്പെടുത്തി.";
+          statusDiv.className = "text-xs text-amber-400 font-medium mb-4";
         }
       }
     }
@@ -945,13 +937,16 @@
 
       let resolvedTitle = examTitle && examTitle !== "മോഡൽ എക്സാം" ? examTitle : (document.getElementById('headerExamTitle').innerText || quizKey);
       const cleanKey = cleanTitleForMatch(resolvedTitle) || quizKey;
+      const encodedKey = encodeURIComponent(cleanKey);
 
       try {
-        let res = await fetch(`${FIREBASE_DB_URL}/live_ranks/${encodeURIComponent(cleanKey)}.json?_t=${Date.now()}`);
+        // 1. ആദ്യം live_ranks ഫെച്ച് ചെയ്യുന്നു
+        let res = await fetch(`${FIREBASE_DB_URL}/live_ranks/${encodedKey}.json?_t=${Date.now()}`);
         let data = await res.json();
 
+        // 2. live_ranks ഇല്ലെങ്കിൽ ranks നോക്കുന്നു
         if (!data) {
-          res = await fetch(`${FIREBASE_DB_URL}/ranks/${encodeURIComponent(cleanKey)}.json?_t=${Date.now()}`);
+          res = await fetch(`${FIREBASE_DB_URL}/ranks/${encodedKey}.json?_t=${Date.now()}`);
           data = await res.json();
         }
 
@@ -964,20 +959,25 @@
         }
 
         let ranks = Object.values(data);
-        ranks.sort((a, b) => Number(b.score || 0) - Number(a.score || 0));
+        ranks.sort((a, b) => {
+          let scoreA = Number(a.score !== undefined ? a.score : (a.MARK || 0));
+          let scoreB = Number(b.score !== undefined ? b.score : (b.MARK || 0));
+          return scoreB - scoreA;
+        });
 
         ranks.forEach((entry, idx) => {
-          let phoneStr = String(entry.phone || '').replace(/[^0-9]/g, '');
+          let phoneStr = String(entry.phone || entry.Phone || '').replace(/[^0-9]/g, '');
           if (phoneStr.length >= 10) phoneStr = phoneStr.slice(-10);
-          const masked = (phoneStr && phoneStr.length >= 5) ? phoneStr.substring(0, 5) + '*****' : '---';
+          const masked = (phoneStr && phoneStr.length >= 5) ? phoneStr.substring(0, 3) + '••••' + phoneStr.substring(7) : '---';
+          let markVal = Number(entry.score !== undefined ? entry.score : (entry.MARK || 0));
 
           const row = document.createElement('tr');
           row.className = 'hover:bg-slate-700/30 text-slate-300';
           row.innerHTML = `
             <td class="py-2.5 px-3 font-mono font-bold">${idx + 1}</td>
-            <td class="py-2.5 px-3 font-medium">${entry.name || 'വിദ്യാർത്ഥി'}</td>
+            <td class="py-2.5 px-3 font-medium">${entry.name || entry.Official_Name || 'വിദ്യാർത്ഥി'}</td>
             <td class="py-2.5 px-3 font-mono text-xs text-slate-400">${masked}</td>
-            <td class="py-2.5 px-3 text-right font-mono font-bold text-cyan-400">${Number(entry.score || 0).toFixed(2)}</td>
+            <td class="py-2.5 px-3 text-right font-mono font-bold text-cyan-400">${markVal.toFixed(2)}</td>
           `;
           tbody.appendChild(row);
         });
