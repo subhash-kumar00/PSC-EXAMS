@@ -579,28 +579,28 @@
       }
     };
 
-    function finishExam() {
+    async function finishExam() {
       if (timerInterval) clearInterval(timerInterval);
 
-      let correct = 0, wrong = 0, skipped = 0;
+      let correct = 0, wrongCount = 0, skipped = 0;
       wrongQuestionsList = [];
 
       for (let i = 0; i < questionsData.length; i++) {
         if (userAnswers[i] === null) skipped++;
         else if (userAnswers[i] === questionsData[i].ans) correct++;
-        else { wrong++; wrongQuestionsList.push(i + 1); }
+        else { wrongCount++; wrongQuestionsList.push(i + 1); }
       }
 
-      let netScore = Math.max(0, (correct * 1.0) - (wrong * 0.33333333));
+      let netScore = Math.max(0, (correct * 1.0) - (wrongCount * 0.33333333));
       const formattedScore = netScore.toFixed(2);
       const scoreNum = parseFloat(formattedScore);
 
       document.getElementById('finalScore').innerText = formattedScore;
       document.getElementById('correctCount').innerText = correct;
-      document.getElementById('wrongCount').innerText = wrong;
+      document.getElementById('wrongCount').innerText = wrongCount;
       document.getElementById('skipCount').innerText = skipped;
       document.getElementById('resultCandidateInfo').innerText = `വിദ്യാർത്ഥി: ${currentUser.name} | മൊബൈൽ: ${currentUser.phone}`;
-      document.getElementById('pdfReportCandidateSubheader').innerText = `വിദ്യാർത്ഥി: ${currentUser.name} (${currentUser.phone}) | സ്കോർ: ${formattedScore} / ${questionsData.length} | ശരി: ${correct} | തെറ്റ്: ${wrong} | Skip: ${skipped}`;
+      document.getElementById('pdfReportCandidateSubheader').innerText = `വിദ്യാർത്ഥി: ${currentUser.name} (${currentUser.phone}) | സ്കോർ: ${formattedScore} / ${questionsData.length} | ശരി: ${correct} | തെറ്റ്: ${wrongCount} | Skip: ${skipped}`;
 
       const badge = document.getElementById('scoreMotivationBadge');
       const percentage = (scoreNum / questionsData.length) * 100;
@@ -638,39 +638,42 @@
       document.getElementById('resultScreen').style.setProperty('display', 'block', 'important');
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
-      sendResultToFirebase({
+      // ഫയർബേസിലേക്ക് ഡാറ്റ നിർബന്ധമായും അയക്കുന്നു
+      await sendResultToFirebase({
         name: currentUser.name,
         phone: currentUser.phone,
         score: scoreNum,
         correct: correct,
-        wrong: wrong,
+        wrong: wrongCount,
         skipped: skipped
       });
     }
 
-    // 🌟 ഫയർബേസിലേക്ക് ഡാറ്റ നിർബന്ധമായും എത്തിക്കുന്ന ശാശ്വത ഫംഗ്ഷൻ (100% Fixed & Universal)
+    // 🌟 ഫയർബേസിലേക്ക് ഡാറ്റ പൂർണ്ണമായി സേവ് ചെയ്യുന്ന ഫംഗ്ഷൻ (100% Guaranteed)
     async function sendResultToFirebase(payload) {
+      const statusDiv = document.getElementById('sheetStatus');
       let studentPhone = (payload.phone || '').replace(/\D/g, '');
       let studentName = payload.name;
 
-      // ഫോൺ നമ്പർ ഇല്ലെങ്കിൽ ലോക്കൽ സ്റ്റോറേജിലെ എല്ലാ വഴികളിലൂടെയും കണ്ടെത്തുന്നു
       if (!studentPhone || studentPhone === "0000000000" || studentPhone.length < 10) {
-        const savedPhone = localStorage.getItem('sk_user_phone') || 
-                           localStorage.getItem('user_phone') || 
-                           localStorage.getItem('sk_phone');
-        const savedName = localStorage.getItem('sk_user_name') || 
-                          localStorage.getItem('user_name');
-        
-        if (savedPhone) studentPhone = savedPhone.replace(/\D/g, '');
-        if (savedName && (!studentName || studentName === "പഠിതാവ്")) studentName = savedName;
+        try {
+          const stored = localStorage.getItem('sk_candidate_user') || localStorage.getItem('sk_user_phone');
+          if (stored) {
+            try {
+              const u = JSON.parse(stored);
+              if (u.phone) studentPhone = String(u.phone).replace(/\D/g, '');
+              if (u.name && (!studentName || studentName === "പഠിതാവ്")) studentName = u.name;
+            } catch(e) {
+              studentPhone = String(stored).replace(/\D/g, '');
+            }
+          }
+        } catch(e) {}
       }
 
-      // ഫോൺ നമ്പർ ഒട്ടും കിട്ടിയില്ലെങ്കിൽ സേവിംഗ് മുടങ്ങാതിരിക്കാൻ ഡിഫോൾട്ട് നൽകുന്നു
       if (!studentPhone || studentPhone.length < 10) {
         studentPhone = "9999999999"; 
       }
 
-      // ഫയർബേസിലെ മറ്റ് പരീക്ഷകളുടെ അതേ ക്ലീൻ കീ രൂപം (ഉദാ: പക്ഷിസങ്കേതങ്ങൾകാലാവസ്ഥസെറ്റ്2)
       const cleanExamKey = cleanTitleForMatch(examTitle);
       const todayDate = new Date().toISOString().split('T')[0];
 
@@ -687,16 +690,19 @@
       };
 
       try {
-        // 1. ranks നോഡിലേക്ക് (ക്ലീൻ കീ വഴി - ഹോം പേജും അഡ്മിനും തപ്പുന്ന ഫോർമാറ്റിൽ)
-        await fetch(`${FIREBASE_DB_URL}/ranks/${cleanExamKey}/${studentPhone}.json`, {
+        if (statusDiv) statusDiv.innerText = "സ്കോർ ഫയർബേസിലേക്ക് രേഖപ്പെടുത്തുന്നു...";
+
+        // 1. ranks നോഡിലേക്ക് (ക്ലീൻ കീ വഴി)
+        const p1 = fetch(`${FIREBASE_DB_URL}/ranks/${cleanExamKey}/${studentPhone}.json`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(record)
         });
 
         // 2. ranks നോഡിലേക്ക് (quizKey ബാക്കപ്പ്)
+        let p2 = Promise.resolve();
         if (quizKey && quizKey !== cleanExamKey) {
-          await fetch(`${FIREBASE_DB_URL}/ranks/${quizKey}/${studentPhone}.json`, {
+          p2 = fetch(`${FIREBASE_DB_URL}/ranks/${quizKey}/${studentPhone}.json`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(record)
@@ -704,25 +710,34 @@
         }
 
         // 3. users_history ലേക്ക് (ക്ലീൻ കീ വഴി)
-        await fetch(`${FIREBASE_DB_URL}/users_history/${studentPhone}/${cleanExamKey}.json`, {
+        const p3 = fetch(`${FIREBASE_DB_URL}/users_history/${studentPhone}/${cleanExamKey}.json`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(record)
         });
 
         // 4. users_history ലേക്ക് (quizKey വഴി)
+        let p4 = Promise.resolve();
         if (quizKey && quizKey !== cleanExamKey) {
-          await fetch(`${FIREBASE_DB_URL}/users_history/${studentPhone}/${quizKey}.json`, {
+          p4 = fetch(`${FIREBASE_DB_URL}/users_history/${studentPhone}/${quizKey}.json`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(record)
           });
         }
 
-        document.getElementById('sheetStatus').innerText = "✓ മാർക്ക് ഫയർബേസിൽ വിജയകരമായി രേഖപ്പെടുത്തി!";
-        document.getElementById('sheetStatus').className = "text-xs text-emerald-400 mb-4";
+        await Promise.all([p1, p2, p3, p4]);
+
+        if (statusDiv) {
+          statusDiv.innerText = "✓ മാർക്ക് ഫയർബേസിൽ വിജയകരമായി രേഖപ്പെടുത്തി!";
+          statusDiv.className = "text-xs text-emerald-400 mb-4";
+        }
       } catch (e) {
         console.error("Firebase save error:", e);
+        if (statusDiv) {
+          statusDiv.innerText = "ഡാറ്റ സേവ് ചെയ്യുന്നതിൽ തടസ്സം നേരിട്ടു.";
+          statusDiv.className = "text-xs text-rose-400 mb-4";
+        }
       }
     }
 
@@ -767,9 +782,13 @@
           let optsMarkup = '<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">';
           q.options.forEach((opt, oIdx) => {
             let optClass = 'p-2 rounded-lg border flex items-center space-x-2 text-xs ';
-            if (oIdx === q.ans) optClass += 'border-emerald-500 bg-emerald-950/40 text-emerald-300 font-semibold';
-            else if (oIdx === uAns && !isCorrect) optClass += 'border-rose-500 bg-rose-950/40 text-rose-300 line-through';
-            else optClass += 'border-slate-800 text-slate-400';
+            if (oIdx === q.ans) {
+              optClass += 'border-emerald-500 bg-emerald-950/40 text-emerald-300 font-semibold';
+            } else if (oIdx === uAns && !isCorrect) {
+              optClass += 'border-rose-500 bg-rose-950/40 text-rose-300 line-through';
+            } else {
+              optClass += 'border-slate-800 text-slate-400';
+            }
             optsMarkup += `<div class="${optClass}"><span>${letters[oIdx]})</span><span>${opt}</span></div>`;
           });
           optsMarkup += '</div>';
