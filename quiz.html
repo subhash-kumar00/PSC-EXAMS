@@ -51,7 +51,7 @@
       <p class="text-cyan-400 font-bold animate-pulse text-sm">ഫയർബേസിൽ നിന്ന് ചോദ്യങ്ങൾ ലഭ്യമാക്കുന്നു...</p>
     </div>
 
-    <!-- Step 1: Motivation & Start Screen -->
+    <!-- Step 1: Motivation Screen -->
     <div id="motivationScreen" class="w-full max-w-lg bg-slate-800 border-2 border-cyan-500/60 rounded-3xl p-8 sm:p-10 shadow-2xl text-center space-y-6 animate-pop hidden">
       <div class="w-20 h-20 bg-gradient-to-tr from-cyan-500 to-blue-600 rounded-full flex items-center justify-center mx-auto text-4xl shadow-xl animate-bounce">
         🎯
@@ -296,7 +296,7 @@
 
     function cleanTitleForMatch(str) {
       if (!str) return "";
-      return String(str).replace(/[\s\-_,.:;()\/\\|\[\]+&]+/g, '').toLowerCase();
+      return String(str).replace(/[\s\-_,.:;()\/\\|\[\]+]+/g, '').toLowerCase();
     }
 
     window.addEventListener('DOMContentLoaded', async () => {
@@ -631,7 +631,7 @@
       document.getElementById('resultScreen').style.setProperty('display', 'block', 'important');
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
-      // ഫയർബേസിലേക്ക് ഡാറ്റ സുരക്ഷിതമായി അയക്കുന്നു
+      // 🌟 ഫയർബേസിലേക്ക് നിർബന്ധമായും ആദ്യ ശ്രമം വേർതിരിച്ചു സേവ് ചെയ്യുന്നു
       await sendResultToFirebase({
         name: currentUser.name,
         phone: currentUser.phone,
@@ -642,6 +642,7 @@
       });
     }
 
+    // 🌟 ആദ്യത്തെ അറ്റംപ്റ്റ് മാത്രം live_ranks ലേക്ക് പോകുകയും ബാക്കി അറ്റംപ്റ്റുകൾ users_history ലേക്ക് മാത്രം പോകുകയും ചെയ്യുന്ന രീതി
     async function sendResultToFirebase(payload) {
       const statusDiv = document.getElementById('sheetStatus');
 
@@ -655,9 +656,7 @@
           }
         } catch(e) {}
       }
-      if (!studentPhone || studentPhone.length < 10) {
-        studentPhone = "9999999999";
-      }
+      if (!studentPhone || studentPhone.length < 10) studentPhone = "9999999999";
 
       let studentName = payload.name || currentUser.name || 'പഠിതാവ്';
       let resolvedTitle = examTitle && examTitle !== "മോഡൽ എക്സാം" ? examTitle : (document.getElementById('headerExamTitle').innerText || "model_exam");
@@ -697,16 +696,30 @@
           keepalive: true
         };
 
-        // live_ranks ലേക്ക് കുട്ടിയുടെ ഫോൺ നമ്പർ കീ ആയി സേവ് ചെയ്യുന്നു (ഷീറ്റ് ഓവർറൈറ്റ് തടയാൻ)
-        const p1 = fetch(`${FIREBASE_DB_URL}/live_ranks/${encodedExamKey}/${studentPhone}.json`, fetchOptions);
+        // 🌟 1. വിദ്യാർത്ഥി ഇതിനകം live_ranks ൽ ഉണ്ടോ എന്ന് പരിശോധിക്കുന്നു (ആദ്യ അറ്റംപ്റ്റ് വേരിഫിക്കേഷൻ)
+        let checkRankRes = await fetch(`${FIREBASE_DB_URL}/live_ranks/${encodedExamKey}/${studentPhone}.json`).catch(() => null);
+        let existingRankData = checkRankRes ? await checkRankRes.json() : null;
 
-        // users_history ലേക്ക് സേവ് ചെയ്യുന്നു
-        const p2 = fetch(`${FIREBASE_DB_URL}/users_history/${studentPhone}/${encodedExamKey}.json`, fetchOptions);
+        let saveTasks = [];
 
-        await Promise.all([p1, p2]);
+        // ആദ്യത്തെ അറ്റംപ്റ്റ് ആണെങ്കിൽ മാത്രം live_ranks ലേക്ക് സേവ് ചെയ്യുന്നു
+        if (!existingRankData || existingRankData.score === undefined) {
+          saveTasks.push(
+            fetch(`${FIREBASE_DB_URL}/live_ranks/${encodedExamKey}/${studentPhone}.json`, fetchOptions)
+          );
+        }
+
+        // 🌟 2. വിദ്യാർത്ഥിയുടെ പ്രൊഫൈൽ ഹിസ്റ്ററിയിലേക്ക് (users_history) Reattempt ഉൾപ്പെടെ എല്ലാ അറ്റംപ്റ്റുകളും എപ്പോഴും സേവ് ആകുന്നു
+        saveTasks.push(
+          fetch(`${FIREBASE_DB_URL}/users_history/${studentPhone}/${encodedExamKey}.json`, fetchOptions)
+        );
+
+        await Promise.all(saveTasks);
 
         if (statusDiv) {
-          statusDiv.innerText = "✓ മാർക്ക് ഫയർബേസിൽ സ്ഥിരമായി രേഖപ്പെടുത്തി!";
+          statusDiv.innerText = (!existingRankData || existingRankData.score === undefined)
+            ? "✓ ആദ്യ ശ്രമത്തിലെ മാർക്ക് റാങ്ക് ലിസ്റ്റിൽ രേഖപ്പെടുത്തി!"
+            : "✓ Reattempt പൂർത്തിയായി (റാങ്ക് ലിസ്റ്റിൽ നിങ്ങളുടെ ആദ്യ ശ്രമം സുരക്ഷിതമായി നിലനിർത്തിയിട്ടുണ്ട്).";
           statusDiv.className = "text-xs text-emerald-400 font-semibold mb-4";
         }
       } catch (e) {
@@ -940,11 +953,9 @@
       const encodedKey = encodeURIComponent(cleanKey);
 
       try {
-        // 1. ആദ്യം live_ranks ഫെച്ച് ചെയ്യുന്നു
         let res = await fetch(`${FIREBASE_DB_URL}/live_ranks/${encodedKey}.json?_t=${Date.now()}`);
         let data = await res.json();
 
-        // 2. live_ranks ഇല്ലെങ്കിൽ ranks നോക്കുന്നു
         if (!data) {
           res = await fetch(`${FIREBASE_DB_URL}/ranks/${encodedKey}.json?_t=${Date.now()}`);
           data = await res.json();
