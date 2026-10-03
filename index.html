@@ -147,7 +147,7 @@
       </div>
     </div>
 
-    <!-- 🌟 ടോപ്പ് 3 സ്റ്റുഡന്റ്സ് ലീഡർബോർഡ് (തത്സമയം അപ്‌ഡേറ്റ് ആകുന്നത്) -->
+    <!-- 🌟 ടോപ്പ് 3 സ്റ്റുഡന്റ്സ് ലീഡർബോർഡ് -->
     <div id="topStudentsSection" class="hidden bg-slate-900/90 border border-amber-500/30 rounded-2xl p-4 shadow-xl">
       <div class="flex items-center justify-between mb-3 border-b border-slate-800 pb-2">
         <div class="flex items-center space-x-2">
@@ -416,7 +416,7 @@
 
     function cleanTitleForMatch(str) {
       if (!str) return "";
-      return String(str).replace(/[\s\-_,.:;()\/\\|\[\]+]+/g, '').toLowerCase();
+      return String(str).replace(/[\s\-_,.:;()\/\\|\[\]+&]+/g, '').toLowerCase();
     }
 
     function parseReleaseTimestamp(dateStr) {
@@ -438,6 +438,7 @@
       let examUrl = rawItem.FILEURL || rawItem.fileUrl || '';
       let webscriptUrl = rawItem.sheetUrl || '';
       let pdfUrl = rawItem.pdfUrl || '';
+      let examKey = rawItem.KEY || rawItem.key || cleanTitleForMatch(rawItem.TITLE || rawItem.title || '');
 
       if (!examUrl) {
         for (let k in rawItem) {
@@ -457,12 +458,13 @@
       const separator = targetUrl.includes('?') ? '&' : '?';
       const title = rawItem.TITLE || rawItem.title || '';
 
+      let queryParams = `key=${encodeURIComponent(examKey)}&title=${encodeURIComponent(title)}&sheetUrl=${encodeURIComponent(webscriptUrl)}&pdfUrl=${encodeURIComponent(pdfUrl)}`;
+
       if (candidate) {
-        targetUrl = `${targetUrl}${separator}name=${encodeURIComponent(candidate.name)}&phone=${encodeURIComponent(candidate.phone)}&title=${encodeURIComponent(title)}&sheetUrl=${encodeURIComponent(webscriptUrl)}&pdfUrl=${encodeURIComponent(pdfUrl)}`;
-      } else {
-        targetUrl = `${targetUrl}${separator}title=${encodeURIComponent(title)}&sheetUrl=${encodeURIComponent(webscriptUrl)}&pdfUrl=${encodeURIComponent(pdfUrl)}`;
+        queryParams += `&name=${encodeURIComponent(candidate.name)}&phone=${encodeURIComponent(candidate.phone)}`;
       }
-      return targetUrl;
+
+      return `${targetUrl}${separator}${queryParams}`;
     }
 
     function buildReviewUrl(fileUrl, title) {
@@ -514,8 +516,6 @@
         const examsPromise = fetch(`${FIREBASE_DB_URL}/exams.json?_t=${Date.now()}`).then(r => r.json()).catch(() => null);
         const usersPromise = fetch(`${FIREBASE_DB_URL}/users.json?_t=${Date.now()}`).then(r => r.json()).catch(() => null);
         const configPromise = fetch(`${FIREBASE_DB_URL}/portal_config.json?_t=${Date.now()}`).then(r => r.json()).catch(() => ({}));
-        
-        // 🌟 യഥാർത്ഥ ലൈവ് ലീഡർബോർഡിനായി എല്ലാ യൂസേഴ്സിന്റെയും ഹിസ്റ്ററി ഫെച്ച് ചെയ്യുന്നു
         const allHistPromise = fetch(`${FIREBASE_DB_URL}/users_history.json?_t=${Date.now()}`).then(r => r.json()).catch(() => null);
 
         let userHistPromise = Promise.resolve(null);
@@ -527,7 +527,6 @@
           examsPromise, usersPromise, configPromise, allHistPromise, userHistPromise
         ]);
 
-        // 🚀 ആദ്യത്തെ അറ്റംപ്റ്റ് (First Attempt) മാത്രം മാപ്പ് ചെയ്യുന്നു
         userAttemptsMap = {};
         if (userHistData) {
           let hList = Object.values(userHistData);
@@ -539,7 +538,6 @@
           });
         }
 
-        // 1. മൾട്ടി-ലൈൻ നോട്ടീസ് ബോർഡ്
         if (configData && configData.notice && String(configData.notice).trim() !== "") {
           document.getElementById('heroNoticeText').innerText = configData.notice;
           document.getElementById('heroNoticeBox').classList.remove('hidden');
@@ -549,7 +547,6 @@
 
         const adminControls = (configData && configData.exam_controls) ? configData.exam_controls : {};
 
-        // 2. പരീക്ഷകൾ
         if (examsData) {
           let list = Array.isArray(examsData) ? examsData : Object.values(examsData);
           list = list.filter(item => item !== null && item !== undefined);
@@ -604,14 +601,12 @@
           }
         }
 
-        // 3. യൂസർ കാഷെ & ലൈവ് ലീഡർബോർഡ് (യഥാർത്ഥ users_history അടിസ്ഥാനത്തിൽ)
         if (usersData) {
           let uList = Array.isArray(usersData) ? usersData : Object.values(usersData);
           allUsersCache = uList.filter(u => u !== null && u !== undefined);
           document.getElementById('topUserCount').innerText = `${allUsersCache.length} Users`;
         }
 
-        // 🌟 യഥാർത്ഥ users_history + users profile ഒത്തുനോക്കി തത്സമയം ടോപ്പ് 3 കണക്കാക്കുന്നു
         calculateLiveHallOfFame(allHistData, usersData);
 
         if (candidate) {
@@ -623,7 +618,6 @@
       }
     }
 
-    // 🌟 ടോപ്പ് 3 റാങ്കേഴ്സ് ലൈവ് ഫംഗ്ഷൻ (മിസ്റ്റേക്ക് പൂർണ്ണമായി തിരുത്തിയത്)
     function calculateLiveHallOfFame(allHistory, allUsersObj) {
       const container = document.getElementById('topStudentsList');
       const section = document.getElementById('topStudentsSection');
@@ -648,7 +642,6 @@
 
       const performanceList = [];
 
-      // users_history-ൽ നിന്നും ഓരോ ഫോൺ നമ്പറിന്റെയും യഥാർത്ഥ പരീക്ഷകൾ കണക്കാക്കുന്നു
       for (const [rawPhone, historyData] of Object.entries(allHistory)) {
         if (!historyData) continue;
         let p = String(rawPhone).replace(/\D/g, '');
@@ -658,7 +651,6 @@
         let attemptsList = Object.values(historyData);
         if (attemptsList.length === 0) continue;
 
-        // ഓരോ പരീക്ഷയ്ക്കും ആദ്യത്തെ അറ്റംപ്റ്റ് മാത്രം തിരഞ്ഞെടുക്കുന്നു (Duplicates ഒഴിവാക്കുന്നു)
         const uniqueAttempts = {};
         attemptsList.forEach(att => {
           if (!att || !att.title) return;
@@ -700,7 +692,6 @@
           totalExams: totalUniqueTests,
           avgScore: avgScore,
           accuracy: accuracyPercent,
-          // കൂടുതൽ പരീക്ഷകൾ എഴുതിയവർക്ക് മുൻഗണന നൽകുന്നു
           rankScore: (totalUniqueTests * 100) + (avgScore * 2)
         });
       }
@@ -710,7 +701,6 @@
         return;
       }
 
-      // ഏറ്റവും കൂടുതൽ പരീക്ഷ എഴുതിയ ക്രമത്തിൽ സോർട്ട് ചെയ്യുന്നു
       performanceList.sort((a, b) => {
         if (b.totalExams !== a.totalExams) return b.totalExams - a.totalExams;
         if (b.avgScore !== a.avgScore) return b.avgScore - a.avgScore;
@@ -1111,13 +1101,24 @@
       tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-400">റാങ്ക് ലിസ്റ്റ് ശേഖരിക്കുന്നു...</td></tr>';
 
       const cleanKey = cleanTitleForMatch(examTitle);
+      const encodedKey = encodeURIComponent(cleanKey);
+
       try {
         let ranks = null;
-        let res = await fetch(`${FIREBASE_DB_URL}/ranks/${cleanKey}.json?_t=${Date.now()}`);
+
+        // 🌟 1. ആദ്യം കുട്ടികൾ എഴുതിയ live_ranks നോക്കുന്നു (ഷീറ്റ് ഓവർറൈറ്റിൽ പെടാത്ത ഡാറ്റ)
+        let res = await fetch(`${FIREBASE_DB_URL}/live_ranks/${encodedKey}.json?_t=${Date.now()}`);
         let data = await res.json();
 
+        // 🌟 2. live_ranks ൽ ഇല്ലെങ്കിൽ മാത്രം ഗൂഗിൾ ഷീറ്റിന്റെ ranks നോക്കുന്നു
         if (!data) {
-          const allRanksRes = await fetch(`${FIREBASE_DB_URL}/ranks.json?_t=${Date.now()}`);
+          res = await fetch(`${FIREBASE_DB_URL}/ranks/${encodedKey}.json?_t=${Date.now()}`);
+          data = await res.json();
+        }
+
+        // 🌟 3. പഴയ ഫോൾഡറുകളിൽ തിരയൽ
+        if (!data) {
+          const allRanksRes = await fetch(`${FIREBASE_DB_URL}/live_ranks.json?_t=${Date.now()}`);
           const allRanksData = await allRanksRes.json();
           if (allRanksData) {
             for (const [rKey, rVal] of Object.entries(allRanksData)) {
@@ -1164,7 +1165,6 @@
       document.getElementById('rankListModal').classList.add('hidden');
     }
 
-    // 🌟 പ്രൊഫൈൽ എക്സാം ഹിസ്റ്ററി
     async function fetchUserExamHistory(phone) {
       const hList = document.getElementById('historyList');
       hList.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">ഹിസ്റ്ററി ലഭ്യമാക്കുന്നു...</p>';
