@@ -635,7 +635,7 @@
       document.getElementById('resultScreen').style.setProperty('display', 'block', 'important');
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
-      // 🌟 ഫയർബേസിലേക്ക് ഡാറ്റ സുരക്ഷിതമായി അയക്കുന്നു
+      // 🌟 ഫയർബേസിലേക്ക് നിർബന്ധമായും സേവ് ചെയ്യുന്നു
       await sendResultToFirebase({
         name: currentUser.name,
         phone: currentUser.phone,
@@ -646,57 +646,65 @@
       });
     }
 
-    // 🌟 ഗൂഗിൾ ഷീറ്റ് ഓവർറൈറ്റ് പൂർണ്ണമായി തടയുന്ന live_ranks ഫംഗ്ഷൻ (100% Fixed)
+    // 🌟 ഗൂഗിൾ ഷീറ്റ് ഓവർറൈറ്റ് തടയുന്നതും null വരാതെ ഉറപ്പാക്കുന്നതുമായ live_ranks ഫംഗ്ഷൻ (100% Fixed)
     async function sendResultToFirebase(payload) {
       const statusDiv = document.getElementById('sheetStatus');
-      let studentPhone = (payload.phone || '').replace(/\D/g, '');
-      let studentName = payload.name;
 
-      if (!studentPhone || studentPhone === "0000000000" || studentPhone.length < 10) {
+      // 1. ഫോൺ നമ്പർ ഉറപ്പാക്കുന്നു
+      let studentPhone = String(payload.phone || currentUser.phone || '').replace(/\D/g, '');
+      if (!studentPhone || studentPhone.length < 10) {
         try {
           const stored = localStorage.getItem('sk_candidate_user') || localStorage.getItem('sk_user_phone');
           if (stored) {
             try {
               const u = JSON.parse(stored);
               if (u.phone) studentPhone = String(u.phone).replace(/\D/g, '');
-              if (u.name && (!studentName || studentName === "പഠിതാവ്")) studentName = u.name;
             } catch(e) {
               studentPhone = String(stored).replace(/\D/g, '');
             }
           }
         } catch(e) {}
       }
-
       if (!studentPhone || studentPhone.length < 10) {
-        studentPhone = "9999999999"; 
+        studentPhone = "9999999999";
       }
 
-      const cleanExamKey = cleanTitleForMatch(examTitle) || quizKey;
+      // 2. പേര് ഉറപ്പാക്കുന്നു
+      let studentName = payload.name || currentUser.name || 'പഠിതാവ്';
+
+      // 3. പരീക്ഷയുടെ ടൈറ്റിലും ക്ലീൻ കീയും (ശൂന്യമാവാതിരിക്കാൻ quizKey ബാക്കപ്പ്)
+      let resolvedTitle = examTitle && examTitle !== "മോഡൽ എക്സാം" ? examTitle : (document.getElementById('headerExamTitle').innerText || quizKey || "model_exam");
+      let cleanExamKey = cleanTitleForMatch(resolvedTitle);
+      if (!cleanExamKey || cleanExamKey.trim() === '') {
+        cleanExamKey = quizKey || "plus_one_geo_1";
+      }
+
       const todayDate = new Date().toISOString().split('T')[0];
 
+      // 4. ഒരൊറ്റ ഫീൽഡും null ആവാതെ പൂർണ്ണമായ റെക്കോർഡ്
       const record = {
-        name: studentName || 'പഠിതാവ്',
-        phone: studentPhone,
-        score: parseFloat(payload.score),
-        correct: parseInt(payload.correct),
-        wrong: parseInt(payload.wrong),
-        skipped: parseInt(payload.skipped),
-        title: examTitle,
-        date: todayDate,
+        name: String(studentName),
+        phone: String(studentPhone),
+        score: Number(payload.score !== undefined ? payload.score : 0),
+        correct: Number(payload.correct || 0),
+        wrong: Number(payload.wrong || 0),
+        skipped: Number(payload.skipped || 0),
+        title: String(resolvedTitle),
+        date: String(todayDate),
         timestamp: Date.now()
       };
 
       try {
         if (statusDiv) statusDiv.innerText = "സ്കോർ ഫയർബേസിലേക്ക് രേഖപ്പെടുത്തുന്നു...";
 
-        // 🌟 1. live_ranks ലേക്ക് മാത്രം അയക്കുന്നു (ഷീറ്റ് ഓവർറൈറ്റിൽ നിന്ന് 100% സംരക്ഷണം)
+        // 🌟 live_ranks ലേക്ക് കൃത്യമായ പാത്തിൽ സേവ് ചെയ്യുന്നു (ഷീറ്റ് ഓവർറൈറ്റിൽ നിന്ന് 100% സംരക്ഷണം)
         const p1 = fetch(`${FIREBASE_DB_URL}/live_ranks/${encodeURIComponent(cleanExamKey)}/${studentPhone}.json`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(record)
         });
 
-        // 🌟 2. users_history ലേക്ക് സേവ് ചെയ്യുന്നു
+        // 🌟 users_history ലേക്കും അതേ ക്ലീൻ കീയിൽ സേവ് ചെയ്യുന്നു
         const p2 = fetch(`${FIREBASE_DB_URL}/users_history/${studentPhone}/${encodeURIComponent(cleanExamKey)}.json`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -935,7 +943,8 @@
       wrapper.classList.add('hidden');
       tbody.innerHTML = '';
 
-      const cleanKey = cleanTitleForMatch(examTitle) || quizKey;
+      let resolvedTitle = examTitle && examTitle !== "മോഡൽ എക്സാം" ? examTitle : (document.getElementById('headerExamTitle').innerText || quizKey);
+      const cleanKey = cleanTitleForMatch(resolvedTitle) || quizKey;
 
       try {
         let res = await fetch(`${FIREBASE_DB_URL}/live_ranks/${encodeURIComponent(cleanKey)}.json?_t=${Date.now()}`);
