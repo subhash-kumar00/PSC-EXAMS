@@ -21,7 +21,6 @@
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between select-none">
 
-  <!-- Header -->
   <header class="bg-slate-800/95 backdrop-blur border-b border-slate-700 px-4 sm:px-6 py-3 flex items-center justify-between sticky top-0 z-50">
     <div class="flex items-center space-x-3">
       <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center font-black text-lg shadow-lg text-slate-950">
@@ -45,13 +44,11 @@
 
   <main class="flex-1 flex flex-col items-center justify-center p-3 sm:p-6 w-full max-w-4xl mx-auto">
     
-    <!-- Loading Screen -->
     <div id="loadingScreen" class="text-center py-20 space-y-3">
       <div class="w-12 h-12 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
       <p class="text-cyan-400 font-bold animate-pulse text-sm">ഫയർബേസിൽ നിന്ന് ചോദ്യങ്ങൾ ലഭ്യമാക്കുന്നു...</p>
     </div>
 
-    <!-- Step 1: Motivation & Start Screen -->
     <div id="motivationScreen" class="w-full max-w-lg bg-slate-800 border-2 border-cyan-500/60 rounded-3xl p-8 sm:p-10 shadow-2xl text-center space-y-6 animate-pop hidden">
       <div class="w-20 h-20 bg-gradient-to-tr from-cyan-500 to-blue-600 rounded-full flex items-center justify-center mx-auto text-4xl shadow-xl animate-bounce">
         🎯
@@ -77,7 +74,6 @@
       </div>
     </div>
 
-    <!-- Step 2: Quiz Question Screen -->
     <div id="quizScreen" class="w-full hidden flex-col space-y-4">
       <div class="bg-slate-800 border border-slate-700 rounded-xl p-3 sm:p-4 flex flex-wrap items-center justify-between gap-3 shadow-md">
         <div class="flex items-center space-x-2">
@@ -121,7 +117,7 @@
           <button id="prevBtn" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs sm:text-sm font-semibold rounded-xl transition disabled:opacity-40">‹ Previous</button>
           <div class="flex items-center space-x-2">
             <button id="skipBtn" class="px-3.5 py-2 bg-slate-700/50 hover:bg-slate-700 text-slate-300 text-xs sm:text-sm rounded-xl border border-slate-600 transition">Skip</button>
-            <button id="nextBtn" class="px-5 py-2 bg-cyan-500 hover:bg-cyan-600 text-slate-950 font-bold text-xs sm:text-sm rounded-xl transition transform active:scale-95 shadow-md">Next ›</button>
+            <button id="nextBtn" class="px-5 py-2 bg-cyan-500 hover:cyan-600 text-slate-950 font-bold text-xs sm:text-sm rounded-xl transition transform active:scale-95 shadow-md">Next ›</button>
           </div>
         </div>
       </div>
@@ -132,7 +128,6 @@
       </div>
     </div>
 
-    <!-- Step 3: Result Screen & Interactive Reviews -->
     <div id="resultScreen" class="w-full hidden space-y-6">
       <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 sm:p-8 shadow-2xl text-center space-y-5">
         
@@ -224,7 +219,6 @@
       </div>
     </div>
 
-    <!-- Leaderboard Modal -->
     <div id="leaderboardModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
       <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-xl w-full p-6 shadow-2xl flex flex-col max-h-[85vh]">
         <div class="flex items-center justify-between border-b border-slate-700 pb-4 mb-4">
@@ -254,7 +248,6 @@
       </div>
     </div>
 
-    <!-- Feedback Modal -->
     <div id="feedbackModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
       <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4">
         <div class="w-12 h-12 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center mx-auto text-2xl">🌟</div>
@@ -631,7 +624,6 @@
       document.getElementById('resultScreen').style.setProperty('display', 'block', 'important');
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
-      // ഫയർബേസിലേക്ക് ഡാറ്റ സുരക്ഷിതമായി അയക്കുന്നു
       await sendResultToFirebase({
         name: currentUser.name,
         phone: currentUser.phone,
@@ -642,6 +634,7 @@
       });
     }
 
+    // 🌟 ആദ്യ അറ്റംപ്റ്റ് മാത്രം ലൈവ് റാങ്കിൽ വെക്കുകയും ബാക്കി ഹിസ്റ്ററിയിൽ മാത്രം മാറ്റുകയും ചെയ്യുന്ന ഫംഗ്ഷൻ
     async function sendResultToFirebase(payload) {
       const statusDiv = document.getElementById('sheetStatus');
 
@@ -655,9 +648,7 @@
           }
         } catch(e) {}
       }
-      if (!studentPhone || studentPhone.length < 10) {
-        studentPhone = "9999999999";
-      }
+      if (!studentPhone || studentPhone.length < 10) studentPhone = "9999999999";
 
       let studentName = payload.name || currentUser.name || 'പഠിതാവ്';
       let resolvedTitle = examTitle && examTitle !== "മോഡൽ എക്സാം" ? examTitle : (document.getElementById('headerExamTitle').innerText || "model_exam");
@@ -697,16 +688,30 @@
           keepalive: true
         };
 
-        // live_ranks ലേക്ക് കുട്ടിയുടെ ഫോൺ നമ്പർ കീ ആയി സേവ് ചെയ്യുന്നു (ഷീറ്റ് ഓവർറൈറ്റ് തടയാൻ)
-        const p1 = fetch(`${FIREBASE_DB_URL}/live_ranks/${encodedExamKey}/${studentPhone}.json`, fetchOptions);
+        // 🌟 1. വിദ്യാർത്ഥി ഈ പരീക്ഷ ഇതിനകം എഴുതിയിട്ടുണ്ടോ എന്ന് പരിശോധിക്കുന്നു (Check First Attempt)
+        let checkRankRes = await fetch(`${FIREBASE_DB_URL}/live_ranks/${encodedExamKey}/${studentPhone}.json`).catch(() => null);
+        let existingRankData = checkRankRes ? await checkRankRes.json() : null;
 
-        // users_history ലേക്ക് സേവ് ചെയ്യുന്നു
-        const p2 = fetch(`${FIREBASE_DB_URL}/users_history/${studentPhone}/${encodedExamKey}.json`, fetchOptions);
+        let savePromises = [];
 
-        await Promise.all([p1, p2]);
+        // ആദ്യ ശ്രമം ആണെങ്കിൽ മാത്രം live_ranks ലേക്ക് സേവ് ചെയ്യുന്നു! Reattempt ഓവർറൈറ്റ് ചെയ്യില്ല!
+        if (!existingRankData || existingRankData.score === undefined) {
+          savePromises.push(
+            fetch(`${FIREBASE_DB_URL}/live_ranks/${encodedExamKey}/${studentPhone}.json`, fetchOptions)
+          );
+        }
+
+        // 🌟 2. എന്നാൽ യൂസറുടെ ഹിസ്റ്ററിയിലേക്ക് പുതിയ സ്കോർ എപ്പോഴും സേവ് ആകുന്നു
+        savePromises.push(
+          fetch(`${FIREBASE_DB_URL}/users_history/${studentPhone}/${encodedExamKey}.json`, fetchOptions)
+        );
+
+        await Promise.all(savePromises);
 
         if (statusDiv) {
-          statusDiv.innerText = "✓ മാർക്ക് ഫയർബേസിൽ സ്ഥിരമായി രേഖപ്പെടുത്തി!";
+          statusDiv.innerText = (!existingRankData || existingRankData.score === undefined)
+            ? "✓ ആദ്യ ശ്രമത്തിലെ മാർക്ക് റാങ്ക് ലിസ്റ്റിൽ രേഖപ്പെടുത്തി!"
+            : "✓ Reattempt പൂർത്തിയായി (റാങ്ക് ലിസ്റ്റിൽ ആദ്യ ശ്രമം സുരക്ഷിതമാണ്).";
           statusDiv.className = "text-xs text-emerald-400 font-semibold mb-4";
         }
       } catch (e) {
@@ -940,11 +945,9 @@
       const encodedKey = encodeURIComponent(cleanKey);
 
       try {
-        // 1. ആദ്യം live_ranks ഫെച്ച് ചെയ്യുന്നു
         let res = await fetch(`${FIREBASE_DB_URL}/live_ranks/${encodedKey}.json?_t=${Date.now()}`);
         let data = await res.json();
 
-        // 2. live_ranks ഇല്ലെങ്കിൽ ranks നോക്കുന്നു
         if (!data) {
           res = await fetch(`${FIREBASE_DB_URL}/ranks/${encodedKey}.json?_t=${Date.now()}`);
           data = await res.json();
