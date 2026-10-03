@@ -51,7 +51,7 @@
       <p class="text-cyan-400 font-bold animate-pulse text-sm">ഫയർബേസിൽ നിന്ന് ചോദ്യങ്ങൾ ലഭ്യമാക്കുന്നു...</p>
     </div>
 
-    <!-- Step 1: Motivation Screen -->
+    <!-- Step 1: Motivation & Start Screen -->
     <div id="motivationScreen" class="w-full max-w-lg bg-slate-800 border-2 border-cyan-500/60 rounded-3xl p-8 sm:p-10 shadow-2xl text-center space-y-6 animate-pop hidden">
       <div class="w-20 h-20 bg-gradient-to-tr from-cyan-500 to-blue-600 rounded-full flex items-center justify-center mx-auto text-4xl shadow-xl animate-bounce">
         🎯
@@ -299,6 +299,12 @@
       return String(str).replace(/[\s\-_,.:;()\/\\|\[\]+]+/g, '').toLowerCase();
     }
 
+    function sanitizePhone(rawPhone) {
+      if (!rawPhone) return "";
+      let clean = String(rawPhone).replace(/\D/g, '');
+      return clean.length >= 10 ? clean.slice(-10) : clean;
+    }
+
     window.addEventListener('DOMContentLoaded', async () => {
       const urlParams = new URLSearchParams(window.location.search);
       const passedName = urlParams.get('name');
@@ -308,24 +314,24 @@
       const passedPdf = urlParams.get('pdfUrl');
 
       if (passedName) currentUser.name = decodeURIComponent(passedName).trim();
-      if (passedPhone) currentUser.phone = decodeURIComponent(passedPhone).replace(/\D/g, '');
+      if (passedPhone) currentUser.phone = sanitizePhone(decodeURIComponent(passedPhone));
       if (passedTitle) examTitle = decodeURIComponent(passedTitle).trim();
       if (passedKey) quizKey = passedKey.trim();
       if (passedPdf) ORIGINAL_PDF_URL = decodeURIComponent(passedPdf).trim();
 
-      if (!currentUser.phone || currentUser.phone === "0000000000" || currentUser.phone.length < 10) {
+      if (!currentUser.phone || currentUser.phone.length < 10) {
         try {
           const stored = localStorage.getItem('sk_candidate_user');
           if (stored) {
             const u = JSON.parse(stored);
-            if (u.phone) currentUser.phone = String(u.phone).replace(/\D/g, '');
+            if (u.phone) currentUser.phone = sanitizePhone(u.phone);
             if (u.name && currentUser.name === "പഠിതാവ്") currentUser.name = u.name;
           }
         } catch (e) {}
       }
 
       document.getElementById('headerExamTitle').innerText = examTitle;
-      document.getElementById('displayUser').innerText = (currentUser.phone && currentUser.phone !== "0000000000")
+      document.getElementById('displayUser').innerText = (currentUser.phone && currentUser.phone.length === 10)
         ? `${currentUser.name} (+91 ${currentUser.phone})`
         : currentUser.name;
       document.getElementById('motivateName').innerText = `ഹലോ, ${currentUser.name}! ✨`;
@@ -373,7 +379,7 @@
     async function loadPreviousAttemptFromFirebase() {
       let prevScore = 0, prevCorrect = 0, prevWrong = 0, prevSkipped = 0;
 
-      if (currentUser.phone && currentUser.phone !== "0000000000") {
+      if (currentUser.phone && currentUser.phone.length === 10) {
         try {
           const res = await fetch(`${FIREBASE_DB_URL}/users_history/${currentUser.phone}.json?_t=${Date.now()}`);
           const data = await res.json();
@@ -631,7 +637,7 @@
       document.getElementById('resultScreen').style.setProperty('display', 'block', 'important');
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
-      // 🌟 ഫയർബേസിലേക്ക് നിർബന്ധമായും ആദ്യ ശ്രമം വേർതിരിച്ചു സേവ് ചെയ്യുന്നു
+      // ഫയർബേസിലേക്ക് ഡാറ്റ കൃത്യമായി റെക്കോർഡ് ചെയ്യുന്നു
       await sendResultToFirebase({
         name: currentUser.name,
         phone: currentUser.phone,
@@ -642,23 +648,23 @@
       });
     }
 
-    // 🌟 ആദ്യത്തെ അറ്റംപ്റ്റ് മാത്രം live_ranks ലേക്ക് പോകുകയും ബാക്കി അറ്റംപ്റ്റുകൾ users_history ലേക്ക് മാത്രം പോകുകയും ചെയ്യുന്ന രീതി
+    // 🌟 ranks, live_ranks എന്നിവയിൽ ആദ്യ അറ്റംപ്റ്റ് മാത്രം സൂക്ഷിക്കുകയും users_history ൽ നിർബന്ധമായും സേവ് ചെയ്യുകയും ചെയ്യുന്ന ഫംഗ്ഷൻ
     async function sendResultToFirebase(payload) {
       const statusDiv = document.getElementById('sheetStatus');
 
-      let studentPhone = String(payload.phone || currentUser.phone || '').replace(/\D/g, '');
+      let studentPhone = sanitizePhone(payload.phone || currentUser.phone);
       if (!studentPhone || studentPhone.length < 10) {
         try {
           const stored = localStorage.getItem('sk_candidate_user');
           if (stored) {
             const u = JSON.parse(stored);
-            if (u.phone) studentPhone = String(u.phone).replace(/\D/g, '');
+            if (u.phone) studentPhone = sanitizePhone(u.phone);
           }
         } catch(e) {}
       }
       if (!studentPhone || studentPhone.length < 10) studentPhone = "9999999999";
 
-      let studentName = payload.name || currentUser.name || 'പഠിതാവ്';
+      let studentName = payload.name || currentUser.name || 'വിദ്യാർത്ഥി';
       let resolvedTitle = examTitle && examTitle !== "മോഡൽ എക്സാം" ? examTitle : (document.getElementById('headerExamTitle').innerText || "model_exam");
       
       let cleanExamKey = cleanTitleForMatch(resolvedTitle) || quizKey || "model_exam";
@@ -696,30 +702,51 @@
           keepalive: true
         };
 
-        // 🌟 1. വിദ്യാർത്ഥി ഇതിനകം live_ranks ൽ ഉണ്ടോ എന്ന് പരിശോധിക്കുന്നു (ആദ്യ അറ്റംപ്റ്റ് വേരിഫിക്കേഷൻ)
-        let checkRankRes = await fetch(`${FIREBASE_DB_URL}/live_ranks/${encodedExamKey}/${studentPhone}.json`).catch(() => null);
-        let existingRankData = checkRankRes ? await checkRankRes.json() : null;
+        // 🌟 1. live_ranks, ranks എന്നിവയിൽ വിദ്യാർത്ഥിക്ക് മുമ്പ് മാർക്ക് ഉണ്ടോ എന്ന് പരിശോധിക്കുന്നു
+        const [checkLiveRes, checkOldRes] = await Promise.all([
+          fetch(`${FIREBASE_DB_URL}/live_ranks/${encodedExamKey}/${studentPhone}.json`).catch(() => null),
+          fetch(`${FIREBASE_DB_URL}/ranks/${encodedExamKey}/${studentPhone}.json`).catch(() => null)
+        ]);
+
+        const liveData = checkLiveRes ? await checkLiveRes.json() : null;
+        const oldData = checkOldRes ? await checkOldRes.json() : null;
+
+        const isFirstAttempt = (!liveData || liveData.score === undefined) && (!oldData || (oldData.score === undefined && oldData.MARK === undefined));
 
         let saveTasks = [];
 
-        // ആദ്യത്തെ അറ്റംപ്റ്റ് ആണെങ്കിൽ മാത്രം live_ranks ലേക്ക് സേവ് ചെയ്യുന്നു
-        if (!existingRankData || existingRankData.score === undefined) {
+        // ആദ്യ അറ്റംപ്റ്റ് ആണെങ്കിൽ മാത്രം live_ranks ലും ranks ലും സേവ് ആകുന്നു
+        if (isFirstAttempt) {
           saveTasks.push(
-            fetch(`${FIREBASE_DB_URL}/live_ranks/${encodedExamKey}/${studentPhone}.json`, fetchOptions)
+            fetch(`${FIREBASE_DB_URL}/live_ranks/${encodedExamKey}/${studentPhone}.json`, fetchOptions),
+            fetch(`${FIREBASE_DB_URL}/ranks/${encodedExamKey}/${studentPhone}.json`, fetchOptions)
           );
         }
 
-        // 🌟 2. വിദ്യാർത്ഥിയുടെ പ്രൊഫൈൽ ഹിസ്റ്ററിയിലേക്ക് (users_history) Reattempt ഉൾപ്പെടെ എല്ലാ അറ്റംപ്റ്റുകളും എപ്പോഴും സേവ് ആകുന്നു
+        // 🌟 2. കുട്ടിയുടെ പ്രൊഫൈൽ ഹിസ്റ്ററിയിലേക്ക് (users_history) എപ്പോഴും നിർബന്ധമായും സേവ് ആകുന്നു (പ്രൊഫൈലിലും അഡ്മിൻ പാനലിലും കാണാൻ)
         saveTasks.push(
           fetch(`${FIREBASE_DB_URL}/users_history/${studentPhone}/${encodedExamKey}.json`, fetchOptions)
+        );
+
+        // 🌟 3. users പ്രൊഫൈലിലേക്ക് പേരും ഫോണും നിലനിർത്തുന്നു
+        saveTasks.push(
+          fetch(`${FIREBASE_DB_URL}/users/${studentPhone}.json`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              Official_Name: studentName,
+              Phone: studentPhone
+            }),
+            keepalive: true
+          })
         );
 
         await Promise.all(saveTasks);
 
         if (statusDiv) {
-          statusDiv.innerText = (!existingRankData || existingRankData.score === undefined)
-            ? "✓ ആദ്യ ശ്രമത്തിലെ മാർക്ക് റാങ്ക് ലിസ്റ്റിൽ രേഖപ്പെടുത്തി!"
-            : "✓ Reattempt പൂർത്തിയായി (റാങ്ക് ലിസ്റ്റിൽ നിങ്ങളുടെ ആദ്യ ശ്രമം സുരക്ഷിതമായി നിലനിർത്തിയിട്ടുണ്ട്).";
+          statusDiv.innerText = isFirstAttempt
+            ? "✓ ആദ്യ ശ്രമത്തിലെ മാർക്ക് റാങ്ക് ലിസ്റ്റിലും പ്രൊഫൈലിലും രേഖപ്പെടുത്തി!"
+            : "✓ Reattempt പൂർത്തിയായി (പ്രൊഫൈലിൽ അപ്ഡേറ്റ് ആയി, റാങ്ക് ലിസ്റ്റിൽ ആദ്യ ശ്രമം നിലനിർത്തി).";
           statusDiv.className = "text-xs text-emerald-400 font-semibold mb-4";
         }
       } catch (e) {
@@ -977,9 +1004,8 @@
         });
 
         ranks.forEach((entry, idx) => {
-          let phoneStr = String(entry.phone || entry.Phone || '').replace(/[^0-9]/g, '');
-          if (phoneStr.length >= 10) phoneStr = phoneStr.slice(-10);
-          const masked = (phoneStr && phoneStr.length >= 5) ? phoneStr.substring(0, 3) + '••••' + phoneStr.substring(7) : '---';
+          let phoneStr = sanitizePhone(entry.phone || entry.Phone);
+          const masked = (phoneStr && phoneStr.length >= 10) ? phoneStr.substring(0, 3) + '••••' + phoneStr.substring(7) : '---';
           let markVal = Number(entry.score !== undefined ? entry.score : (entry.MARK || 0));
 
           const row = document.createElement('tr');
