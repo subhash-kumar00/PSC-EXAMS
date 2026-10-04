@@ -120,6 +120,7 @@
           </p>
         </div>
 
+        <!-- നോട്ടീസ് ബോർഡ് -->
         <div id="heroNoticeBox" class="hidden bg-emerald-950/50 border border-emerald-500/40 rounded-2xl p-3 flex items-start space-x-2.5 shadow-lg">
           <span class="text-sm shrink-0 mt-0.5">📢</span>
           <div class="text-xs text-emerald-200 leading-relaxed font-medium">
@@ -146,7 +147,7 @@
       </div>
     </div>
 
-    <!-- 🌟 ടോപ്പ് 3 സ്റ്റുഡന്റ്സ് ലീഡർബോർഡ് -->
+    <!-- ടോപ്പ് 3 സ്റ്റുഡന്റ്സ് ലീഡർബോർഡ് -->
     <div id="topStudentsSection" class="hidden bg-slate-900/90 border border-amber-500/30 rounded-2xl p-4 shadow-xl">
       <div class="flex items-center justify-between mb-3 border-b border-slate-800 pb-2">
         <div class="flex items-center space-x-2">
@@ -421,7 +422,7 @@
 
     function cleanTitleForMatch(str) {
       if (!str) return "";
-      return String(str).replace(/[\s\-_,.:;()\/\\|\[\]+]+/g, '').toLowerCase();
+      return String(str).replace(/[\s\-_,.:;()\/\\|\[\]+&]+/g, '').toLowerCase();
     }
 
     function parseReleaseTimestamp(dateStr) {
@@ -500,10 +501,12 @@
     window.addEventListener('DOMContentLoaded', () => {
       const savedUser = localStorage.getItem('sk_candidate_user');
       if (savedUser) {
-        candidate = JSON.parse(savedUser);
-        if (candidate && candidate.phone) {
-          candidate.phone = sanitizePhone(candidate.phone);
-        }
+        try {
+          candidate = JSON.parse(savedUser);
+          if (candidate && candidate.phone) {
+            candidate.phone = sanitizePhone(candidate.phone);
+          }
+        } catch(e) {}
       }
 
       const urlParams = new URLSearchParams(window.location.search);
@@ -519,6 +522,7 @@
       setInterval(fetchFirebaseData, 60000);
     });
 
+    // 🌟 കാഷെ പ്രശ്നങ്ങൾ ഒഴിവാക്കി പുതിയ പരീക്ഷകൾ തത്സമയം റീഡ് ചെയ്യുന്നു
     async function fetchFirebaseData() {
       try {
         const examsPromise = fetch(`${FIREBASE_DB_URL}/exams.json?_t=${Date.now()}`).then(r => r.json()).catch(() => null);
@@ -528,7 +532,8 @@
 
         let userHistPromise = Promise.resolve(null);
         if (candidate && candidate.phone) {
-          userHistPromise = fetch(`${FIREBASE_DB_URL}/users_history/${candidate.phone}.json?_t=${Date.now()}`).then(r => r.json()).catch(() => null);
+          const cleanPhone = sanitizePhone(candidate.phone);
+          userHistPromise = fetch(`${FIREBASE_DB_URL}/users_history/${cleanPhone}.json?_nocache=${Date.now()}`).then(r => r.json()).catch(() => null);
         }
 
         const [examsData, usersData, configData, allHistData, userHistData] = await Promise.all([
@@ -539,8 +544,9 @@
         if (userHistData) {
           let hList = Object.values(userHistData);
           hList.forEach(h => {
-            const cleanTitle = cleanTitleForMatch(h.title);
-            if (!userAttemptsMap[cleanTitle]) {
+            if (!h) return;
+            const cleanTitle = cleanTitleForMatch(h.title || '');
+            if (cleanTitle && !userAttemptsMap[cleanTitle]) {
               userAttemptsMap[cleanTitle] = h;
             }
           });
@@ -555,7 +561,6 @@
 
         const adminControls = (configData && configData.exam_controls) ? configData.exam_controls : {};
 
-        // 🌟 അഡ്മിൻ പാനൽ പബ്ലിഷ് മാനേജ്‌മെന്റും ബാക്കി ലഭ്യമായ എല്ലാ പരീക്ഷകളും കൃത്യമായി ലോഡ് ചെയ്യുന്നു
         if (examsData) {
           let list = Array.isArray(examsData) ? examsData : Object.values(examsData);
           list = list.filter(item => item !== null && item !== undefined);
@@ -1092,7 +1097,7 @@
 
           <div class="mt-2.5 border-t border-slate-800/80 pt-2">
             <div class="flex items-center justify-between text-[11px] text-slate-400">
-              <span>📄 ${q.questions} Qs • ⏱️ ${q.time}</span>
+              <span>📄 ${q.questions} Qs • ⏱️️ ${q.time}</span>
               ${rankListBtnMarkup}
             </div>
             ${actionAreaMarkup}
@@ -1110,16 +1115,15 @@
       tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-400">റാങ്ക് ലിസ്റ്റ് ശേഖരിക്കുന്നു...</td></tr>';
 
       const cleanKey = cleanTitleForMatch(examTitle);
-      const encodedKey = encodeURIComponent(cleanKey);
 
       try {
         let ranks = null;
 
-        let res = await fetch(`${FIREBASE_DB_URL}/live_ranks/${encodedKey}.json?_t=${Date.now()}`);
+        let res = await fetch(`${FIREBASE_DB_URL}/live_ranks/${cleanKey}.json?_t=${Date.now()}`);
         let data = await res.json();
 
         if (!data) {
-          res = await fetch(`${FIREBASE_DB_URL}/ranks/${encodedKey}.json?_t=${Date.now()}`);
+          res = await fetch(`${FIREBASE_DB_URL}/ranks/${cleanKey}.json?_t=${Date.now()}`);
           data = await res.json();
         }
 
@@ -1171,7 +1175,7 @@
       document.getElementById('rankListModal').classList.add('hidden');
     }
 
-    // 🌟 പ്രൊഫൈൽ എക്സാം ഹിസ്റ്ററി (100% കൃത്യമായി ഫെച്ച് ചെയ്യുന്നത്)
+    // 🌟 പ്രൊഫൈൽ എക്സാം ഹിസ്റ്ററി (ക്യാഷെ ഒഴിവാക്കി പുതിയ ഡാറ്റ നേരിട്ട് റീഡ് ചെയ്യുന്നു)
     async function fetchUserExamHistory(phone) {
       const hList = document.getElementById('historyList');
       hList.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">ഹിസ്റ്ററി ലഭ്യമാക്കുന്നു...</p>';
@@ -1183,7 +1187,7 @@
       }
 
       try {
-        const res = await fetch(`${FIREBASE_DB_URL}/users_history/${cleanPhone}.json?_t=${Date.now()}`);
+        const res = await fetch(`${FIREBASE_DB_URL}/users_history/${cleanPhone}.json?_nocache=${Date.now()}`);
         const data = await res.json();
 
         if (!data) {
@@ -1235,7 +1239,7 @@
     function toggleEditProfile() {
       const box = document.getElementById('editNameBox');
       box.classList.toggle('hidden');
-      if (!box.classList.contains('hidden') && candidate) {
+      if (!box.classList.contains('hidden')) {
         document.getElementById('updatedNameInput').value = candidate.name;
       }
     }
