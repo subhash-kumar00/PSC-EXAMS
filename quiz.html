@@ -296,7 +296,7 @@
 
     function cleanTitleForMatch(str) {
       if (!str) return "";
-      return String(str).replace(/[\s\-_,.:;()\/\\|\[\]+]+/g, '').toLowerCase();
+      return String(str).replace(/[\s\-_,.:;()\/\\|\[\]+&]+/g, '').toLowerCase();
     }
 
     function sanitizePhone(rawPhone) {
@@ -378,22 +378,23 @@
 
     async function loadPreviousAttemptFromFirebase() {
       let prevScore = 0, prevCorrect = 0, prevWrong = 0, prevSkipped = 0;
+      let studentPhone = sanitizePhone(currentUser.phone);
 
-      if (currentUser.phone && currentUser.phone.length === 10) {
+      if (studentPhone && studentPhone.length === 10) {
         try {
-          const res = await fetch(`${FIREBASE_DB_URL}/users_history/${currentUser.phone}.json?_t=${Date.now()}`);
+          const res = await fetch(`${FIREBASE_DB_URL}/users_history/${studentPhone}.json?_t=${Date.now()}`);
           const data = await res.json();
           if (data) {
             let matched = null;
             const cleanT = cleanTitleForMatch(examTitle);
 
-            if (data[quizKey]) {
-              matched = data[quizKey];
-            } else if (data[cleanT]) {
+            if (data[cleanT]) {
               matched = data[cleanT];
+            } else if (data[quizKey]) {
+              matched = data[quizKey];
             } else {
               const hList = Object.values(data);
-              matched = hList.slice().reverse().find(h => cleanTitleForMatch(h.title) === cleanT);
+              matched = hList.slice().reverse().find(h => cleanTitleForMatch(h.title) === cleanT || cleanT.includes(cleanTitleForMatch(h.title)));
             }
 
             if (matched) {
@@ -637,7 +638,6 @@
       document.getElementById('resultScreen').style.setProperty('display', 'block', 'important');
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
-      // ഫയർബേസിലേക്ക് ഡാറ്റ കൃത്യമായി റെക്കോർഡ് ചെയ്യുന്നു
       await sendResultToFirebase({
         name: currentUser.name,
         phone: currentUser.phone,
@@ -648,7 +648,7 @@
       });
     }
 
-    // 🌟 ranks, live_ranks എന്നിവയിൽ ആദ്യ അറ്റംപ്റ്റ് മാത്രം സൂക്ഷിക്കുകയും users_history ൽ നിർബന്ധമായും സേവ് ചെയ്യുകയും ചെയ്യുന്ന ഫംഗ്ഷൻ
+    // 🌟 users_history, live_ranks, ranks എന്നിവയിലേക്ക് കൃത്യമായി സേവ് ചെയ്യുന്ന ഫംഗ്ഷൻ (No Overwrite, No Data Loss)
     async function sendResultToFirebase(payload) {
       const statusDiv = document.getElementById('sheetStatus');
 
@@ -662,17 +662,19 @@
           }
         } catch(e) {}
       }
-      if (!studentPhone || studentPhone.length < 10) studentPhone = "9999999999";
+      if (!studentPhone || studentPhone.length < 10) {
+        studentPhone = "9999999999";
+      }
 
       let studentName = payload.name || currentUser.name || 'വിദ്യാർത്ഥി';
       let resolvedTitle = examTitle && examTitle !== "മോഡൽ എക്സാം" ? examTitle : (document.getElementById('headerExamTitle').innerText || "model_exam");
       
       let cleanExamKey = cleanTitleForMatch(resolvedTitle) || quizKey || "model_exam";
-      let encodedExamKey = encodeURIComponent(cleanExamKey);
 
       const todayDate = new Date().toISOString().split('T')[0];
 
       const record = {
+        title: String(resolvedTitle),
         name: String(studentName),
         phone: String(studentPhone),
         Official_Name: String(studentName),
@@ -682,7 +684,6 @@
         correct: Number(payload.correct || 0),
         wrong: Number(payload.wrong || 0),
         skipped: Number(payload.skipped || 0),
-        title: String(resolvedTitle),
         date: String(todayDate),
         timestamp: Date.now()
       };
@@ -702,33 +703,29 @@
           keepalive: true
         };
 
-        // 🌟 1. live_ranks, ranks എന്നിവയിൽ വിദ്യാർത്ഥിക്ക് മുമ്പ് മാർക്ക് ഉണ്ടോ എന്ന് പരിശോധിക്കുന്നു
-        const [checkLiveRes, checkOldRes] = await Promise.all([
-          fetch(`${FIREBASE_DB_URL}/live_ranks/${encodedExamKey}/${studentPhone}.json`).catch(() => null),
-          fetch(`${FIREBASE_DB_URL}/ranks/${encodedExamKey}/${studentPhone}.json`).catch(() => null)
-        ]);
-
+        // 🌟 1. live_ranks-ൽ വിദ്യാർത്ഥിക്ക് മുമ്പ് മാർക്ക് ഉണ്ടോ എന്ന് പരിശോധിക്കുന്നു (First Attempt Check)
+        const checkLiveRes = await fetch(`${FIREBASE_DB_URL}/live_ranks/${cleanExamKey}/${studentPhone}.json`).catch(() => null);
         const liveData = checkLiveRes ? await checkLiveRes.json() : null;
-        const oldData = checkOldRes ? await checkOldRes.json() : null;
 
-        const isFirstAttempt = (!liveData || liveData.score === undefined) && (!oldData || (oldData.score === undefined && oldData.MARK === undefined));
+        const isFirstAttempt = (!liveData || liveData.score === undefined);
 
         let saveTasks = [];
 
-        // ആദ്യ അറ്റംപ്റ്റ് ആണെങ്കിൽ മാത്രം live_ranks ലും ranks ലും സേവ് ആകുന്നു
+        // ആദ്യ ശ്രമമാണെങ്കിൽ മാത്രം live_ranks ലേക്കും ranks ലേക്കും സേവ് ചെയ്യുന്നു
         if (isFirstAttempt) {
           saveTasks.push(
-            fetch(`${FIREBASE_DB_URL}/live_ranks/${encodedExamKey}/${studentPhone}.json`, fetchOptions),
-            fetch(`${FIREBASE_DB_URL}/ranks/${encodedExamKey}/${studentPhone}.json`, fetchOptions)
+            fetch(`${FIREBASE_DB_URL}/live_ranks/${cleanExamKey}/${studentPhone}.json`, fetchOptions),
+            fetch(`${FIREBASE_DB_URL}/ranks/${cleanExamKey}/${studentPhone}.json`, fetchOptions)
           );
         }
 
-        // 🌟 2. കുട്ടിയുടെ പ്രൊഫൈൽ ഹിസ്റ്ററിയിലേക്ക് (users_history) എപ്പോഴും നിർബന്ധമായും സേവ് ആകുന്നു (പ്രൊഫൈലിലും അഡ്മിൻ പാനലിലും കാണാൻ)
+        // 🌟 2. കുട്ടിയുടെ പ്രൊഫൈൽ ഹിസ്റ്ററിയിലേക്ക് (users_history) PATCH വഴി നേരിട്ട് ക്ലീൻ കീയിലും quizKey-ലും സേവ് ചെയ്യുന്നു
         saveTasks.push(
-          fetch(`${FIREBASE_DB_URL}/users_history/${studentPhone}/${encodedExamKey}.json`, fetchOptions)
+          fetch(`${FIREBASE_DB_URL}/users_history/${studentPhone}/${cleanExamKey}.json`, fetchOptions),
+          fetch(`${FIREBASE_DB_URL}/users_history/${studentPhone}/${quizKey}.json`, fetchOptions)
         );
 
-        // 🌟 3. users പ്രൊഫൈലിലേക്ക് പേരും ഫോണും നിലനിർത്തുന്നു
+        // 🌟 3. യൂസർ പ്രൊഫൈലിലേക്ക് കുട്ടിയുടെ പേരും ഫോണും നിലനിർത്തുന്നു
         saveTasks.push(
           fetch(`${FIREBASE_DB_URL}/users/${studentPhone}.json`, {
             method: 'PATCH',
@@ -750,7 +747,7 @@
           statusDiv.className = "text-xs text-emerald-400 font-semibold mb-4";
         }
       } catch (e) {
-        console.error("Firebase save error:", e);
+        console.error("Firebase sync error:", e);
         if (statusDiv) {
           statusDiv.innerText = "മാർക്ക് ലോക്കലായി രേഖപ്പെടുത്തി.";
           statusDiv.className = "text-xs text-amber-400 font-medium mb-4";
@@ -977,14 +974,13 @@
 
       let resolvedTitle = examTitle && examTitle !== "മോഡൽ എക്സാം" ? examTitle : (document.getElementById('headerExamTitle').innerText || quizKey);
       const cleanKey = cleanTitleForMatch(resolvedTitle) || quizKey;
-      const encodedKey = encodeURIComponent(cleanKey);
 
       try {
-        let res = await fetch(`${FIREBASE_DB_URL}/live_ranks/${encodedKey}.json?_t=${Date.now()}`);
+        let res = await fetch(`${FIREBASE_DB_URL}/live_ranks/${cleanKey}.json?_t=${Date.now()}`);
         let data = await res.json();
 
         if (!data) {
-          res = await fetch(`${FIREBASE_DB_URL}/ranks/${encodedKey}.json?_t=${Date.now()}`);
+          res = await fetch(`${FIREBASE_DB_URL}/ranks/${cleanKey}.json?_t=${Date.now()}`);
           data = await res.json();
         }
 
