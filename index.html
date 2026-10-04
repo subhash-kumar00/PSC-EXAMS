@@ -522,7 +522,6 @@
       setInterval(fetchFirebaseData, 60000);
     });
 
-    // 🌟 കാഷെ പ്രശ്നങ്ങൾ ഒഴിവാക്കി പുതിയ പരീക്ഷകൾ തത്സമയം റീഡ് ചെയ്യുന്നു
     async function fetchFirebaseData() {
       try {
         const examsPromise = fetch(`${FIREBASE_DB_URL}/exams.json?_t=${Date.now()}`).then(r => r.json()).catch(() => null);
@@ -966,7 +965,7 @@
         : `<span>📁</span><span>${cat} - പരീക്ഷകൾ</span>`;
 
       applyFiltersAndRender();
-      setTimeout(() => area.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+      setTimeout(() => area.scrollIntoView({ behavior: 'smooth' }), 50);
     }
 
     function closeSelectedCategory() {
@@ -1097,7 +1096,7 @@
 
           <div class="mt-2.5 border-t border-slate-800/80 pt-2">
             <div class="flex items-center justify-between text-[11px] text-slate-400">
-              <span>📄 ${q.questions} Qs • ⏱️️ ${q.time}</span>
+              <span>📄 ${q.questions} Qs • ⏱ ${q.time}</span>
               ${rankListBtnMarkup}
             </div>
             ${actionAreaMarkup}
@@ -1108,6 +1107,7 @@
       grid.appendChild(fragment);
     }
 
+    // 🌟 അഡ്മിൻ പാനലിലുള്ളത് പോലെ 100% ഫെയിൽ-സേഫ് ആയി റാങ്ക് ലിസ്റ്റ് ഫെച്ച് ചെയ്യുന്ന സ്മാർട്ട് ഫംഗ്ഷൻ
     async function showExamLiveRankList(sheetTargetUrl, examTitle) {
       document.getElementById('rankListModal').classList.remove('hidden');
       document.getElementById('rankModalTitle').innerText = `🏆 ${examTitle} - ലൈവ് റാങ്ക് ലിസ്റ്റ്`;
@@ -1118,26 +1118,68 @@
 
       try {
         let ranks = null;
+        let data = null;
 
-        let res = await fetch(`${FIREBASE_DB_URL}/live_ranks/${cleanKey}.json?_t=${Date.now()}`);
-        let data = await res.json();
+        // 1. live_ranks പരിശോധിക്കുന്നു
+        try {
+          let res1 = await fetch(`${FIREBASE_DB_URL}/live_ranks/${cleanKey}.json?_t=${Date.now()}`);
+          data = await res1.json();
+        } catch(e) {}
 
+        // 2. ranks പരിശോധിക്കുന്നു
         if (!data) {
-          res = await fetch(`${FIREBASE_DB_URL}/ranks/${cleanKey}.json?_t=${Date.now()}`);
-          data = await res.json();
+          try {
+            let res2 = await fetch(`${FIREBASE_DB_URL}/ranks/${cleanKey}.json?_t=${Date.now()}`);
+            data = await res2.json();
+          } catch(e) {}
         }
 
+        // 3. ഫസി മാച്ചിംഗ് (മുഴുവൻ ranks-ലും തിരയുന്നു)
         if (!data) {
-          const allRanksRes = await fetch(`${FIREBASE_DB_URL}/live_ranks.json?_t=${Date.now()}`);
-          const allRanksData = await allRanksRes.json();
-          if (allRanksData) {
-            for (const [rKey, rVal] of Object.entries(allRanksData)) {
-              if (cleanTitleForMatch(rKey) === cleanKey || cleanKey.includes(cleanTitleForMatch(rKey)) || cleanTitleForMatch(rKey).includes(cleanKey)) {
-                data = rVal;
-                break;
+          try {
+            const allRanksRes = await fetch(`${FIREBASE_DB_URL}/ranks.json?_t=${Date.now()}`);
+            const allRanksData = await allRanksRes.json();
+            if (allRanksData) {
+              for (const [rKey, rVal] of Object.entries(allRanksData)) {
+                let cK = cleanTitleForMatch(rKey);
+                if (cK === cleanKey || cleanKey.includes(cK) || cK.includes(cleanKey)) {
+                  data = rVal;
+                  break;
+                }
               }
             }
-          }
+          } catch(e) {}
+        }
+
+        // 4. 🌟 അഡ്മിൻ പാനലിലെ സ്മാർട്ട് ബാക്കപ്പ്: users_history-ൽ നിന്നും സ്വയം റാങ്ക് ലിസ്റ്റ് നിർമ്മിക്കുന്നു
+        if (!data) {
+          try {
+            const histRes = await fetch(`${FIREBASE_DB_URL}/users_history.json?_t=${Date.now()}`);
+            const histData = await histRes.json();
+            if (histData) {
+              const generatedRanks = [];
+              for (const [uPhone, uExams] of Object.entries(histData)) {
+                if (uExams && typeof uExams === 'object') {
+                  for (const examItem of Object.values(uExams)) {
+                    if (!examItem) continue;
+                    const itemTitle = cleanTitleForMatch(examItem.title || '');
+                    if (itemTitle === cleanKey || itemTitle.includes(cleanKey) || cleanKey.includes(itemTitle)) {
+                      generatedRanks.push({
+                        phone: uPhone,
+                        name: examItem.userName || examItem.name || examItem.Official_Name || 'വിദ്യാർത്ഥി',
+                        score: extractActualScore(examItem),
+                        date: examItem.date || examItem.Date || '-'
+                      });
+                      break;
+                    }
+                  }
+                }
+              }
+              if (generatedRanks.length > 0) {
+                data = generatedRanks;
+              }
+            }
+          } catch(e) {}
         }
 
         if (!data) {
@@ -1156,10 +1198,12 @@
           else if (idx === 1) rankBadge = `<span class="bg-slate-200 text-slate-950 font-black px-2 py-0.5 rounded text-[10px]">🥈 2nd</span>`;
           else if (idx === 2) rankBadge = `<span class="bg-amber-700 text-white font-black px-2 py-0.5 rounded text-[10px]">🥉 3rd</span>`;
 
+          let studentName = r.name || r.Official_Name || 'വിദ്യാർത്ഥി';
+
           rankHtml += `
             <tr class="hover:bg-slate-800/40 transition border-b border-slate-800/40">
               <td class="p-2.5 text-center">${rankBadge}</td>
-              <td class="p-2.5 font-bold text-white">${r.name || r.Official_Name || 'വിദ്യാർത്ഥി'}</td>
+              <td class="p-2.5 font-bold text-white">${studentName}</td>
               <td class="p-2.5 font-mono text-slate-400 text-[11px]">${maskPhone(r.phone || r.Phone || '')}</td>
               <td class="p-2.5 text-center font-mono font-bold text-cyan-400">${markVal.toFixed(2)}</td>
             </tr>
@@ -1175,7 +1219,7 @@
       document.getElementById('rankListModal').classList.add('hidden');
     }
 
-    // 🌟 പ്രൊഫൈൽ എക്സാം ഹിസ്റ്ററി (ക്യാഷെ ഒഴിവാക്കി പുതിയ ഡാറ്റ നേരിട്ട് റീഡ് ചെയ്യുന്നു)
+    // 🌟 പ്രൊഫൈൽ എക്സാം ഹിസ്റ്ററി
     async function fetchUserExamHistory(phone) {
       const hList = document.getElementById('historyList');
       hList.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">ഹിസ്റ്ററി ലഭ്യമാക്കുന്നു...</p>';
