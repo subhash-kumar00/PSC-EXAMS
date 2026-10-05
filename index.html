@@ -79,14 +79,14 @@
       </div>
       
       <div id="navUserBox" class="hidden flex items-center space-x-3">
-        <button id="openProfileBtn" onclick="openProfileModal()" class="text-left px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700/80 border border-slate-700 transition flex items-center space-x-2 shadow">
+        <button id="openProfileBtn" onclick="openProfileModal()" class="text-left px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700/80 border border-slate-700 transition flex items-center space-x-2 shadow cursor-pointer">
           <div class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">👤</div>
           <div>
             <span id="navUserName" class="text-xs font-bold text-slate-200 block truncate max-w-[120px] sm:max-w-none"></span>
             <span class="text-[10px] text-emerald-400 block font-semibold hover:underline">പ്രൊഫൈൽ ഹിസ്റ്ററി 📊</span>
           </div>
         </button>
-        <button onclick="logoutCandidate()" class="text-xs text-rose-400 hover:text-rose-300 border border-rose-500/30 px-2.5 py-1.5 rounded-xl hover:bg-rose-950/30 transition">Logout</button>
+        <button onclick="logoutCandidate()" class="text-xs text-rose-400 hover:text-rose-300 border border-rose-500/30 px-2.5 py-1.5 rounded-xl hover:bg-rose-950/30 transition cursor-pointer">Logout</button>
       </div>
     </div>
   </header>
@@ -147,7 +147,7 @@
       </div>
     </div>
 
-    <!-- ടോപ്പ് 3 സ്റ്റുഡന്റ്സ് ലീഡർബോർഡ് -->
+    <!-- ടോപ്പ് 3 സ്റ്റുഡന്റ്സ് ലീഡർബോർഡ് (Hall of Fame) -->
     <div id="topStudentsSection" class="hidden bg-slate-900/90 border border-amber-500/30 rounded-2xl p-4 shadow-xl">
       <div class="flex items-center justify-between mb-3 border-b border-slate-800 pb-2">
         <div class="flex items-center space-x-2">
@@ -177,7 +177,7 @@
             <input type="tel" id="loginPhone" pattern="[0-9]{10}" required class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition font-mono tracking-wider text-xs sm:text-sm" placeholder="10 അക്ക നമ്പർ">
           </div>
         </div>
-        <button type="submit" id="phoneSubmitBtn" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 text-slate-950 font-bold rounded-xl transition transform active:scale-95 shadow-lg text-xs sm:text-sm">
+        <button type="submit" id="phoneSubmitBtn" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 text-slate-950 font-bold rounded-xl transition transform active:scale-95 shadow-lg text-xs sm:text-sm cursor-pointer">
           തുടരുക ›
         </button>
       </form>
@@ -191,8 +191,8 @@
           <input type="text" id="registerName" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition text-xs sm:text-sm" placeholder="ഉദാ: സുഭാഷ് കുമാർ സി">
         </div>
         <div class="flex space-x-2">
-          <button type="button" onclick="resetAuthView()" class="w-1/3 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-xs transition">പിന്നോട്ട്</button>
-          <button type="submit" id="saveProfileBtn" class="w-2/3 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 text-slate-950 font-bold rounded-xl text-xs sm:text-sm transition shadow-lg">പ്രൊഫെയ്ൽ നിർമ്മിക്കുക ›</button>
+          <button type="button" onclick="resetAuthView()" class="w-1/3 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-xs transition cursor-pointer">പിന്നോട്ട്</button>
+          <button type="submit" id="saveProfileBtn" class="w-2/3 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 text-slate-950 font-bold rounded-xl text-xs sm:text-sm transition shadow-lg cursor-pointer">പ്രൊഫെയ്ൽ നിർമ്മിക്കുക ›</button>
         </div>
       </form>
     </div>
@@ -218,7 +218,7 @@
             </div>
           </div>
 
-          <button onclick="toggleTimetableDetails()" class="text-[11px] text-emerald-400 hover:underline font-semibold flex items-center space-x-1 flex-shrink-0 ml-2">
+          <button onclick="toggleTimetableDetails()" class="text-[11px] text-emerald-400 hover:underline font-semibold flex items-center space-x-1 flex-shrink-0 ml-2 cursor-pointer">
             <span id="ttToggleBtnText">വിശദാംശങ്ങൾ</span>
             <span>▾</span>
           </button>
@@ -282,7 +282,7 @@
           </h4>
           <div class="flex items-center space-x-3">
             <span class="text-[11px] text-slate-400 font-mono">ലഭ്യമായവ: <strong id="examCountDisplay" class="text-emerald-400">0</strong></span>
-            <button onclick="closeSelectedCategory()" class="text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700 transition">✕ മടക്കുക</button>
+            <button onclick="closeSelectedCategory()" class="text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700 transition cursor-pointer">✕ മടക്കുക</button>
           </div>
         </div>
 
@@ -307,7 +307,7 @@
           </h3>
           <p class="text-[11px] text-slate-400">തത്സമയ ഡാറ്റ അടിസ്ഥാനമാക്കി ക്രമീകരിച്ചത്</p>
         </div>
-        <button onclick="closeRankListModal()" class="text-slate-400 hover:text-white text-2xl font-bold p-1">&times;</button>
+        <button onclick="closeRankListModal()" class="text-slate-400 hover:text-white text-2xl font-bold p-1 cursor-pointer">&times;</button>
       </div>
 
       <div class="overflow-x-auto custom-scroll border border-slate-800 rounded-xl">
@@ -329,7 +329,7 @@
       </div>
 
       <div class="pt-2 border-t border-slate-800 text-center">
-        <button onclick="closeRankListModal()" class="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold rounded-xl">ക്ലോസ് ചെയ്യുക</button>
+        <button onclick="closeRankListModal()" class="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold rounded-xl cursor-pointer">ക്ലോസ് ചെയ്യുക</button>
       </div>
     </div>
   </div>
@@ -342,19 +342,19 @@
           <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">STUDENT PROFILE & STATS</span>
           <div class="flex items-center space-x-2 mt-1">
             <h3 class="text-lg font-black text-white" id="profileDisplayName">വിദ്യാർത്ഥി</h3>
-            <button onclick="toggleEditProfile()" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-emerald-400 px-2 py-0.5 rounded border border-slate-700 transition">✏ Edit Name</button>
+            <button onclick="toggleEditProfile()" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-emerald-400 px-2 py-0.5 rounded border border-slate-700 transition cursor-pointer">✏ Edit Name</button>
             <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/40" id="growthBadge">Fast Sync</span>
           </div>
           <p class="text-xs text-slate-400" id="profileDisplayPhone"></p>
         </div>
-        <button onclick="closeProfileModal()" class="text-slate-400 hover:text-white text-2xl font-bold p-1">&times;</button>
+        <button onclick="closeProfileModal()" class="text-slate-400 hover:text-white text-2xl font-bold p-1 cursor-pointer">&times;</button>
       </div>
 
       <div id="editNameBox" class="hidden bg-slate-950 p-3 rounded-xl border border-emerald-500/40 space-y-2">
         <label class="block text-[11px] font-bold text-slate-300 uppercase">പ്രൊഫൈൽ പേര് മാറ്റുക</label>
         <div class="flex space-x-2">
           <input type="text" id="updatedNameInput" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500">
-          <button onclick="saveUpdatedName()" class="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-lg text-xs">സേവ് ചെയ്യുക</button>
+          <button onclick="saveUpdatedName()" class="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-lg text-xs cursor-pointer">സേവ് ചെയ്യുക</button>
         </div>
       </div>
 
@@ -368,7 +368,7 @@
           <span id="statAvgScore" class="text-lg sm:text-xl font-black text-emerald-400 font-mono">0</span>
         </div>
         <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 text-center">
-          <span class="text-[10px] text-slate-400 block font-semibold">ആക്യുറസി</span>
+          <span class="text-[10px] text-slate-400 block font-semibold">സ്കോർ ആക്യുറസി</span>
           <span id="statAccuracy" class="text-lg sm:text-xl font-black text-teal-400 font-mono">0%</span>
         </div>
       </div>
@@ -389,7 +389,7 @@
       </div>
 
       <div class="pt-2 border-t border-slate-800 text-center">
-        <button onclick="closeProfileModal()" class="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold rounded-xl">ക്ലോസ് ചെയ്യുക</button>
+        <button onclick="closeProfileModal()" class="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold rounded-xl cursor-pointer">ക്ലോസ് ചെയ്യുക</button>
       </div>
     </div>
   </div>
@@ -633,6 +633,7 @@
       }
     }
 
+    // 🌟 തിരുത്തിയ Hall of Fame: ആകെ ചോദ്യങ്ങളിൽ നിന്ന് എത്ര മാർക്ക് നേടി എന്ന യഥാർത്ഥ സ്കോർ ആക്യുറസി (%)
     function calculateLiveHallOfFame(allHistory, allUsersObj) {
       const container = document.getElementById('topStudentsList');
       const section = document.getElementById('topStudentsSection');
@@ -678,24 +679,19 @@
         if (totalUniqueTests === 0) continue;
 
         let totalScore = 0;
-        let totalCorrect = 0;
-        let totalWrong = 0;
         let fallbackCandidateName = '';
 
         distinctExams.forEach(att => {
           totalScore += extractActualScore(att);
-          totalCorrect += Number(att.correct || 0);
-          totalWrong += Number(att.wrong || 0);
           if (att.candidate && !fallbackCandidateName) {
             fallbackCandidateName = att.candidate;
           }
         });
 
         const avgScore = totalScore / totalUniqueTests;
-        const totalAnswered = totalCorrect + totalWrong;
-        let accuracyPercent = totalAnswered > 0 
-          ? (totalCorrect / totalAnswered) * 100 
-          : (avgScore <= 25 ? (avgScore / 25) * 100 : Math.min(avgScore, 100));
+        
+        // 🌟 ആകെ മാർക്കിൽ നിന്ന് എത്ര നേടി എന്ന യഥാർത്ഥ ആക്യുറസി (ഡിഫോൾട്ട് 25 ൽ)
+        let accuracyPercent = Math.max(0, Math.min(100, Math.round((avgScore / 25) * 100)));
 
         let candidateName = usersProfileMap[p] || fallbackCandidateName || 'വിദ്യാർത്ഥി';
 
@@ -704,8 +700,7 @@
           name: candidateName,
           totalExams: totalUniqueTests,
           avgScore: avgScore,
-          accuracy: accuracyPercent,
-          rankScore: (totalUniqueTests * 100) + (avgScore * 2)
+          accuracy: accuracyPercent
         });
       }
 
@@ -740,8 +735,8 @@
             </div>
           </div>
           <div class="text-right">
-            <span class="text-xs font-black text-emerald-400 font-mono block">${std.accuracy.toFixed(1)}%</span>
-            <span class="text-[9px] text-slate-500 uppercase tracking-tighter">Accuracy (${std.avgScore.toFixed(1)} Avg)</span>
+            <span class="text-xs font-black text-emerald-400 font-mono block">${std.accuracy}%</span>
+            <span class="text-[9px] text-slate-500 uppercase tracking-tighter">Score Accuracy (${std.avgScore.toFixed(1)} Avg)</span>
           </div>
         `;
         container.appendChild(card);
@@ -1078,7 +1073,7 @@
         }
 
         const rankListBtnMarkup = `
-          <button onclick="showExamLiveRankList('', '${q.title}')" class="text-[10px] font-bold text-cyan-400 hover:text-cyan-300 transition flex items-center space-x-1">
+          <button onclick="showExamLiveRankList('', '${q.title}')" class="text-[10px] font-bold text-cyan-400 hover:text-cyan-300 transition flex items-center space-x-1 cursor-pointer">
             <span>🏆</span><span>റാങ്ക് ലിസ്റ്റ്</span>
           </button>
         `;
@@ -1107,7 +1102,7 @@
       grid.appendChild(fragment);
     }
 
-    // 🌟 അഡ്മിൻ പാനലിലുള്ളത് പോലെ 100% ഫെയിൽ-സേഫ് ആയി റാങ്ക് ലിസ്റ്റ് ഫെച്ച് ചെയ്യുന്ന സ്മാർട്ട് ഫംഗ്ഷൻ
+    // 🌟 അഡ്മിൻ പാനലിലുള്ളത് പോലെ live_ranks & ranks സംയോജിപ്പിച്ചു കൃത്യമായി റാങ്ക് ലിസ്റ്റ് കാണിക്കുന്ന ഫംഗ്ഷൻ
     async function showExamLiveRankList(sheetTargetUrl, examTitle) {
       document.getElementById('rankListModal').classList.remove('hidden');
       document.getElementById('rankModalTitle').innerText = `🏆 ${examTitle} - ലൈവ് റാങ്ക് ലിസ്റ്റ്`;
@@ -1117,77 +1112,66 @@
       const cleanKey = cleanTitleForMatch(examTitle);
 
       try {
-        let ranks = null;
-        let data = null;
+        const [liveRes, ranksRes] = await Promise.all([
+          fetch(`${FIREBASE_DB_URL}/live_ranks/${cleanKey}.json?_t=${Date.now()}`).then(r => r.json()).catch(() => null),
+          fetch(`${FIREBASE_DB_URL}/ranks/${cleanKey}.json?_t=${Date.now()}`).then(r => r.json()).catch(() => null)
+        ]);
 
-        // 1. live_ranks പരിശോധിക്കുന്നു
-        try {
-          let res1 = await fetch(`${FIREBASE_DB_URL}/live_ranks/${cleanKey}.json?_t=${Date.now()}`);
-          data = await res1.json();
-        } catch(e) {}
+        const mergedMap = {};
 
-        // 2. ranks പരിശോധിക്കുന്നു
-        if (!data) {
-          try {
-            let res2 = await fetch(`${FIREBASE_DB_URL}/ranks/${cleanKey}.json?_t=${Date.now()}`);
-            data = await res2.json();
-          } catch(e) {}
+        if (liveRes) {
+          const lList = Array.isArray(liveRes) ? liveRes : Object.values(liveRes);
+          lList.forEach(r => {
+            let p = sanitizePhone(r.phone || r.Phone || '');
+            if (p) mergedMap[p] = { ...r, phone: p };
+          });
         }
 
-        // 3. ഫസി മാച്ചിംഗ് (മുഴുവൻ ranks-ലും തിരയുന്നു)
-        if (!data) {
-          try {
-            const allRanksRes = await fetch(`${FIREBASE_DB_URL}/ranks.json?_t=${Date.now()}`);
-            const allRanksData = await allRanksRes.json();
-            if (allRanksData) {
-              for (const [rKey, rVal] of Object.entries(allRanksData)) {
-                let cK = cleanTitleForMatch(rKey);
-                if (cK === cleanKey || cleanKey.includes(cK) || cK.includes(cleanKey)) {
-                  data = rVal;
-                  break;
-                }
-              }
-            }
-          } catch(e) {}
+        if (ranksRes) {
+          const rList = Array.isArray(ranksRes) ? ranksRes : Object.values(ranksRes);
+          rList.forEach(r => {
+            let p = sanitizePhone(r.phone || r.Phone || '');
+            if (p && !mergedMap[p]) mergedMap[p] = { ...r, phone: p };
+          });
         }
 
-        // 4. 🌟 അഡ്മിൻ പാനലിലെ സ്മാർട്ട് ബാക്കപ്പ്: users_history-ൽ നിന്നും സ്വയം റാങ്ക് ലിസ്റ്റ് നിർമ്മിക്കുന്നു
-        if (!data) {
+        let ranks = Object.values(mergedMap);
+
+        if (ranks.length === 0) {
           try {
             const histRes = await fetch(`${FIREBASE_DB_URL}/users_history.json?_t=${Date.now()}`);
             const histData = await histRes.json();
             if (histData) {
-              const generatedRanks = [];
               for (const [uPhone, uExams] of Object.entries(histData)) {
                 if (uExams && typeof uExams === 'object') {
                   for (const examItem of Object.values(uExams)) {
                     if (!examItem) continue;
                     const itemTitle = cleanTitleForMatch(examItem.title || '');
                     if (itemTitle === cleanKey || itemTitle.includes(cleanKey) || cleanKey.includes(itemTitle)) {
-                      generatedRanks.push({
-                        phone: uPhone,
-                        name: examItem.userName || examItem.name || examItem.Official_Name || 'വിദ്യാർത്ഥി',
-                        score: extractActualScore(examItem),
-                        date: examItem.date || examItem.Date || '-'
-                      });
+                      let p = sanitizePhone(uPhone);
+                      if (p && !mergedMap[p]) {
+                        mergedMap[p] = {
+                          phone: p,
+                          name: examItem.name || examItem.Official_Name || examItem.userName || 'വിദ്യാർത്ഥി',
+                          score: extractActualScore(examItem),
+                          date: examItem.date || examItem.Date || '-'
+                        };
+                      }
                       break;
                     }
                   }
                 }
               }
-              if (generatedRanks.length > 0) {
-                data = generatedRanks;
-              }
+              ranks = Object.values(mergedMap);
             }
           } catch(e) {}
         }
 
-        if (!data) {
+        if (ranks.length === 0) {
           tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-500">ഈ പരീക്ഷയിൽ ഇതുവരെ ആരും പങ്കെടുത്തിട്ടില്ല.</td></tr>';
           return;
         }
 
-        ranks = Array.isArray(data) ? data : Object.values(data);
         ranks.sort((a, b) => extractActualScore(b) - extractActualScore(a));
 
         let rankHtml = '';
@@ -1219,7 +1203,7 @@
       document.getElementById('rankListModal').classList.add('hidden');
     }
 
-    // 🌟 പ്രൊഫൈൽ എക്സാം ഹിസ്റ്ററി
+    // 🌟 പ്രൊഫൈൽ എക്സാം ഹിസ്റ്ററി: users_history, live_ranks, ranks എന്നിവ സംയോജിപ്പിച്ചു ഡ്യൂപ്ലിക്കേഷൻ ഒഴിവാക്കി കാണിക്കുന്നു
     async function fetchUserExamHistory(phone) {
       const hList = document.getElementById('historyList');
       hList.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">ഹിസ്റ്ററി ലഭ്യമാക്കുന്നു...</p>';
@@ -1231,32 +1215,119 @@
       }
 
       try {
-        const res = await fetch(`${FIREBASE_DB_URL}/users_history/${cleanPhone}.json?_nocache=${Date.now()}`);
-        const data = await res.json();
+        const [histRes, liveRanksRes, ranksRes] = await Promise.all([
+          fetch(`${FIREBASE_DB_URL}/users_history/${cleanPhone}.json?_nocache=${Date.now()}`).then(r => r.json()).catch(() => null),
+          fetch(`${FIREBASE_DB_URL}/live_ranks.json?_t=${Date.now()}`).then(r => r.json()).catch(() => null),
+          fetch(`${FIREBASE_DB_URL}/ranks.json?_t=${Date.now()}`).then(r => r.json()).catch(() => null)
+        ]);
 
-        if (!data) {
+        let rawPool = [];
+
+        if (histRes) {
+          Object.values(histRes).forEach(h => {
+            if (h && (h.title || h.Title)) rawPool.push(h);
+          });
+        }
+
+        if (liveRanksRes) {
+          for (const [eKey, examRanks] of Object.entries(liveRanksRes)) {
+            if (examRanks && typeof examRanks === 'object') {
+              const entry = examRanks[cleanPhone] || Object.values(examRanks).find(r => sanitizePhone(r.phone || r.Phone) === cleanPhone);
+              if (entry) rawPool.push({ ...entry, title: entry.title || eKey.replace(/_/g, ' ') });
+            }
+          }
+        }
+
+        if (ranksRes) {
+          for (const [eKey, examRanks] of Object.entries(ranksRes)) {
+            if (examRanks && typeof examRanks === 'object') {
+              const entry = examRanks[cleanPhone] || Object.values(examRanks).find(r => sanitizePhone(r.phone || r.Phone) === cleanPhone);
+              if (entry) rawPool.push({ ...entry, title: entry.title || eKey.replace(/_/g, ' ') });
+            }
+          }
+        }
+
+        // 🌟 TIMESTAMP, DATE & SCORE വെച്ച് ഒരേ ശ്രമത്തിന്റെ ഡ്യൂപ്ലിക്കേഷൻ ഒഴിവാക്കുന്നു
+        const uniqueAttemptMap = {};
+        rawPool.forEach(item => {
+          const cTitle = cleanTitleForMatch(item.title || item.Title);
+          const score = extractActualScore(item);
+          const date = String(item.date || item.Date || '').trim();
+          const ts = item.timestamp ? Math.floor(item.timestamp / 1000) : 0;
+          const dedupeKey = ts > 0 ? `${cTitle}_${ts}` : `${cTitle}_${date}_${score}`;
+
+          if (!uniqueAttemptMap[dedupeKey]) {
+            uniqueAttemptMap[dedupeKey] = item;
+          }
+        });
+
+        let cleanedAttempts = Object.values(uniqueAttemptMap);
+
+        if (cleanedAttempts.length === 0) {
           hList.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">ഇതുവരെ പരീക്ഷകൾ ഒന്നും എഴുതിയിട്ടില്ല.</p>';
           return;
         }
 
-        let historyArray = Object.values(data);
-        if (historyArray.length === 0) {
-          hList.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">ഇതുവരെ പരീക്ഷകൾ ഒന്നും എഴുതിയിട്ടില്ല.</p>';
-          return;
-        }
+        // Oldest First സോർട്ട് ചെയ്ത് First Attempt ബാഡ്ജ് നിർണ്ണയിക്കുന്നു
+        cleanedAttempts.sort((a, b) => {
+          let tA = a.timestamp || new Date(a.date || a.Date || 0).getTime() || 0;
+          let tB = b.timestamp || new Date(b.date || b.Date || 0).getTime() || 0;
+          return tA - tB;
+        });
+
+        const examAttemptsCount = {};
+        cleanedAttempts.forEach(item => {
+          const cleanT = cleanTitleForMatch(item.title || item.Title);
+          examAttemptsCount[cleanT] = (examAttemptsCount[cleanT] || 0) + 1;
+        });
+
+        const seenExams = {};
+        cleanedAttempts.forEach(item => {
+          const cleanT = cleanTitleForMatch(item.title || item.Title);
+          if (!seenExams[cleanT]) {
+            seenExams[cleanT] = true;
+            item.isFirstAttempt = examAttemptsCount[cleanT] > 1;
+            item.isRepeat = false;
+          } else {
+            item.isFirstAttempt = false;
+            item.isRepeat = true;
+          }
+        });
+
+        // ഏറ്റവും ഒടുവിൽ ചെയ്ത പരീക്ഷ ഏറ്റവും മുകളിൽ വരാൻ (Latest on Top) സോർട്ട് ചെയ്യുന്നു
+        cleanedAttempts.sort((a, b) => {
+          let tA = a.timestamp || new Date(a.date || a.Date || 0).getTime() || 0;
+          let tB = b.timestamp || new Date(b.date || b.Date || 0).getTime() || 0;
+          return tB - tA;
+        });
 
         let histHTML = '';
-        historyArray.slice().reverse().forEach(item => {
+        cleanedAttempts.forEach(item => {
           let scoreVal = extractActualScore(item);
+          const correctNum = Number(item.correct) || 0;
+          const wrongNum = Number(item.wrong) || 0;
+          const totalQ = item.totalQuestions || item.questions || (correctNum + wrongNum > 25 ? (correctNum + wrongNum) : 25);
+          let scoreAccuracy = Math.max(0, Math.round((scoreVal / totalQ) * 100));
+
+          let attemptBadge = '';
+          if (item.isFirstAttempt) {
+            attemptBadge = `<span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 px-2 py-0.5 rounded-full text-[9px] font-bold ml-1.5">🥇 1st Attempt</span>`;
+          } else if (item.isRepeat) {
+            attemptBadge = `<span class="bg-slate-800 text-slate-400 border border-slate-700 px-2 py-0.5 rounded-full text-[9px] font-medium ml-1.5">Reattempt</span>`;
+          }
+
           histHTML += `
-            <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800/80 flex items-center justify-between text-xs">
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80 flex items-center justify-between text-xs hover:border-slate-700 transition">
               <div>
-                <span class="font-bold text-slate-200 block">${item.title || 'Exam'}</span>
-                <span class="text-[10px] text-slate-500">${item.date || ''}</span>
+                <div class="flex items-center">
+                  <span class="font-bold text-slate-200 block truncate max-w-[200px] sm:max-w-xs">${item.title || 'Exam'}</span>
+                  ${attemptBadge}
+                </div>
+                <span class="text-[10px] text-slate-500 mt-0.5 block">${item.date || item.Date || '-'}</span>
               </div>
               <div class="text-right">
-                <span class="font-mono font-bold text-emerald-400 block">${scoreVal.toFixed(2)} Mark</span>
-                <span class="text-[10px] text-slate-400">ശരി: ${item.correct || 0} | തെറ്റ്: ${item.wrong || 0}</span>
+                <span class="font-mono font-bold text-emerald-400 block text-sm">${scoreVal.toFixed(2)} Mark</span>
+                <span class="text-[10px] text-cyan-400 font-mono font-semibold">ആക്യുറസി: ${scoreAccuracy}%</span>
               </div>
             </div>
           `;
@@ -1389,6 +1460,7 @@
       document.getElementById('authCardDesc').innerText = "മൊബൈൽ നമ്പർ നൽകി പ്രവേശിക്കുക.";
     }
 
+    // 🌟 തിരുത്തിയ പ്രൊഫൈൽ അനലിറ്റിക്സ്: സ്കോർ അടിസ്ഥാനമാക്കിയുള്ള ആക്യുറസി (%)
     function updateProfileAnalytics() {
       if (!candidate || !candidate.phone) return;
 
@@ -1401,7 +1473,9 @@
       });
 
       const avgScore = totalUniqueExams > 0 ? (totalScore / totalUniqueExams).toFixed(2) : "0.00";
-      const accuracy = Math.min(100, Math.round((Number(avgScore) / 25) * 100));
+      
+      // 🌟 ആകെ മാർക്കിൽ നിന്ന് എത്ര നേടി എന്ന യഥാർത്ഥ ആക്യുറസി (ഡിഫോൾട്ട് 25 ൽ)
+      const accuracy = Math.max(0, Math.min(100, Math.round((Number(avgScore) / 25) * 100)));
 
       document.getElementById('statTotalTests').innerText = totalUniqueExams;
       document.getElementById('statAvgScore').innerText = avgScore;
