@@ -157,7 +157,7 @@
           <span class="text-lg">👑</span>
           <h3 class="text-xs sm:text-sm font-black text-amber-400 uppercase tracking-wider">ടോപ്പ് പെർഫോമേഴ്സ് (Hall of Fame)</h3>
         </div>
-        <span class="text-[10px] text-slate-400 font-mono">Live Sync</span>
+        <span class="text-[10px] text-slate-400 font-mono">Performance Index (60% Exams + 40% Accuracy)</span>
       </div>
       <div id="topStudentsList" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5"></div>
     </div>
@@ -425,12 +425,10 @@
   <script>
     const FIREBASE_DB_URL = "https://sk-psc-portal-default-rtdb.asia-southeast1.firebasedatabase.app";
 
-    // 🌟 EmailJS വിവരങ്ങൾ
     const EMAILJS_PUBLIC_KEY = "xlXQr4Y8HKtmouyUX";
     const EMAILJS_SERVICE_ID = "service_h4jdo3j";
     const EMAILJS_TEMPLATE_ID = "template_yjmhhna";
 
-    // 🌟 Auth Version
     const CURRENT_AUTH_VERSION = "v2_email_otp";
 
     try {
@@ -568,14 +566,11 @@
         activateUserSession();
       }
 
-      // 🌟 സിംഗിൾ ടൈം ഒപ്റ്റിമൈസ്ഡ് ഫെച്ച് (ലൂപ്പുകൾ ഇല്ലാതെ)
       fetchFirebaseData();
     });
 
-    // 🌟 ഒപ്റ്റിമൈസ്ഡ് ഫയർബേസ് ഫെച്ച് ഫംഗ്ഷൻ (Bandwidth 90% ലാഭിക്കുന്നു)
     async function fetchFirebaseData() {
       try {
-        // 1. സെഷൻ കാഷെ പരിശോധിക്കുന്നു (10 മിനിറ്റ് വാലിഡിറ്റി)
         let cachedExams = null;
         let cachedConfig = null;
         const cacheTime = sessionStorage.getItem('sk_cache_time');
@@ -598,19 +593,16 @@
 
         const usersPromise = fetch(`${FIREBASE_DB_URL}/users.json`).then(r => r.json()).catch(() => null);
 
-        // ലോഗിൻ ചെയ്ത കുട്ടിയുടെ ഹിസ്റ്ററി മാത്രം എക്സാക്റ്റ് നോഡിൽ നിന്ന് എടുക്കുന്നു
         let userHistPromise = Promise.resolve(null);
         if (candidate && candidate.phone) {
           const cleanPhone = sanitizePhone(candidate.phone);
           userHistPromise = fetch(`${FIREBASE_DB_URL}/users_history/${cleanPhone}.json`).then(r => r.json()).catch(() => null);
         }
 
-        // 🔥 users_history.json മുഴുവനായി ഡൗൺലോഡ് ചെയ്യുന്നത് നിർത്തി!
         const [examsData, usersData, configData, userHistData] = await Promise.all([
           examsPromise, usersPromise, configPromise, userHistPromise
         ]);
 
-        // കാഷെ സേവ് ചെയ്യുന്നു
         if (!cachedExams && examsData) {
           try {
             sessionStorage.setItem('sk_cached_exams', JSON.stringify(examsData));
@@ -652,6 +644,7 @@
             let questions = item.QUESTIONS || item.questions || 25;
             let time = item.TIME || item.time || '20 മിനിറ്റ്';
             let pdf = item.pdfUrl || item.pdfurl || '';
+            let rawExamKey = item.KEY || item.key || '';
 
             const cleanT = cleanTitleForMatch(title);
             let ctrl = adminControls[cleanT] || null;
@@ -675,6 +668,7 @@
             parsedList.push({
               originalIndex: idx,
               title: String(title).trim(),
+              key: String(rawExamKey).trim(),
               fileUrl: buildExamUrl(item),
               category: String(category).trim(),
               questions: Number(questions) || 25,
@@ -701,7 +695,6 @@
           allUsersCache = uList.filter(u => u !== null && u !== undefined);
           document.getElementById('topUserCount').innerText = `${allUsersCache.length} Users`;
           
-          // 🔥 അൾട്രാ-ലൈറ്റ് Hall of Fame കാൽക്കുലേഷൻ (users.json-ൽ നിന്ന് നേരിട്ട്)
           calculateLiveHallOfFameFromUsers(usersData);
         }
 
@@ -714,45 +707,73 @@
       }
     }
 
-    // 🌟 users.json വെച്ച് ഒരൊറ്റ കിലോബൈറ്റ് പോലും നഷ്ടപ്പെടാതെ Hall of Fame കണക്കാക്കുന്നു
+    // 🌟 മിക്സഡ് ഇൻഡക്സ് ഫോർമുല: 60% എക്സാം എണ്ണത്തിനും (Volume) + 40% മാർക്ക് ആക്യുറസിക്കും
     function calculateLiveHallOfFameFromUsers(allUsersObj) {
       const container = document.getElementById('topStudentsList');
       const section = document.getElementById('topStudentsSection');
       if (!container || !section || !allUsersObj) return;
 
       let uArr = Array.isArray(allUsersObj) ? allUsersObj : Object.values(allUsersObj);
-      const performanceList = [];
+      const studentMap = {};
 
       uArr.forEach(u => {
         if (!u) return;
         const p = sanitizePhone(u.Phone || u.phone || u.key);
         if (!p || p.length < 10) return;
 
-        const totalUniqueTests = Number(u.Unique_Exams || u.totalExams || 0);
+        const totalUniqueTests = Number(u.Unique_Exams || u.totalExams || u.Total_Attempts || 0);
         const avgScore = Number(u.First_Attempt_Avg || u.avgScore || 0);
-        if (totalUniqueTests === 0) return;
+        
+        // ചുരുങ്ങിയത് 5 പരീക്ഷയെങ്കിലും എഴുതിയവരെ മാത്രം റാങ്കിംഗിലേക്ക് പരിഗണിക്കുന്നു
+        if (totalUniqueTests < 5) return;
 
-        const accuracyPercent = Math.max(0, Math.min(100, Math.round((avgScore / 25) * 100)));
-        const candidateName = u.Official_Name || u.name || 'വിദ്യാർത്ഥി';
+        const candidateName = String(u.Official_Name || u.name || 'വിദ്യാർത്ഥി').trim();
+        if (candidateName === 'വിദ്യാർത്ഥി') return;
 
-        performanceList.push({
-          phone: p,
-          name: candidateName,
-          totalExams: totalUniqueTests,
-          avgScore: avgScore,
-          accuracy: accuracyPercent
-        });
+        // ഒരേ ഫോൺ നമ്പറിലെ ഏറ്റവും ഉയർന്ന റെക്കോർഡ് എടുക്കുന്നു
+        if (!studentMap[p] || totalUniqueTests > studentMap[p].totalExams) {
+          studentMap[p] = {
+            phone: p,
+            name: candidateName,
+            totalExams: totalUniqueTests,
+            avgScore: avgScore,
+            accuracy: Math.max(0, Math.min(100, Math.round((avgScore / 25) * 100)))
+          };
+        }
       });
+
+      let performanceList = Object.values(studentMap);
+
+      // 🌟 പേര് വെച്ചുള്ള ഡ്യൂപ്ലിക്കേഷൻ ഒഴിവാക്കൽ (ഒരേ വിദ്യാർത്ഥിക്ക് 2 അക്കൗണ്ട് ഉണ്ടെങ്കിലും ബെസ്റ്റ് മാത്രം)
+      const nameMap = {};
+      performanceList.forEach(std => {
+        const cleanName = std.name.toLowerCase().replace(/\s+/g, '');
+        if (!nameMap[cleanName] || std.totalExams > nameMap[cleanName].totalExams) {
+          nameMap[cleanName] = std;
+        }
+      });
+
+      performanceList = Object.values(nameMap);
 
       if (performanceList.length === 0) {
         section.classList.add('hidden');
         return;
       }
 
+      // ബാച്ചിലെ പരമാവധി എക്സാം എണ്ണം കണ്ടെത്തുന്നു
+      const maxExams = Math.max(...performanceList.map(s => s.totalExams), 1);
+
+      // 🌟 പുതിയ മിക്സഡ് ഇൻഡക്സ് ഫോർമുല: 60% എക്സാം എണ്ണത്തിനും (Volume) + 40% മാർക്ക് ആക്യുറസിക്കും മുൻഗണന
+      performanceList.forEach(std => {
+        const volumeScore = Math.min(100, (std.totalExams / maxExams) * 100);
+        std.compositeScore = (volumeScore * 0.6) + (std.accuracy * 0.4);
+      });
+
+      // കോമ്പോസിറ്റ് സ്കോർ വെച്ച് സോർട്ട് ചെയ്യുന്നു
       performanceList.sort((a, b) => {
+        if (b.compositeScore !== a.compositeScore) return b.compositeScore - a.compositeScore;
         if (b.totalExams !== a.totalExams) return b.totalExams - a.totalExams;
-        if (b.avgScore !== a.avgScore) return b.avgScore - a.avgScore;
-        return b.accuracy - a.accuracy;
+        return b.avgScore - a.avgScore;
       });
 
       const top3 = performanceList.slice(0, 3);
@@ -1113,7 +1134,7 @@
         }
 
         const rankListBtnMarkup = `
-          <button onclick="showExamLiveRankList('', '${q.title}')" class="text-[10px] font-bold text-cyan-400 hover:text-cyan-300 transition flex items-center space-x-1 cursor-pointer">
+          <button onclick="showExamLiveRankList('${q.key || ''}', '${q.title}')" class="text-[10px] font-bold text-cyan-400 hover:text-cyan-300 transition flex items-center space-x-1 cursor-pointer">
             <span>🏆</span><span>റാങ്ക് ലിസ്റ്റ്</span>
           </button>
         `;
@@ -1142,40 +1163,51 @@
       grid.appendChild(fragment);
     }
 
-    // 🌟 കൃത്യമായ സ്കോറോടെ റാങ്ക് ലിസ്റ്റ് കാണിക്കുന്നു
-    async function showExamLiveRankList(sheetTargetUrl, examTitle) {
+    async function showExamLiveRankList(examKeyParam, examTitle) {
       document.getElementById('rankListModal').classList.remove('hidden');
       document.getElementById('rankModalTitle').innerText = `🏆 ${examTitle} - ലൈവ് റാങ്ക് ലിസ്റ്റ്`;
       const tbody = document.getElementById('rankListTableBody');
       tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-400">റാങ്ക് ലിസ്റ്റ് ശേഖരിക്കുന്നു...</td></tr>';
 
-      const cleanKey = cleanTitleForMatch(examTitle);
+      const cleanKey = examKeyParam ? cleanTitleForMatch(examKeyParam) : '';
+      const cleanTitleName = cleanTitleForMatch(examTitle);
 
       try {
-        const [liveRes, ranksRes] = await Promise.all([
-          fetch(`${FIREBASE_DB_URL}/live_ranks/${cleanKey}.json`).then(r => r.json()).catch(() => null),
-          fetch(`${FIREBASE_DB_URL}/ranks/${cleanKey}.json`).then(r => r.json()).catch(() => null)
-        ]);
+        const searchKeys = [];
+        if (cleanKey) searchKeys.push(cleanKey);
+        if (cleanTitleName && !searchKeys.includes(cleanTitleName)) searchKeys.push(cleanTitleName);
 
-        const mergedMap = {};
+        let ranks = [];
 
-        if (liveRes) {
-          const lList = Array.isArray(liveRes) ? liveRes : Object.values(liveRes);
-          lList.forEach(r => {
-            let p = sanitizePhone(r.phone || r.Phone || '');
-            if (p) mergedMap[p] = { ...r, phone: p };
-          });
+        for (const keyToTry of searchKeys) {
+          const [liveRes, ranksRes] = await Promise.all([
+            fetch(`${FIREBASE_DB_URL}/live_ranks/${keyToTry}.json`).then(r => r.json()).catch(() => null),
+            fetch(`${FIREBASE_DB_URL}/ranks/${keyToTry}.json`).then(r => r.json()).catch(() => null)
+          ]);
+
+          const mergedMap = {};
+
+          if (liveRes) {
+            const lList = Array.isArray(liveRes) ? liveRes : Object.values(liveRes);
+            lList.forEach(r => {
+              let p = sanitizePhone(r.phone || r.Phone || '');
+              if (p) mergedMap[p] = { ...r, phone: p };
+            });
+          }
+
+          if (ranksRes) {
+            const rList = Array.isArray(ranksRes) ? ranksRes : Object.values(ranksRes);
+            rList.forEach(r => {
+              let p = sanitizePhone(r.phone || r.Phone || '');
+              if (p && !mergedMap[p]) mergedMap[p] = { ...r, phone: p };
+            });
+          }
+
+          if (Object.keys(mergedMap).length > 0) {
+            ranks = Object.values(mergedMap);
+            break;
+          }
         }
-
-        if (ranksRes) {
-          const rList = Array.isArray(ranksRes) ? ranksRes : Object.values(ranksRes);
-          rList.forEach(r => {
-            let p = sanitizePhone(r.phone || r.Phone || '');
-            if (p && !mergedMap[p]) mergedMap[p] = { ...r, phone: p };
-          });
-        }
-
-        let ranks = Object.values(mergedMap);
 
         if (ranks.length === 0) {
           tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-500">ഈ പരീക്ഷയിൽ ഇതുവരെ ആരും പങ്കെടുത്തിട്ടില്ല.</td></tr>';
@@ -1213,7 +1245,6 @@
       document.getElementById('rankListModal').classList.add('hidden');
     }
 
-    // 🌟 പ്രൊഫൈൽ എക്സാം ഹിസ്റ്ററി (മോഡൽ ഓപ്പൺ ചെയ്യുമ്പോൾ മാത്രം ഫെച്ച് ചെയ്യുന്നു)
     async function fetchUserExamHistory(phone) {
       const hList = document.getElementById('historyList');
       hList.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">ഹിസ്റ്ററി ലഭ്യമാക്കുന്നു...</p>';
@@ -1409,7 +1440,6 @@
       }
     }
 
-    // 🌟 ഘട്ടം 1: EmailJS വഴി OTP അയക്കുന്നു
     document.getElementById('phoneCheckForm').onsubmit = async (e) => {
       e.preventDefault();
       const phoneInput = document.getElementById('loginPhone').value.trim();
@@ -1449,7 +1479,6 @@
       }
     };
 
-    // 🌟 ഘട്ടം 2: OTP പരിശോധിക്കുന്നു
     document.getElementById('otpVerifyForm').onsubmit = async (e) => {
       e.preventDefault();
       const enteredOtp = document.getElementById('enteredOtpInput').value.trim();
@@ -1491,7 +1520,6 @@
       }
     };
 
-    // 🌟 ഘട്ടം 3: പുതിയ രജിസ്ട്രേഷൻ
     document.getElementById('registerNameForm').onsubmit = async (e) => {
       e.preventDefault();
       const name = document.getElementById('registerName').value.trim();
