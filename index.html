@@ -157,7 +157,7 @@
           <span class="text-lg">👑</span>
           <h3 class="text-xs sm:text-sm font-black text-amber-400 uppercase tracking-wider">ടോപ്പ് പെർഫോമേഴ്സ് (Hall of Fame)</h3>
         </div>
-        <span class="text-[10px] text-slate-400 font-mono">Live Sync</span>
+        <span class="text-[10px] text-slate-400 font-mono">Live Sync from History</span>
       </div>
       <div id="topStudentsList" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5"></div>
     </div>
@@ -425,14 +425,15 @@
   <script>
     const FIREBASE_DB_URL = "https://sk-psc-portal-default-rtdb.asia-southeast1.firebasedatabase.app";
 
-    // 🌟 EmailJS വിവരങ്ങൾ
+    // 🌟 നിങ്ങളുടെ EmailJS വിവരങ്ങൾ
     const EMAILJS_PUBLIC_KEY = "xlXQr4Y8HKtmouyUX";
     const EMAILJS_SERVICE_ID = "service_h4jdo3j";
     const EMAILJS_TEMPLATE_ID = "template_yjmhhna";
 
-    // 🌟 Auth Version
+    // 🌟 പഴയ ലോഗിൻ ഡാറ്റകൾ നിർബന്ധമായും ലോഗ് ഔട്ട് ചെയ്യാൻ പുതിയ വേർഷൻ ഐഡി
     const CURRENT_AUTH_VERSION = "v2_email_otp";
 
+    // EmailJS ഇനിഷ്യലൈസ് ചെയ്യുന്നു
     try {
       emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
     } catch(e) {
@@ -445,6 +446,7 @@
     let allUsersCache = [];
     let userAttemptsMap = {}; 
 
+    // താൽക്കാലിക OTP വിവരങ്ങൾ
     let generatedOTP = null;
     let otpExpiresAt = null;
     let tempUserToVerify = null;
@@ -541,8 +543,10 @@
     }
 
     window.addEventListener('DOMContentLoaded', () => {
+      // 🌟 നിലവിലെ അക്കൗണ്ട് വേർഷൻ പരിശോധിക്കുന്നു
       const savedVersion = localStorage.getItem('sk_auth_version');
 
+      // പഴയ ലോഗിൻ ആണെങ്കിൽ നിർബന്ധമായും ലോഗ് ഔട്ട് ചെയ്യിക്കുന്നു (Force Logout)
       if (savedVersion !== CURRENT_AUTH_VERSION) {
         localStorage.removeItem('sk_candidate_user');
         localStorage.setItem('sk_auth_version', CURRENT_AUTH_VERSION);
@@ -568,56 +572,26 @@
         activateUserSession();
       }
 
-      // 🌟 സിംഗിൾ ടൈം ഒപ്റ്റിമൈസ്ഡ് ഫെച്ച് (ലൂപ്പുകൾ ഇല്ലാതെ)
       fetchFirebaseData();
+      setInterval(fetchFirebaseData, 60000);
     });
 
-    // 🌟 ഒപ്റ്റിമൈസ്ഡ് ഫയർബേസ് ഫെച്ച് ഫംഗ്ഷൻ (Bandwidth 90% ലാഭിക്കുന്നു)
     async function fetchFirebaseData() {
       try {
-        // 1. സെഷൻ കാഷെ പരിശോധിക്കുന്നു (10 മിനിറ്റ് വാലിഡിറ്റി)
-        let cachedExams = null;
-        let cachedConfig = null;
-        const cacheTime = sessionStorage.getItem('sk_cache_time');
-        const now = Date.now();
+        const examsPromise = fetch(`${FIREBASE_DB_URL}/exams.json?_t=${Date.now()}`).then(r => r.json()).catch(() => null);
+        const usersPromise = fetch(`${FIREBASE_DB_URL}/users.json?_t=${Date.now()}`).then(r => r.json()).catch(() => null);
+        const configPromise = fetch(`${FIREBASE_DB_URL}/portal_config.json?_t=${Date.now()}`).then(r => r.json()).catch(() => ({}));
+        const allHistPromise = fetch(`${FIREBASE_DB_URL}/users_history.json?_t=${Date.now()}`).then(r => r.json()).catch(() => null);
 
-        if (cacheTime && (now - Number(cacheTime)) < 10 * 60 * 1000) {
-          try {
-            cachedExams = JSON.parse(sessionStorage.getItem('sk_cached_exams'));
-            cachedConfig = JSON.parse(sessionStorage.getItem('sk_cached_config'));
-          } catch(e) {}
-        }
-
-        const examsPromise = cachedExams 
-          ? Promise.resolve(cachedExams) 
-          : fetch(`${FIREBASE_DB_URL}/exams.json`).then(r => r.json()).catch(() => null);
-
-        const configPromise = cachedConfig 
-          ? Promise.resolve(cachedConfig) 
-          : fetch(`${FIREBASE_DB_URL}/portal_config.json`).then(r => r.json()).catch(() => ({}));
-
-        const usersPromise = fetch(`${FIREBASE_DB_URL}/users.json`).then(r => r.json()).catch(() => null);
-
-        // ലോഗിൻ ചെയ്ത കുട്ടിയുടെ ഹിസ്റ്ററി മാത്രം എക്സാക്റ്റ് നോഡിൽ നിന്ന് എടുക്കുന്നു
         let userHistPromise = Promise.resolve(null);
         if (candidate && candidate.phone) {
           const cleanPhone = sanitizePhone(candidate.phone);
-          userHistPromise = fetch(`${FIREBASE_DB_URL}/users_history/${cleanPhone}.json`).then(r => r.json()).catch(() => null);
+          userHistPromise = fetch(`${FIREBASE_DB_URL}/users_history/${cleanPhone}.json?_nocache=${Date.now()}`).then(r => r.json()).catch(() => null);
         }
 
-        // 🔥 users_history.json മുഴുവനായി ഡൗൺലോഡ് ചെയ്യുന്നത് നിർത്തി!
-        const [examsData, usersData, configData, userHistData] = await Promise.all([
-          examsPromise, usersPromise, configPromise, userHistPromise
+        const [examsData, usersData, configData, allHistData, userHistData] = await Promise.all([
+          examsPromise, usersPromise, configPromise, allHistPromise, userHistPromise
         ]);
-
-        // കാഷെ സേവ് ചെയ്യുന്നു
-        if (!cachedExams && examsData) {
-          try {
-            sessionStorage.setItem('sk_cached_exams', JSON.stringify(examsData));
-            sessionStorage.setItem('sk_cached_config', JSON.stringify(configData));
-            sessionStorage.setItem('sk_cache_time', String(now));
-          } catch(e) {}
-        }
 
         userAttemptsMap = {};
         if (userHistData) {
@@ -654,8 +628,8 @@
             let pdf = item.pdfUrl || item.pdfurl || '';
 
             const cleanT = cleanTitleForMatch(title);
+            
             let ctrl = adminControls[cleanT] || null;
-
             if (!ctrl) {
               for (let k in adminControls) {
                 let cleanK = cleanTitleForMatch(k);
@@ -700,40 +674,78 @@
           let uList = Array.isArray(usersData) ? usersData : Object.values(usersData);
           allUsersCache = uList.filter(u => u !== null && u !== undefined);
           document.getElementById('topUserCount').innerText = `${allUsersCache.length} Users`;
-          
-          // 🔥 അൾട്രാ-ലൈറ്റ് Hall of Fame കാൽക്കുലേഷൻ (users.json-ൽ നിന്ന് നേരിട്ട്)
-          calculateLiveHallOfFameFromUsers(usersData);
         }
+
+        calculateLiveHallOfFame(allHistData, usersData);
 
         if (candidate) {
           updateProfileAnalytics();
         }
 
       } catch (err) {
-        console.log("Fetch error:", err);
+        console.log("Firebase fetch error:", err);
       }
     }
 
-    // 🌟 users.json വെച്ച് ഒരൊറ്റ കിലോബൈറ്റ് പോലും നഷ്ടപ്പെടാതെ Hall of Fame കണക്കാക്കുന്നു
-    function calculateLiveHallOfFameFromUsers(allUsersObj) {
+    // 🌟 തിരുത്തിയ Hall of Fame: ആകെ ചോദ്യങ്ങളിൽ നിന്ന് എത്ര മാർക്ക് നേടി എന്ന യഥാർത്ഥ സ്കോർ ആക്യുറസി (%)
+    function calculateLiveHallOfFame(allHistory, allUsersObj) {
       const container = document.getElementById('topStudentsList');
       const section = document.getElementById('topStudentsSection');
-      if (!container || !section || !allUsersObj) return;
+      if (!container || !section) return;
 
-      let uArr = Array.isArray(allUsersObj) ? allUsersObj : Object.values(allUsersObj);
+      if (!allHistory) {
+        section.classList.add('hidden');
+        return;
+      }
+
+      const usersProfileMap = {};
+      if (allUsersObj) {
+        let uArr = Array.isArray(allUsersObj) ? allUsersObj : Object.values(allUsersObj);
+        uArr.forEach(u => {
+          let p = sanitizePhone(u.Phone || u.phone || u.key);
+          if (p) {
+            usersProfileMap[p] = u.Official_Name || u.name || '';
+          }
+        });
+      }
+
       const performanceList = [];
 
-      uArr.forEach(u => {
-        if (!u) return;
-        const p = sanitizePhone(u.Phone || u.phone || u.key);
-        if (!p || p.length < 10) return;
+      for (const [rawPhone, historyData] of Object.entries(allHistory)) {
+        if (!historyData) continue;
+        let p = sanitizePhone(rawPhone);
+        if (!p || p === "0000000000" || p.length < 10) continue;
 
-        const totalUniqueTests = Number(u.Unique_Exams || u.totalExams || 0);
-        const avgScore = Number(u.First_Attempt_Avg || u.avgScore || 0);
-        if (totalUniqueTests === 0) return;
+        let attemptsList = Object.values(historyData);
+        if (attemptsList.length === 0) continue;
 
-        const accuracyPercent = Math.max(0, Math.min(100, Math.round((avgScore / 25) * 100)));
-        const candidateName = u.Official_Name || u.name || 'വിദ്യാർത്ഥി';
+        const uniqueAttempts = {};
+        attemptsList.forEach(att => {
+          if (!att || !att.title) return;
+          const cleanT = cleanTitleForMatch(att.title);
+          if (!uniqueAttempts[cleanT]) {
+            uniqueAttempts[cleanT] = att;
+          }
+        });
+
+        const distinctExams = Object.values(uniqueAttempts);
+        const totalUniqueTests = distinctExams.length;
+        if (totalUniqueTests === 0) continue;
+
+        let totalScore = 0;
+        let fallbackCandidateName = '';
+
+        distinctExams.forEach(att => {
+          totalScore += extractActualScore(att);
+          if (att.candidate && !fallbackCandidateName) {
+            fallbackCandidateName = att.candidate;
+          }
+        });
+
+        const avgScore = totalScore / totalUniqueTests;
+        let accuracyPercent = Math.max(0, Math.min(100, Math.round((avgScore / 25) * 100)));
+
+        let candidateName = usersProfileMap[p] || fallbackCandidateName || 'വിദ്യാർത്ഥി';
 
         performanceList.push({
           phone: p,
@@ -742,7 +754,7 @@
           avgScore: avgScore,
           accuracy: accuracyPercent
         });
-      });
+      }
 
       if (performanceList.length === 0) {
         section.classList.add('hidden');
@@ -1142,7 +1154,7 @@
       grid.appendChild(fragment);
     }
 
-    // 🌟 കൃത്യമായ സ്കോറോടെ റാങ്ക് ലിസ്റ്റ് കാണിക്കുന്നു
+    // 🌟 അഡ്മിൻ പാനലിലുള്ളത് പോലെ live_ranks & ranks സംയോജിപ്പിച്ചു റാങ്ക് ലിസ്റ്റ് കാണിക്കുന്നു
     async function showExamLiveRankList(sheetTargetUrl, examTitle) {
       document.getElementById('rankListModal').classList.remove('hidden');
       document.getElementById('rankModalTitle').innerText = `🏆 ${examTitle} - ലൈവ് റാങ്ക് ലിസ്റ്റ്`;
@@ -1153,8 +1165,8 @@
 
       try {
         const [liveRes, ranksRes] = await Promise.all([
-          fetch(`${FIREBASE_DB_URL}/live_ranks/${cleanKey}.json`).then(r => r.json()).catch(() => null),
-          fetch(`${FIREBASE_DB_URL}/ranks/${cleanKey}.json`).then(r => r.json()).catch(() => null)
+          fetch(`${FIREBASE_DB_URL}/live_ranks/${cleanKey}.json?_t=${Date.now()}`).then(r => r.json()).catch(() => null),
+          fetch(`${FIREBASE_DB_URL}/ranks/${cleanKey}.json?_t=${Date.now()}`).then(r => r.json()).catch(() => null)
         ]);
 
         const mergedMap = {};
@@ -1176,6 +1188,36 @@
         }
 
         let ranks = Object.values(mergedMap);
+
+        if (ranks.length === 0) {
+          try {
+            const histRes = await fetch(`${FIREBASE_DB_URL}/users_history.json?_t=${Date.now()}`);
+            const histData = await histRes.json();
+            if (histData) {
+              for (const [uPhone, uExams] of Object.entries(histData)) {
+                if (uExams && typeof uExams === 'object') {
+                  for (const examItem of Object.values(uExams)) {
+                    if (!examItem) continue;
+                    const itemTitle = cleanTitleForMatch(examItem.title || '');
+                    if (itemTitle === cleanKey || itemTitle.includes(cleanKey) || cleanKey.includes(itemTitle)) {
+                      let p = sanitizePhone(uPhone);
+                      if (p && !mergedMap[p]) {
+                        mergedMap[p] = {
+                          phone: p,
+                          name: examItem.name || examItem.Official_Name || examItem.userName || 'വിദ്യാർത്ഥി',
+                          score: extractActualScore(examItem),
+                          date: examItem.date || examItem.Date || '-'
+                        };
+                      }
+                      break;
+                    }
+                  }
+                }
+              }
+              ranks = Object.values(mergedMap);
+            }
+          } catch(e) {}
+        }
 
         if (ranks.length === 0) {
           tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-500">ഈ പരീക്ഷയിൽ ഇതുവരെ ആരും പങ്കെടുത്തിട്ടില്ല.</td></tr>';
@@ -1213,7 +1255,7 @@
       document.getElementById('rankListModal').classList.add('hidden');
     }
 
-    // 🌟 പ്രൊഫൈൽ എക്സാം ഹിസ്റ്ററി (മോഡൽ ഓപ്പൺ ചെയ്യുമ്പോൾ മാത്രം ഫെച്ച് ചെയ്യുന്നു)
+    // 🌟 പ്രൊഫൈൽ എക്സാം ഹിസ്റ്ററി: users_history, live_ranks, ranks എന്നിവ സംയോജിപ്പിച്ചു ഡ്യൂപ്ലിക്കേഷൻ ഒഴിവാക്കി കാണിക്കുന്നു
     async function fetchUserExamHistory(phone) {
       const hList = document.getElementById('historyList');
       hList.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">ഹിസ്റ്ററി ലഭ്യമാക്കുന്നു...</p>';
@@ -1226,9 +1268,9 @@
 
       try {
         const [histRes, liveRanksRes, ranksRes] = await Promise.all([
-          fetch(`${FIREBASE_DB_URL}/users_history/${cleanPhone}.json`).then(r => r.json()).catch(() => null),
-          fetch(`${FIREBASE_DB_URL}/live_ranks.json`).then(r => r.json()).catch(() => null),
-          fetch(`${FIREBASE_DB_URL}/ranks.json`).then(r => r.json()).catch(() => null)
+          fetch(`${FIREBASE_DB_URL}/users_history/${cleanPhone}.json?_nocache=${Date.now()}`).then(r => r.json()).catch(() => null),
+          fetch(`${FIREBASE_DB_URL}/live_ranks.json?_t=${Date.now()}`).then(r => r.json()).catch(() => null),
+          fetch(`${FIREBASE_DB_URL}/ranks.json?_t=${Date.now()}`).then(r => r.json()).catch(() => null)
         ]);
 
         let rawPool = [];
@@ -1257,6 +1299,7 @@
           }
         }
 
+        // 🌟 TIMESTAMP, DATE & SCORE വെച്ച് ഡ്യൂപ്ലിക്കേഷൻ 100% ഒഴിവാക്കുന്നു
         const uniqueAttemptMap = {};
         rawPool.forEach(item => {
           const cTitle = cleanTitleForMatch(item.title || item.Title);
@@ -1277,6 +1320,7 @@
           return;
         }
 
+        // Oldest First സോർട്ട് ചെയ്ത് First Attempt ബാഡ്ജ് നിർണ്ണയിക്കുന്നു
         cleanedAttempts.sort((a, b) => {
           let tA = a.timestamp || new Date(a.date || a.Date || 0).getTime() || 0;
           let tB = b.timestamp || new Date(b.date || b.Date || 0).getTime() || 0;
@@ -1302,6 +1346,7 @@
           }
         });
 
+        // ഏറ്റവും ഒടുവിൽ ചെയ്ത പരീക്ഷ ഏറ്റവും മുകളിൽ വരാൻ (Latest on Top) സോർട്ട് ചെയ്യുന്നു
         cleanedAttempts.sort((a, b) => {
           let tA = a.timestamp || new Date(a.date || a.Date || 0).getTime() || 0;
           let tB = b.timestamp || new Date(b.date || b.Date || 0).getTime() || 0;
@@ -1409,7 +1454,7 @@
       }
     }
 
-    // 🌟 ഘട്ടം 1: EmailJS വഴി OTP അയക്കുന്നു
+    // 🌟 ഘട്ടം 1: ഫോൺ നമ്പറും ഇമെയിലും പരിശോധിച്ചു EmailJS വഴി OTP അയക്കുന്നു
     document.getElementById('phoneCheckForm').onsubmit = async (e) => {
       e.preventDefault();
       const phoneInput = document.getElementById('loginPhone').value.trim();
@@ -1423,12 +1468,14 @@
       submitBtn.innerText = "OTP അയക്കുന്നു...";
       submitBtn.disabled = true;
 
+      // 6 അക്ക റാൻഡം OTP നിർമ്മിക്കുന്നു
       generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
-      otpExpiresAt = Date.now() + 5 * 60 * 1000;
+      otpExpiresAt = Date.now() + 5 * 60 * 1000; // 5 മിനിറ്റ് കാലാവധി
 
       tempUserToVerify = { phone: phone, email: emailInput };
 
       try {
+        // EmailJS വഴി ഇമെയിൽ അയക്കുന്നു (to_email, otp_code)
         await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
           to_email: emailInput,
           email: emailInput,
@@ -1449,7 +1496,7 @@
       }
     };
 
-    // 🌟 ഘട്ടം 2: OTP പരിശോധിക്കുന്നു
+    // 🌟 ഘട്ടം 2: അടിച്ച OTP പരിശോധിക്കുന്നു
     document.getElementById('otpVerifyForm').onsubmit = async (e) => {
       e.preventDefault();
       const enteredOtp = document.getElementById('enteredOtpInput').value.trim();
@@ -1465,10 +1512,13 @@
         return;
       }
 
+      // OTP ശരിയായിരിക്കുന്നു
       generatedOTP = null;
+
+      // യൂസർ നിലവിലുള്ള ആളാണോ എന്ന് പരിശോധിക്കുന്നു
       const matchedUser = allUsersCache.find(u => sanitizePhone(u.Phone || u.phone || u.key) === tempUserToVerify.phone);
 
-      if (matchedUser && (matchedUser.Official_Name || matchedUser.name) && matchedUser.Official_Name !== 'വിദ്യാർത്ഥി' && matchedUser.name !== 'വിദ്യാർത്ഥി') {
+      if (matchedUser && (matchedUser.Official_Name || matchedUser.name) && (matchedUser.Official_Name !== 'വിദ്യാർത്ഥി' && matchedUser.name !== 'വിദ്യാർത്ഥി')) {
         candidate = {
           name: matchedUser.Official_Name || matchedUser.name,
           phone: tempUserToVerify.phone,
@@ -1476,6 +1526,7 @@
         };
         localStorage.setItem('sk_candidate_user', JSON.stringify(candidate));
         
+        // ഇമെയിൽ ഡാറ്റാബേസിൽ അപ്ഡേറ്റ് ചെയ്യുന്നു
         fetch(`${FIREBASE_DB_URL}/users/${tempUserToVerify.phone}.json`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
@@ -1485,13 +1536,14 @@
         activateUserSession();
         fetchFirebaseData();
       } else {
+        // പുതിയ രജിസ്ട്രേഷൻ ആണെങ്കിൽ പേര് വാങ്ങുന്നു
         document.getElementById('otpVerifyForm').classList.add('hidden');
         document.getElementById('registerNameForm').classList.remove('hidden');
         document.getElementById('authCardTitle').innerText = "പ്രൊഫൈൽ രജിസ്ട്രേഷൻ";
       }
     };
 
-    // 🌟 ഘട്ടം 3: പുതിയ രജിസ്ട്രേഷൻ
+    // 🌟 ഘട്ടം 3: പുതിയ ആളുടെ പേര് വാങ്ങി രജിസ്ട്രേഷൻ പൂർത്തിയാക്കുന്നു
     document.getElementById('registerNameForm').onsubmit = async (e) => {
       e.preventDefault();
       const name = document.getElementById('registerName').value.trim();
@@ -1531,6 +1583,7 @@
       document.getElementById('enteredOtpInput').value = '';
     }
 
+    // 🌟 തിരുത്തിയ പ്രൊഫൈൽ അനലിറ്റിക്സ്: സ്കോർ അടിസ്ഥാനമാക്കിയുള്ള ആക്യുറസി (%)
     function updateProfileAnalytics() {
       if (!candidate || !candidate.phone) return;
 
