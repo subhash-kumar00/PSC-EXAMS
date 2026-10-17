@@ -26,12 +26,35 @@
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     
     @keyframes fastPulseBlink {
-      0%, 100% { opacity: 1; transform: scale(1); filter: brightness(1.1); }
-      50% { opacity: 0.2; transform: scale(0.93); filter: brightness(0.7); }
+      0%, 100% { opacity: 1; transform: scale(1); filter: brightness(1.2); }
+      50% { opacity: 0.3; transform: scale(0.94); filter: brightness(0.7); }
     }
     .auto-latest-badge {
       animation: fastPulseBlink 0.75s infinite ease-in-out !important;
       display: inline-flex !important;
+    }
+
+    /* 🌟 റെഡ് ബ്ലിങ്കിങ് ബാനർ ആനിമേഷൻ */
+    @keyframes redAlertGlow {
+      0%, 100% {
+        box-shadow: 0 0 15px rgba(244, 63, 94, 0.55), inset 0 0 10px rgba(244, 63, 94, 0.25);
+        border-color: rgba(244, 63, 94, 0.85);
+      }
+      50% {
+        box-shadow: 0 0 4px rgba(244, 63, 94, 0.15);
+        border-color: rgba(244, 63, 94, 0.35);
+      }
+    }
+    .red-blink-banner {
+      animation: redAlertGlow 1.2s infinite ease-in-out;
+    }
+
+    @keyframes textPulseBlink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.45; }
+    }
+    .text-blink-red {
+      animation: textPulseBlink 0.9s infinite ease-in-out;
     }
 
     @keyframes neonGreenBlink {
@@ -81,13 +104,15 @@
         </div>
       </div>
       
-      <div id="navUserBox" class="hidden flex items-center space-x-3">
-        <button id="openProfileBtn" onclick="openProfileModal()" class="text-left px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700/80 border border-slate-700 transition flex items-center space-x-2 shadow cursor-pointer">
+      <div id="navUserBox" class="hidden flex items-center space-x-2.5 sm:space-x-3">
+        <button id="openProfileBtn" onclick="openProfileModal('history')" class="relative text-left px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700/80 border border-slate-700 transition flex items-center space-x-2 shadow cursor-pointer">
           <div class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">👤</div>
           <div>
-            <span id="navUserName" class="text-xs font-bold text-slate-200 block truncate max-w-[120px] sm:max-w-none"></span>
-            <span class="text-[10px] text-emerald-400 block font-semibold hover:underline">പ്രൊഫൈൽ ഹിസ്റ്ററി 📊</span>
+            <span id="navUserName" class="text-xs font-bold text-slate-200 block truncate max-w-[110px] sm:max-w-none"></span>
+            <span class="text-[10px] text-emerald-400 block font-semibold hover:underline">പ്രൊഫൈൽ & ചാറ്റ് 💬</span>
           </div>
+          <!-- Unread Reply Badge -->
+          <span id="navUnreadChatBadge" class="hidden absolute -top-1.5 -right-1.5 bg-rose-600 text-white text-[9px] font-black px-1.5 py-0.2 rounded-full animate-bounce shadow">NEW</span>
         </button>
         <button onclick="logoutCandidate()" class="text-xs text-rose-400 hover:text-rose-300 border border-rose-500/30 px-2.5 py-1.5 rounded-xl hover:bg-rose-950/30 transition cursor-pointer">Logout</button>
       </div>
@@ -98,7 +123,7 @@
     
     <!-- Hero Branding -->
     <div class="hero-glow bg-slate-900 border border-slate-800/90 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6">
-      <div class="max-w-2xl relative z-10 space-y-3 text-left flex-1">
+      <div class="max-w-2xl relative z-10 space-y-3.5 text-left flex-1">
         <div class="flex flex-wrap items-center gap-2">
           <span class="text-xs font-black uppercase tracking-wider text-emerald-300 bg-emerald-950/80 px-3 py-1 rounded-lg border border-emerald-500/40 flex items-center space-x-1.5">
             <span>🎯</span>
@@ -106,6 +131,16 @@
           </span>
           <span class="text-[11px] font-semibold text-teal-400/90 bg-slate-950 px-2.5 py-0.5 rounded-md border border-slate-800">
             ലക്ഷ്യത്തിലേക്ക് ഒരു ചുവട്
+          </span>
+        </div>
+
+        <!-- 🌟 ഫീച്ചർ 1: റെഡ് കളർ ബ്ലിങ്ക് മെസ്സേജ് ബാനർ (Admin Controlled) -->
+        <div id="heroBlinkAlertBox" class="red-blink-banner bg-rose-950/50 border-2 border-rose-500/80 rounded-2xl px-3.5 py-2.5 inline-flex flex-wrap items-center gap-2.5 shadow-lg">
+          <span class="auto-latest-badge px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-rose-600 text-white shadow-md">
+            ● LATEST
+          </span>
+          <span id="heroBlinkAlertText" class="text-xs sm:text-sm font-black text-rose-200 tracking-wide uppercase text-blink-red">
+            2027 LDC & LGS EXAMS COMMING SOON
           </span>
         </div>
 
@@ -217,7 +252,7 @@
           <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">ഔദ്യോഗിക പേര് (Official Name)</label>
           <input type="text" id="registerName" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition text-xs sm:text-sm" placeholder="ഉദാ: സുഭാഷ് കുമാർ സി">
         </div>
-        <button type="submit" id="saveProfileBtn" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 text-slate-950 font-bold rounded-xl text-xs sm:text-sm transition shadow-lg cursor-pointer">പ്രൊഫെയ്ൽ നിർമ്മിക്കുക ›</button>
+        <button type="submit" id="saveProfileBtn" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 text-slate-950 font-bold rounded-xl text-xs sm:text-sm transition shadow-lg cursor-pointer">പ്രൊഫൈൽ നിർമ്മിക്കുക ›</button>
       </form>
     </div>
 
@@ -284,20 +319,40 @@
         </div>
       </div>
 
-      <!-- 🌟 3. സബ്ജക്റ്റ് ഫോൾഡറുകൾ -->
+      <!-- 🌟 3. STEP 1: പ്രധാന പരീക്ഷാ ഫോൾഡറുകൾ (LDC, LGS, DEGREE LEVEL) -->
       <div class="space-y-3">
         <div class="flex items-center justify-between">
           <h3 class="text-xs sm:text-sm font-black text-white uppercase tracking-wider flex items-center space-x-2">
-            <span>📁</span>
-            <span>വിഷയങ്ങൾ തിരഞ്ഞെടുക്കുക (Subject Folders)</span>
+            <span>🗂️</span>
+            <span>പരീക്ഷാ വിഭാഗം തിരഞ്ഞെടുക്കുക (Select Exam Category)</span>
           </h3>
-          <span class="text-[10px] text-slate-400 font-mono">ക്ലിക്ക് ചെയ്ത് പരീക്ഷകൾ കാണുക ▾</span>
+          <span class="text-[10px] text-emerald-400 font-mono">Step 1: ഫോൾഡർ തുറക്കുക ▾</span>
         </div>
-        
-        <div id="foldersContainer" class="grid grid-rows-2 sm:grid-rows-none sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 grid-flow-col sm:grid-flow-row auto-cols-[180px] sm:auto-cols-auto gap-2.5 overflow-x-auto sm:overflow-visible custom-scroll pb-2.5 pt-1 snap-x"></div>
+
+        <div id="mainFoldersContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5"></div>
       </div>
 
-      <!-- 🌟 4. തിരഞ്ഞെടുക്കുമ്പോൾ വരുന്ന പരീക്ഷാ കാർഡുകൾ -->
+      <!-- 🌟 4. STEP 2: സബ്ജക്റ്റ് ഫോൾഡറുകൾ -->
+      <div id="subjectFoldersSection" class="hidden bg-slate-900/60 border border-slate-800/90 rounded-3xl p-4 sm:p-5 space-y-3.5 shadow-xl">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+          <div class="flex items-center space-x-2">
+            <span class="text-base">📁</span>
+            <div>
+              <h3 id="selectedMainFolderTitle" class="text-xs sm:text-sm font-black text-emerald-400 uppercase tracking-wider">
+                LDC - വിഷയങ്ങൾ (Subject Folders)
+              </h3>
+              <p class="text-[10px] text-slate-400">പരീക്ഷ എഴുതാനായി താഴെ നിന്ന് വിഷയം തിരഞ്ഞെടുക്കുക</p>
+            </div>
+          </div>
+          <button onclick="closeMainFolder()" class="text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-xl border border-slate-700 transition cursor-pointer">
+            ✕ ഫോൾഡർ മടക്കുക
+          </button>
+        </div>
+        
+        <div id="foldersContainer" class="grid grid-rows-2 sm:grid-rows-none sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 grid-flow-col sm:grid-flow-row auto-cols-[185px] sm:auto-cols-auto gap-2.5 overflow-x-auto sm:overflow-visible custom-scroll pb-2.5 pt-1 snap-x"></div>
+      </div>
+
+      <!-- 🌟 5. STEP 3: തിരഞ്ഞെടുക്കുമ്പോൾ വരുന്ന പരീക്ഷാ കാർഡുകൾ -->
       <div id="examsDisplayArea" class="hidden space-y-3 pt-2 border-t border-slate-800/80">
         <div class="flex items-center justify-between">
           <h4 class="text-xs sm:text-sm font-bold text-emerald-400 flex items-center space-x-1.5" id="activeCategoryHeader">
@@ -313,13 +368,20 @@
         <div id="quizGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5"></div>
 
         <div id="emptyState" class="hidden text-center py-16 text-slate-500 text-xs sm:text-sm bg-slate-900/40 rounded-2xl border border-slate-800">
-          പരീക്ഷകൾ ഒന്നും കണ്ടെത്തിയില്ല.
+          ഈ വിഭാഗത്തിൽ പരീക്ഷകൾ ഒന്നും കണ്ടെത്തിയില്ല.
         </div>
       </div>
 
     </div>
 
   </main>
+
+  <!-- 🌟 ഫീച്ചർ 2: ഫ്ലോട്ടിങ് ഡൗട്ട് ചാറ്റ് ബട്ടൺ (Floating Doubt Button) -->
+  <button id="floatingChatBtn" onclick="handleFloatingChatClick()" class="fixed bottom-5 right-5 z-40 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 text-slate-950 font-black px-4 py-3 rounded-2xl shadow-[0_10px_25px_rgba(16,185,129,0.4)] flex items-center space-x-2 transition transform hover:scale-105 active:scale-95 cursor-pointer border border-emerald-300/50">
+    <span class="text-lg">💬</span>
+    <span class="text-xs sm:text-sm font-bold">സംശയം ചോദിക്കാം</span>
+    <span id="floatingUnreadBadge" class="hidden bg-rose-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full animate-pulse">NEW</span>
+  </button>
 
   <!-- ലൈവ് റാങ്ക് ലിസ്റ്റ് MODAL -->
   <div id="rankListModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
@@ -358,12 +420,12 @@
     </div>
   </div>
 
-  <!-- Profile Modal -->
+  <!-- 🌟 Profile & Student Chat Modal -->
   <div id="profileModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-xl w-full p-6 sm:p-7 shadow-2xl space-y-5 flex flex-col max-h-[85vh]">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-xl w-full p-5 sm:p-6 shadow-2xl space-y-4 flex flex-col max-h-[88vh]">
       <div class="flex items-center justify-between border-b border-slate-800 pb-3">
         <div>
-          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">STUDENT PROFILE & STATS</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">STUDENT PROFILE & DOUBT DESK</span>
           <div class="flex items-center space-x-2 mt-1">
             <h3 class="text-lg font-black text-white" id="profileDisplayName">വിദ്യാർത്ഥി</h3>
             <button onclick="toggleEditProfile()" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-emerald-400 px-2 py-0.5 rounded border border-slate-700 transition cursor-pointer">✏ Edit Name</button>
@@ -383,36 +445,65 @@
       </div>
 
       <div class="grid grid-cols-3 gap-3">
-        <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 text-center">
+        <div class="bg-slate-950 p-2.5 rounded-2xl border border-slate-800 text-center">
           <span class="text-[10px] text-slate-400 block font-semibold">പരീക്ഷകൾ</span>
-          <span id="statTotalTests" class="text-lg sm:text-xl font-black text-white font-mono">0</span>
+          <span id="statTotalTests" class="text-base sm:text-lg font-black text-white font-mono">0</span>
         </div>
-        <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 text-center">
+        <div class="bg-slate-950 p-2.5 rounded-2xl border border-slate-800 text-center">
           <span class="text-[10px] text-slate-400 block font-semibold">ശരാശരി മാർക്ക്</span>
-          <span id="statAvgScore" class="text-lg sm:text-xl font-black text-emerald-400 font-mono">0</span>
+          <span id="statAvgScore" class="text-base sm:text-lg font-black text-emerald-400 font-mono">0</span>
         </div>
-        <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 text-center">
+        <div class="bg-slate-950 p-2.5 rounded-2xl border border-slate-800 text-center">
           <span class="text-[10px] text-slate-400 block font-semibold">സ്കോർ ആക്യുറസി</span>
-          <span id="statAccuracy" class="text-lg sm:text-xl font-black text-teal-400 font-mono">0%</span>
+          <span id="statAccuracy" class="text-base sm:text-lg font-black text-teal-400 font-mono">0%</span>
         </div>
       </div>
 
-      <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800 text-xs flex items-center justify-between">
-        <div>
-          <span class="text-slate-400">ഡാറ്റാബേസ് സ്റ്റാറ്റസ്: </span>
-          <strong id="growthMessage" class="text-emerald-400 font-medium">ഫയർബേസ് കണക്ടഡ് ⚡</strong>
-        </div>
-        <span id="modalHistoryStatus" class="text-[11px] text-emerald-400">Verified Email</span>
+      <!-- 🌟 പ്രൊഫൈൽ ടാബുകൾ: പരീക്ഷാ ഹിസ്റ്ററി | പ്രൊഫൈൽ ചാറ്റ് -->
+      <div class="grid grid-cols-2 gap-2 bg-slate-950 p-1.5 rounded-2xl border border-slate-800">
+        <button id="profTabBtnHistory" onclick="switchProfileModalTab('history')" class="py-2 rounded-xl text-xs font-black bg-emerald-500 text-slate-950 transition cursor-pointer flex items-center justify-center space-x-1.5">
+          <span>📊</span>
+          <span>പരീക്ഷാ ഹിസ്റ്ററി</span>
+        </button>
+        <button id="profTabBtnChat" onclick="switchProfileModalTab('chat')" class="py-2 rounded-xl text-xs font-bold text-slate-300 hover:text-white transition cursor-pointer flex items-center justify-center space-x-1.5 relative">
+          <span>💬</span>
+          <span>പ്രൊഫൈൽ ചാറ്റ് (Doubts)</span>
+          <span id="profTabChatBadge" class="hidden bg-rose-600 text-white text-[9px] font-black px-1.5 py-0.2 rounded-full">!</span>
+        </button>
       </div>
 
-      <div class="flex-1 overflow-y-auto custom-scroll pr-1 space-y-2">
-        <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">പരീക്ഷാ ഹിസ്റ്ററി</h4>
+      <!-- TAB 1: പരീക്ഷാ ഹിസ്റ്ററി -->
+      <div id="profileHistoryTabArea" class="flex-1 overflow-y-auto custom-scroll pr-1 space-y-2 min-h-[220px]">
         <div id="historyList" class="space-y-2">
           <p class="text-xs text-slate-500 text-center py-4">ഹിസ്റ്ററി ലഭ്യമാക്കുന്നു...</p>
         </div>
       </div>
 
-      <div class="pt-2 border-t border-slate-800 text-center">
+      <!-- 🌟 TAB 2: പ്രൊഫൈൽ ചാറ്റ് (24-Hour Expiry Chat Area) -->
+      <div id="profileChatTabArea" class="hidden flex-1 flex flex-col justify-between space-y-3 min-h-[260px] max-h-[340px]">
+        <div class="flex items-center justify-between text-[11px] text-slate-400 px-1">
+          <span class="flex items-center space-x-1">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+            <span>മെന്റർ സപ്പോർട്ട് (Direct Chat)</span>
+          </span>
+          <span class="text-[10px] text-amber-400/90 font-mono bg-amber-950/40 px-2 py-0.5 rounded border border-amber-500/30">⏳ 24 മണിക്കൂർ കാലാവധി</span>
+        </div>
+
+        <div id="studentChatMessagesBox" class="flex-1 overflow-y-auto custom-scroll bg-slate-950/90 border border-slate-800 rounded-2xl p-3.5 space-y-3">
+          <p class="text-xs text-slate-500 text-center py-8">ചാറ്റ് സന്ദേശങ്ങൾ ലോഡ് ചെയ്യുന്നു...</p>
+        </div>
+
+        <form id="studentChatSendForm" onsubmit="sendStudentChatMessage(event)" class="flex items-center space-x-2">
+          <input type="text" id="studentChatInput" required placeholder="നിങ്ങളുടെ സംശയം ഇവിടെ ടൈപ്പ് ചെയ്യുക..." class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+          <button type="submit" id="studentChatSendBtn" class="px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 text-slate-950 font-black rounded-xl text-xs transition shadow cursor-pointer whitespace-nowrap flex items-center space-x-1">
+            <span>അയക്കുക</span>
+            <span>➤</span>
+          </button>
+        </form>
+      </div>
+
+      <div class="pt-2 border-t border-slate-800 flex items-center justify-between">
+        <span class="text-[10px] text-slate-500">SK PSC Mentor Guidance Desk</span>
         <button onclick="closeProfileModal()" class="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold rounded-xl cursor-pointer">ക്ലോസ് ചെയ്യുക</button>
       </div>
     </div>
@@ -430,6 +521,38 @@
     const EMAILJS_TEMPLATE_ID = "template_yjmhhna";
 
     const CURRENT_AUTH_VERSION = "v2_email_otp";
+    const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000; // 24 Hours Retention
+
+    const MAIN_EXAM_FOLDERS = [
+      {
+        id: 'LDC',
+        title: 'LDC (എൽ.ഡി.സി)',
+        subtitle: 'Lower Division Clerk Exams',
+        icon: '🏛️',
+        accent: 'emerald'
+      },
+      {
+        id: 'LGS',
+        title: 'LGS (എൽ.ജി.എസ്)',
+        subtitle: 'Last Grade Servants Exams',
+        icon: '🛡️',
+        accent: 'cyan'
+      },
+      {
+        id: 'DEGREE',
+        title: 'Degree Level (ഡിഗ്രി)',
+        subtitle: 'Degree Preliminary & Mains',
+        icon: '🎓',
+        accent: 'amber'
+      },
+      {
+        id: 'ALL_EXAMS',
+        title: 'എല്ലാ പരീക്ഷകളും',
+        subtitle: 'All Combined PSC Exams',
+        icon: '🌟',
+        accent: 'teal'
+      }
+    ];
 
     try {
       emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
@@ -439,9 +562,11 @@
 
     let rawQuizList = [];
     let candidate = null;
+    let selectedMainFolder = null;
     let selectedCategory = null;
     let allUsersCache = [];
     let userAttemptsMap = {}; 
+    let chatRefreshInterval = null;
 
     let generatedOTP = null;
     let otpExpiresAt = null;
@@ -463,6 +588,28 @@
     function cleanTitleForMatch(str) {
       if (!str) return "";
       return String(str).replace(/[\s\-_,.:;()\/\\|\[\]+&]+/g, '').toLowerCase();
+    }
+
+    function parseMainFolders(rawFolderValue) {
+      if (!rawFolderValue || String(rawFolderValue).trim() === '') {
+        return ['LDC'];
+      }
+      const upper = String(rawFolderValue).toUpperCase().trim();
+      if (upper === 'ALL' || upper === 'COMMON' || upper === 'എല്ലാം') {
+        return ['LDC', 'LGS', 'DEGREE'];
+      }
+
+      const matched = [];
+      if (upper.includes('LDC') || upper.includes('എൽഡിസി') || upper.includes('എൽ.ഡി.സി')) matched.push('LDC');
+      if (upper.includes('LGS') || upper.includes('എൽജിഎസ്') || upper.includes('എൽ.ജി.എസ്')) matched.push('LGS');
+      if (upper.includes('DEGREE') || upper.includes('ഡിഗ്രി')) matched.push('DEGREE');
+
+      return matched.length > 0 ? matched : ['LDC'];
+    }
+
+    function doesExamBelongToMainFolder(examItem, folderId) {
+      if (!folderId || folderId === 'ALL_EXAMS') return true;
+      return Array.isArray(examItem.mainFolders) && examItem.mainFolders.includes(folderId);
     }
 
     function parseReleaseTimestamp(dateStr) {
@@ -576,7 +723,7 @@
         const cacheTime = sessionStorage.getItem('sk_cache_time');
         const now = Date.now();
 
-        if (cacheTime && (now - Number(cacheTime)) < 10 * 60 * 1000) {
+        if (cacheTime && (now - Number(cacheTime)) < 5 * 60 * 1000) {
           try {
             cachedExams = JSON.parse(sessionStorage.getItem('sk_cached_exams'));
             cachedConfig = JSON.parse(sessionStorage.getItem('sk_cached_config'));
@@ -623,6 +770,24 @@
           });
         }
 
+        // 🌟 1. റെഡ് ബ്ലിങ്ക് മെസ്സേജ് കൺട്രോൾ (portal_config/blink_message)
+        const blinkBox = document.getElementById('heroBlinkAlertBox');
+        const blinkText = document.getElementById('heroBlinkAlertText');
+        if (configData && configData.blink_message !== undefined) {
+          const msg = String(configData.blink_message).trim();
+          if (msg === "" || msg === "HIDE" || msg === "OFF") {
+            blinkBox.classList.add('hidden');
+          } else {
+            blinkText.innerText = msg;
+            blinkBox.classList.remove('hidden');
+          }
+        } else {
+          // ഡിഫോൾട്ട് മെസ്സേജ്
+          blinkText.innerText = "2027 LDC & LGS EXAMS COMMING SOON";
+          blinkBox.classList.remove('hidden');
+        }
+
+        // 2. നോട്ടീസ് ബോർഡ് കൺട്രോൾ
         if (configData && configData.notice && String(configData.notice).trim() !== "") {
           document.getElementById('heroNoticeText').innerText = configData.notice;
           document.getElementById('heroNoticeBox').classList.remove('hidden');
@@ -665,12 +830,20 @@
             let badge = (ctrl && ctrl.status) ? ctrl.status : (item.BADGE || 'NORMAL');
             let relDate = (ctrl && ctrl.releaseDate) ? ctrl.releaseDate : (item.Release_Date || '');
 
+            let rawMainFolder = (ctrl && (ctrl.mainFolder || ctrl.examFolder || ctrl.examType))
+                                ? (ctrl.mainFolder || ctrl.examFolder || ctrl.examType)
+                                : (item.MAIN_FOLDER || item.mainFolder || item.EXAM_FOLDER || item.examFolder || item.EXAM_TYPE || item.examType || item.FOLDER || item.folder || 'LDC');
+
+            let mainFoldersArr = parseMainFolders(rawMainFolder);
+
             parsedList.push({
               originalIndex: idx,
               title: String(title).trim(),
               key: String(rawExamKey).trim(),
               fileUrl: buildExamUrl(item),
               category: String(category).trim(),
+              mainFolders: mainFoldersArr,
+              mainFolderLabel: mainFoldersArr.join(', '),
               questions: Number(questions) || 25,
               time: time,
               badge: String(badge).trim().toUpperCase(),
@@ -681,10 +854,13 @@
           });
 
           rawQuizList = parsedList;
-          renderFolders();
+          renderMainExamFolders();
           renderLatestReel();
           renderTimetableSection();
 
+          if (selectedMainFolder) {
+            renderSubjectFolders();
+          }
           if (selectedCategory) {
             applyFiltersAndRender();
           }
@@ -700,6 +876,7 @@
 
         if (candidate) {
           updateProfileAnalytics();
+          checkUnreadStudentChat();
         }
 
       } catch (err) {
@@ -707,7 +884,212 @@
       }
     }
 
-    // 🌟 മിക്സഡ് ഇൻഡക്സ് ഫോർമുല: 60% എക്സാം എണ്ണത്തിനും (Volume) + 40% മാർക്ക് ആക്യുറസിക്കും
+    function renderMainExamFolders() {
+      const container = document.getElementById('mainFoldersContainer');
+      if (!container) return;
+      container.innerHTML = '';
+
+      MAIN_EXAM_FOLDERS.forEach(folder => {
+        const matchingExams = rawQuizList.filter(q => doesExamBelongToMainFolder(q, folder.id));
+        const uniqueSubjects = new Set(matchingExams.map(q => q.category));
+        const hasLatest = matchingExams.some(q => q.badge === 'LATEST' && !isExamLocked(q.releaseDate));
+        const isActive = selectedMainFolder === folder.id;
+
+        let borderClass = isActive
+          ? 'bg-emerald-950/90 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] ring-1 ring-emerald-400'
+          : 'bg-slate-900 border-slate-800 hover:border-emerald-500/60';
+
+        if (hasLatest && !isActive) {
+          borderClass = 'bg-slate-900 border-rose-500/50 hover:border-rose-400';
+        }
+
+        const newBadgeMarkup = hasLatest
+          ? `<span class="auto-latest-badge px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-rose-600 text-white absolute -top-2 right-3 shadow">● NEW</span>`
+          : '';
+
+        const card = document.createElement('div');
+        card.className = `p-4 rounded-2xl border cursor-pointer transition transform active:scale-95 flex items-center justify-between relative ${borderClass}`;
+        card.onclick = () => selectMainFolder(folder.id);
+
+        card.innerHTML = `
+          ${newBadgeMarkup}
+          <div class="flex items-center space-x-3.5 min-w-0">
+            <div class="w-12 h-12 rounded-2xl ${isActive ? 'bg-emerald-500 text-slate-950' : 'bg-slate-950 text-emerald-400 border border-slate-800'} flex items-center justify-center text-2xl shadow-inner flex-shrink-0">
+              ${folder.icon}
+            </div>
+            <div class="min-w-0">
+              <h4 class="text-sm sm:text-base font-black text-white truncate">${folder.title}</h4>
+              <p class="text-[11px] text-slate-400 truncate">${folder.subtitle}</p>
+              <div class="flex items-center space-x-2 mt-1">
+                <span class="text-[10px] font-mono font-bold text-emerald-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-800">
+                  📁 ${uniqueSubjects.size} വിഷയങ്ങൾ
+                </span>
+                <span class="text-[10px] font-mono font-semibold text-cyan-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-800">
+                  📝 ${matchingExams.length} പരീക്ഷകൾ
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="w-7 h-7 rounded-full ${isActive ? 'bg-emerald-500 text-slate-950' : 'bg-slate-950 text-slate-400'} flex items-center justify-center font-bold text-sm flex-shrink-0 ml-2">
+            ${isActive ? '▾' : '›'}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function selectMainFolder(folderId) {
+      if (selectedMainFolder === folderId) {
+        closeMainFolder();
+        return;
+      }
+      selectedMainFolder = folderId;
+      selectedCategory = null;
+
+      renderMainExamFolders();
+      renderSubjectFolders();
+
+      document.getElementById('examsDisplayArea').classList.add('hidden');
+      const subjectSection = document.getElementById('subjectFoldersSection');
+      subjectSection.classList.remove('hidden');
+
+      const folderMeta = MAIN_EXAM_FOLDERS.find(f => f.id === folderId);
+      document.getElementById('selectedMainFolderTitle').innerText = `${folderMeta ? folderMeta.title : folderId} - വിഷയങ്ങൾ (Subject Folders)`;
+
+      setTimeout(() => subjectSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+    }
+
+    function closeMainFolder() {
+      selectedMainFolder = null;
+      selectedCategory = null;
+      renderMainExamFolders();
+      document.getElementById('subjectFoldersSection').classList.add('hidden');
+      document.getElementById('examsDisplayArea').classList.add('hidden');
+    }
+
+    function renderSubjectFolders() {
+      const container = document.getElementById('foldersContainer');
+      if (!container || !selectedMainFolder) return;
+      container.innerHTML = '';
+
+      const folderExams = rawQuizList.filter(q => doesExamBelongToMainFolder(q, selectedMainFolder));
+
+      const counts = {};
+      const catHasLatest = {};
+
+      folderExams.forEach(q => {
+        const cat = q.category || 'പൊതുവിജ്ഞാനം';
+        counts[cat] = (counts[cat] || 0) + 1;
+        if (q.badge === 'LATEST' && !isExamLocked(q.releaseDate)) {
+          catHasLatest[cat] = true;
+        }
+      });
+
+      const allActive = selectedCategory === 'all';
+      const allFolder = document.createElement('div');
+      allFolder.className = `p-3 rounded-2xl border cursor-pointer transition transform active:scale-95 flex items-center justify-between snap-start ${allActive ? 'bg-emerald-950/90 border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.35)] ring-1 ring-emerald-400' : 'bg-slate-950 border-slate-800 hover:border-slate-700'}`;
+      allFolder.onclick = () => { selectFolder('all'); };
+      allFolder.innerHTML = `
+        <div class="flex items-center space-x-2.5 min-w-0">
+          <div class="w-8 h-8 rounded-xl ${allActive ? 'bg-emerald-500 text-slate-950' : 'bg-slate-900 text-emerald-400'} flex items-center justify-center font-bold text-sm shadow flex-shrink-0">🌟</div>
+          <div class="min-w-0">
+            <h4 class="text-xs font-bold text-white truncate">എല്ലാ വിഷയങ്ങളും</h4>
+            <span class="text-[9px] text-slate-400 font-mono block">${folderExams.length} പരീക്ഷകൾ</span>
+          </div>
+        </div>
+        <span class="text-xs ${allActive ? 'text-emerald-400 font-bold' : 'text-slate-600'} flex-shrink-0 ml-1">›</span>
+      `;
+      container.appendChild(allFolder);
+
+      const catList = Object.keys(counts).sort((a, b) => {
+        const aNew = catHasLatest[a] ? 1 : 0;
+        const bNew = catHasLatest[b] ? 1 : 0;
+        if (bNew !== aNew) return bNew - aNew;
+        return a.localeCompare(b);
+      });
+
+      catList.forEach(cat => {
+        const isActive = selectedCategory === cat;
+        const hasNew = catHasLatest[cat];
+
+        const folder = document.createElement('div');
+        let borderClass = isActive ? 'bg-emerald-950/90 border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.35)] ring-1 ring-emerald-400' : 'bg-slate-950 border-slate-800 hover:border-slate-700';
+        if (hasNew && !isActive) borderClass = 'bg-slate-950 border-rose-500/50 hover:border-rose-400';
+
+        folder.className = `p-3 rounded-2xl border cursor-pointer transition transform active:scale-95 flex items-center justify-between snap-start relative ${borderClass}`;
+        folder.onclick = () => { selectFolder(cat); };
+
+        const newBadge = hasNew 
+          ? `<span class="auto-latest-badge px-1.5 py-0.2 rounded text-[8px] font-black uppercase tracking-wider bg-rose-600 text-white absolute -top-1.5 -right-1 shadow">● NEW</span>` 
+          : '';
+
+        folder.innerHTML = `
+          ${newBadge}
+          <div class="flex items-center space-x-2.5 min-w-0">
+            <div class="w-8 h-8 rounded-xl ${isActive ? 'bg-emerald-500 text-slate-950' : 'bg-slate-900 text-emerald-400'} flex items-center justify-center font-bold text-sm shadow flex-shrink-0">📁</div>
+            <div class="min-w-0">
+              <h4 class="text-xs font-bold text-white truncate">${cat}</h4>
+              <span class="text-[9px] text-slate-400 font-mono block">${counts[cat]} പരീക്ഷകൾ</span>
+            </div>
+          </div>
+          <span class="text-xs ${isActive ? 'text-emerald-400 font-bold' : 'text-slate-600'} flex-shrink-0 ml-1">›</span>
+        `;
+        container.appendChild(folder);
+      });
+    }
+
+    function selectFolder(cat) {
+      if (selectedCategory === cat) {
+        closeSelectedCategory();
+        return;
+      }
+      selectedCategory = cat;
+      renderSubjectFolders();
+
+      const area = document.getElementById('examsDisplayArea');
+      area.classList.remove('hidden');
+
+      const folderMeta = MAIN_EXAM_FOLDERS.find(f => f.id === selectedMainFolder);
+      const mainLabel = folderMeta ? folderMeta.id : 'ALL';
+
+      const headerTitle = document.getElementById('activeCategoryHeader');
+      headerTitle.innerHTML = (cat === 'all') 
+        ? `<span>📑</span><span>${mainLabel} › എല്ലാ പരീക്ഷകളും</span>` 
+        : `<span>📁</span><span>${mainLabel} › ${cat} - പരീക്ഷകൾ</span>`;
+
+      applyFiltersAndRender();
+      setTimeout(() => area.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+    }
+
+    function closeSelectedCategory() {
+      selectedCategory = null;
+      renderSubjectFolders();
+      document.getElementById('examsDisplayArea').classList.add('hidden');
+    }
+
+    function applyFiltersAndRender() {
+      const searchText = document.getElementById('searchInput').value.trim().toLowerCase();
+      const sortBy = document.getElementById('sortSelect').value;
+
+      let filtered = rawQuizList.filter(q => {
+        const matchMain = doesExamBelongToMainFolder(q, selectedMainFolder);
+        const matchCat = (!selectedCategory || selectedCategory === 'all' || q.category === selectedCategory);
+        const matchSearch = !searchText || 
+                            q.title.toLowerCase().includes(searchText) || 
+                            q.topics.toLowerCase().includes(searchText) || 
+                            q.category.toLowerCase().includes(searchText) || 
+                            q.mainFolderLabel.toLowerCase().includes(searchText);
+        return matchMain && matchCat && matchSearch;
+      });
+
+      if (sortBy === 'newest') filtered.sort((a, b) => b.originalIndex - a.originalIndex);
+      else if (sortBy === 'oldest') filtered.sort((a, b) => a.originalIndex - b.originalIndex);
+      else if (sortBy === 'questions_desc') filtered.sort((a, b) => b.questions - a.questions);
+      else if (sortBy === 'title_asc') filtered.sort((a, b) => a.title.localeCompare(b.title));
+
+      renderCompactCards(filtered);
+    }
+
     function calculateLiveHallOfFameFromUsers(allUsersObj) {
       const container = document.getElementById('topStudentsList');
       const section = document.getElementById('topStudentsSection');
@@ -724,13 +1106,11 @@
         const totalUniqueTests = Number(u.Unique_Exams || u.totalExams || u.Total_Attempts || 0);
         const avgScore = Number(u.First_Attempt_Avg || u.avgScore || 0);
         
-        // ചുരുങ്ങിയത് 5 പരീക്ഷയെങ്കിലും എഴുതിയവരെ മാത്രം റാങ്കിംഗിലേക്ക് പരിഗണിക്കുന്നു
         if (totalUniqueTests < 5) return;
 
         const candidateName = String(u.Official_Name || u.name || 'വിദ്യാർത്ഥി').trim();
         if (candidateName === 'വിദ്യാർത്ഥി') return;
 
-        // ഒരേ ഫോൺ നമ്പറിലെ ഏറ്റവും ഉയർന്ന റെക്കോർഡ് എടുക്കുന്നു
         if (!studentMap[p] || totalUniqueTests > studentMap[p].totalExams) {
           studentMap[p] = {
             phone: p,
@@ -744,7 +1124,6 @@
 
       let performanceList = Object.values(studentMap);
 
-      // 🌟 പേര് വെച്ചുള്ള ഡ്യൂപ്ലിക്കേഷൻ ഒഴിവാക്കൽ (ഒരേ വിദ്യാർത്ഥിക്ക് 2 അക്കൗണ്ട് ഉണ്ടെങ്കിലും ബെസ്റ്റ് മാത്രം)
       const nameMap = {};
       performanceList.forEach(std => {
         const cleanName = std.name.toLowerCase().replace(/\s+/g, '');
@@ -760,16 +1139,13 @@
         return;
       }
 
-      // ബാച്ചിലെ പരമാവധി എക്സാം എണ്ണം കണ്ടെത്തുന്നു
       const maxExams = Math.max(...performanceList.map(s => s.totalExams), 1);
 
-      // 🌟 പുതിയ മിക്സഡ് ഇൻഡക്സ് ഫോർമുല: 60% എക്സാം എണ്ണത്തിനും (Volume) + 40% മാർക്ക് ആക്യുറസിക്കും മുൻഗണന
       performanceList.forEach(std => {
         const volumeScore = Math.min(100, (std.totalExams / maxExams) * 100);
         std.compositeScore = (volumeScore * 0.6) + (std.accuracy * 0.4);
       });
 
-      // കോമ്പോസിറ്റ് സ്കോർ വെച്ച് സോർട്ട് ചെയ്യുന്നു
       performanceList.sort((a, b) => {
         if (b.compositeScore !== a.compositeScore) return b.compositeScore - a.compositeScore;
         if (b.totalExams !== a.totalExams) return b.totalExams - a.totalExams;
@@ -852,6 +1228,7 @@
             <div class="space-y-1">
               <div class="flex items-center space-x-2">
                 ${badgeMarkup}
+                <span class="text-[10px] bg-slate-900 text-cyan-400 px-2 py-0.5 rounded border border-slate-800 font-bold">${todayItem.mainFolderLabel}</span>
                 <span class="text-xs text-slate-400 font-mono">സമയം: ${displayTimeStr}</span>
               </div>
               <h4 class="text-sm font-bold text-white">${todayItem.title}</h4>
@@ -875,7 +1252,7 @@
           const row = document.createElement('div');
           row.className = "bg-slate-950/60 p-2 rounded-lg border border-slate-800 flex items-center justify-between text-xs";
           row.innerHTML = `
-            <span class="font-medium text-slate-300 truncate max-w-[200px] sm:max-w-none">${fut.title}</span>
+            <span class="font-medium text-slate-300 truncate max-w-[200px] sm:max-w-none">${fut.title} <span class="text-[10px] text-cyan-400">(${fut.mainFolderLabel})</span></span>
             <span class="font-mono text-[11px] text-emerald-400 bg-slate-900 px-2 py-0.5 rounded border border-emerald-500/20">🔒 UPCOMING (${fut.releaseDate.replace('T', ' ')})</span>
           `;
           upcomingList.appendChild(row);
@@ -915,10 +1292,13 @@
           <div class="w-64 sm:w-72 bg-slate-900 border-2 border-rose-500/50 rounded-2xl p-3.5 shadow-lg flex-shrink-0 snap-start flex flex-col justify-between space-y-2 relative">
             <div>
               <div class="flex items-center justify-between mb-1.5">
-                <span class="auto-latest-badge px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-rose-600 text-white shadow-sm">
-                  ● LATEST
-                </span>
-                <span class="text-[10px] text-slate-400 bg-slate-950 px-2 py-0.5 rounded truncate max-w-[110px]">${q.category}</span>
+                <div class="flex items-center space-x-1">
+                  <span class="auto-latest-badge px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-rose-600 text-white shadow-sm">
+                    ● LATEST
+                  </span>
+                  <span class="text-[9px] font-bold text-cyan-300 bg-cyan-950/80 px-1.5 py-0.5 rounded border border-cyan-500/30">${q.mainFolderLabel}</span>
+                </div>
+                <span class="text-[10px] text-slate-400 bg-slate-950 px-2 py-0.5 rounded truncate max-w-[100px]">${q.category}</span>
               </div>
               <h4 class="text-xs sm:text-sm font-bold text-white line-clamp-2 leading-tight">${q.title}</h4>
               <p class="text-[11px] text-slate-400 line-clamp-1 mt-1">${q.topics || 'പ്രധാന പരീക്ഷാ ചോദ്യങ്ങൾ'}</p>
@@ -933,124 +1313,6 @@
         `;
       });
       reelList.innerHTML = cardsHtml;
-    }
-
-    function renderFolders() {
-      const container = document.getElementById('foldersContainer');
-      if (!container) return;
-      container.innerHTML = '';
-
-      const counts = {};
-      const catHasLatest = {};
-
-      rawQuizList.forEach(q => {
-        const cat = q.category || 'പൊതുവിജ്ഞാനം';
-        counts[cat] = (counts[cat] || 0) + 1;
-        if (q.badge === 'LATEST' && !isExamLocked(q.releaseDate)) {
-          catHasLatest[cat] = true;
-        }
-      });
-
-      const allActive = selectedCategory === 'all';
-      const allFolder = document.createElement('div');
-      allFolder.className = `p-3 rounded-2xl border cursor-pointer transition transform active:scale-95 flex items-center justify-between snap-start ${allActive ? 'bg-emerald-950/90 border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.35)] ring-1 ring-emerald-400' : 'bg-slate-900 border-slate-800 hover:border-slate-700'}`;
-      allFolder.onclick = () => { selectFolder('all'); };
-      allFolder.innerHTML = `
-        <div class="flex items-center space-x-2.5 min-w-0">
-          <div class="w-8 h-8 rounded-xl ${allActive ? 'bg-emerald-500 text-slate-950' : 'bg-slate-950 text-emerald-400'} flex items-center justify-center font-bold text-sm shadow flex-shrink-0">🌟</div>
-          <div class="min-w-0">
-            <h4 class="text-xs font-bold text-white truncate">എല്ലാ പരീക്ഷകളും</h4>
-            <span class="text-[9px] text-slate-400 font-mono block">${rawQuizList.length} പരീക്ഷകൾ</span>
-          </div>
-        </div>
-        <span class="text-xs ${allActive ? 'text-emerald-400 font-bold' : 'text-slate-600'} flex-shrink-0 ml-1">›</span>
-      `;
-      container.appendChild(allFolder);
-
-      const catList = Object.keys(counts).sort((a, b) => {
-        const aNew = catHasLatest[a] ? 1 : 0;
-        const bNew = catHasLatest[b] ? 1 : 0;
-        if (bNew !== aNew) return bNew - aNew;
-        return a.localeCompare(b);
-      });
-
-      catList.forEach(cat => {
-        const isActive = selectedCategory === cat;
-        const hasNew = catHasLatest[cat];
-
-        const folder = document.createElement('div');
-        let borderClass = isActive ? 'bg-emerald-950/90 border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.35)] ring-1 ring-emerald-400' : 'bg-slate-900 border-slate-800 hover:border-slate-700';
-        if (hasNew && !isActive) borderClass = 'bg-slate-900 border-rose-500/50 hover:border-rose-400';
-
-        folder.className = `p-3 rounded-2xl border cursor-pointer transition transform active:scale-95 flex items-center justify-between snap-start relative ${borderClass}`;
-        folder.onclick = () => { selectFolder(cat); };
-
-        const newBadge = hasNew 
-          ? `<span class="auto-latest-badge px-1.5 py-0.2 rounded text-[8px] font-black uppercase tracking-wider bg-rose-600 text-white absolute -top-1.5 -right-1 shadow">● NEW</span>` 
-          : '';
-
-        folder.innerHTML = `
-          ${newBadge}
-          <div class="flex items-center space-x-2.5 min-w-0">
-            <div class="w-8 h-8 rounded-xl ${isActive ? 'bg-emerald-500 text-slate-950' : 'bg-slate-950 text-emerald-400'} flex items-center justify-center font-bold text-sm shadow flex-shrink-0">📁</div>
-            <div class="min-w-0">
-              <h4 class="text-xs font-bold text-white truncate">${cat}</h4>
-              <span class="text-[9px] text-slate-400 font-mono block">${counts[cat]} പരീക്ഷകൾ</span>
-            </div>
-          </div>
-          <span class="text-xs ${isActive ? 'text-emerald-400 font-bold' : 'text-slate-600'} flex-shrink-0 ml-1">›</span>
-        `;
-        container.appendChild(folder);
-      });
-    }
-
-    function selectFolder(cat) {
-      if (selectedCategory === cat) {
-        closeSelectedCategory();
-        return;
-      }
-      selectedCategory = cat;
-      renderFolders();
-
-      const area = document.getElementById('examsDisplayArea');
-      area.classList.remove('hidden');
-
-      const headerTitle = document.getElementById('activeCategoryHeader');
-      headerTitle.innerHTML = (cat === 'all') 
-        ? '<span>📑</span><span>എല്ലാ പരീക്ഷകളും</span>' 
-        : `<span>📁</span><span>${cat} - പരീക്ഷകൾ</span>`;
-
-      applyFiltersAndRender();
-      setTimeout(() => area.scrollIntoView({ behavior: 'smooth' }), 50);
-    }
-
-    function closeSelectedCategory() {
-      selectedCategory = null;
-      renderFolders();
-      document.getElementById('examsDisplayArea').classList.add('hidden');
-    }
-
-    function applyFiltersAndRender() {
-      if (!selectedCategory) return;
-
-      const searchText = document.getElementById('searchInput').value.trim().toLowerCase();
-      const sortBy = document.getElementById('sortSelect').value;
-
-      let filtered = rawQuizList.filter(q => {
-        const matchCat = (selectedCategory === 'all' || q.category === selectedCategory);
-        const matchSearch = !searchText || 
-                            q.title.toLowerCase().includes(searchText) || 
-                            q.topics.toLowerCase().includes(searchText) || 
-                            q.category.toLowerCase().includes(searchText);
-        return matchCat && matchSearch;
-      });
-
-      if (sortBy === 'newest') filtered.sort((a, b) => b.originalIndex - a.originalIndex);
-      else if (sortBy === 'oldest') filtered.sort((a, b) => a.originalIndex - b.originalIndex);
-      else if (sortBy === 'questions_desc') filtered.sort((a, b) => b.questions - a.questions);
-      else if (sortBy === 'title_asc') filtered.sort((a, b) => a.title.localeCompare(b.title));
-
-      renderCompactCards(filtered);
     }
 
     function renderCompactCards(list) {
@@ -1142,7 +1404,10 @@
         card.innerHTML = `
           <div>
             <div class="flex items-center justify-between gap-1.5 mb-1.5">
-              <div class="flex items-center space-x-1">${badgeMarkup}</div>
+              <div class="flex items-center space-x-1.5">
+                ${badgeMarkup}
+                <span class="text-[9px] font-bold text-cyan-300 bg-cyan-950/70 px-1.5 py-0.5 rounded border border-cyan-500/30">${q.mainFolderLabel}</span>
+              </div>
               <span class="text-[10px] font-medium text-slate-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-800/80 truncate max-w-[120px]">${q.category}</span>
             </div>
             <h3 class="text-sm font-bold text-white leading-tight line-clamp-2">${q.title}</h3>
@@ -1376,9 +1641,208 @@
       }
     }
 
-    function openProfileModal() {
+    // 🌟 ഫീച്ചർ 2: സ്റ്റുഡന്റ് ഡൗട്ട് ചാറ്റ് സിസ്റ്റം (24 മണിക്കൂർ ലൈഫ് ടൈം സഹിതം)
+    function handleFloatingChatClick() {
+      if (!candidate) {
+        alert("സംശയങ്ങൾ ചോദിക്കാനും മെന്റർ മറുപടികൾ കാണാനും ദയവായി ലോഗിൻ ചെയ്യുക.");
+        const loginCard = document.getElementById('homeLoginCard');
+        if (loginCard) loginCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+      openProfileModal('chat');
+    }
+
+    function switchProfileModalTab(tabName) {
+      const histArea = document.getElementById('profileHistoryTabArea');
+      const chatArea = document.getElementById('profileChatTabArea');
+      const btnHist = document.getElementById('profTabBtnHistory');
+      const btnChat = document.getElementById('profTabBtnChat');
+
+      if (tabName === 'chat') {
+        histArea.classList.add('hidden');
+        chatArea.classList.remove('hidden');
+        btnChat.className = "py-2 rounded-xl text-xs font-black bg-emerald-500 text-slate-950 transition cursor-pointer flex items-center justify-center space-x-1.5 relative";
+        btnHist.className = "py-2 rounded-xl text-xs font-bold text-slate-300 hover:text-white transition cursor-pointer flex items-center justify-center space-x-1.5";
+        
+        loadStudentChatMessages(true);
+        if (chatRefreshInterval) clearInterval(chatRefreshInterval);
+        chatRefreshInterval = setInterval(() => { loadStudentChatMessages(false); }, 6000);
+      } else {
+        chatArea.classList.add('hidden');
+        histArea.classList.remove('hidden');
+        btnHist.className = "py-2 rounded-xl text-xs font-black bg-emerald-500 text-slate-950 transition cursor-pointer flex items-center justify-center space-x-1.5";
+        btnChat.className = "py-2 rounded-xl text-xs font-bold text-slate-300 hover:text-white transition cursor-pointer flex items-center justify-center space-x-1.5 relative";
+        if (chatRefreshInterval) clearInterval(chatRefreshInterval);
+      }
+    }
+
+    async function checkUnreadStudentChat() {
+      if (!candidate || !candidate.phone) return;
+      const cleanPhone = sanitizePhone(candidate.phone);
+      try {
+        const chatData = await fetch(`${FIREBASE_DB_URL}/student_chats/${cleanPhone}.json`).then(r => r.json()).catch(() => null);
+        const navBadge = document.getElementById('navUnreadChatBadge');
+        const floatBadge = document.getElementById('floatingUnreadBadge');
+        const tabBadge = document.getElementById('profTabChatBadge');
+
+        if (chatData && chatData.unreadByStudent === true) {
+          navBadge.classList.remove('hidden');
+          floatBadge.classList.remove('hidden');
+          tabBadge.classList.remove('hidden');
+        } else {
+          navBadge.classList.add('hidden');
+          floatBadge.classList.add('hidden');
+          tabBadge.classList.add('hidden');
+        }
+      } catch(e) {}
+    }
+
+    // 🌟 24 മണിക്കൂർ വാലിഡിറ്റിയോടെ ചാറ്റ് ലോഡ് ചെയ്യലും കാലഹരണപ്പെട്ടവ ഡിലീറ്റ് ചെയ്യലും
+    async function loadStudentChatMessages(markAsRead = false) {
+      if (!candidate || !candidate.phone) return;
+      const cleanPhone = sanitizePhone(candidate.phone);
+      const box = document.getElementById('studentChatMessagesBox');
+      const now = Date.now();
+
+      try {
+        const chatData = await fetch(`${FIREBASE_DB_URL}/student_chats/${cleanPhone}.json`).then(r => r.json()).catch(() => null);
+        if (!chatData || !chatData.messages) {
+          box.innerHTML = `
+            <div class="text-center py-8 space-y-2">
+              <div class="text-3xl">👋</div>
+              <p class="text-xs text-slate-300 font-bold">പഠന സംശയങ്ങൾ നേരിട്ട് ചോദിക്കാം!</p>
+              <p class="text-[11px] text-slate-500">നിങ്ങളുടെ സംശയങ്ങൾക്ക് അഡ്മിൻ നൽകുന്ന മറുപടി ഇവിടെ 24 മണിക്കൂർ ലഭ്യമായിരിക്കും.</p>
+            </div>
+          `;
+          return;
+        }
+
+        const validMessages = [];
+        const expiredKeys = [];
+
+        for (const [msgKey, m] of Object.entries(chatData.messages)) {
+          if (!m || !m.timestamp) continue;
+          if (now - Number(m.timestamp) <= TWENTY_FOUR_HOURS_MS) {
+            validMessages.push(m);
+          } else {
+            expiredKeys.push(msgKey);
+          }
+        }
+
+        // 24 മണിക്കൂർ കഴിഞ്ഞ പഴയ മെസ്സേജുകൾ ഫയർബേസിൽ നിന്ന് തനിയെ ഡിലീറ്റ് ചെയ്യുന്നു
+        if (expiredKeys.length > 0) {
+          expiredKeys.forEach(k => {
+            fetch(`${FIREBASE_DB_URL}/student_chats/${cleanPhone}/messages/${k}.json`, { method: 'DELETE' }).catch(() => null);
+          });
+        }
+
+        if (validMessages.length === 0) {
+          box.innerHTML = `
+            <div class="text-center py-8 space-y-1.5">
+              <div class="text-2xl">⏳</div>
+              <p class="text-xs text-slate-400 font-bold">മുൻപത്തെ സന്ദേശങ്ങൾ 24 മണിക്കൂർ പൂർത്തിയായി നീക്കം ചെയ്യപ്പെട്ടു.</p>
+              <p class="text-[11px] text-slate-500">പുതിയ സംശയങ്ങൾ താഴെ ടൈപ്പ് ചെയ്ത് അയക്കാവുന്നതാണ്.</p>
+            </div>
+          `;
+          return;
+        }
+
+        validMessages.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+
+        let html = '';
+        validMessages.forEach(m => {
+          const isAdmin = m.sender === 'admin';
+          const alignClass = isAdmin ? 'justify-start' : 'justify-end';
+          const bubbleStyle = isAdmin
+            ? 'bg-slate-800 border border-emerald-500/40 text-slate-100 rounded-2xl rounded-tl-xs'
+            : 'bg-emerald-500 text-slate-950 font-semibold rounded-2xl rounded-tr-xs';
+          const senderLabel = isAdmin
+            ? `<span class="text-[10px] font-black text-emerald-400 block mb-0.5">👨‍🏫 SK PSC Admin</span>`
+            : `<span class="text-[9px] font-bold text-slate-900/70 block mb-0.5 text-right">നിങ്ങൾ</span>`;
+
+          html += `
+            <div class="flex ${alignClass}">
+              <div class="max-w-[85%] px-3.5 py-2.5 text-xs shadow ${bubbleStyle}">
+                ${senderLabel}
+                <p class="whitespace-pre-line leading-relaxed">${m.text || ''}</p>
+                <span class="block text-[9px] ${isAdmin ? 'text-slate-400' : 'text-slate-900/70'} text-right mt-1 font-mono">${m.timeStr || ''}</span>
+              </div>
+            </div>
+          `;
+        });
+
+        box.innerHTML = html;
+        box.scrollTop = box.scrollHeight;
+
+        if (markAsRead && chatData.unreadByStudent) {
+          await fetch(`${FIREBASE_DB_URL}/student_chats/${cleanPhone}.json`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ unreadByStudent: false })
+          }).catch(() => null);
+          checkUnreadStudentChat();
+        }
+      } catch (e) {
+        box.innerHTML = '<p class="text-xs text-rose-400 text-center py-6">ചാറ്റ് ലോഡ് ചെയ്യാൻ സാധിച്ചില്ല.</p>';
+      }
+    }
+
+    async function sendStudentChatMessage(e) {
+      e.preventDefault();
+      if (!candidate || !candidate.phone) return;
+
+      const input = document.getElementById('studentChatInput');
+      const btn = document.getElementById('studentChatSendBtn');
+      const text = input.value.trim();
+      if (!text) return;
+
+      btn.disabled = true;
+      btn.innerText = "അയക്കുന്നു...";
+
+      const cleanPhone = sanitizePhone(candidate.phone);
+      const now = new Date();
+      const timeStr = now.toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+
+      const msgObj = {
+        sender: 'student',
+        text: text,
+        timestamp: Date.now(),
+        timeStr: timeStr
+      };
+
+      try {
+        await fetch(`${FIREBASE_DB_URL}/student_chats/${cleanPhone}/messages.json`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(msgObj)
+        });
+
+        await fetch(`${FIREBASE_DB_URL}/student_chats/${cleanPhone}.json`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            studentName: candidate.name,
+            phone: cleanPhone,
+            lastMessage: text,
+            lastUpdated: Date.now(),
+            unreadByAdmin: true
+          })
+        });
+
+        input.value = '';
+        await loadStudentChatMessages(true);
+      } catch (err) {
+        alert("സന്ദേശം അയക്കുന്നതിൽ തടസ്സം നേരിട്ടു.");
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "അയക്കുക ➤";
+      }
+    }
+
+    function openProfileModal(defaultTab = 'history') {
       document.getElementById('profileModal').classList.remove('hidden');
       document.getElementById('editNameBox').classList.add('hidden');
+      switchProfileModalTab(defaultTab);
       if (candidate && candidate.phone) {
         fetchUserExamHistory(candidate.phone);
         updateProfileAnalytics();
@@ -1387,6 +1851,7 @@
 
     function closeProfileModal() {
       document.getElementById('profileModal').classList.add('hidden');
+      if (chatRefreshInterval) clearInterval(chatRefreshInterval);
     }
 
     function toggleEditProfile() {
@@ -1426,6 +1891,7 @@
       document.getElementById('profileDisplayName').innerText = candidate.name;
       document.getElementById('profileDisplayPhone').innerText = `ഫോൺ: +91 ${candidate.phone}`;
       updateProfileAnalytics();
+      checkUnreadStudentChat();
     }
 
     function logoutCandidate() {
@@ -1433,6 +1899,7 @@
         localStorage.removeItem('sk_candidate_user');
         candidate = null;
         userAttemptsMap = {};
+        if (chatRefreshInterval) clearInterval(chatRefreshInterval);
         document.getElementById('homeLoginCard').classList.remove('hidden');
         document.getElementById('examSection').classList.add('hidden');
         document.getElementById('navUserBox').classList.add('hidden');
@@ -1590,9 +2057,15 @@
     }
 
     document.getElementById('searchInput').addEventListener('input', () => {
-      if (!selectedCategory) selectedCategory = 'all';
-      renderFolders();
-      document.getElementById('examsDisplayArea').classList.add('hidden');
+      const val = document.getElementById('searchInput').value.trim();
+      if (val) {
+        if (!selectedMainFolder) selectedMainFolder = 'ALL_EXAMS';
+        if (!selectedCategory) selectedCategory = 'all';
+        renderMainExamFolders();
+        renderSubjectFolders();
+        document.getElementById('subjectFoldersSection').classList.remove('hidden');
+        document.getElementById('examsDisplayArea').classList.remove('hidden');
+      }
       applyFiltersAndRender();
     });
 
