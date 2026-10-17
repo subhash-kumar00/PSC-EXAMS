@@ -341,9 +341,30 @@
         const res = await fetch(`${FIREBASE_DB_URL}/quiz_contents/${quizKey}.json`);
         const data = await res.json();
 
-        if (data && data.questions) {
-          questionsData = data.questions;
-          if (data.examTitle && !passedTitle) examTitle = data.examTitle;
+        // 🌟 ഡാറ്റ നേരിട്ട് അറേ (Array) ആയോ, ഒബ്ജക്റ്റ് ആയോ, data.questions ആയോ വന്നാലും ഫിൽട്ടർ ചെയ്തു എടുക്കുന്നു
+        let extractedQuestions = null;
+        if (Array.isArray(data)) {
+          extractedQuestions = data;
+        } else if (data && data.questions) {
+          extractedQuestions = Array.isArray(data.questions) ? data.questions : Object.values(data.questions);
+        } else if (data && typeof data === 'object') {
+          extractedQuestions = Object.values(data);
+        }
+
+        // ശൂന്യമായ ഐറ്റങ്ങൾ ഒഴിവാക്കുന്നു
+        if (extractedQuestions) {
+          extractedQuestions = extractedQuestions.filter(item => item !== null && typeof item === 'object');
+        }
+
+        if (extractedQuestions && extractedQuestions.length > 0) {
+          questionsData = extractedQuestions.map(item => ({
+            q: item.q || item.question || item.title || '',
+            options: item.options || item.choices || [],
+            ans: item.ans !== undefined ? Number(item.ans) : (item.answer !== undefined ? Number(item.answer) : 0),
+            exp: item.exp || item.explanation || item.note || 'വിശദീകരണം ലഭ്യമല്ല.'
+          }));
+
+          if (data && data.examTitle && !passedTitle) examTitle = data.examTitle;
           document.getElementById('headerExamTitle').innerText = examTitle;
           document.getElementById('headerSubInfo').innerText = `${questionsData.length} ചോദ്യങ്ങൾ (${Math.round(questionsData.length)} മിനിറ്റ്)`;
           document.getElementById('footerExamTitle').innerText = `${examTitle} | PSC Model Exam`;
@@ -369,10 +390,11 @@
             document.getElementById('motivationScreen').classList.remove('hidden');
           }
         } else {
-          document.getElementById('loadingScreen').innerHTML = `<p class="text-rose-400">ഈ പരീക്ഷയുടെ ചോദ്യങ്ങൾ ഫയർബേസിൽ ലഭ്യമായിട്ടില്ല.</p>`;
+          document.getElementById('loadingScreen').innerHTML = `<p class="text-rose-400 font-bold">ഈ പരീക്ഷയുടെ ചോദ്യങ്ങൾ ഫയർബേസിൽ ലഭ്യമായിട്ടില്ല.</p>`;
         }
       } catch (err) {
-        document.getElementById('loadingScreen').innerHTML = `<p class="text-rose-400">ഡാറ്റ ലോഡ് ചെയ്യുന്നതിൽ തടസ്സം നേരിട്ടു.</p>`;
+        console.error("Firebase fetch error:", err);
+        document.getElementById('loadingScreen').innerHTML = `<p class="text-rose-400 font-bold">ഡാറ്റ ലോഡ് ചെയ്യുന്നതിൽ തടസ്സം നേരിട്ടു.</p>`;
       }
     });
 
@@ -648,7 +670,6 @@
       });
     }
 
-    // 🌟 users_history, live_ranks, ranks എന്നിവയിലേക്ക് കൃത്യമായി സേവ് ചെയ്യുന്ന ഫംഗ്ഷൻ (No Overwrite, No Data Loss)
     async function sendResultToFirebase(payload) {
       const statusDiv = document.getElementById('sheetStatus');
 
@@ -703,7 +724,6 @@
           keepalive: true
         };
 
-        // 🌟 1. live_ranks-ൽ വിദ്യാർത്ഥിക്ക് മുമ്പ് മാർക്ക് ഉണ്ടോ എന്ന് പരിശോധിക്കുന്നു (First Attempt Check)
         const checkLiveRes = await fetch(`${FIREBASE_DB_URL}/live_ranks/${cleanExamKey}/${studentPhone}.json`).catch(() => null);
         const liveData = checkLiveRes ? await checkLiveRes.json() : null;
 
@@ -711,7 +731,6 @@
 
         let saveTasks = [];
 
-        // ആദ്യ ശ്രമമാണെങ്കിൽ മാത്രം live_ranks ലേക്കും ranks ലേക്കും സേവ് ചെയ്യുന്നു
         if (isFirstAttempt) {
           saveTasks.push(
             fetch(`${FIREBASE_DB_URL}/live_ranks/${cleanExamKey}/${studentPhone}.json`, fetchOptions),
@@ -719,13 +738,11 @@
           );
         }
 
-        // 🌟 2. കുട്ടിയുടെ പ്രൊഫൈൽ ഹിസ്റ്ററിയിലേക്ക് (users_history) PATCH വഴി നേരിട്ട് ക്ലീൻ കീയിലും quizKey-ലും സേവ് ചെയ്യുന്നു
         saveTasks.push(
           fetch(`${FIREBASE_DB_URL}/users_history/${studentPhone}/${cleanExamKey}.json`, fetchOptions),
           fetch(`${FIREBASE_DB_URL}/users_history/${studentPhone}/${quizKey}.json`, fetchOptions)
         );
 
-        // 🌟 3. യൂസർ പ്രൊഫൈലിലേക്ക് കുട്ടിയുടെ പേരും ഫോണും നിലനിർത്തുന്നു
         saveTasks.push(
           fetch(`${FIREBASE_DB_URL}/users/${studentPhone}.json`, {
             method: 'PATCH',
