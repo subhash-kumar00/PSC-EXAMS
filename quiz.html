@@ -338,7 +338,7 @@
       document.getElementById('motivateSubTitle').innerText = `${examTitle} പരീക്ഷയിലേക്ക് സ്വാഗതം!`;
 
       try {
-        const res = await fetch(`${FIREBASE_DB_URL}/quiz_contents/${quizKey}.json`);
+        const res = await fetch(`${FIREBASE_DB_URL}/quiz_contents/${examKey}.json`);
         const data = await res.json();
 
         if (data && data.questions) {
