@@ -274,7 +274,7 @@
   </footer>
 
   <script>
-    const FIREBASE_DB_URL = "https://sk-psc-portal-default-rtdb.asia-southeast1.firebasedatabase.app";
+    const _URL = "https://sk-psc-portal-default-rtdb.asia-southeast1.firebasedatabase.app";
     let questionsData = [];
     let examTitle = "മോഡൽ എക്സാം";
     let quizKey = "plus_one_geo_1";
@@ -338,7 +338,7 @@
       document.getElementById('motivateSubTitle').innerText = `${examTitle} പരീക്ഷയിലേക്ക് സ്വാഗതം!`;
 
       try {
-        const res = await fetch(`${FIREBASE_DB_URL}/quiz_contents/${examKey}.json`);
+        const res = await fetch(`${FIREBASE_DB_URL}/quiz_contents/${quizKey}.json`);
         const data = await res.json();
 
         if (data && data.questions) {
