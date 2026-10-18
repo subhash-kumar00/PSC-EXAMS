@@ -664,19 +664,16 @@
       return 0;
     }
 
-    // 🌟 1. പഴയ sw.js ഉണ്ടെങ്കിൽ ഒഴിവാക്കി OneSignal-ന് വഴി നൽകുന്നു
+    // 🌟 OneSignal വർക്കറെ നിർബന്ധമായും ഫോണിൽ ആക്റ്റീവ് ആക്കുന്നു (Foreground & Background Work)
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', async () => {
         try {
-          const regs = await navigator.serviceWorker.getRegistrations();
-          for (let r of regs) {
-            if (r.active && r.active.scriptURL && r.active.scriptURL.includes('sw.js')) {
-              await r.unregister();
-              console.log('പഴയ sw.js ഒഴിവാക്കി!');
-            }
-          }
+          const reg = await navigator.serviceWorker.register('/PSC-EXAMS/OneSignalSDKWorker.js', {
+            scope: '/PSC-EXAMS/'
+          });
+          console.log('SK PSC OneSignal Worker Ready:', reg);
         } catch (err) {
-          console.log('SW cleanup error:', err);
+          console.log('Worker registration failed:', err);
         }
       });
     }
