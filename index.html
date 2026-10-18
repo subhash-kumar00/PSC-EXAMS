@@ -10,21 +10,23 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Noto+Sans+Malayalam:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- 🌟 OneSignal Push Notification SDK -->
-<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-<script>
-  window.OneSignalDeferred = window.OneSignalDeferred || [];
-  OneSignalDeferred.push(async function(OneSignal) {
-    await OneSignal.init({
-      appId: "39db2070-7998-49fc-b624-28b368a1674a",
-      serviceWorkerParam: { scope: '/PSC-EXAMS/' },
-      serviceWorkerPath: 'OneSignalSDKWorker.js',
-      notifyButton: {
-        enable: false
-      }
+
+  <!-- 🌟 OneSignal Push Notification SDK (Fixed Scope & Worker Path) -->
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "39db2070-7998-49fc-b624-28b368a1674a",
+        serviceWorkerPath: "/PSC-EXAMS/OneSignalSDKWorker.js",
+        serviceWorkerParam: { scope: "/PSC-EXAMS/" },
+        allowLocalhostAsSecureOrigin: true,
+        notifyButton: {
+          enable: false
+        }
+      });
     });
-  });
-</script>
+  </script>
 
   <!-- 🌟 PWA Meta Tags & Manifest -->
   <link rel="manifest" href="manifest.json">
@@ -33,7 +35,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="SK PSC">
-  <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/subhash-kumar00/PSC-EXAMS/main/logo.png">
+  <link rel="apple-touch-icon" href="logo.png">
 
   <!-- 🌟 EmailJS SDK -->
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
@@ -134,7 +136,6 @@
             <span id="navUserName" class="text-xs font-bold text-slate-200 block truncate max-w-[110px] sm:max-w-none"></span>
             <span class="text-[10px] text-emerald-400 block font-semibold hover:underline">പ്രൊഫൈൽ & ചാറ്റ് 💬</span>
           </div>
-          <!-- Unread Reply Badge -->
           <span id="navUnreadChatBadge" class="hidden absolute -top-1.5 -right-1.5 bg-rose-600 text-white text-[9px] font-black px-1.5 py-0.2 rounded-full animate-bounce shadow">NEW</span>
         </button>
         <button onclick="logoutCandidate()" class="text-xs text-rose-400 hover:text-rose-300 border border-rose-500/30 px-2.5 py-1.5 rounded-xl hover:bg-rose-950/30 transition cursor-pointer">Logout</button>
@@ -157,7 +158,7 @@
           </span>
         </div>
 
-        <!-- 🌟 ഫീച്ചർ 1: റെഡ് കളർ ബ്ലിങ്ക് മെസ്സേജ് ബാനർ (Admin Controlled) -->
+        <!-- റെഡ് കളർ ബ്ലിങ്ക് മെസ്സേജ് ബാനർ -->
         <div id="heroBlinkAlertBox" class="red-blink-banner bg-rose-950/50 border-2 border-rose-500/80 rounded-2xl px-3.5 py-2.5 inline-flex flex-wrap items-center gap-2.5 shadow-lg">
           <span class="auto-latest-badge px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-rose-600 text-white shadow-md">
             ● LATEST
@@ -191,11 +192,12 @@
         </div>
       </div>
 
+      <!-- ലോഗോ ഡിസ്പ്ലേ (Local File with Fallback) -->
       <div class="w-36 h-36 sm:w-44 sm:h-44 md:w-52 md:h-52 shrink-0 flex items-center justify-center relative z-10">
         <div class="absolute inset-0 bg-emerald-500/15 rounded-full blur-2xl"></div>
         <img 
           id="heroLogoImg"
-          src="https://raw.githubusercontent.com/subhash-kumar00/PSC-EXAMS/main/logo.png" 
+          src="logo.png" 
           alt="SK PSC Logo" 
           width="200"
           height="200"
@@ -203,7 +205,7 @@
           fetchpriority="high"
           decoding="async"
           class="w-full h-full object-contain relative z-10 drop-shadow-[0_10px_20px_rgba(16,185,129,0.3)] hover:scale-105 transition-transform duration-300"
-          onerror="this.onerror=null; this.src='logo.png';"
+          onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/subhash-kumar00/PSC-EXAMS/main/logo.png';"
         />
       </div>
     </div>
@@ -220,7 +222,7 @@
       <div id="topStudentsList" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5"></div>
     </div>
 
-    <!-- 🌟 സുരക്ഷിത ലോഗിൻ കാർഡ് (Mobile + Email OTP) -->
+    <!-- സുരക്ഷിത ലോഗിൻ കാർഡ് (Mobile + Email OTP) -->
     <div id="homeLoginCard" class="max-w-md mx-auto bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-4">
       <div class="text-center space-y-1">
         <span class="inline-block p-3 rounded-2xl bg-emerald-500/10 text-emerald-400 mb-1">
@@ -314,7 +316,7 @@
         </div>
       </div>
 
-      <!-- 🌟 1. ഹൊറിസോണ്ടൽ ലേറ്റസ്റ്റ് പരീക്ഷാ റീൽ -->
+      <!-- ഹൊറിസോണ്ടൽ ലേറ്റസ്റ്റ് പരീക്ഷാ റീൽ -->
       <div id="latestReelWrapper" class="hidden space-y-3">
         <div class="flex items-center justify-between">
           <div class="flex items-center space-x-2">
@@ -326,7 +328,7 @@
         <div id="latestReelList" class="flex space-x-3.5 overflow-x-auto custom-scroll pb-2.5 pt-1 snap-x"></div>
       </div>
 
-      <!-- 🌟 2. സെർച്ച് & സോർട്ടിംഗ് ബാർ -->
+      <!-- സെർച്ച് & സോർട്ടിംഗ് ബാർ -->
       <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-lg flex flex-col sm:flex-row gap-3 items-center justify-between">
         <div class="w-full sm:flex-1 relative">
           <input type="text" id="searchInput" placeholder="പരീക്ഷയുടെ പേരോ വിഷയമോ തിരയുക..." class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-3.5 pr-8 py-2.5 text-xs sm:text-sm text-slate-200 focus:outline-none focus:border-emerald-500 transition shadow-inner">
@@ -342,7 +344,7 @@
         </div>
       </div>
 
-      <!-- 🌟 3. STEP 1: പ്രധാന പരീക്ഷാ ഫോൾഡറുകൾ (LDC, LGS, DEGREE LEVEL) -->
+      <!-- പ്രധാന പരീക്ഷാ ഫോൾഡറുകൾ (LDC, LGS, DEGREE LEVEL) -->
       <div class="space-y-3">
         <div class="flex items-center justify-between">
           <h3 class="text-xs sm:text-sm font-black text-white uppercase tracking-wider flex items-center space-x-2">
@@ -355,7 +357,7 @@
         <div id="mainFoldersContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5"></div>
       </div>
 
-      <!-- 🌟 4. STEP 2: സബ്ജക്റ്റ് ഫോൾഡറുകൾ -->
+      <!-- സബ്ജക്റ്റ് ഫോൾഡറുകൾ -->
       <div id="subjectFoldersSection" class="hidden bg-slate-900/60 border border-slate-800/90 rounded-3xl p-4 sm:p-5 space-y-3.5 shadow-xl">
         <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
           <div class="flex items-center space-x-2">
@@ -375,7 +377,7 @@
         <div id="foldersContainer" class="grid grid-rows-2 sm:grid-rows-none sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 grid-flow-col sm:grid-flow-row auto-cols-[185px] sm:auto-cols-auto gap-2.5 overflow-x-auto sm:overflow-visible custom-scroll pb-2.5 pt-1 snap-x"></div>
       </div>
 
-      <!-- 🌟 5. STEP 3: തിരഞ്ഞെടുക്കുമ്പോൾ വരുന്ന പരീക്ഷാ കാർഡുകൾ -->
+      <!-- തിരഞ്ഞെടുക്കുമ്പോൾ വരുന്ന പരീക്ഷാ കാർഡുകൾ -->
       <div id="examsDisplayArea" class="hidden space-y-3 pt-2 border-t border-slate-800/80">
         <div class="flex items-center justify-between">
           <h4 class="text-xs sm:text-sm font-bold text-emerald-400 flex items-center space-x-1.5" id="activeCategoryHeader">
@@ -399,13 +401,13 @@
 
   </main>
 
-  <!-- 🌟 PWA ആപ്പ് ഇൻസ്റ്റാൾ ബട്ടൺ (Floating Install App Button) -->
+  <!-- PWA ആപ്പ് ഇൻസ്റ്റാൾ ബട്ടൺ (Floating Install App Button) -->
   <button id="pwaInstallBtn" class="hidden fixed bottom-20 left-4 sm:left-6 z-40 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black px-4 py-2.5 rounded-2xl shadow-[0_8px_20px_rgba(6,182,212,0.4)] flex items-center space-x-2 text-xs border border-cyan-400/50 animate-bounce cursor-pointer">
     <span class="text-base">📲</span>
     <span>ആപ്പ് ഇൻസ്റ്റാൾ ചെയ്യുക</span>
   </button>
 
-  <!-- 🌟 ഫ്ലോട്ടിങ് ഡൗട്ട് ചാറ്റ് ബട്ടൺ (Floating Doubt Button) -->
+  <!-- ഫ്ലോട്ടിങ് ഡൗട്ട് ചാറ്റ് ബട്ടൺ (Floating Doubt Button) -->
   <button id="floatingChatBtn" onclick="handleFloatingChatClick()" class="fixed bottom-5 right-5 z-40 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 text-slate-950 font-black px-4 py-3 rounded-2xl shadow-[0_10px_25px_rgba(16,185,129,0.4)] flex items-center space-x-2 transition transform hover:scale-105 active:scale-95 cursor-pointer border border-emerald-300/50">
     <span class="text-lg">💬</span>
     <span class="text-xs sm:text-sm font-bold">സംശയം ചോദിക്കാം</span>
@@ -449,7 +451,7 @@
     </div>
   </div>
 
-  <!-- 🌟 Profile & Student Chat Modal -->
+  <!-- Profile & Student Chat Modal -->
   <div id="profileModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-xl w-full p-5 sm:p-6 shadow-2xl space-y-4 flex flex-col max-h-[88vh]">
       <div class="flex items-center justify-between border-b border-slate-800 pb-3">
@@ -576,11 +578,7 @@
     let generatedOTP = null;
     let otpExpiresAt = null;
     let tempUserToVerify = null;
-
-    // 🌟 PWA & Push Notification State Variables
     let deferredPrompt = null;
-    let lastSeenReplyState = false;
-    let notifiedLiveExams = new Set();
 
     function sanitizePhone(rawPhone) {
       if (!rawPhone) return "";
@@ -667,16 +665,7 @@
       return 0;
     }
 
-    // 🌟 1. Service Worker & PWA രജിസ്ട്രേഷൻ
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js').then((reg) => {
-          console.log('Service Worker Registered Successfully');
-        }).catch(err => console.log('Service Worker Register Failed:', err));
-      });
-    }
-
-    // 🌟 2. ഇൻസ്റ്റാൾ ബട്ടൺ ഡിസ്പ്ലേ & ട്രിഗർ
+    // PWA ആപ്പ് ഇൻസ്റ്റാൾ ബട്ടൺ ട്രിഗർ
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
@@ -695,62 +684,13 @@
       }
     });
 
-    // 🌟 3. പുഷ് നോട്ടിഫിക്കേഷൻ പെർമിഷനും ലോക്കൽ നോട്ടിഫിക്കേഷൻ അയക്കലും
+    // 🌟 OneSignal ഔദ്യോഗിക പുഷ് പെർമിഷൻ ആക്റ്റീവ് ആക്കൽ
     async function requestNotificationPermission() {
-      if (!('Notification' in window)) return;
-      if (Notification.permission === 'default') {
-        const perm = await Notification.requestPermission();
-        if (perm === 'granted') {
-          sendLocalNotification("SK PSC നോട്ടിഫിക്കേഷൻ ഓൺ ആയി 🔔", "പരീക്ഷാ അറിയിപ്പുകളും മെന്റർ മറുപടികളും ഇനി തത്സമയം ഫോണിൽ ലഭിക്കും!");
-        }
-      }
-    }
-
-    function sendLocalNotification(title, bodyText) {
-      if (!('Notification' in window) || Notification.permission !== 'granted') return;
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.ready.then(reg => {
-          reg.showNotification(title, {
-            body: bodyText,
-            icon: 'https://raw.githubusercontent.com/subhash-kumar00/PSC-EXAMS/main/logo.png',
-            badge: 'https://raw.githubusercontent.com/subhash-kumar00/PSC-EXAMS/main/logo.png',
-            vibrate: [200, 100, 200]
-          });
+      if (window.OneSignalDeferred) {
+        OneSignalDeferred.push(async function(OneSignal) {
+          await OneSignal.Notifications.requestPermission();
         });
       }
-    }
-
-    // 🌟 4. അഡ്മിൻ റിപ്ലൈ തത്സമയം നിരീക്ഷിച്ചു നോട്ടിഫിക്കേഷൻ നൽകൽ
-    async function listenForChatReplies() {
-      if (!candidate || !candidate.phone) return;
-      const cleanPhone = sanitizePhone(candidate.phone);
-      try {
-        const res = await fetch(`${FIREBASE_DB_URL}/student_chats/${cleanPhone}.json`);
-        const data = await res.json();
-        if (data && data.unreadByStudent === true && lastSeenReplyState === false) {
-          lastSeenReplyState = true;
-          sendLocalNotification("👨‍🏫 SK PSC Mentor Reply", "നിങ്ങൾ ചോദിച്ച സംശയത്തിന് അഡ്മിൻ മറുപടി നൽകിയിട്ടുണ്ട്! പരിശോധിക്കാൻ ക്ലിക്ക് ചെയ്യുക.");
-        } else if (data && !data.unreadByStudent) {
-          lastSeenReplyState = false;
-        }
-      } catch(e) {}
-    }
-
-    // 🌟 5. പുതിയ പരീക്ഷ ലൈവ് ആകുമ്പോൾ തത്സമയം നോട്ടിഫിക്കേഷൻ നൽകൽ
-    function checkLiveExamNotifications() {
-      if (!rawQuizList || rawQuizList.length === 0) return;
-      const now = Date.now();
-      rawQuizList.forEach(q => {
-        if (q.badge === 'LATEST' && q.releaseDate) {
-          const relTime = parseReleaseTimestamp(q.releaseDate);
-          if (relTime && Math.abs(now - relTime) < 20 * 60 * 1000) {
-            if (!notifiedLiveExams.has(q.title)) {
-              notifiedLiveExams.add(q.title);
-              sendLocalNotification("🚀 പുതിയ പരീക്ഷ ആരംഭിച്ചു!", `"${q.title}" ഇപ്പോൾ ലൈവ് ആണ്. ഉടൻ എഴുതി റാങ്ക് നേടൂ!`);
-            }
-          }
-        }
-      });
     }
 
     window.addEventListener('DOMContentLoaded', () => {
@@ -782,14 +722,6 @@
       }
 
       fetchFirebaseData();
-
-      // പശ്ചാത്തലത്തിൽ നോട്ടിഫിക്കേഷനുകൾ മോണിറ്റർ ചെയ്യുന്നു (ഓരോ 20 സെക്കൻഡിലും)
-      setInterval(() => {
-        if (candidate) {
-          listenForChatReplies();
-          checkLiveExamNotifications();
-        }
-      }, 20000);
     });
 
     async function fetchFirebaseData() {
@@ -1559,7 +1491,7 @@
       }
     }
 
-    // 🌟 24-HOUR CHAT SYSTEM (WITH INSTANT UI & CACHE)
+    // 24-HOUR CHAT SYSTEM (WITH INSTANT UI & CACHE)
     function getLocalChatKey(phone) { return `sk_local_chat_${phone}`; }
 
     function handleFloatingChatClick() {
@@ -1800,6 +1732,7 @@
       alert('പേര് അപ്ഡേറ്റ് ചെയ്തു!');
     }
 
+    // 🌟 വിദ്യാർത്ഥി ലോഗിൻ ചെയ്യുമ്പോൾ ഔദ്യോഗികമായി OneSignal-ൽ കണക്റ്റ് ചെയ്യുന്നു
     function activateUserSession() {
       if (!candidate) return;
       document.getElementById('homeLoginCard').classList.add('hidden');
@@ -1812,14 +1745,14 @@
       updateProfileAnalytics();
       checkUnreadStudentChat();
 
-      // ലോഗിൻ ചെയ്ത ശേഷം നോട്ടിഫിക്കേഷൻ പെർമിഷൻ ചോദിക്കുന്നു
-      requestNotificationPermission();
-      // വിദ്യാർത്ഥിയുടെ ഫോൺ നമ്പർ വെച്ച് OneSignal ടാർഗെറ്റ് സെറ്റ് ചെയ്യുന്നു
-  if (window.OneSignalDeferred && candidate && candidate.phone) {
-    OneSignalDeferred.push(async function(OneSignal) {
-      await OneSignal.login(candidate.phone);
-    });
-  }
+      // OneSignal പുഷ് പെർമിഷനും ഫോൺ നമ്പർ രജിസ്ട്രേഷനും
+      if (window.OneSignalDeferred && candidate && candidate.phone) {
+        OneSignalDeferred.push(async function(OneSignal) {
+          await OneSignal.Notifications.requestPermission();
+          await OneSignal.login(candidate.phone);
+          console.log("OneSignal user registered with phone:", candidate.phone);
+        });
+      }
     }
 
     function logoutCandidate() {
