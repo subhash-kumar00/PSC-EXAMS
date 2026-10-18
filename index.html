@@ -11,6 +11,15 @@
   
   <script src="https://cdn.tailwindcss.com"></script>
 
+  <!-- 🌟 PWA Meta Tags & Manifest -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#020617">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="SK PSC">
+  <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/subhash-kumar00/PSC-EXAMS/main/logo.png">
+
   <!-- 🌟 EmailJS SDK -->
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
@@ -34,7 +43,6 @@
       display: inline-flex !important;
     }
 
-    /* 🌟 റെഡ് ബ്ലിങ്കിങ് ബാനർ ആനിമേഷൻ */
     @keyframes redAlertGlow {
       0%, 100% {
         box-shadow: 0 0 15px rgba(244, 63, 94, 0.55), inset 0 0 10px rgba(244, 63, 94, 0.25);
@@ -376,7 +384,13 @@
 
   </main>
 
-  <!-- 🌟 ഫീച്ചർ 2: ഫ്ലോട്ടിങ് ഡൗട്ട് ചാറ്റ് ബട്ടൺ (Floating Doubt Button) -->
+  <!-- 🌟 PWA ആപ്പ് ഇൻസ്റ്റാൾ ബട്ടൺ (Floating Install App Button) -->
+  <button id="pwaInstallBtn" class="hidden fixed bottom-20 left-4 sm:left-6 z-40 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black px-4 py-2.5 rounded-2xl shadow-[0_8px_20px_rgba(6,182,212,0.4)] flex items-center space-x-2 text-xs border border-cyan-400/50 animate-bounce cursor-pointer">
+    <span class="text-base">📲</span>
+    <span>ആപ്പ് ഇൻസ്റ്റാൾ ചെയ്യുക</span>
+  </button>
+
+  <!-- 🌟 ഫ്ലോട്ടിങ് ഡൗട്ട് ചാറ്റ് ബട്ടൺ (Floating Doubt Button) -->
   <button id="floatingChatBtn" onclick="handleFloatingChatClick()" class="fixed bottom-5 right-5 z-40 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 text-slate-950 font-black px-4 py-3 rounded-2xl shadow-[0_10px_25px_rgba(16,185,129,0.4)] flex items-center space-x-2 transition transform hover:scale-105 active:scale-95 cursor-pointer border border-emerald-300/50">
     <span class="text-lg">💬</span>
     <span class="text-xs sm:text-sm font-bold">സംശയം ചോദിക്കാം</span>
@@ -459,7 +473,7 @@
         </div>
       </div>
 
-      <!-- 🌟 പ്രൊഫൈൽ ടാബുകൾ: പരീക്ഷാ ഹിസ്റ്ററി | പ്രൊഫൈൽ ചാറ്റ് -->
+      <!-- പ്രൊഫൈൽ ടാബുകൾ -->
       <div class="grid grid-cols-2 gap-2 bg-slate-950 p-1.5 rounded-2xl border border-slate-800">
         <button id="profTabBtnHistory" onclick="switchProfileModalTab('history')" class="py-2 rounded-xl text-xs font-black bg-emerald-500 text-slate-950 transition cursor-pointer flex items-center justify-center space-x-1.5">
           <span>📊</span>
@@ -479,7 +493,7 @@
         </div>
       </div>
 
-      <!-- 🌟 TAB 2: പ്രൊഫൈൽ ചാറ്റ് (24-Hour Expiry Chat Area) -->
+      <!-- TAB 2: പ്രൊഫൈൽ ചാറ്റ് -->
       <div id="profileChatTabArea" class="hidden flex-1 flex flex-col justify-between space-y-3 min-h-[260px] max-h-[340px]">
         <div class="flex items-center justify-between text-[11px] text-slate-400 px-1">
           <span class="flex items-center space-x-1">
@@ -521,37 +535,13 @@
     const EMAILJS_TEMPLATE_ID = "template_yjmhhna";
 
     const CURRENT_AUTH_VERSION = "v2_email_otp";
-    const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000; // 24 Hours Retention
+    const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
 
     const MAIN_EXAM_FOLDERS = [
-      {
-        id: 'LDC',
-        title: 'LDC (എൽ.ഡി.സി)',
-        subtitle: 'Lower Division Clerk Exams',
-        icon: '🏛️',
-        accent: 'emerald'
-      },
-      {
-        id: 'LGS',
-        title: 'LGS (എൽ.ജി.എസ്)',
-        subtitle: 'Last Grade Servants Exams',
-        icon: '🛡️',
-        accent: 'cyan'
-      },
-      {
-        id: 'DEGREE',
-        title: 'Degree Level (ഡിഗ്രി)',
-        subtitle: 'Degree Preliminary & Mains',
-        icon: '🎓',
-        accent: 'amber'
-      },
-      {
-        id: 'ALL_EXAMS',
-        title: 'എല്ലാ പരീക്ഷകളും',
-        subtitle: 'All Combined PSC Exams',
-        icon: '🌟',
-        accent: 'teal'
-      }
+      { id: 'LDC', title: 'LDC (എൽ.ഡി.സി)', subtitle: 'Lower Division Clerk Exams', icon: '🏛️' },
+      { id: 'LGS', title: 'LGS (എൽ.ജി.എസ്)', subtitle: 'Last Grade Servants Exams', icon: '🛡️' },
+      { id: 'DEGREE', title: 'Degree Level (ഡിഗ്രി)', subtitle: 'Degree Preliminary & Mains', icon: '🎓' },
+      { id: 'ALL_EXAMS', title: 'എല്ലാ പരീക്ഷകളും', subtitle: 'All Combined PSC Exams', icon: '🌟' }
     ];
 
     try {
@@ -572,6 +562,11 @@
     let otpExpiresAt = null;
     let tempUserToVerify = null;
 
+    // 🌟 PWA & Push Notification State Variables
+    let deferredPrompt = null;
+    let lastSeenReplyState = false;
+    let notifiedLiveExams = new Set();
+
     function sanitizePhone(rawPhone) {
       if (!rawPhone) return "";
       let clean = String(rawPhone).replace(/\D/g, '');
@@ -581,29 +576,22 @@
     function maskPhone(p) {
       if (!p) return '-';
       const clean = sanitizePhone(p);
-      if (clean.length === 10) return `${clean.substring(0, 3)}••••${clean.substring(7)}`;
-      return p;
+      return clean.length === 10 ? `${clean.substring(0, 3)}••••${clean.substring(7)}` : p;
     }
 
     function cleanTitleForMatch(str) {
-      if (!str) return "";
-      return String(str).replace(/[\s\-_,.:;()\/\\|\[\]+&]+/g, '').toLowerCase();
+      return String(str || '').replace(/[\s\-_,.:;()\/\\|\[\]+&]+/g, '').toLowerCase();
     }
 
     function parseMainFolders(rawFolderValue) {
-      if (!rawFolderValue || String(rawFolderValue).trim() === '') {
-        return ['LDC'];
-      }
+      if (!rawFolderValue || String(rawFolderValue).trim() === '') return ['LDC'];
       const upper = String(rawFolderValue).toUpperCase().trim();
-      if (upper === 'ALL' || upper === 'COMMON' || upper === 'എല്ലാം') {
-        return ['LDC', 'LGS', 'DEGREE'];
-      }
+      if (upper === 'ALL' || upper === 'COMMON' || upper === 'എല്ലാം') return ['LDC', 'LGS', 'DEGREE'];
 
       const matched = [];
       if (upper.includes('LDC') || upper.includes('എൽഡിസി') || upper.includes('എൽ.ഡി.സി')) matched.push('LDC');
       if (upper.includes('LGS') || upper.includes('എൽജിഎസ്') || upper.includes('എൽ.ജി.എസ്')) matched.push('LGS');
       if (upper.includes('DEGREE') || upper.includes('ഡിഗ്രി')) matched.push('DEGREE');
-
       return matched.length > 0 ? matched : ['LDC'];
     }
 
@@ -628,24 +616,10 @@
     }
 
     function buildExamUrl(rawItem) {
-      let examUrl = rawItem.FILEURL || rawItem.fileUrl || '';
+      let examUrl = rawItem.FILEURL || rawItem.fileUrl || 'quiz.html';
       let webscriptUrl = rawItem.sheetUrl || '';
       let pdfUrl = rawItem.pdfUrl || '';
       let examKey = rawItem.KEY || rawItem.key || cleanTitleForMatch(rawItem.TITLE || rawItem.title || '');
-
-      if (!examUrl) {
-        for (let k in rawItem) {
-          let cleanKey = k.trim().toUpperCase();
-          if (cleanKey === 'FILEURL' || cleanKey === 'LINK' || cleanKey === 'URL') {
-            examUrl = rawItem[k];
-            break;
-          }
-        }
-      }
-
-      if (!examUrl || String(examUrl).trim() === '' || examUrl === '#') {
-        return `javascript:alert('ഈ പരീക്ഷയുടെ ലിങ്ക് ഉടൻ അപ്ഡേറ്റ് ചെയ്യുന്നതാണ്.')`;
-      }
 
       let targetUrl = String(examUrl).trim();
       const separator = targetUrl.includes('?') ? '&' : '?';
@@ -675,14 +649,93 @@
           if (!isNaN(val)) return val;
         }
       }
-      for (let k in obj) {
-        if (typeof obj[k] === 'number') return obj[k];
-        if (k.toLowerCase().includes('mark') || k.toLowerCase().includes('score')) {
-          const val = parseFloat(obj[k]);
-          if (!isNaN(val)) return val;
+      return 0;
+    }
+
+    // 🌟 1. Service Worker & PWA രജിസ്ട്രേഷൻ
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').then((reg) => {
+          console.log('Service Worker Registered Successfully');
+        }).catch(err => console.log('Service Worker Register Failed:', err));
+      });
+    }
+
+    // 🌟 2. ഇൻസ്റ്റാൾ ബട്ടൺ ഡിസ്പ്ലേ & ട്രിഗർ
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const pwaBtn = document.getElementById('pwaInstallBtn');
+      if (pwaBtn) {
+        pwaBtn.classList.remove('hidden');
+        pwaBtn.onclick = async () => {
+          pwaBtn.classList.add('hidden');
+          if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') console.log('User installed SK PSC App');
+            deferredPrompt = null;
+          }
+        };
+      }
+    });
+
+    // 🌟 3. പുഷ് നോട്ടിഫിക്കേഷൻ പെർമിഷനും ലോക്കൽ നോട്ടിഫിക്കേഷൻ അയക്കലും
+    async function requestNotificationPermission() {
+      if (!('Notification' in window)) return;
+      if (Notification.permission === 'default') {
+        const perm = await Notification.requestPermission();
+        if (perm === 'granted') {
+          sendLocalNotification("SK PSC നോട്ടിഫിക്കേഷൻ ഓൺ ആയി 🔔", "പരീക്ഷാ അറിയിപ്പുകളും മെന്റർ മറുപടികളും ഇനി തത്സമയം ഫോണിൽ ലഭിക്കും!");
         }
       }
-      return 0;
+    }
+
+    function sendLocalNotification(title, bodyText) {
+      if (!('Notification' in window) || Notification.permission !== 'granted') return;
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.ready.then(reg => {
+          reg.showNotification(title, {
+            body: bodyText,
+            icon: 'https://raw.githubusercontent.com/subhash-kumar00/PSC-EXAMS/main/logo.png',
+            badge: 'https://raw.githubusercontent.com/subhash-kumar00/PSC-EXAMS/main/logo.png',
+            vibrate: [200, 100, 200]
+          });
+        });
+      }
+    }
+
+    // 🌟 4. അഡ്മിൻ റിപ്ലൈ തത്സമയം നിരീക്ഷിച്ചു നോട്ടിഫിക്കേഷൻ നൽകൽ
+    async function listenForChatReplies() {
+      if (!candidate || !candidate.phone) return;
+      const cleanPhone = sanitizePhone(candidate.phone);
+      try {
+        const res = await fetch(`${FIREBASE_DB_URL}/student_chats/${cleanPhone}.json`);
+        const data = await res.json();
+        if (data && data.unreadByStudent === true && lastSeenReplyState === false) {
+          lastSeenReplyState = true;
+          sendLocalNotification("👨‍🏫 SK PSC Mentor Reply", "നിങ്ങൾ ചോദിച്ച സംശയത്തിന് അഡ്മിൻ മറുപടി നൽകിയിട്ടുണ്ട്! പരിശോധിക്കാൻ ക്ലിക്ക് ചെയ്യുക.");
+        } else if (data && !data.unreadByStudent) {
+          lastSeenReplyState = false;
+        }
+      } catch(e) {}
+    }
+
+    // 🌟 5. പുതിയ പരീക്ഷ ലൈവ് ആകുമ്പോൾ തത്സമയം നോട്ടിഫിക്കേഷൻ നൽകൽ
+    function checkLiveExamNotifications() {
+      if (!rawQuizList || rawQuizList.length === 0) return;
+      const now = Date.now();
+      rawQuizList.forEach(q => {
+        if (q.badge === 'LATEST' && q.releaseDate) {
+          const relTime = parseReleaseTimestamp(q.releaseDate);
+          if (relTime && Math.abs(now - relTime) < 20 * 60 * 1000) {
+            if (!notifiedLiveExams.has(q.title)) {
+              notifiedLiveExams.add(q.title);
+              sendLocalNotification("🚀 പുതിയ പരീക്ഷ ആരംഭിച്ചു!", `"${q.title}" ഇപ്പോൾ ലൈവ് ആണ്. ഉടൻ എഴുതി റാങ്ക് നേടൂ!`);
+            }
+          }
+        }
+      });
     }
 
     window.addEventListener('DOMContentLoaded', () => {
@@ -714,6 +767,14 @@
       }
 
       fetchFirebaseData();
+
+      // പശ്ചാത്തലത്തിൽ നോട്ടിഫിക്കേഷനുകൾ മോണിറ്റർ ചെയ്യുന്നു (ഓരോ 20 സെക്കൻഡിലും)
+      setInterval(() => {
+        if (candidate) {
+          listenForChatReplies();
+          checkLiveExamNotifications();
+        }
+      }, 20000);
     });
 
     async function fetchFirebaseData() {
@@ -770,7 +831,7 @@
           });
         }
 
-        // 🌟 1. റെഡ് ബ്ലിങ്ക് മെസ്സേജ് കൺട്രോൾ (portal_config/blink_message)
+        // റെഡ് ബ്ലിങ്ക് മെസ്സേജ് കൺട്രോൾ
         const blinkBox = document.getElementById('heroBlinkAlertBox');
         const blinkText = document.getElementById('heroBlinkAlertText');
         if (configData && configData.blink_message !== undefined) {
@@ -782,12 +843,11 @@
             blinkBox.classList.remove('hidden');
           }
         } else {
-          // ഡിഫോൾട്ട് മെസ്സേജ്
           blinkText.innerText = "2027 LDC & LGS EXAMS COMMING SOON";
           blinkBox.classList.remove('hidden');
         }
 
-        // 2. നോട്ടീസ് ബോർഡ് കൺട്രോൾ
+        // നോട്ടീസ് ബോർഡ്
         if (configData && configData.notice && String(configData.notice).trim() !== "") {
           document.getElementById('heroNoticeText').innerText = configData.notice;
           document.getElementById('heroNoticeBox').classList.remove('hidden');
@@ -824,16 +884,12 @@
               }
             }
 
-            let isUnpublished = (ctrl && ctrl.isPublished === false);
-            if (isUnpublished) return;
+            if (ctrl && ctrl.isPublished === false) return;
 
             let badge = (ctrl && ctrl.status) ? ctrl.status : (item.BADGE || 'NORMAL');
             let relDate = (ctrl && ctrl.releaseDate) ? ctrl.releaseDate : (item.Release_Date || '');
 
-            let rawMainFolder = (ctrl && (ctrl.mainFolder || ctrl.examFolder || ctrl.examType))
-                                ? (ctrl.mainFolder || ctrl.examFolder || ctrl.examType)
-                                : (item.MAIN_FOLDER || item.mainFolder || item.EXAM_FOLDER || item.examFolder || item.EXAM_TYPE || item.examType || item.FOLDER || item.folder || 'LDC');
-
+            let rawMainFolder = (ctrl && ctrl.mainFolder) ? ctrl.mainFolder : (item.MAIN_FOLDER || item.mainFolder || 'LDC');
             let mainFoldersArr = parseMainFolders(rawMainFolder);
 
             parsedList.push({
@@ -858,19 +914,14 @@
           renderLatestReel();
           renderTimetableSection();
 
-          if (selectedMainFolder) {
-            renderSubjectFolders();
-          }
-          if (selectedCategory) {
-            applyFiltersAndRender();
-          }
+          if (selectedMainFolder) renderSubjectFolders();
+          if (selectedCategory) applyFiltersAndRender();
         }
 
         if (usersData) {
           let uList = Array.isArray(usersData) ? usersData : Object.values(usersData);
           allUsersCache = uList.filter(u => u !== null && u !== undefined);
           document.getElementById('topUserCount').innerText = `${allUsersCache.length} Users`;
-          
           calculateLiveHallOfFameFromUsers(usersData);
         }
 
@@ -878,7 +929,6 @@
           updateProfileAnalytics();
           checkUnreadStudentChat();
         }
-
       } catch (err) {
         console.log("Fetch error:", err);
       }
@@ -899,9 +949,7 @@
           ? 'bg-emerald-950/90 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] ring-1 ring-emerald-400'
           : 'bg-slate-900 border-slate-800 hover:border-emerald-500/60';
 
-        if (hasLatest && !isActive) {
-          borderClass = 'bg-slate-900 border-rose-500/50 hover:border-rose-400';
-        }
+        if (hasLatest && !isActive) borderClass = 'bg-slate-900 border-rose-500/50 hover:border-rose-400';
 
         const newBadgeMarkup = hasLatest
           ? `<span class="auto-latest-badge px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-rose-600 text-white absolute -top-2 right-3 shadow">● NEW</span>`
@@ -955,7 +1003,6 @@
 
       const folderMeta = MAIN_EXAM_FOLDERS.find(f => f.id === folderId);
       document.getElementById('selectedMainFolderTitle').innerText = `${folderMeta ? folderMeta.title : folderId} - വിഷയങ്ങൾ (Subject Folders)`;
-
       setTimeout(() => subjectSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
     }
 
@@ -973,16 +1020,13 @@
       container.innerHTML = '';
 
       const folderExams = rawQuizList.filter(q => doesExamBelongToMainFolder(q, selectedMainFolder));
-
       const counts = {};
       const catHasLatest = {};
 
       folderExams.forEach(q => {
         const cat = q.category || 'പൊതുവിജ്ഞാനം';
         counts[cat] = (counts[cat] || 0) + 1;
-        if (q.badge === 'LATEST' && !isExamLocked(q.releaseDate)) {
-          catHasLatest[cat] = true;
-        }
+        if (q.badge === 'LATEST' && !isExamLocked(q.releaseDate)) catHasLatest[cat] = true;
       });
 
       const allActive = selectedCategory === 'all';
@@ -1013,7 +1057,7 @@
         const hasNew = catHasLatest[cat];
 
         const folder = document.createElement('div');
-        let borderClass = isActive ? 'bg-emerald-950/90 border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.35)] ring-1 ring-emerald-400' : 'bg-slate-950 border-slate-800 hover:border-slate-700';
+        let borderClass = isActive ? 'bg-emerald-950/90 border-emerald-400 ring-1 ring-emerald-400' : 'bg-slate-950 border-slate-800 hover:border-slate-700';
         if (hasNew && !isActive) borderClass = 'bg-slate-950 border-rose-500/50 hover:border-rose-400';
 
         folder.className = `p-3 rounded-2xl border cursor-pointer transition transform active:scale-95 flex items-center justify-between snap-start relative ${borderClass}`;
@@ -1077,7 +1121,7 @@
         const matchSearch = !searchText || 
                             q.title.toLowerCase().includes(searchText) || 
                             q.topics.toLowerCase().includes(searchText) || 
-                            q.category.toLowerCase().includes(searchText) || 
+                            q.category.toLowerCase().includes(searchText) ||
                             q.mainFolderLabel.toLowerCase().includes(searchText);
         return matchMain && matchCat && matchSearch;
       });
@@ -1105,7 +1149,6 @@
 
         const totalUniqueTests = Number(u.Unique_Exams || u.totalExams || u.Total_Attempts || 0);
         const avgScore = Number(u.First_Attempt_Avg || u.avgScore || 0);
-        
         if (totalUniqueTests < 5) return;
 
         const candidateName = String(u.Official_Name || u.name || 'വിദ്യാർത്ഥി').trim();
@@ -1123,7 +1166,6 @@
       });
 
       let performanceList = Object.values(studentMap);
-
       const nameMap = {};
       performanceList.forEach(std => {
         const cleanName = std.name.toLowerCase().replace(/\s+/g, '');
@@ -1133,14 +1175,12 @@
       });
 
       performanceList = Object.values(nameMap);
-
       if (performanceList.length === 0) {
         section.classList.add('hidden');
         return;
       }
 
       const maxExams = Math.max(...performanceList.map(s => s.totalExams), 1);
-
       performanceList.forEach(std => {
         const volumeScore = Math.min(100, (std.totalExams / maxExams) * 100);
         std.compositeScore = (volumeScore * 0.6) + (std.accuracy * 0.4);
@@ -1168,12 +1208,11 @@
             <div>
               <h4 class="text-xs font-bold text-white truncate max-w-[110px] sm:max-w-[130px]">${std.name}</h4>
               <span class="text-[10px] text-cyan-400 font-mono font-bold">${std.totalExams} Tests</span>
-              <span class="text-[9px] text-slate-400"> Attempted</span>
             </div>
           </div>
           <div class="text-right">
             <span class="text-xs font-black text-emerald-400 font-mono block">${std.accuracy}%</span>
-            <span class="text-[9px] text-slate-500 uppercase tracking-tighter">Score Accuracy (${std.avgScore.toFixed(1)} Avg)</span>
+            <span class="text-[9px] text-slate-500 uppercase">Score Accuracy (${std.avgScore.toFixed(1)} Avg)</span>
           </div>
         `;
         container.appendChild(card);
@@ -1189,7 +1228,6 @@
 
       const now = new Date();
       const todayStr = now.toISOString().split('T')[0];
-
       const dayNum = String(now.getDate()).padStart(2, '0');
       const monthNames = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
       document.getElementById('calMiniDay').innerText = dayNum;
@@ -1211,16 +1249,13 @@
       if (todayItems.length > 0) {
         todayItems.forEach(todayItem => {
           const locked = isExamLocked(todayItem.releaseDate);
-
           let badgeMarkup = !locked
             ? `<span class="px-2 py-0.5 rounded bg-emerald-500 text-slate-950 font-black text-[10px] tracking-wider uppercase animate-pulse">● LIVE NOW</span>`
-            : `<span class="auto-upcoming-badge px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-emerald-400 text-slate-950 font-mono shadow-[0_0_10px_#10b981]">● UPCOMING</span>`;
+            : `<span class="auto-upcoming-badge px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-emerald-400 text-slate-950 font-mono">● UPCOMING</span>`;
 
           let actionMarkup = !locked
             ? `<a href="${todayItem.fileUrl}" class="px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 text-slate-950 font-black rounded-xl text-xs transition text-center shadow whitespace-nowrap">പരീക്ഷ ആരംഭിക്കുക ›</a>`
             : `<button disabled class="px-4 py-2.5 bg-slate-900 border border-emerald-500/30 text-emerald-400 font-bold rounded-xl text-xs cursor-not-allowed opacity-90 shadow-inner select-none whitespace-nowrap flex items-center space-x-1.5"><span>🔒</span><span>ഉടൻ വരുന്നു</span></button>`;
-
-          const displayTimeStr = todayItem.releaseDate.replace('T', ' ');
 
           const cardDiv = document.createElement('div');
           cardDiv.className = "bg-slate-950 p-3 rounded-xl border border-emerald-500/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-inner";
@@ -1229,7 +1264,7 @@
               <div class="flex items-center space-x-2">
                 ${badgeMarkup}
                 <span class="text-[10px] bg-slate-900 text-cyan-400 px-2 py-0.5 rounded border border-slate-800 font-bold">${todayItem.mainFolderLabel}</span>
-                <span class="text-xs text-slate-400 font-mono">സമയം: ${displayTimeStr}</span>
+                <span class="text-xs text-slate-400 font-mono">സമയം: ${todayItem.releaseDate.replace('T', ' ')}</span>
               </div>
               <h4 class="text-sm font-bold text-white">${todayItem.title}</h4>
             </div>
@@ -1293,9 +1328,7 @@
             <div>
               <div class="flex items-center justify-between mb-1.5">
                 <div class="flex items-center space-x-1">
-                  <span class="auto-latest-badge px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-rose-600 text-white shadow-sm">
-                    ● LATEST
-                  </span>
+                  <span class="auto-latest-badge px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-rose-600 text-white shadow-sm">● LATEST</span>
                   <span class="text-[9px] font-bold text-cyan-300 bg-cyan-950/80 px-1.5 py-0.5 rounded border border-cyan-500/30">${q.mainFolderLabel}</span>
                 </div>
                 <span class="text-[10px] text-slate-400 bg-slate-950 px-2 py-0.5 rounded truncate max-w-[100px]">${q.category}</span>
@@ -1305,9 +1338,7 @@
             </div>
             <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between">
               <span class="text-[10px] text-slate-500 font-mono">📝 ${q.questions} Qs • ⏱ ${q.time}</span>
-              <a href="${q.fileUrl}" class="px-3 py-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-lg text-[11px] transition shadow">
-                ആരംഭിക്കുക ›
-              </a>
+              <a href="${q.fileUrl}" class="px-3 py-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-lg text-[11px] transition shadow">ആരംഭിക്കുക ›</a>
             </div>
           </div>
         `;
@@ -1328,24 +1359,18 @@
       empty.classList.add('hidden');
 
       const fragment = document.createDocumentFragment();
-
       list.forEach(q => {
         const card = document.createElement('div');
         const locked = isExamLocked(q.releaseDate);
         const isLatest = (q.badge === 'LATEST') && !locked;
         const cleanT = cleanTitleForMatch(q.title);
-
         const previousAttempt = userAttemptsMap[cleanT] || null;
         let userScore = extractActualScore(previousAttempt);
 
-        let badgeMarkup = '';
-        if (locked) {
-          badgeMarkup = `<span class="auto-upcoming-badge px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-emerald-400 text-slate-950 font-mono">● UPCOMING</span>`;
-        } else if (isLatest) {
-          badgeMarkup = `<span class="auto-latest-badge px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-rose-600 text-white">● LATEST</span>`;
-        } else {
-          badgeMarkup = `<span class="text-[9px] font-bold uppercase tracking-wider text-emerald-400 bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-800/40">${q.badge || 'SET'}</span>`;
-        }
+        let badgeMarkup = locked
+          ? `<span class="auto-upcoming-badge px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-emerald-400 text-slate-950 font-mono">● UPCOMING</span>`
+          : (isLatest ? `<span class="auto-latest-badge px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-rose-600 text-white">● LATEST</span>`
+                      : `<span class="text-[9px] font-bold uppercase tracking-wider text-emerald-400 bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-800/40">${q.badge || 'SET'}</span>`);
 
         let borderClass = locked 
           ? 'border-emerald-400/80 shadow-[0_0_12px_rgba(16,185,129,0.2)]' 
@@ -1371,17 +1396,11 @@
               <span class="font-mono font-bold text-emerald-400 text-sm">${userScore.toFixed(2)} Mark</span>
             </div>
           `;
-
           const reviewLink = buildReviewUrl(q.fileUrl, q.title);
-
           actionAreaMarkup = `
             <div class="pt-2 w-full grid grid-cols-2 gap-2">
-              <a href="${reviewLink}" target="_blank" class="py-2.5 bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-cyan-500/30 font-bold rounded-xl text-xs transition text-center shadow flex items-center justify-center">
-                <span>Result</span>
-              </a>
-              <a href="${q.fileUrl}" class="py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl text-xs transition text-center shadow flex items-center justify-center">
-                <span>Reattempt</span>
-              </a>
+              <a href="${reviewLink}" target="_blank" class="py-2.5 bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-cyan-500/30 font-bold rounded-xl text-xs transition text-center shadow flex items-center justify-center">Result</a>
+              <a href="${q.fileUrl}" class="py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl text-xs transition text-center shadow flex items-center justify-center">Reattempt</a>
             </div>
           `;
         } else {
@@ -1394,12 +1413,6 @@
             </div>
           `;
         }
-
-        const rankListBtnMarkup = `
-          <button onclick="showExamLiveRankList('${q.key || ''}', '${q.title}')" class="text-[10px] font-bold text-cyan-400 hover:text-cyan-300 transition flex items-center space-x-1 cursor-pointer">
-            <span>🏆</span><span>റാങ്ക് ലിസ്റ്റ്</span>
-          </button>
-        `;
 
         card.innerHTML = `
           <div>
@@ -1414,11 +1427,12 @@
             <p class="text-[11px] text-slate-400 line-clamp-1 mt-0.5">${q.topics || 'പ്രധാന പരീക്ഷാ ചോദ്യങ്ങൾ'}</p>
             ${scoreBarMarkup}
           </div>
-
           <div class="mt-2.5 border-t border-slate-800/80 pt-2">
             <div class="flex items-center justify-between text-[11px] text-slate-400">
               <span>📄 ${q.questions} Qs • ⏱ ${q.time}</span>
-              ${rankListBtnMarkup}
+              <button onclick="showExamLiveRankList('${q.key || ''}', '${q.title}')" class="text-[10px] font-bold text-cyan-400 hover:text-cyan-300 transition flex items-center space-x-1 cursor-pointer">
+                <span>🏆</span><span>റാങ്ക് ലിസ്റ്റ്</span>
+              </button>
             </div>
             ${actionAreaMarkup}
           </div>
@@ -1434,16 +1448,13 @@
       const tbody = document.getElementById('rankListTableBody');
       tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-400">റാങ്ക് ലിസ്റ്റ് ശേഖരിക്കുന്നു...</td></tr>';
 
-      const cleanKey = examKeyParam ? cleanTitleForMatch(examKeyParam) : '';
+      const searchKeys = [];
+      if (examKeyParam) searchKeys.push(cleanTitleForMatch(examKeyParam));
       const cleanTitleName = cleanTitleForMatch(examTitle);
+      if (!searchKeys.includes(cleanTitleName)) searchKeys.push(cleanTitleName);
 
       try {
-        const searchKeys = [];
-        if (cleanKey) searchKeys.push(cleanKey);
-        if (cleanTitleName && !searchKeys.includes(cleanTitleName)) searchKeys.push(cleanTitleName);
-
         let ranks = [];
-
         for (const keyToTry of searchKeys) {
           const [liveRes, ranksRes] = await Promise.all([
             fetch(`${FIREBASE_DB_URL}/live_ranks/${keyToTry}.json`).then(r => r.json()).catch(() => null),
@@ -1451,22 +1462,8 @@
           ]);
 
           const mergedMap = {};
-
-          if (liveRes) {
-            const lList = Array.isArray(liveRes) ? liveRes : Object.values(liveRes);
-            lList.forEach(r => {
-              let p = sanitizePhone(r.phone || r.Phone || '');
-              if (p) mergedMap[p] = { ...r, phone: p };
-            });
-          }
-
-          if (ranksRes) {
-            const rList = Array.isArray(ranksRes) ? ranksRes : Object.values(ranksRes);
-            rList.forEach(r => {
-              let p = sanitizePhone(r.phone || r.Phone || '');
-              if (p && !mergedMap[p]) mergedMap[p] = { ...r, phone: p };
-            });
-          }
+          if (liveRes) Object.values(liveRes).forEach(r => { let p = sanitizePhone(r.phone || r.Phone || ''); if (p) mergedMap[p] = { ...r, phone: p }; });
+          if (ranksRes) Object.values(ranksRes).forEach(r => { let p = sanitizePhone(r.phone || r.Phone || ''); if (p && !mergedMap[p]) mergedMap[p] = { ...r, phone: p }; });
 
           if (Object.keys(mergedMap).length > 0) {
             ranks = Object.values(mergedMap);
@@ -1480,7 +1477,6 @@
         }
 
         ranks.sort((a, b) => extractActualScore(b) - extractActualScore(a));
-
         let rankHtml = '';
         ranks.forEach((r, idx) => {
           let markVal = extractActualScore(r);
@@ -1489,12 +1485,10 @@
           else if (idx === 1) rankBadge = `<span class="bg-slate-200 text-slate-950 font-black px-2 py-0.5 rounded text-[10px]">🥈 2nd</span>`;
           else if (idx === 2) rankBadge = `<span class="bg-amber-700 text-white font-black px-2 py-0.5 rounded text-[10px]">🥉 3rd</span>`;
 
-          let studentName = r.name || r.Official_Name || 'വിദ്യാർത്ഥി';
-
           rankHtml += `
             <tr class="hover:bg-slate-800/40 transition border-b border-slate-800/40">
               <td class="p-2.5 text-center">${rankBadge}</td>
-              <td class="p-2.5 font-bold text-white">${studentName}</td>
+              <td class="p-2.5 font-bold text-white">${r.name || r.Official_Name || 'വിദ്യാർത്ഥി'}</td>
               <td class="p-2.5 font-mono text-slate-400 text-[11px]">${maskPhone(r.phone || r.Phone || '')}</td>
               <td class="p-2.5 text-center font-mono font-bold text-cyan-400">${markVal.toFixed(2)}</td>
             </tr>
@@ -1513,119 +1507,28 @@
     async function fetchUserExamHistory(phone) {
       const hList = document.getElementById('historyList');
       hList.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">ഹിസ്റ്ററി ലഭ്യമാക്കുന്നു...</p>';
-
       const cleanPhone = sanitizePhone(phone);
-      if (!cleanPhone || cleanPhone.length < 10) {
-        hList.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">മൊബൈൽ നമ്പർ ശരിയല്ല.</p>';
-        return;
-      }
+      if (!cleanPhone || cleanPhone.length < 10) return;
 
       try {
-        const [histRes, liveRanksRes, ranksRes] = await Promise.all([
-          fetch(`${FIREBASE_DB_URL}/users_history/${cleanPhone}.json`).then(r => r.json()).catch(() => null),
-          fetch(`${FIREBASE_DB_URL}/live_ranks.json`).then(r => r.json()).catch(() => null),
-          fetch(`${FIREBASE_DB_URL}/ranks.json`).then(r => r.json()).catch(() => null)
-        ]);
+        const histRes = await fetch(`${FIREBASE_DB_URL}/users_history/${cleanPhone}.json`).then(r => r.json()).catch(() => null);
+        let rawPool = histRes ? Object.values(histRes).filter(h => h && h.title) : [];
 
-        let rawPool = [];
-
-        if (histRes) {
-          Object.values(histRes).forEach(h => {
-            if (h && (h.title || h.Title)) rawPool.push(h);
-          });
-        }
-
-        if (liveRanksRes) {
-          for (const [eKey, examRanks] of Object.entries(liveRanksRes)) {
-            if (examRanks && typeof examRanks === 'object') {
-              const entry = examRanks[cleanPhone] || Object.values(examRanks).find(r => sanitizePhone(r.phone || r.Phone) === cleanPhone);
-              if (entry) rawPool.push({ ...entry, title: entry.title || eKey.replace(/_/g, ' ') });
-            }
-          }
-        }
-
-        if (ranksRes) {
-          for (const [eKey, examRanks] of Object.entries(ranksRes)) {
-            if (examRanks && typeof examRanks === 'object') {
-              const entry = examRanks[cleanPhone] || Object.values(examRanks).find(r => sanitizePhone(r.phone || r.Phone) === cleanPhone);
-              if (entry) rawPool.push({ ...entry, title: entry.title || eKey.replace(/_/g, ' ') });
-            }
-          }
-        }
-
-        const uniqueAttemptMap = {};
-        rawPool.forEach(item => {
-          const cTitle = cleanTitleForMatch(item.title || item.Title);
-          const score = extractActualScore(item);
-          const date = String(item.date || item.Date || '').trim();
-          const ts = item.timestamp ? Math.floor(item.timestamp / 1000) : 0;
-          const dedupeKey = ts > 0 ? `${cTitle}_${ts}` : `${cTitle}_${date}_${score}`;
-
-          if (!uniqueAttemptMap[dedupeKey]) {
-            uniqueAttemptMap[dedupeKey] = item;
-          }
-        });
-
-        let cleanedAttempts = Object.values(uniqueAttemptMap);
-
-        if (cleanedAttempts.length === 0) {
+        if (rawPool.length === 0) {
           hList.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">ഇതുവരെ പരീക്ഷകൾ ഒന്നും എഴുതിയിട്ടില്ല.</p>';
           return;
         }
 
-        cleanedAttempts.sort((a, b) => {
-          let tA = a.timestamp || new Date(a.date || a.Date || 0).getTime() || 0;
-          let tB = b.timestamp || new Date(b.date || b.Date || 0).getTime() || 0;
-          return tA - tB;
-        });
-
-        const examAttemptsCount = {};
-        cleanedAttempts.forEach(item => {
-          const cleanT = cleanTitleForMatch(item.title || item.Title);
-          examAttemptsCount[cleanT] = (examAttemptsCount[cleanT] || 0) + 1;
-        });
-
-        const seenExams = {};
-        cleanedAttempts.forEach(item => {
-          const cleanT = cleanTitleForMatch(item.title || item.Title);
-          if (!seenExams[cleanT]) {
-            seenExams[cleanT] = true;
-            item.isFirstAttempt = examAttemptsCount[cleanT] > 1;
-            item.isRepeat = false;
-          } else {
-            item.isFirstAttempt = false;
-            item.isRepeat = true;
-          }
-        });
-
-        cleanedAttempts.sort((a, b) => {
-          let tA = a.timestamp || new Date(a.date || a.Date || 0).getTime() || 0;
-          let tB = b.timestamp || new Date(b.date || b.Date || 0).getTime() || 0;
-          return tB - tA;
-        });
-
+        rawPool.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
         let histHTML = '';
-        cleanedAttempts.forEach(item => {
+        rawPool.forEach(item => {
           let scoreVal = extractActualScore(item);
-          const correctNum = Number(item.correct) || 0;
-          const wrongNum = Number(item.wrong) || 0;
-          const totalQ = item.totalQuestions || item.questions || (correctNum + wrongNum > 25 ? (correctNum + wrongNum) : 25);
-          let scoreAccuracy = Math.max(0, Math.round((scoreVal / totalQ) * 100));
-
-          let attemptBadge = '';
-          if (item.isFirstAttempt) {
-            attemptBadge = `<span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 px-2 py-0.5 rounded-full text-[9px] font-bold ml-1.5">🥇 1st Attempt</span>`;
-          } else if (item.isRepeat) {
-            attemptBadge = `<span class="bg-slate-800 text-slate-400 border border-slate-700 px-2 py-0.5 rounded-full text-[9px] font-medium ml-1.5">Reattempt</span>`;
-          }
+          let scoreAccuracy = Math.max(0, Math.round((scoreVal / 25) * 100));
 
           histHTML += `
             <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80 flex items-center justify-between text-xs hover:border-slate-700 transition">
               <div>
-                <div class="flex items-center">
-                  <span class="font-bold text-slate-200 block truncate max-w-[200px] sm:max-w-xs">${item.title || 'Exam'}</span>
-                  ${attemptBadge}
-                </div>
+                <span class="font-bold text-slate-200 block truncate max-w-[200px] sm:max-w-xs">${item.title || 'Exam'}</span>
                 <span class="text-[10px] text-slate-500 mt-0.5 block">${item.date || item.Date || '-'}</span>
               </div>
               <div class="text-right">
@@ -1641,10 +1544,12 @@
       }
     }
 
-    // 🌟 ഫീച്ചർ 2: സ്റ്റുഡന്റ് ഡൗട്ട് ചാറ്റ് സിസ്റ്റം (24 മണിക്കൂർ ലൈഫ് ടൈം സഹിതം)
+    // 🌟 24-HOUR CHAT SYSTEM (WITH INSTANT UI & CACHE)
+    function getLocalChatKey(phone) { return `sk_local_chat_${phone}`; }
+
     function handleFloatingChatClick() {
       if (!candidate) {
-        alert("സംശയങ്ങൾ ചോദിക്കാനും മെന്റർ മറുപടികൾ കാണാനും ദയവായി ലോഗിൻ ചെയ്യുക.");
+        alert("സംശയങ്ങൾ ചോദിക്കാൻ ദയവായി ലോഗിൻ ചെയ്യുക.");
         const loginCard = document.getElementById('homeLoginCard');
         if (loginCard) loginCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
@@ -1697,93 +1602,87 @@
       } catch(e) {}
     }
 
-    // 🌟 24 മണിക്കൂർ വാലിഡിറ്റിയോടെ ചാറ്റ് ലോഡ് ചെയ്യലും കാലഹരണപ്പെട്ടവ ഡിലീറ്റ് ചെയ്യലും
     async function loadStudentChatMessages(markAsRead = false) {
       if (!candidate || !candidate.phone) return;
       const cleanPhone = sanitizePhone(candidate.phone);
       const box = document.getElementById('studentChatMessagesBox');
       const now = Date.now();
 
+      let localPool = [];
       try {
-        const chatData = await fetch(`${FIREBASE_DB_URL}/student_chats/${cleanPhone}.json`).then(r => r.json()).catch(() => null);
-        if (!chatData || !chatData.messages) {
-          box.innerHTML = `
-            <div class="text-center py-8 space-y-2">
-              <div class="text-3xl">👋</div>
-              <p class="text-xs text-slate-300 font-bold">പഠന സംശയങ്ങൾ നേരിട്ട് ചോദിക്കാം!</p>
-              <p class="text-[11px] text-slate-500">നിങ്ങളുടെ സംശയങ്ങൾക്ക് അഡ്മിൻ നൽകുന്ന മറുപടി ഇവിടെ 24 മണിക്കൂർ ലഭ്യമായിരിക്കും.</p>
-            </div>
-          `;
-          return;
-        }
+        const saved = localStorage.getItem(getLocalChatKey(cleanPhone));
+        if (saved) localPool = JSON.parse(saved);
+      } catch(e) {}
 
-        const validMessages = [];
-        const expiredKeys = [];
+      try {
+        const chatRes = await fetch(`${FIREBASE_DB_URL}/student_chats/${cleanPhone}.json`);
+        const chatData = await chatRes.json();
 
-        for (const [msgKey, m] of Object.entries(chatData.messages)) {
-          if (!m || !m.timestamp) continue;
-          if (now - Number(m.timestamp) <= TWENTY_FOUR_HOURS_MS) {
-            validMessages.push(m);
-          } else {
-            expiredKeys.push(msgKey);
+        if (chatData && chatData.messages) {
+          const fbMessages = Object.entries(chatData.messages).map(([k, m]) => ({ ...m, _key: k }));
+          const mergedMap = {};
+          [...localPool, ...fbMessages].forEach(m => {
+            if (m && m.timestamp && (now - Number(m.timestamp) <= TWENTY_FOUR_HOURS_MS)) {
+              mergedMap[`${m.timestamp}_${m.text}`] = m;
+            }
+          });
+          localPool = Object.values(mergedMap);
+
+          for (const [msgKey, m] of Object.entries(chatData.messages)) {
+            if (m && m.timestamp && (now - Number(m.timestamp) > TWENTY_FOUR_HOURS_MS)) {
+              fetch(`${FIREBASE_DB_URL}/student_chats/${cleanPhone}/messages/${msgKey}.json`, { method: 'DELETE' }).catch(() => null);
+            }
           }
         }
+      } catch(e) {}
 
-        // 24 മണിക്കൂർ കഴിഞ്ഞ പഴയ മെസ്സേജുകൾ ഫയർബേസിൽ നിന്ന് തനിയെ ഡിലീറ്റ് ചെയ്യുന്നു
-        if (expiredKeys.length > 0) {
-          expiredKeys.forEach(k => {
-            fetch(`${FIREBASE_DB_URL}/student_chats/${cleanPhone}/messages/${k}.json`, { method: 'DELETE' }).catch(() => null);
-          });
-        }
+      localPool = localPool.filter(m => now - Number(m.timestamp) <= TWENTY_FOUR_HOURS_MS);
+      localStorage.setItem(getLocalChatKey(cleanPhone), JSON.stringify(localPool));
 
-        if (validMessages.length === 0) {
-          box.innerHTML = `
-            <div class="text-center py-8 space-y-1.5">
-              <div class="text-2xl">⏳</div>
-              <p class="text-xs text-slate-400 font-bold">മുൻപത്തെ സന്ദേശങ്ങൾ 24 മണിക്കൂർ പൂർത്തിയായി നീക്കം ചെയ്യപ്പെട്ടു.</p>
-              <p class="text-[11px] text-slate-500">പുതിയ സംശയങ്ങൾ താഴെ ടൈപ്പ് ചെയ്ത് അയക്കാവുന്നതാണ്.</p>
+      if (localPool.length === 0) {
+        box.innerHTML = `
+          <div class="text-center py-8 space-y-2">
+            <div class="text-3xl">👋</div>
+            <p class="text-xs text-slate-300 font-bold">പഠന സംശയങ്ങൾ നേരിട്ട് ചോദിക്കാം!</p>
+            <p class="text-[11px] text-slate-500">നിങ്ങളുടെ സംശയങ്ങൾക്ക് അഡ്മിൻ നൽകുന്ന മറുപടി ഇവിടെ 24 മണിക്കൂർ ലഭ്യമായിരിക്കും.</p>
+          </div>
+        `;
+        return;
+      }
+
+      localPool.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+      let html = '';
+      localPool.forEach(m => {
+        const isAdmin = m.sender === 'admin';
+        const alignClass = isAdmin ? 'justify-start' : 'justify-end';
+        const bubbleStyle = isAdmin
+          ? 'bg-slate-800 border border-emerald-500/40 text-slate-100 rounded-2xl rounded-tl-xs'
+          : 'bg-emerald-500 text-slate-950 font-semibold rounded-2xl rounded-tr-xs shadow-md';
+        const senderLabel = isAdmin
+          ? `<span class="text-[10px] font-black text-emerald-400 block mb-0.5">👨‍🏫 SK PSC Admin</span>`
+          : `<span class="text-[9px] font-bold text-slate-900/80 block mb-0.5 text-right">നിങ്ങൾ</span>`;
+
+        html += `
+          <div class="flex ${alignClass}">
+            <div class="max-w-[85%] px-3.5 py-2.5 text-xs shadow ${bubbleStyle}">
+              ${senderLabel}
+              <p class="whitespace-pre-line leading-relaxed text-left">${m.text || ''}</p>
+              <span class="block text-[9px] ${isAdmin ? 'text-slate-400' : 'text-slate-900/80 font-bold'} text-right mt-1 font-mono">${m.timeStr || ''}</span>
             </div>
-          `;
-          return;
-        }
+          </div>
+        `;
+      });
 
-        validMessages.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+      box.innerHTML = html;
+      box.scrollTop = box.scrollHeight;
 
-        let html = '';
-        validMessages.forEach(m => {
-          const isAdmin = m.sender === 'admin';
-          const alignClass = isAdmin ? 'justify-start' : 'justify-end';
-          const bubbleStyle = isAdmin
-            ? 'bg-slate-800 border border-emerald-500/40 text-slate-100 rounded-2xl rounded-tl-xs'
-            : 'bg-emerald-500 text-slate-950 font-semibold rounded-2xl rounded-tr-xs';
-          const senderLabel = isAdmin
-            ? `<span class="text-[10px] font-black text-emerald-400 block mb-0.5">👨‍🏫 SK PSC Admin</span>`
-            : `<span class="text-[9px] font-bold text-slate-900/70 block mb-0.5 text-right">നിങ്ങൾ</span>`;
-
-          html += `
-            <div class="flex ${alignClass}">
-              <div class="max-w-[85%] px-3.5 py-2.5 text-xs shadow ${bubbleStyle}">
-                ${senderLabel}
-                <p class="whitespace-pre-line leading-relaxed">${m.text || ''}</p>
-                <span class="block text-[9px] ${isAdmin ? 'text-slate-400' : 'text-slate-900/70'} text-right mt-1 font-mono">${m.timeStr || ''}</span>
-              </div>
-            </div>
-          `;
-        });
-
-        box.innerHTML = html;
-        box.scrollTop = box.scrollHeight;
-
-        if (markAsRead && chatData.unreadByStudent) {
-          await fetch(`${FIREBASE_DB_URL}/student_chats/${cleanPhone}.json`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ unreadByStudent: false })
-          }).catch(() => null);
-          checkUnreadStudentChat();
-        }
-      } catch (e) {
-        box.innerHTML = '<p class="text-xs text-rose-400 text-center py-6">ചാറ്റ് ലോഡ് ചെയ്യാൻ സാധിച്ചില്ല.</p>';
+      if (markAsRead) {
+        fetch(`${FIREBASE_DB_URL}/student_chats/${cleanPhone}.json`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ unreadByStudent: false })
+        }).catch(() => null);
+        checkUnreadStudentChat();
       }
     }
 
@@ -1796,9 +1695,6 @@
       const text = input.value.trim();
       if (!text) return;
 
-      btn.disabled = true;
-      btn.innerText = "അയക്കുന്നു...";
-
       const cleanPhone = sanitizePhone(candidate.phone);
       const now = new Date();
       const timeStr = now.toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
@@ -1810,7 +1706,19 @@
         timeStr: timeStr
       };
 
+      let localPool = [];
       try {
+        const saved = localStorage.getItem(getLocalChatKey(cleanPhone));
+        if (saved) localPool = JSON.parse(saved);
+      } catch(e) {}
+      localPool.push(msgObj);
+      localStorage.setItem(getLocalChatKey(cleanPhone), JSON.stringify(localPool));
+
+      input.value = '';
+      loadStudentChatMessages(true);
+
+      try {
+        btn.disabled = true;
         await fetch(`${FIREBASE_DB_URL}/student_chats/${cleanPhone}/messages.json`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1828,14 +1736,10 @@
             unreadByAdmin: true
           })
         });
-
-        input.value = '';
-        await loadStudentChatMessages(true);
       } catch (err) {
-        alert("സന്ദേശം അയക്കുന്നതിൽ തടസ്സം നേരിട്ടു.");
+        console.error("Firebase send error:", err);
       } finally {
         btn.disabled = false;
-        btn.innerText = "അയക്കുക ➤";
       }
     }
 
@@ -1878,7 +1782,6 @@
           body: JSON.stringify({ Official_Name: newName })
         }).catch(() => null);
       }
-
       alert('പേര് അപ്ഡേറ്റ് ചെയ്തു!');
     }
 
@@ -1888,10 +1791,14 @@
       document.getElementById('examSection').classList.remove('hidden');
       document.getElementById('navUserName').innerText = candidate.name;
       document.getElementById('navUserBox').classList.remove('hidden');
+      document.getElementById('floatingChatBtn').classList.remove('hidden');
       document.getElementById('profileDisplayName').innerText = candidate.name;
       document.getElementById('profileDisplayPhone').innerText = `ഫോൺ: +91 ${candidate.phone}`;
       updateProfileAnalytics();
       checkUnreadStudentChat();
+
+      // ലോഗിൻ ചെയ്ത ശേഷം നോട്ടിഫിക്കേഷൻ പെർമിഷൻ ചോദിക്കുന്നു
+      requestNotificationPermission();
     }
 
     function logoutCandidate() {
@@ -1922,7 +1829,6 @@
 
       generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
       otpExpiresAt = Date.now() + 5 * 60 * 1000;
-
       tempUserToVerify = { phone: phone, email: emailInput };
 
       try {
@@ -1938,8 +1844,7 @@
         document.getElementById('authCardTitle').innerText = "OTP വെരിഫിക്കേഷൻ";
         document.getElementById('authCardDesc').innerText = `ഇമെയിൽ: ${emailInput}`;
       } catch (err) {
-        alert("ഇമെയിൽ അയക്കുന്നതിൽ തടസ്സം നേരിട്ടു! EmailJS ടെംപ്ലേറ്റും കീ-കളും പരിശോധിക്കുക.");
-        console.error("EmailJS Error:", err);
+        alert("ഇമെയിൽ അയക്കുന്നതിൽ തടസ്സം നേരിട്ടു! EmailJS പരിശോധിക്കുക.");
       } finally {
         submitBtn.innerHTML = `<span>OTP അയക്കുക</span><span>📩</span>`;
         submitBtn.disabled = false;
@@ -2028,7 +1933,6 @@
 
     function updateProfileAnalytics() {
       if (!candidate || !candidate.phone) return;
-
       const uniqueAttemptList = Object.values(userAttemptsMap);
       const totalUniqueExams = uniqueAttemptList.length;
 
@@ -2043,17 +1947,6 @@
       document.getElementById('statTotalTests').innerText = totalUniqueExams;
       document.getElementById('statAvgScore').innerText = avgScore;
       document.getElementById('statAccuracy').innerText = `${accuracy}%`;
-
-      if (totalUniqueExams > 0) {
-        fetch(`${FIREBASE_DB_URL}/users/${candidate.phone}.json`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            Unique_Exams: totalUniqueExams,
-            First_Attempt_Avg: parseFloat(avgScore)
-          })
-        }).catch(() => null);
-      }
     }
 
     document.getElementById('searchInput').addEventListener('input', () => {
