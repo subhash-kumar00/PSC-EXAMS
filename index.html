@@ -648,20 +648,19 @@
       return 0;
     }
 
-    // 🌟 1. Service Worker രജിസ്ട്രേഷൻ (തകരാറിലായ പഴയ വർക്കറുകളെ നീക്കം ചെയ്ത് sw.js ഉറപ്പാക്കുന്നു)
+   // 🌟 1. പഴയ sw.js ഉണ്ടെങ്കിൽ ഒഴിവാക്കി OneSignal-ന് വഴി നൽകുന്നു
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', async () => {
         try {
           const regs = await navigator.serviceWorker.getRegistrations();
           for (let r of regs) {
-            if (r.active && r.active.scriptURL && r.active.scriptURL.includes('OneSignal')) {
+            if (r.active && r.active.scriptURL && r.active.scriptURL.includes('sw.js')) {
               await r.unregister();
+              console.log('പഴയ sw.js ഒഴിവാക്കി!');
             }
           }
-          await navigator.serviceWorker.register('sw.js');
-          console.log('SK PSC Service Worker Ready');
         } catch (err) {
-          console.log('SW Error:', err);
+          console.log('SW cleanup error:', err);
         }
       });
     }
