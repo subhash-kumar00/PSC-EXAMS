@@ -10,6 +10,21 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Noto+Sans+Malayalam:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 🌟 OneSignal Push Notification SDK -->
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "39db2070-7998-49fc-b624-28b368a1674a",
+      serviceWorkerParam: { scope: '/PSC-EXAMS/' },
+      serviceWorkerPath: 'OneSignalSDKWorker.js',
+      notifyButton: {
+        enable: false
+      }
+    });
+  });
+</script>
 
   <!-- 🌟 PWA Meta Tags & Manifest -->
   <link rel="manifest" href="manifest.json">
@@ -1799,6 +1814,12 @@
 
       // ലോഗിൻ ചെയ്ത ശേഷം നോട്ടിഫിക്കേഷൻ പെർമിഷൻ ചോദിക്കുന്നു
       requestNotificationPermission();
+      // വിദ്യാർത്ഥിയുടെ ഫോൺ നമ്പർ വെച്ച് OneSignal ടാർഗെറ്റ് സെറ്റ് ചെയ്യുന്നു
+  if (window.OneSignalDeferred && candidate && candidate.phone) {
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.login(candidate.phone);
+    });
+  }
     }
 
     function logoutCandidate() {
