@@ -20,6 +20,22 @@
   <meta name="apple-mobile-web-app-title" content="SK PSC">
   <link rel="apple-touch-icon" href="logo.png">
 
+  <!-- 🌟 OneSignal Push Notification SDK (Background Service Worker Path) -->
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "39db2070-7998-49fc-b624-28b368a1674a",
+        serviceWorkerPath: "/PSC-EXAMS/OneSignalSDKWorker.js",
+        serviceWorkerParam: { scope: "/PSC-EXAMS/" },
+        notifyButton: {
+          enable: true
+        }
+      });
+    });
+  </script>
+
   <!-- 🌟 EmailJS SDK -->
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
@@ -648,7 +664,7 @@
       return 0;
     }
 
-   // 🌟 1. പഴയ sw.js ഉണ്ടെങ്കിൽ ഒഴിവാക്കി OneSignal-ന് വഴി നൽകുന്നു
+    // 🌟 1. പഴയ sw.js ഉണ്ടെങ്കിൽ ഒഴിവാക്കി OneSignal-ന് വഴി നൽകുന്നു
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', async () => {
         try {
@@ -789,7 +805,6 @@
 
       if (newLatestExams.length > 0) {
         localStorage.setItem('sk_notified_exams_v2', JSON.stringify(notifiedMap));
-        // ഏറ്റവും പുതിയ പരീക്ഷയുടെ നോട്ടിഫിക്കേഷൻ അയക്കുന്നു
         const latestExam = newLatestExams[newLatestExams.length - 1];
         if (!isFirstVisit || newLatestExams.length === 1) {
           sendLocalNotification(
@@ -840,7 +855,6 @@
       }, 10000);
     });
 
-    // കുട്ടി ആപ്പ് മിനിമൈസ് ചെയ്ത ശേഷം വീണ്ടും സ്ക്രീൻ തുറക്കുമ്പോൾ ആ നിമിഷം തന്നെ മെസ്സേജും പരീക്ഷയും പരിശോധിക്കുന്നു
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible' && candidate) {
         sessionStorage.removeItem('sk_cache_time');
@@ -1842,6 +1856,7 @@
       alert('പേര് അപ്ഡേറ്റ് ചെയ്തു!');
     }
 
+    // 🌟 വിദ്യാർത്ഥി ലോഗിൻ ചെയ്യുമ്പോൾ OneSignal-ൽ മൊബൈൽ നമ്പർ ലിങ്ക് ചെയ്യുകയും ബാക്ക്ഗ്രൗണ്ട് പുഷ് ഉറപ്പാക്കുകയും ചെയ്യുന്നു
     function activateUserSession() {
       if (!candidate) return;
       document.getElementById('homeLoginCard').classList.add('hidden');
@@ -1853,13 +1868,31 @@
       document.getElementById('profileDisplayPhone').innerText = `ഫോൺ: +91 ${candidate.phone}`;
       updateProfileAnalytics();
 
-      // ലോഗിൻ ചെയ്യുമ്പോൾ ഉടൻ നോട്ടിഫിക്കേഷൻ പെർമിഷനും പുതിയ അലർട്ടുകളും പരിശോധിക്കുന്നു
+      // 🌟 OneSignal ലോഗിൻ & പുഷ് ഓപ്റ്റ്-ഇൻ (ബാക്ക്ഗ്രൗണ്ട് ലിങ്ക് ഉറപ്പാക്കുന്നു)
+      if (window.OneSignalDeferred && candidate.phone) {
+        window.OneSignalDeferred.push(async function(OneSignal) {
+          try {
+            const cleanPhone = sanitizePhone(candidate.phone);
+            await OneSignal.login(cleanPhone);
+            await OneSignal.User.PushSubscription.optIn();
+            console.log("OneSignal push registered for user:", cleanPhone);
+          } catch(err) {
+            console.log("OneSignal login error:", err);
+          }
+        });
+      }
+
       requestNotificationPermission();
       listenForChatReplies();
     }
 
     function logoutCandidate() {
       if (confirm('ലോഗ് ഔട്ട് ചെയ്യണമെന്നുറപ്പാണോ?')) {
+        if (window.OneSignalDeferred) {
+          window.OneSignalDeferred.push(async function(OneSignal) {
+            try { await OneSignal.logout(); } catch(e) {}
+          });
+        }
         localStorage.removeItem('sk_candidate_user');
         candidate = null;
         userAttemptsMap = {};
