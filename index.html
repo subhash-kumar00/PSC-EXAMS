@@ -1749,7 +1749,7 @@
           <div class="mt-2.5 border-t border-slate-800/80 pt-2">
             <div class="flex items-center justify-between text-[11px] text-slate-400">
               <span>📄 ${q.questions} Qs • ⏱ ${q.time}</span>
-              <button onclick="showExamLiveRankList('${q.key || ''}', '${q.title}')" class="text-[10px] font-bold text-cyan-400 hover:text-cyan-300 transition flex items-center space-x-1 cursor-pointer">
+              <button onclick="('${q.key || ''}', '${q.title}')" class="text-[10px] font-bold text-cyan-400 hover:text-cyan-300 transition flex items-center space-x-1 cursor-pointer">
                 <span>🏆</span><span>റാങ്ക് ലിസ്റ്റ്</span>
               </button>
             </div>
@@ -1761,41 +1761,61 @@
       grid.appendChild(fragment);
     }
 
+   // 🌟 & ഉള്ളതും ഇല്ലാത്തതുമായ എല്ലാ രൂപങ്ങളും ഒരുമിച്ച് പരിശോധിച്ച് മെർജ് ചെയ്യുന്ന റാങ്ക് ലിസ്റ്റ്
     async function showExamLiveRankList(examKeyParam, examTitle) {
       document.getElementById('rankListModal').classList.remove('hidden');
       document.getElementById('rankModalTitle').innerText = `🏆 ${examTitle} - ലൈവ് റാങ്ക് ലിസ്റ്റ്`;
       const tbody = document.getElementById('rankListTableBody');
       tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-400">റാങ്ക് ലിസ്റ്റ് ശേഖരിക്കുന്നു...</td></tr>';
 
-      const searchKeys = [];
-      if (examKeyParam) searchKeys.push(cleanTitleForMatch(examKeyParam));
-      const cleanTitleName = cleanTitleForMatch(examTitle);
-      if (!searchKeys.includes(cleanTitleName)) searchKeys.push(cleanTitleName);
+      // സാധ്യമായ എല്ലാ കീകളും തയ്യാറാക്കുന്നു (& ഉള്ളതും ഇല്ലാത്തതും)
+      const cleanWithoutAnd = (str) => String(str || '').replace(/[\s\-_,.:;()\/\\|\[\]+&]+/g, '').toLowerCase();
+      const cleanWithAnd = (str) => String(str || '').replace(/[\s\-_,.:;()\/\\|\[\]+]+/g, '').toLowerCase();
+
+      const searchKeys = new Set();
+      [examKeyParam, examTitle].forEach(val => {
+        if (!val) return;
+        searchKeys.add(cleanWithoutAnd(val));              // & ഇല്ലാത്ത രൂപം (eg: ldclgs)
+        searchKeys.add(cleanWithAnd(val));                 // & ഉള്ള രൂപം (eg: ldc&lgs)
+        searchKeys.add(encodeURIComponent(cleanWithAnd(val))); // URL safe & (%26)
+        searchKeys.add(String(val).trim());                // ഒറിജിനൽ പേര്
+      });
 
       try {
-        let ranks = [];
+        const mergedMap = {};
+
+        // എല്ലാ കീകളിൽ നിന്നും ഒരേസമയം ഡാറ്റ എടുക്കുന്നു (break ഒഴിവാക്കി)
         for (const keyToTry of searchKeys) {
+          if (!keyToTry) continue;
           const [liveRes, ranksRes] = await Promise.all([
             fetch(`${FIREBASE_DB_URL}/live_ranks/${keyToTry}.json`).then(r => r.json()).catch(() => null),
             fetch(`${FIREBASE_DB_URL}/ranks/${keyToTry}.json`).then(r => r.json()).catch(() => null)
           ]);
 
-          const mergedMap = {};
-          if (liveRes) Object.values(liveRes).forEach(r => { let p = sanitizePhone(r.phone || r.Phone || ''); if (p) mergedMap[p] = { ...r, phone: p }; });
-          if (ranksRes) Object.values(ranksRes).forEach(r => { let p = sanitizePhone(r.phone || r.Phone || ''); if (p && !mergedMap[p]) mergedMap[p] = { ...r, phone: p }; });
+          const processEntry = (r) => {
+            let p = sanitizePhone(r.phone || r.Phone || '');
+            if (!p) return;
+            const newScore = extractActualScore(r);
+            // കുട്ടി നേരത്തെ ഉണ്ടെങ്കിൽ ഉയർന്ന സ്കോർ നിലനിർത്തുന്നു
+            if (!mergedMap[p] || newScore > extractActualScore(mergedMap[p])) {
+              mergedMap[p] = { ...r, phone: p };
+            }
+          };
 
-          if (Object.keys(mergedMap).length > 0) {
-            ranks = Object.values(mergedMap);
-            break;
-          }
+          if (liveRes) Object.values(liveRes).forEach(processEntry);
+          if (ranksRes) Object.values(ranksRes).forEach(processEntry);
         }
+
+        const ranks = Object.values(mergedMap);
 
         if (ranks.length === 0) {
           tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-500">ഈ പരീക്ഷയിൽ ഇതുവരെ ആരും പങ്കെടുത്തിട്ടില്ല.</td></tr>';
           return;
         }
 
+        // ഉയർന്ന സ്കോർ ക്രമത്തിൽ സോർട്ട് ചെയ്യുന്നു
         ranks.sort((a, b) => extractActualScore(b) - extractActualScore(a));
+        
         let rankHtml = '';
         ranks.forEach((r, idx) => {
           let markVal = extractActualScore(r);
