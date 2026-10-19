@@ -781,6 +781,12 @@
       modal.classList.remove('hidden');
     }
 
+    // 🌟 സുരക്ഷിതമായി Index വഴി മോഡൽ തുറക്കുന്നു (ക്വോട്ടിംഗ് എറർ ഒഴിവാക്കാൻ)
+    function openSubscriptionModalByIndex(idx) {
+      const q = rawQuizList.find(item => item.originalIndex === idx);
+      openSubscriptionModal(q ? q.title : '');
+    }
+
     function closeSubscriptionModal() {
       document.getElementById('subscriptionModal').classList.add('hidden');
     }
@@ -809,21 +815,17 @@
         const cfg = portalConfigCache || {};
         let wa = cfg.whatsapp_number || "";
 
-        // അക്കങ്ങൾ മാത്രം എടുക്കുന്നു
         let cleanWa = String(wa).replace(/\D/g, '');
 
-        // 10 അക്ക നമ്പർ മാത്രമാണെങ്കിൽ മുന്നിൽ ഇന്ത്യയുടെ കോഡായ 91 തനിയെ ചേർക്കുന്നു
         if (cleanWa.length === 10) {
           cleanWa = '91' + cleanWa;
         }
 
-        // വാട്ട്സാപ്പ് നമ്പർ നൽകിയിട്ടുണ്ടോ എന്ന് പരിശോധിക്കുന്നു
         if (!cleanWa || cleanWa.length < 10 || cleanWa.includes('XXXX')) {
           alert("അഡ്മിൻ പാനലിൽ ശരിയായ WhatsApp നമ്പർ നൽകിയിട്ടില്ല! ദയവായി അഡ്മിൻ പാനലിൽ പോയി 10 അക്ക മൊബൈൽ നമ്പർ സേവ് ചെയ്യുക.");
           return;
         }
 
-        // പ്ലാൻ വിവരങ്ങൾ സുരക്ഷിതമായി എടുക്കുന്നു
         const p1Price = document.getElementById('modalPlan1Price') ? document.getElementById('modalPlan1Price').textContent : "₹50";
         const p1Days = document.getElementById('modalPlan1Days') ? document.getElementById('modalPlan1Days').textContent : "30 ദിവസം";
         const p2Price = document.getElementById('modalPlan2Price') ? document.getElementById('modalPlan2Price').textContent : "₹200";
@@ -838,10 +840,8 @@
 
         const msg = `ഹലോ സർ, ഞാൻ SK PSC മോഡൽ എക്സാം പോർട്ടലിലേക്ക് ഫീസ് അടച്ചിട്ടുണ്ട്.\n\n👤 പേര്: ${studName}\n📞 ഫോൺ: ${studPhone}\n📦 തിരഞ്ഞെടുത്ത പ്ലാൻ: ${planTxt}\n\n(ദയവായി പേയ്‌മെന്റ് സ്ക്രീൻഷോട്ട് ഇതിനൊപ്പം അയക്കുക. നന്ദി!)`;
         
-        // ഔദ്യോഗിക WhatsApp API ലിങ്ക്
         const url = `https://api.whatsapp.com/send?phone=${cleanWa}&text=${encodeURIComponent(msg)}`;
 
-        // 🌟 ഫോണുകളിൽ പോപ്പ്-അപ്പ് ബ്ലോക്ക് ആകാതെ നേരിട്ട് WhatsApp തുറക്കുന്നു
         window.location.href = url;
 
       } catch (err) {
@@ -1550,7 +1550,7 @@
           if (lockedByTime) {
             actionMarkup = `<button disabled class="px-4 py-2.5 bg-slate-900 border border-emerald-500/30 text-emerald-400 font-bold rounded-xl text-xs cursor-not-allowed opacity-90 shadow-inner select-none whitespace-nowrap flex items-center space-x-1.5"><span>🔒</span><span>ഉടൻ വരുന്നു</span></button>`;
           } else if (!hasAccess) {
-            actionMarkup = `<button onclick="openSubscriptionModal('${todayItem.title.replace(/'/g, "\\'")}')" class="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 font-black rounded-xl text-xs transition text-center shadow whitespace-nowrap cursor-pointer flex items-center space-x-1.5"><span>🔒</span><span>അൺലോക്ക് ചെയ്യുക</span></button>`;
+            actionMarkup = `<button onclick="openSubscriptionModalByIndex(${todayItem.originalIndex})" class="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 font-black rounded-xl text-xs transition text-center shadow whitespace-nowrap cursor-pointer flex items-center space-x-1.5"><span>🔒</span><span>അൺലോക്ക് ചെയ്യുക</span></button>`;
           } else {
             actionMarkup = `<a href="${todayItem.fileUrl}" class="px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 text-slate-950 font-black rounded-xl text-xs transition text-center shadow whitespace-nowrap">പരീക്ഷ ആരംഭിക്കുക ›</a>`;
           }
@@ -1624,7 +1624,7 @@
         const hasAccess = canStudentAccessExam(q);
         const actionBtn = hasAccess
           ? `<a href="${q.fileUrl}" class="px-3 py-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-lg text-[11px] transition shadow">ആരംഭിക്കുക ›</a>`
-          : `<button onclick="openSubscriptionModal('${q.title.replace(/'/g, "\\'")}')" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-lg text-[11px] transition shadow flex items-center space-x-1 cursor-pointer"><span>🔒</span><span>അൺലോക്ക്</span></button>`;
+          : `<button onclick="openSubscriptionModalByIndex(${q.originalIndex})" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-lg text-[11px] transition shadow flex items-center space-x-1 cursor-pointer"><span>🔒</span><span>അൺലോക്ക്</span></button>`;
 
         cardsHtml += `
           <div class="w-64 sm:w-72 bg-slate-900 border-2 border-rose-500/50 rounded-2xl p-3.5 shadow-lg flex-shrink-0 snap-start flex flex-col justify-between space-y-2 relative">
@@ -1703,7 +1703,7 @@
           // 🔒 സബ്സ്ക്രിപ്ഷൻ ഇല്ലാത്ത കുട്ടികൾക്ക് അൺലോക്ക് ബട്ടൺ
           actionAreaMarkup = `
             <div class="pt-2 w-full">
-              <button onclick="openSubscriptionModal('${q.title.replace(/'/g, "\\'")}')" class="w-full py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 font-black rounded-xl text-xs transition text-center shadow flex items-center justify-center space-x-1.5 cursor-pointer">
+              <button onclick="openSubscriptionModalByIndex(${q.originalIndex})" class="w-full py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 font-black rounded-xl text-xs transition text-center shadow flex items-center justify-center space-x-1.5 cursor-pointer">
                 <span>🔒</span><span>അൺലോക്ക് ചെയ്യുക</span>
               </button>
             </div>
@@ -1749,9 +1749,9 @@
           <div class="mt-2.5 border-t border-slate-800/80 pt-2">
             <div class="flex items-center justify-between text-[11px] text-slate-400">
               <span>📄 ${q.questions} Qs • ⏱ ${q.time}</span>
-             <button onclick="showExamLiveRankList('${q.key || ''}', '${q.title.replace(/'/g, &quot;\\'&quot;)}')" class="text-[10px] font-bold text-cyan-400 hover:text-cyan-300 transition flex items-center space-x-1 cursor-pointer">
-  <span>🏆</span><span>റാങ്ക് ലിസ്റ്റ്</span>
-</button>
+              <button onclick="showExamLiveRankListByIndex(${q.originalIndex})" class="text-[10px] font-bold text-cyan-400 hover:text-cyan-300 transition flex items-center space-x-1 cursor-pointer">
+                <span>🏆</span><span>റാങ്ക് ലിസ്റ്റ്</span>
+              </button>
             </div>
             ${actionAreaMarkup}
           </div>
@@ -1761,14 +1761,21 @@
       grid.appendChild(fragment);
     }
 
-   // 🌟 & ഉള്ളതും ഇല്ലാത്തതുമായ എല്ലാ രൂപങ്ങളും ഒരുമിച്ച് പരിശോധിച്ച് മെർജ് ചെയ്യുന്ന റാങ്ക് ലിസ്റ്റ്
+    // 🌟 സുരക്ഷിതമായി Index വഴി റാങ്ക് ലിസ്റ്റ് തുറക്കുന്നു
+    function showExamLiveRankListByIndex(idx) {
+      const q = rawQuizList.find(item => item.originalIndex === idx);
+      if (q) {
+        showExamLiveRankList(q.key || '', q.title);
+      }
+    }
+
+    // 🌟 & ഉള്ളതും ഇല്ലാത്തതുമായ എല്ലാ രൂപങ്ങളും ഒരുമിച്ച് പരിശോധിച്ച് മെർജ് ചെയ്യുന്ന റാങ്ക് ലിസ്റ്റ്
     async function showExamLiveRankList(examKeyParam, examTitle) {
       document.getElementById('rankListModal').classList.remove('hidden');
       document.getElementById('rankModalTitle').innerText = `🏆 ${examTitle} - ലൈവ് റാങ്ക് ലിസ്റ്റ്`;
       const tbody = document.getElementById('rankListTableBody');
       tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-400">റാങ്ക് ലിസ്റ്റ് ശേഖരിക്കുന്നു...</td></tr>';
 
-      // സാധ്യമായ എല്ലാ കീകളും തയ്യാറാക്കുന്നു (& ഉള്ളതും ഇല്ലാത്തതും)
       const cleanWithoutAnd = (str) => String(str || '').replace(/[\s\-_,.:;()\/\\|\[\]+&]+/g, '').toLowerCase();
       const cleanWithAnd = (str) => String(str || '').replace(/[\s\-_,.:;()\/\\|\[\]+]+/g, '').toLowerCase();
 
@@ -1784,7 +1791,6 @@
       try {
         const mergedMap = {};
 
-        // എല്ലാ കീകളിൽ നിന്നും ഒരേസമയം ഡാറ്റ എടുക്കുന്നു (break ഒഴിവാക്കി)
         for (const keyToTry of searchKeys) {
           if (!keyToTry) continue;
           const [liveRes, ranksRes] = await Promise.all([
@@ -1796,7 +1802,6 @@
             let p = sanitizePhone(r.phone || r.Phone || '');
             if (!p) return;
             const newScore = extractActualScore(r);
-            // കുട്ടി നേരത്തെ ഉണ്ടെങ്കിൽ ഉയർന്ന സ്കോർ നിലനിർത്തുന്നു
             if (!mergedMap[p] || newScore > extractActualScore(mergedMap[p])) {
               mergedMap[p] = { ...r, phone: p };
             }
@@ -1813,7 +1818,6 @@
           return;
         }
 
-        // ഉയർന്ന സ്കോർ ക്രമത്തിൽ സോർട്ട് ചെയ്യുന്നു
         ranks.sort((a, b) => extractActualScore(b) - extractActualScore(a));
         
         let rankHtml = '';
