@@ -805,18 +805,49 @@
     }
 
     function sendPaymentProofWhatsApp() {
-      const cfg = portalConfigCache || {};
-      const wa = cfg.whatsapp_number || "919XXXXXXXXX";
-      const planTxt = selectedPlanIndex === 1 
-        ? document.getElementById('modalPlan1Price').textContent + " (" + document.getElementById('modalPlan1Days').textContent + ")"
-        : document.getElementById('modalPlan2Price').textContent + " (" + document.getElementById('modalPlan2Days').textContent + ")";
+      try {
+        const cfg = portalConfigCache || {};
+        let wa = cfg.whatsapp_number || "";
 
-      const studName = candidate ? (candidate.Official_Name || candidate.name || 'Student') : 'Student';
-      const studPhone = candidate ? (candidate.phone || candidate.Phone || '') : '';
+        // അക്കങ്ങൾ മാത്രം എടുക്കുന്നു
+        let cleanWa = String(wa).replace(/\D/g, '');
 
-      const msg = `ഹലോ സർ, ഞാൻ SK PSC മോഡൽ എക്സാം പോർട്ടലിലേക്ക് ഫീസ് അടച്ചിട്ടുണ്ട്.\n\n👤 പേര്: ${studName}\n📞 ഫോൺ: ${studPhone}\n📦 തിരഞ്ഞെടുത്ത പ്ലാൻ: ${planTxt}\n\n(ദയവായി പേയ്‌മെന്റ് സ്ക്രീൻഷോട്ട് ഇതിനൊപ്പം അയക്കുക. നന്ദി!)`;
-      const url = `https://wa.me/${wa.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`;
-      window.open(url, '_blank');
+        // 10 അക്ക നമ്പർ മാത്രമാണെങ്കിൽ മുന്നിൽ ഇന്ത്യയുടെ കോഡായ 91 തനിയെ ചേർക്കുന്നു
+        if (cleanWa.length === 10) {
+          cleanWa = '91' + cleanWa;
+        }
+
+        // വാട്ട്സാപ്പ് നമ്പർ നൽകിയിട്ടുണ്ടോ എന്ന് പരിശോധിക്കുന്നു
+        if (!cleanWa || cleanWa.length < 10 || cleanWa.includes('XXXX')) {
+          alert("അഡ്മിൻ പാനലിൽ ശരിയായ WhatsApp നമ്പർ നൽകിയിട്ടില്ല! ദയവായി അഡ്മിൻ പാനലിൽ പോയി 10 അക്ക മൊബൈൽ നമ്പർ സേവ് ചെയ്യുക.");
+          return;
+        }
+
+        // പ്ലാൻ വിവരങ്ങൾ സുരക്ഷിതമായി എടുക്കുന്നു
+        const p1Price = document.getElementById('modalPlan1Price') ? document.getElementById('modalPlan1Price').textContent : "₹50";
+        const p1Days = document.getElementById('modalPlan1Days') ? document.getElementById('modalPlan1Days').textContent : "30 ദിവസം";
+        const p2Price = document.getElementById('modalPlan2Price') ? document.getElementById('modalPlan2Price').textContent : "₹200";
+        const p2Days = document.getElementById('modalPlan2Days') ? document.getElementById('modalPlan2Days').textContent : "200 ദിവസം";
+
+        const planTxt = (selectedPlanIndex === 1) 
+          ? `${p1Price} (${p1Days})` 
+          : `${p2Price} (${p2Days})`;
+
+        const studName = candidate ? (candidate.Official_Name || candidate.name || 'Student') : 'Student';
+        const studPhone = candidate ? (candidate.phone || candidate.Phone || '') : '';
+
+        const msg = `ഹലോ സർ, ഞാൻ SK PSC മോഡൽ എക്സാം പോർട്ടലിലേക്ക് ഫീസ് അടച്ചിട്ടുണ്ട്.\n\n👤 പേര്: ${studName}\n📞 ഫോൺ: ${studPhone}\n📦 തിരഞ്ഞെടുത്ത പ്ലാൻ: ${planTxt}\n\n(ദയവായി പേയ്‌മെന്റ് സ്ക്രീൻഷോട്ട് ഇതിനൊപ്പം അയക്കുക. നന്ദി!)`;
+        
+        // ഔദ്യോഗിക WhatsApp API ലിങ്ക്
+        const url = `https://api.whatsapp.com/send?phone=${cleanWa}&text=${encodeURIComponent(msg)}`;
+
+        // 🌟 ഫോണുകളിൽ പോപ്പ്-അപ്പ് ബ്ലോക്ക് ആകാതെ നേരിട്ട് WhatsApp തുറക്കുന്നു
+        window.location.href = url;
+
+      } catch (err) {
+        console.error("WhatsApp redirect error:", err);
+        alert("വാട്ട്സാപ്പ് തുറക്കുന്നതിൽ തടസ്സം നേരിട്ടു: " + err.message);
+      }
     }
 
     // 🌟 OneSignal വർക്കറെ ഫോണിൽ ആക്റ്റീവ് ആക്കുന്നു
