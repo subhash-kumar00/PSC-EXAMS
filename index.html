@@ -20,7 +20,7 @@
   <meta name="apple-mobile-web-app-title" content="SK PSC">
   <link rel="apple-touch-icon" href="logo.png">
 
-  <!-- 🌟 OneSignal Push Notification SDK (Background Service Worker Path) -->
+  <!-- 🌟 OneSignal Push Notification SDK -->
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
   <script>
     window.OneSignalDeferred = window.OneSignalDeferred || [];
@@ -35,9 +35,6 @@
       });
     });
   </script>
-
-  <!-- 🌟 EmailJS SDK -->
-  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
   <style>
     html, body {
@@ -135,7 +132,6 @@
             <span id="navUserName" class="text-xs font-bold text-slate-200 block truncate max-w-[110px] sm:max-w-none"></span>
             <span class="text-[10px] text-emerald-400 block font-semibold hover:underline">പ്രൊഫൈൽ & ചാറ്റ് 💬</span>
           </div>
-          <!-- Unread Reply Badge -->
           <span id="navUnreadChatBadge" class="hidden absolute -top-1.5 -right-1.5 bg-rose-600 text-white text-[9px] font-black px-1.5 py-0.2 rounded-full animate-bounce shadow">NEW</span>
         </button>
         <button onclick="logoutCandidate()" class="text-xs text-rose-400 hover:text-rose-300 border border-rose-500/30 px-2.5 py-1.5 rounded-xl hover:bg-rose-950/30 transition cursor-pointer">Logout</button>
@@ -153,13 +149,12 @@
             <span>🎯</span>
             <span>SK PSC EXAM HUB</span>
           </span>
-          <!-- ഗ്ലോബൽ ട്രയൽ ബാഡ്ജ് -->
           <span id="heroTrialBadge" class="hidden text-[11px] font-bold text-amber-300 bg-amber-950/80 px-2.5 py-0.5 rounded-md border border-amber-500/40 animate-pulse">
             🎁 സൗജന്യ ട്രയൽ ആക്റ്റീവ് ആണ്
           </span>
         </div>
 
-        <!-- റെഡ് കളർ ബ്ലിങ്ക് മെസ്സേജ് ബാനർ -->
+        <!-- റെഡ് ബ്ലിങ്ക് മെസ്സേജ് ബാനർ -->
         <div id="heroBlinkAlertBox" class="red-blink-banner bg-rose-950/50 border-2 border-rose-500/80 rounded-2xl px-3.5 py-2.5 inline-flex flex-wrap items-center gap-2.5 shadow-lg">
           <span class="auto-latest-badge px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-rose-600 text-white shadow-md">
             ● LATEST
@@ -210,7 +205,7 @@
       </div>
     </div>
 
-    <!-- ടോപ്പ് 3 സ്റ്റുഡന്റ്സ് ലീഡർബോർഡ് (Hall of Fame) -->
+    <!-- ടോപ്പ് 3 സ്റ്റുഡന്റ്സ് ലീഡർബോർഡ് -->
     <div id="topStudentsSection" class="hidden bg-slate-900/90 border border-amber-500/30 rounded-2xl p-4 shadow-xl">
       <div class="flex items-center justify-between mb-3 border-b border-slate-800 pb-2">
         <div class="flex items-center space-x-2">
@@ -222,62 +217,64 @@
       <div id="topStudentsList" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5"></div>
     </div>
 
-    <!-- സുരക്ഷിത ലോഗിൻ കാർഡ് (Mobile + Email OTP) -->
+    <!-- ================= 🔐 സുരക്ഷിത ലോഗിൻ കാർഡ് (Mobile + 4-Digit PIN) ================= -->
     <div id="homeLoginCard" class="max-w-md mx-auto bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-4">
       <div class="text-center space-y-1">
-        <span class="inline-block p-3 rounded-2xl bg-emerald-500/10 text-emerald-400 mb-1">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+        <span class="inline-block p-3 rounded-2xl bg-emerald-500/10 text-emerald-400 mb-1 text-2xl">
+          📱
         </span>
         <h3 id="authCardTitle" class="text-lg sm:text-xl font-bold text-white">വിദ്യാർത്ഥി ലോഗിൻ / രജിസ്ട്രേഷൻ</h3>
-        <p id="authCardDesc" class="text-xs text-slate-400">മൊബൈൽ നമ്പറും ഇമെയിലും നൽകി OTP നേടുക.</p>
+        <p id="authCardDesc" class="text-xs text-slate-400">10 അക്ക മൊബൈൽ നമ്പർ നൽകുക</p>
       </div>
 
-      <!-- ഫോം 1: മൊബൈൽ & ഇമെയിൽ നൽകൽ -->
-      <form id="phoneCheckForm" class="space-y-3.5">
+      <!-- ഘട്ടം 1: മൊബൈൽ നമ്പർ നൽകൽ -->
+      <form id="stepPhoneForm" onsubmit="handlePhoneStep(event)" class="space-y-3.5">
         <div>
           <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">മൊബൈൽ നമ്പർ</label>
           <div class="flex items-center space-x-2">
             <span class="bg-slate-950 border border-slate-800 px-3 py-3 rounded-xl text-slate-300 font-mono text-xs select-none">🇮🇳 +91</span>
-            <input type="tel" id="loginPhone" pattern="[0-9]{10}" required class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition font-mono tracking-wider text-xs sm:text-sm" placeholder="10 അക്ക നമ്പർ">
+            <input type="tel" id="authPhoneInput" pattern="[0-9]{10}" required class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition font-mono tracking-wider text-xs sm:text-sm" placeholder="10 അക്ക നമ്പർ">
           </div>
         </div>
 
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">ഇമെയിൽ വിലാസം (OTP ലഭിക്കുന്നതിന്)</label>
-          <input type="email" id="loginEmail" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition text-xs sm:text-sm" placeholder="ഉദാ: yourname@gmail.com">
-        </div>
-
-        <button type="submit" id="phoneSubmitBtn" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 text-slate-950 font-bold rounded-xl transition transform active:scale-95 shadow-lg text-xs sm:text-sm cursor-pointer flex items-center justify-center space-x-1.5">
-          <span>OTP അയക്കുക</span>
-          <span>📩</span>
+        <button type="submit" id="btnPhoneNext" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 text-slate-950 font-black rounded-xl transition transform active:scale-95 shadow-lg text-xs sm:text-sm cursor-pointer flex items-center justify-center space-x-1.5">
+          <span>തുടരുക</span>
+          <span>›</span>
         </button>
       </form>
 
-      <!-- ഫോം 2: OTP വെരിഫിക്കേഷൻ ബോക്സ് -->
-      <form id="otpVerifyForm" class="space-y-3.5 hidden">
-        <div class="bg-emerald-500/10 border border-emerald-500/30 p-3 rounded-xl text-xs text-emerald-300 text-center leading-relaxed">
-          നിങ്ങളുടെ ഇമെയിലിലേക്ക് 6 അക്ക വെരിഫിക്കേഷൻ കോഡ് അയച്ചിട്ടുണ്ട്. ദയവായി താഴെ നൽകുക.
+      <!-- ഘട്ടം 2A: നിലവിലുള്ള വിദ്യാർത്ഥിക്ക് PIN നൽകാനുള്ള ഫോം -->
+      <form id="stepPinLoginForm" onsubmit="handlePinLogin(event)" class="space-y-3.5 hidden">
+        <div class="bg-emerald-500/10 border border-emerald-500/30 p-3 rounded-xl text-xs text-emerald-300 text-center">
+          സ്വാഗതം <strong id="loginWelcomeName" class="text-white"></strong>! നിങ്ങളുടെ 4 അക്ക സെക്യൂരിറ്റി PIN നൽകുക.
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Enter 6-Digit OTP</label>
-          <input type="text" id="enteredOtpInput" maxlength="6" pattern="[0-9]{6}" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-center text-white tracking-[0.3em] font-mono text-lg focus:outline-none focus:border-emerald-500 transition" placeholder="••••••">
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Enter 4-Digit PIN</label>
+          <input type="password" id="authPinInput" maxlength="4" pattern="[0-9]{4}" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-center text-white tracking-[0.5em] font-mono text-xl focus:outline-none focus:border-emerald-500 transition" placeholder="••••">
         </div>
         <div class="flex space-x-2">
           <button type="button" onclick="resetAuthView()" class="w-1/3 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-xs transition cursor-pointer">പിന്നോട്ട്</button>
-          <button type="submit" id="verifyOtpBtn" class="w-2/3 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 text-slate-950 font-bold rounded-xl text-xs sm:text-sm transition shadow-lg cursor-pointer">Verify & Login ›</button>
+          <button type="submit" id="btnLoginSubmit" class="w-2/3 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 text-slate-950 font-black rounded-xl text-xs sm:text-sm transition shadow-lg cursor-pointer">Login ›</button>
         </div>
       </form>
 
-      <!-- ഫോം 3: ആദ്യ രജിസ്ട്രേഷന് പേര് നൽകൽ -->
-      <form id="registerNameForm" class="space-y-3.5 hidden">
-        <div class="bg-emerald-500/10 border border-emerald-500/30 p-3 rounded-xl text-xs text-emerald-300 text-center">
-          OTP വെരിഫിക്കേഷൻ പൂർത്തിയായി! അവസാനമായി നിങ്ങളുടെ ഔദ്യോഗിക പേര് നൽകുക.
+      <!-- ഘട്ടം 2B: പുതിയ വിദ്യാർത്ഥിക്ക് രജിസ്റ്റർ ചെയ്യാനുള്ള ഫോം -->
+      <form id="stepRegisterForm" onsubmit="handleNewRegistration(event)" class="space-y-3.5 hidden">
+        <div class="bg-cyan-500/10 border border-cyan-500/30 p-3 rounded-xl text-xs text-cyan-300 text-center leading-relaxed">
+          പുതിയ രജിസ്ട്രേഷൻ! നിങ്ങളുടെ പേരും എപ്പോഴും ലോഗിൻ ചെയ്യാൻ ഒരു 4 അക്ക രഹസ്യ പിന്നും നൽകുക.
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">ഔദ്യോഗിക പേര് (Official Name)</label>
-          <input type="text" id="registerName" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition text-xs sm:text-sm" placeholder="ഉദാ: സുഭാഷ് കുമാർ സി">
+          <input type="text" id="regNameInput" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500 transition text-xs sm:text-sm" placeholder="ഉദാ: സുഭാഷ് കുമാർ സി">
         </div>
-        <button type="submit" id="saveProfileBtn" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 text-slate-950 font-bold rounded-xl text-xs sm:text-sm transition shadow-lg cursor-pointer">പ്രൊഫൈൽ നിർമ്മിക്കുക ›</button>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">4 അക്ക രഹസ്യ PIN നൽകുക (Create 4-Digit PIN)</label>
+          <input type="password" id="regPinInput" maxlength="4" pattern="[0-9]{4}" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-center text-white tracking-[0.4em] font-mono text-lg focus:outline-none focus:border-emerald-500 transition" placeholder="••••">
+        </div>
+        <div class="flex space-x-2">
+          <button type="button" onclick="resetAuthView()" class="w-1/3 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-xs transition cursor-pointer">പിന്നോട്ട്</button>
+          <button type="submit" id="btnRegisterSubmit" class="w-2/3 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 text-slate-950 font-black rounded-xl text-xs sm:text-sm transition shadow-lg cursor-pointer">രജിസ്റ്റർ ചെയ്യുക ›</button>
+        </div>
       </form>
     </div>
 
@@ -405,26 +402,21 @@
   <div id="subscriptionModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-slate-900 border-2 border-amber-500/50 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5 text-center relative animate-fade-in">
       
-      <!-- ക്ലോസ് ബട്ടൺ -->
       <button onclick="closeSubscriptionModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-800 rounded-xl w-8 h-8 flex items-center justify-center font-bold text-sm cursor-pointer">✕</button>
 
-      <!-- ഹെഡർ -->
       <div class="space-y-1">
         <div class="w-12 h-12 bg-amber-500/20 text-amber-400 rounded-2xl flex items-center justify-center text-2xl mx-auto font-black border border-amber-500/30">🔒</div>
         <h3 class="text-base font-black text-white" id="modalExamTitleBanner">SK PSC പ്രീമിയം ബാച്ച്</h3>
         <p class="text-xs text-slate-400">ഈ പരീക്ഷ എഴുതാൻ പ്രീമിയം വാലിഡിറ്റി ആവശ്യമാണ്.</p>
       </div>
 
-      <!-- പ്ലാനുകൾ (Dynamic Cards) -->
       <div class="grid grid-cols-2 gap-3 text-left">
-        <!-- Plan 1 -->
         <div onclick="selectSubscriptionPlan(1)" id="planCard1" class="p-3.5 rounded-2xl border-2 border-emerald-500 bg-emerald-950/30 cursor-pointer transition">
           <span class="text-[10px] font-black uppercase text-emerald-400 block" id="modalPlan1Title">30 Days Pack</span>
           <span class="text-xl font-black text-white mt-1 block" id="modalPlan1Price">₹50</span>
           <span class="text-[10px] text-slate-400 block mt-0.5" id="modalPlan1Days">30 ദിവസത്തേക്ക്</span>
         </div>
 
-        <!-- Plan 2 -->
         <div onclick="selectSubscriptionPlan(2)" id="planCard2" class="p-3.5 rounded-2xl border border-slate-800 bg-slate-950 hover:border-slate-700 cursor-pointer transition">
           <span class="text-[10px] font-black uppercase text-cyan-400 block" id="modalPlan2Title">200 Days Pack</span>
           <span class="text-xl font-black text-white mt-1 block" id="modalPlan2Price">₹200</span>
@@ -432,7 +424,6 @@
         </div>
       </div>
 
-      <!-- QR കോഡും UPI വിവരങ്ങളും -->
       <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
         <div class="flex items-center justify-center">
           <img id="modalQrCodeImg" src="" alt="GPay QR Code" class="w-36 h-36 rounded-xl border border-slate-700 object-contain hidden bg-white p-1">
@@ -446,7 +437,6 @@
         </div>
       </div>
 
-      <!-- WhatsApp സബ്മിഷൻ ബട്ടൺ -->
       <button onclick="sendPaymentProofWhatsApp()" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 text-slate-950 font-black rounded-xl text-xs transition shadow-lg flex items-center justify-center space-x-2 cursor-pointer">
         <span>📲</span>
         <span>പണം അടച്ച ശേഷം സ്ക്രീൻഷോട്ട് അയക്കുക</span>
@@ -546,7 +536,6 @@
         </div>
       </div>
 
-      <!-- പ്രൊഫൈൽ ടാബുകൾ -->
       <div class="grid grid-cols-2 gap-2 bg-slate-950 p-1.5 rounded-2xl border border-slate-800">
         <button id="profTabBtnHistory" onclick="switchProfileModalTab('history')" class="py-2 rounded-xl text-xs font-black bg-emerald-500 text-slate-950 transition cursor-pointer flex items-center justify-center space-x-1.5">
           <span>📊</span>
@@ -559,14 +548,12 @@
         </button>
       </div>
 
-      <!-- TAB 1: പരീക്ഷാ ഹിസ്റ്ററി -->
       <div id="profileHistoryTabArea" class="flex-1 overflow-y-auto custom-scroll pr-1 space-y-2 min-h-[220px]">
         <div id="historyList" class="space-y-2">
           <p class="text-xs text-slate-500 text-center py-4">ഹിസ്റ്ററി ലഭ്യമാക്കുന്നു...</p>
         </div>
       </div>
 
-      <!-- TAB 2: പ്രൊഫൈൽ ചാറ്റ് -->
       <div id="profileChatTabArea" class="hidden flex-1 flex flex-col justify-between space-y-3 min-h-[260px] max-h-[340px]">
         <div class="flex items-center justify-between text-[11px] text-slate-400 px-1">
           <span class="flex items-center space-x-1">
@@ -602,12 +589,6 @@
 
   <script>
     const FIREBASE_DB_URL = "https://sk-psc-portal-default-rtdb.asia-southeast1.firebasedatabase.app";
-
-    const EMAILJS_PUBLIC_KEY = "xlXQr4Y8HKtmouyUX";
-    const EMAILJS_SERVICE_ID = "service_h4jdo3j";
-    const EMAILJS_TEMPLATE_ID = "template_yjmhhna";
-
-    const CURRENT_AUTH_VERSION = "v2_email_otp";
     const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
 
     const MAIN_EXAM_FOLDERS = [
@@ -617,12 +598,6 @@
       { id: 'ALL_EXAMS', title: 'എല്ലാ പരീക്ഷകളും', subtitle: 'All Combined PSC Exams', icon: '🌟' }
     ];
 
-    try {
-      emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
-    } catch(e) {
-      console.error("EmailJS init failed:", e);
-    }
-
     let rawQuizList = [];
     let candidate = null;
     let selectedMainFolder = null;
@@ -630,14 +605,24 @@
     let allUsersCache = [];
     let userAttemptsMap = {}; 
     let chatRefreshInterval = null;
-
-    let generatedOTP = null;
-    let otpExpiresAt = null;
-    let tempUserToVerify = null;
     let deferredPrompt = null;
 
     let portalConfigCache = {};
     let selectedPlanIndex = 1;
+
+    // 🌟 യൂണീക് ഡിവൈസ് ഐഡിയും ഡിവൈസ് ടൈപ്പും (1 Mobile + 1 PC Lock)
+    function getOrCreateDeviceId() {
+      let dId = localStorage.getItem('sk_device_id');
+      if (!dId) {
+        dId = 'dev_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
+        localStorage.setItem('sk_device_id', dId);
+      }
+      return dId;
+    }
+
+    function getDeviceType() {
+      return /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 'mobile' : 'desktop';
+    }
 
     function sanitizePhone(rawPhone) {
       if (!rawPhone) return "";
@@ -724,30 +709,22 @@
       return 0;
     }
 
-    // 🌟 വിദ്യാർത്ഥിക്ക് പരീക്ഷ എഴുതാൻ ആക്സസ് ഉണ്ടോ എന്ന് പരിശോധിക്കുന്നു
     function canStudentAccessExam(examItem) {
-      // 1. അഡ്മിൻ ഗ്ലോബൽ ട്രയൽ ആക്റ്റീവ് ആക്കിയിട്ടുണ്ടെങ്കിൽ എല്ലാവർക്കും ഫ്രീ
       if (!portalConfigCache || portalConfigCache.global_trial_active !== false) {
         return true;
       }
-
-      // 2. അഡ്മിൻ ഈ പരീക്ഷ 'FREE' ആക്കി വെച്ചിട്ടുണ്ടെങ്കിൽ
       if (examItem.accessType === 'FREE' || examItem.access_type === 'FREE') {
         return true;
       }
-
-      // 3. വിദ്യാർത്ഥിക്ക് സജീവ വാലിഡിറ്റി ഉണ്ടോ എന്ന് പരിശോധിക്കുന്നു
       if (candidate && candidate.valid_until) {
         const todayStr = new Date().toISOString().split('T')[0];
         if (candidate.valid_until >= todayStr) {
           return true;
         }
       }
-
-      return false; // പരീക്ഷ ലോക്ക് ആണ്
+      return false;
     }
 
-    // 🌟 സബ്സ്ക്രിപ്ഷൻ പേയ്‌മെന്റ് MODAL തുറക്കുന്നു
     function openSubscriptionModal(examTitle = "") {
       const modal = document.getElementById('subscriptionModal');
       if (!modal) return;
@@ -781,7 +758,6 @@
       modal.classList.remove('hidden');
     }
 
-    // 🌟 സുരക്ഷിതമായി Index വഴി മോഡൽ തുറക്കുന്നു (ക്വോട്ടിംഗ് എറർ ഒഴിവാക്കാൻ)
     function openSubscriptionModalByIndex(idx) {
       const q = rawQuizList.find(item => item.originalIndex === idx);
       openSubscriptionModal(q ? q.title : '');
@@ -814,7 +790,6 @@
       try {
         const cfg = portalConfigCache || {};
         let wa = cfg.whatsapp_number || "";
-
         let cleanWa = String(wa).replace(/\D/g, '');
 
         if (cleanWa.length === 10) {
@@ -831,36 +806,24 @@
         const p2Price = document.getElementById('modalPlan2Price') ? document.getElementById('modalPlan2Price').textContent : "₹200";
         const p2Days = document.getElementById('modalPlan2Days') ? document.getElementById('modalPlan2Days').textContent : "200 ദിവസം";
 
-        const planTxt = (selectedPlanIndex === 1) 
-          ? `${p1Price} (${p1Days})` 
-          : `${p2Price} (${p2Days})`;
-
+        const planTxt = (selectedPlanIndex === 1) ? `${p1Price} (${p1Days})` : `${p2Price} (${p2Days})`;
         const studName = candidate ? (candidate.Official_Name || candidate.name || 'Student') : 'Student';
         const studPhone = candidate ? (candidate.phone || candidate.Phone || '') : '';
 
         const msg = `ഹലോ സർ, ഞാൻ SK PSC മോഡൽ എക്സാം പോർട്ടലിലേക്ക് ഫീസ് അടച്ചിട്ടുണ്ട്.\n\n👤 പേര്: ${studName}\n📞 ഫോൺ: ${studPhone}\n📦 തിരഞ്ഞെടുത്ത പ്ലാൻ: ${planTxt}\n\n(ദയവായി പേയ്‌മെന്റ് സ്ക്രീൻഷോട്ട് ഇതിനൊപ്പം അയക്കുക. നന്ദി!)`;
-        
         const url = `https://api.whatsapp.com/send?phone=${cleanWa}&text=${encodeURIComponent(msg)}`;
-
         window.location.href = url;
-
       } catch (err) {
         console.error("WhatsApp redirect error:", err);
         alert("വാട്ട്സാപ്പ് തുറക്കുന്നതിൽ തടസ്സം നേരിട്ടു: " + err.message);
       }
     }
 
-    // 🌟 OneSignal വർക്കറെ ഫോണിൽ ആക്റ്റീവ് ആക്കുന്നു
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', async () => {
         try {
-          const reg = await navigator.serviceWorker.register('/PSC-EXAMS/OneSignalSDKWorker.js', {
-            scope: '/PSC-EXAMS/'
-          });
-          console.log('SK PSC OneSignal Worker Ready:', reg);
-        } catch (err) {
-          console.log('Worker registration failed:', err);
-        }
+          await navigator.serviceWorker.register('/PSC-EXAMS/OneSignalSDKWorker.js', { scope: '/PSC-EXAMS/' });
+        } catch (err) {}
       });
     }
 
@@ -874,8 +837,7 @@
           pwaBtn.classList.add('hidden');
           if (deferredPrompt) {
             deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') console.log('User installed SK PSC App');
+            await deferredPrompt.userChoice;
             deferredPrompt = null;
           }
         };
@@ -887,40 +849,21 @@
       if (Notification.permission === 'default') {
         const perm = await Notification.requestPermission();
         if (perm === 'granted') {
-          sendLocalNotification(
-            "SK PSC നോട്ടിഫിക്കേഷൻ ഓൺ ആയി 🔔",
-            "പരീക്ഷാ അറിയിപ്പുകളും മെന്റർ മറുപടികളും ഇനി തത്സമയം ഫോണിൽ ലഭിക്കും!",
-            "sk_welcome_notif"
-          );
+          sendLocalNotification("SK PSC നോട്ടിഫിക്കേഷൻ ഓൺ ആയി 🔔", "പരീക്ഷാ അറിയിപ്പുകൾ ഇനി തത്സമയം ലഭിക്കും!");
         }
       }
     }
 
     async function sendLocalNotification(title, bodyText, tagId = 'sk_psc_alert') {
-      if (!('Notification' in window)) return;
-      if (Notification.permission !== 'granted') return;
-
-      const options = {
-        body: bodyText,
-        icon: 'logo.png',
-        badge: 'logo.png',
-        tag: tagId,
-        renotify: true,
-        vibrate: [250, 120, 250]
-      };
-
+      if (!('Notification' in window) || Notification.permission !== 'granted') return;
+      const options = { body: bodyText, icon: 'logo.png', badge: 'logo.png', tag: tagId, renotify: true, vibrate: [250, 120, 250] };
       try {
         if ('serviceWorker' in navigator) {
           const reg = await navigator.serviceWorker.getRegistration();
-          if (reg && reg.showNotification) {
-            await reg.showNotification(title, options);
-            return;
-          }
+          if (reg && reg.showNotification) return await reg.showNotification(title, options);
         }
         new Notification(title, options);
-      } catch (e) {
-        try { new Notification(title, options); } catch (err) {}
-      }
+      } catch (e) {}
     }
 
     async function listenForChatReplies() {
@@ -939,19 +882,6 @@
           navBadge.classList.remove('hidden');
           floatBadge.classList.remove('hidden');
           tabBadge.classList.remove('hidden');
-
-          const lastNotifiedTime = Number(localStorage.getItem(`sk_last_reply_notif_${cleanPhone}`) || 0);
-          const replyTime = Number(data.lastUpdated || 1);
-
-          if (replyTime > lastNotifiedTime) {
-            localStorage.setItem(`sk_last_reply_notif_${cleanPhone}`, String(replyTime));
-            const previewMsg = data.lastMessage ? String(data.lastMessage).replace(/^Admin:\s*/i, '') : 'നിങ്ങൾ ചോദിച്ച സംശയത്തിന് മറുപടി വന്നിട്ടുണ്ട്!';
-            sendLocalNotification(
-              "👨‍🏫 SK PSC Mentor Reply",
-              `അഡ്മിൻ മറുപടി നൽകി: "${previewMsg}"`,
-              `chat_reply_${replyTime}`
-            );
-          }
         } else {
           navBadge.classList.add('hidden');
           floatBadge.classList.add('hidden');
@@ -960,57 +890,167 @@
       } catch(e) {}
     }
 
-    function checkLiveExamNotifications() {
-      if (!rawQuizList || rawQuizList.length === 0) return;
+    // ================= 🔐 മൊബൈൽ നമ്പർ + PIN + ഡിവൈസ് ലോക്കിംഗ് ഫംഗ്ഷനുകൾ =================
+    let pendingAuthPhone = null;
+    let pendingUserDbData = null;
 
-      let notifiedMap = {};
+    async function handlePhoneStep(e) {
+      e.preventDefault();
+      const phoneInput = document.getElementById('authPhoneInput').value.trim();
+      const cleanP = sanitizePhone(phoneInput);
+      if (cleanP.length !== 10) return alert("ദയവായി 10 അക്ക മൊബൈൽ നമ്പർ നൽകുക!");
+
+      const btn = document.getElementById('btnPhoneNext');
+      btn.innerText = "പരിശോധിക്കുന്നു...";
+      btn.disabled = true;
+
+      pendingAuthPhone = cleanP;
+
       try {
-        notifiedMap = JSON.parse(localStorage.getItem('sk_notified_exams_v2') || '{}');
-      } catch(e) { notifiedMap = {}; }
+        const res = await fetch(`${FIREBASE_DB_URL}/users/${cleanP}.json`);
+        pendingUserDbData = await res.json();
 
-      const isFirstVisit = Object.keys(notifiedMap).length === 0;
-      let newLatestExams = [];
+        document.getElementById('stepPhoneForm').classList.add('hidden');
 
-      rawQuizList.forEach(q => {
-        if (q.badge === 'LATEST' && !isExamLocked(q.releaseDate)) {
-          const examId = cleanTitleForMatch(q.key || q.title);
-          if (!notifiedMap[examId]) {
-            notifiedMap[examId] = Date.now();
-            newLatestExams.push(q);
-          }
+        if (pendingUserDbData && pendingUserDbData.PIN) {
+          // നിലവിലുള്ള വിദ്യാർത്ഥി ➔ PIN നൽകാനുള്ള ഫോം കാണിക്കുന്നു
+          document.getElementById('stepPinLoginForm').classList.remove('hidden');
+          document.getElementById('loginWelcomeName').innerText = pendingUserDbData.Official_Name || pendingUserDbData.name || 'Student';
+          document.getElementById('authCardTitle').innerText = "സുരക്ഷിത പ്രവേശനം";
+          document.getElementById('authCardDesc').innerText = `ഫോൺ: +91 ${cleanP}`;
+          setTimeout(() => document.getElementById('authPinInput').focus(), 100);
+        } else {
+          // പുതിയ വിദ്യാർത്ഥി ➔ പേരും PIN-ഉം രജിസ്റ്റർ ചെയ്യാനുള്ള ഫോം കാണിക്കുന്നു
+          document.getElementById('stepRegisterForm').classList.remove('hidden');
+          document.getElementById('authCardTitle').innerText = "പുതിയ രജിസ്ട്രേഷൻ";
+          document.getElementById('authCardDesc').innerText = `ഫോൺ: +91 ${cleanP}`;
+          setTimeout(() => document.getElementById('regNameInput').focus(), 100);
         }
-      });
-
-      if (newLatestExams.length > 0) {
-        localStorage.setItem('sk_notified_exams_v2', JSON.stringify(notifiedMap));
-        const latestExam = newLatestExams[newLatestExams.length - 1];
-        if (!isFirstVisit || newLatestExams.length === 1) {
-          sendLocalNotification(
-            "🚀 പുതിയ മോഡൽ പരീക്ഷ ആരംഭിച്ചു!",
-            `"${latestExam.title}" (${latestExam.category}) ഇപ്പോൾ ലൈവ് ആണ്. ഉടൻ എഴുതി റാങ്ക് നേടൂ!`,
-            `exam_${cleanTitleForMatch(latestExam.title)}`
-          );
-        }
+      } catch (err) {
+        alert("ഡാറ്റാബേസ് കണക്റ്റ് ചെയ്യുന്നതിൽ തടസ്സം നേരിട്ടു: " + err.message);
+      } finally {
+        btn.innerHTML = `<span>തുടരുക</span><span>›</span>`;
+        btn.disabled = false;
       }
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
-      const savedVersion = localStorage.getItem('sk_auth_version');
+    // PIN ലോഗിൻ & ഡിവൈസ് പരിശോധന (1 Mobile + 1 PC)
+    async function handlePinLogin(e) {
+      e.preventDefault();
+      const enteredPin = document.getElementById('authPinInput').value.trim();
+      if (enteredPin.length !== 4) return alert("ദയവായി 4 അക്ക PIN നൽകുക!");
 
-      if (savedVersion !== CURRENT_AUTH_VERSION) {
-        localStorage.removeItem('sk_candidate_user');
-        localStorage.setItem('sk_auth_version', CURRENT_AUTH_VERSION);
-        candidate = null;
-      } else {
-        const savedUser = localStorage.getItem('sk_candidate_user');
-        if (savedUser) {
-          try {
-            candidate = JSON.parse(savedUser);
-            if (candidate && candidate.phone) {
-              candidate.phone = sanitizePhone(candidate.phone);
-            }
-          } catch(e) {}
-        }
+      if (String(pendingUserDbData.PIN).trim() !== enteredPin) {
+        alert("തെറ്റായ PIN നമ്പർ! ദയവായി പരിശോധിച്ചു നൽകുക.");
+        return;
+      }
+
+      const btn = document.getElementById('btnLoginSubmit');
+      btn.innerText = "ഡിവൈസ് പരിശോധിക്കുന്നു...";
+      btn.disabled = true;
+
+      // 🌟 1 Mobile + 1 PC Lock Logic
+      const currentDevId = getOrCreateDeviceId();
+      const currentDevType = getDeviceType(); // 'mobile' അല്ലെങ്കിൽ 'desktop'
+      const boundDevices = pendingUserDbData.bound_devices || {};
+      const linkedDevId = boundDevices[currentDevType];
+
+      if (!linkedDevId) {
+        // ആദ്യമായി ഈ ഡിവൈസ് ടൈപ്പിൽ കയറുന്നു ➔ Bind ചെയ്യുന്നു
+        await fetch(`${FIREBASE_DB_URL}/users/${pendingAuthPhone}/bound_devices/${currentDevType}.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(currentDevId)
+        });
+      } else if (linkedDevId !== currentDevId) {
+        const typeName = currentDevType === 'mobile' ? 'മൊബൈൽ ഫോണിൽ' : 'കമ്പ്യൂട്ടറിൽ';
+        alert(`🔒 സുരക്ഷാ മുന്നറിയിപ്പ്:\n\nഈ അക്കൗണ്ട് മറ്റൊരു ${typeName} ഇതിനകം രജിസ്റ്റർ ചെയ്തിട്ടുണ്ട്!\n\nഒരു അക്കൗണ്ട് പരമാവധി ഒരു ഫോണിലും ഒരു കമ്പ്യൂട്ടറിലും മാത്രമേ ഉപയോഗിക്കാൻ സാധിക്കൂ. പുതിയ ഡിവൈസ് മാറ്റുന്നതിനായി അഡ്മിനെ വാട്ട്സാപ്പിൽ ബന്ധപ്പെടുക.`);
+        btn.innerText = "Login ›";
+        btn.disabled = false;
+        return;
+      }
+
+      // ലോഗിൻ വിജയം
+      candidate = {
+        name: pendingUserDbData.Official_Name || pendingUserDbData.name || 'Student',
+        phone: pendingAuthPhone,
+        valid_until: pendingUserDbData.valid_until || null,
+        is_premium: pendingUserDbData.is_premium || false
+      };
+
+      localStorage.setItem('sk_candidate_user', JSON.stringify(candidate));
+      activateUserSession();
+      fetchFirebaseData();
+    }
+
+    // പുതിയ വിദ്യാർത്ഥി രജിസ്ട്രേഷൻ
+    async function handleNewRegistration(e) {
+      e.preventDefault();
+      const name = document.getElementById('regNameInput').value.trim();
+      const pin = document.getElementById('regPinInput').value.trim();
+
+      if (!name) return alert("ദയവായി നിങ്ങളുടെ പേര് നൽകുക!");
+      if (pin.length !== 4) return alert("ദയവായി 4 അക്ക രഹസ്യ PIN നൽകുക!");
+
+      const btn = document.getElementById('btnRegisterSubmit');
+      btn.innerText = "രജിസ്റ്റർ ചെയ്യുന്നു...";
+      btn.disabled = true;
+
+      const currentDevId = getOrCreateDeviceId();
+      const currentDevType = getDeviceType();
+
+      const newUserObj = {
+        Official_Name: name,
+        Phone: pendingAuthPhone,
+        PIN: pin,
+        bound_devices: {
+          [currentDevType]: currentDevId
+        },
+        Unique_Exams: 0,
+        First_Attempt_Avg: 0,
+        Registered_At: new Date().toISOString()
+      };
+
+      await fetch(`${FIREBASE_DB_URL}/users/${pendingAuthPhone}.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newUserObj)
+      });
+
+      candidate = {
+        name: name,
+        phone: pendingAuthPhone,
+        valid_until: null,
+        is_premium: false
+      };
+
+      localStorage.setItem('sk_candidate_user', JSON.stringify(candidate));
+      allUsersCache.push(newUserObj);
+      activateUserSession();
+      fetchFirebaseData();
+    }
+
+    function resetAuthView() {
+      document.getElementById('stepRegisterForm').classList.add('hidden');
+      document.getElementById('stepPinLoginForm').classList.add('hidden');
+      document.getElementById('stepPhoneForm').classList.remove('hidden');
+      document.getElementById('authCardTitle').innerText = "വിദ്യാർത്ഥി ലോഗിൻ / രജിസ്ട്രേഷൻ";
+      document.getElementById('authCardDesc').innerText = "10 അക്ക മൊബൈൽ നമ്പർ നൽകുക";
+      document.getElementById('authPhoneInput').value = '';
+      document.getElementById('authPinInput').value = '';
+      document.getElementById('regNameInput').value = '';
+      document.getElementById('regPinInput').value = '';
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedUser = localStorage.getItem('sk_candidate_user');
+      if (savedUser) {
+        try {
+          candidate = JSON.parse(savedUser);
+          if (candidate && candidate.phone) {
+            candidate.phone = sanitizePhone(candidate.phone);
+          }
+        } catch(e) {}
       }
 
       const urlParams = new URLSearchParams(window.location.search);
@@ -1027,7 +1067,6 @@
       setInterval(() => {
         if (candidate) {
           listenForChatReplies();
-          checkLiveExamNotifications();
         }
       }, 10000);
     });
@@ -1042,49 +1081,15 @@
 
     async function fetchFirebaseData() {
       try {
-        let cachedExams = null;
-        let cachedConfig = null;
-        const cacheTime = sessionStorage.getItem('sk_cache_time');
-        const now = Date.now();
-
-        if (cacheTime && (now - Number(cacheTime)) < 2 * 60 * 1000) {
-          try {
-            cachedExams = JSON.parse(sessionStorage.getItem('sk_cached_exams'));
-            cachedConfig = JSON.parse(sessionStorage.getItem('sk_cached_config'));
-          } catch(e) {}
-        }
-
-        const examsPromise = cachedExams 
-          ? Promise.resolve(cachedExams) 
-          : fetch(`${FIREBASE_DB_URL}/exams.json`).then(r => r.json()).catch(() => null);
-
-        const configPromise = cachedConfig 
-          ? Promise.resolve(cachedConfig) 
-          : fetch(`${FIREBASE_DB_URL}/portal_config.json`).then(r => r.json()).catch(() => ({}));
-
-        const usersPromise = fetch(`${FIREBASE_DB_URL}/users.json`).then(r => r.json()).catch(() => null);
-
-        let userHistPromise = Promise.resolve(null);
-        if (candidate && candidate.phone) {
-          const cleanPhone = sanitizePhone(candidate.phone);
-          userHistPromise = fetch(`${FIREBASE_DB_URL}/users_history/${cleanPhone}.json`).then(r => r.json()).catch(() => null);
-        }
-
         const [examsData, usersData, configData, userHistData] = await Promise.all([
-          examsPromise, usersPromise, configPromise, userHistPromise
+          fetch(`${FIREBASE_DB_URL}/exams.json`).then(r => r.json()).catch(() => null),
+          fetch(`${FIREBASE_DB_URL}/users.json`).then(r => r.json()).catch(() => null),
+          fetch(`${FIREBASE_DB_URL}/portal_config.json`).then(r => r.json()).catch(() => ({})),
+          candidate && candidate.phone ? fetch(`${FIREBASE_DB_URL}/users_history/${sanitizePhone(candidate.phone)}.json`).then(r => r.json()).catch(() => null) : Promise.resolve(null)
         ]);
 
         portalConfigCache = configData || {};
 
-        if (!cachedExams && examsData) {
-          try {
-            sessionStorage.setItem('sk_cached_exams', JSON.stringify(examsData));
-            sessionStorage.setItem('sk_cached_config', JSON.stringify(configData));
-            sessionStorage.setItem('sk_cache_time', String(now));
-          } catch(e) {}
-        }
-
-        // ഗ്ലോബൽ ട്രയൽ ബാനർ
         const trialBadge = document.getElementById('heroTrialBadge');
         if (portalConfigCache.global_trial_active !== false) {
           trialBadge.classList.remove('hidden');
@@ -1104,7 +1109,6 @@
           });
         }
 
-        // റെഡ് ബ്ലിങ്ക് മെസ്സേജ് കൺട്രോൾ
         const blinkBox = document.getElementById('heroBlinkAlertBox');
         const blinkText = document.getElementById('heroBlinkAlertText');
         if (configData && configData.blink_message !== undefined) {
@@ -1115,12 +1119,8 @@
             blinkText.innerText = msg;
             blinkBox.classList.remove('hidden');
           }
-        } else {
-          blinkText.innerText = "2027 LDC & LGS EXAMS COMMING SOON";
-          blinkBox.classList.remove('hidden');
         }
 
-        // നോട്ടീസ് ബോർഡ്
         if (configData && configData.notice && String(configData.notice).trim() !== "") {
           document.getElementById('heroNoticeText').innerText = configData.notice;
           document.getElementById('heroNoticeBox').classList.remove('hidden');
@@ -1146,16 +1146,6 @@
 
             const cleanT = cleanTitleForMatch(title);
             let ctrl = adminControls[cleanT] || null;
-
-            if (!ctrl) {
-              for (let k in adminControls) {
-                let cleanK = cleanTitleForMatch(k);
-                if (cleanK === cleanT || cleanK.includes(cleanT) || cleanT.includes(cleanK)) {
-                  ctrl = adminControls[k];
-                  break;
-                }
-              }
-            }
 
             if (ctrl && ctrl.isPublished === false) return;
 
@@ -1191,10 +1181,6 @@
 
           if (selectedMainFolder) renderSubjectFolders();
           if (selectedCategory) applyFiltersAndRender();
-
-          if (candidate) {
-            checkLiveExamNotifications();
-          }
         }
 
         if (usersData) {
@@ -1203,10 +1189,9 @@
           document.getElementById('topUserCount').innerText = `${allUsersCache.length} Users`;
           calculateLiveHallOfFameFromUsers(usersData);
 
-          // നിലവിലെ വിദ്യാർത്ഥിയുടെ വാലിഡിറ്റി തത്സമയം അപ്ഡേറ്റ് ചെയ്യുന്നു
           if (candidate && candidate.phone) {
             const cleanPhone = sanitizePhone(candidate.phone);
-            const myDbData = usersData[cleanPhone] || allUsersCache.find(u => sanitizePhone(u.Phone || u.phone || u.key) === cleanPhone);
+            const myDbData = usersData[cleanPhone];
             if (myDbData) {
               candidate.valid_until = myDbData.valid_until || null;
               candidate.is_premium = myDbData.is_premium || false;
@@ -1284,7 +1269,6 @@
       }
       selectedMainFolder = folderId;
       selectedCategory = null;
-
       renderMainExamFolders();
       renderSubjectFolders();
 
@@ -1700,7 +1684,6 @@
             </div>
           `;
         } else if (!hasAccess) {
-          // 🔒 സബ്സ്ക്രിപ്ഷൻ ഇല്ലാത്ത കുട്ടികൾക്ക് അൺലോക്ക് ബട്ടൺ
           actionAreaMarkup = `
             <div class="pt-2 w-full">
               <button onclick="openSubscriptionModalByIndex(${q.originalIndex})" class="w-full py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 font-black rounded-xl text-xs transition text-center shadow flex items-center justify-center space-x-1.5 cursor-pointer">
@@ -1761,7 +1744,6 @@
       grid.appendChild(fragment);
     }
 
-    // 🌟 സുരക്ഷിതമായി Index വഴി റാങ്ക് ലിസ്റ്റ് തുറക്കുന്നു
     function showExamLiveRankListByIndex(idx) {
       const q = rawQuizList.find(item => item.originalIndex === idx);
       if (q) {
@@ -1769,7 +1751,6 @@
       }
     }
 
-    // 🌟 & ഉള്ളതും ഇല്ലാത്തതുമായ എല്ലാ രൂപങ്ങളും ഒരുമിച്ച് പരിശോധിച്ച് മെർജ് ചെയ്യുന്ന റാങ്ക് ലിസ്റ്റ്
     async function showExamLiveRankList(examKeyParam, examTitle) {
       document.getElementById('rankListModal').classList.remove('hidden');
       document.getElementById('rankModalTitle').innerText = `🏆 ${examTitle} - ലൈവ് റാങ്ക് ലിസ്റ്റ്`;
@@ -1782,10 +1763,10 @@
       const searchKeys = new Set();
       [examKeyParam, examTitle].forEach(val => {
         if (!val) return;
-        searchKeys.add(cleanWithoutAnd(val));              // & ഇല്ലാത്ത രൂപം (eg: ldclgs)
-        searchKeys.add(cleanWithAnd(val));                 // & ഉള്ള രൂപം (eg: ldc&lgs)
-        searchKeys.add(encodeURIComponent(cleanWithAnd(val))); // URL safe & (%26)
-        searchKeys.add(String(val).trim());                // ഒറിജിനൽ പേര്
+        searchKeys.add(cleanWithoutAnd(val));
+        searchKeys.add(cleanWithAnd(val));
+        searchKeys.add(encodeURIComponent(cleanWithAnd(val)));
+        searchKeys.add(String(val).trim());
       });
 
       try {
@@ -1887,7 +1868,6 @@
       }
     }
 
-    // 24-HOUR CHAT SYSTEM
     function getLocalChatKey(phone) { return `sk_local_chat_${phone}`; }
 
     function handleFloatingChatClick() {
@@ -1949,12 +1929,6 @@
             }
           });
           localPool = Object.values(mergedMap);
-
-          for (const [msgKey, m] of Object.entries(chatData.messages)) {
-            if (m && m.timestamp && (now - Number(m.timestamp) > TWENTY_FOUR_HOURS_MS)) {
-              fetch(`${FIREBASE_DB_URL}/student_chats/${cleanPhone}/messages/${msgKey}.json`, { method: 'DELETE' }).catch(() => null);
-            }
-          }
         }
       } catch(e) {}
 
@@ -2126,10 +2100,7 @@
             const cleanPhone = sanitizePhone(candidate.phone);
             await OneSignal.login(cleanPhone);
             await OneSignal.User.PushSubscription.optIn();
-            console.log("OneSignal push registered for user:", cleanPhone);
-          } catch(err) {
-            console.log("OneSignal login error:", err);
-          }
+          } catch(err) {}
         });
       }
 
@@ -2153,125 +2124,6 @@
         document.getElementById('navUserBox').classList.add('hidden');
         resetAuthView();
       }
-    }
-
-    document.getElementById('phoneCheckForm').onsubmit = async (e) => {
-      e.preventDefault();
-      const phoneInput = document.getElementById('loginPhone').value.trim();
-      const emailInput = document.getElementById('loginEmail').value.trim().toLowerCase();
-      const phone = sanitizePhone(phoneInput);
-
-      if (phone.length !== 10) return alert('10 അക്ക മൊബൈൽ നമ്പർ നൽകുക.');
-      if (!emailInput || !emailInput.includes('@')) return alert('സാധുവായ ഇമെയിൽ വിലാസം നൽകുക.');
-
-      const submitBtn = document.getElementById('phoneSubmitBtn');
-      submitBtn.innerText = "OTP അയക്കുന്നു...";
-      submitBtn.disabled = true;
-
-      generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
-      otpExpiresAt = Date.now() + 5 * 60 * 1000;
-      tempUserToVerify = { phone: phone, email: emailInput };
-
-      try {
-        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-          to_email: emailInput,
-          email: emailInput,
-          otp_code: generatedOTP
-        });
-
-        alert(`നിങ്ങളുടെ ഇമെയിലിലേക്ക് (${emailInput}) 6 അക്ക OTP അയച്ചിട്ടുണ്ട്!`);
-        document.getElementById('phoneCheckForm').classList.add('hidden');
-        document.getElementById('otpVerifyForm').classList.remove('hidden');
-        document.getElementById('authCardTitle').innerText = "OTP വെരിഫിക്കേഷൻ";
-        document.getElementById('authCardDesc').innerText = `ഇമെയിൽ: ${emailInput}`;
-      } catch (err) {
-        alert("ഇമെയിൽ അയക്കുന്നതിൽ തടസ്സം നേരിട്ടു! EmailJS പരിശോധിക്കുക.");
-      } finally {
-        submitBtn.innerHTML = `<span>OTP അയക്കുക</span><span>📩</span>`;
-        submitBtn.disabled = false;
-      }
-    };
-
-    document.getElementById('otpVerifyForm').onsubmit = async (e) => {
-      e.preventDefault();
-      const enteredOtp = document.getElementById('enteredOtpInput').value.trim();
-
-      if (!generatedOTP || Date.now() > otpExpiresAt) {
-        alert("OTP യുടെ കാലാവധി കഴിഞ്ഞു! ദയവായി വീണ്ടും ശ്രമിക്കുക.");
-        resetAuthView();
-        return;
-      }
-
-      if (enteredOtp !== generatedOTP) {
-        alert("തെറ്റായ OTP! ദയവായി പരിശോധിച്ചു നൽകുക.");
-        return;
-      }
-
-      generatedOTP = null;
-      const matchedUser = allUsersCache.find(u => sanitizePhone(u.Phone || u.phone || u.key) === tempUserToVerify.phone);
-
-      if (matchedUser && (matchedUser.Official_Name || matchedUser.name) && matchedUser.Official_Name !== 'വിദ്യാർത്ഥി' && matchedUser.name !== 'വിദ്യാർത്ഥി') {
-        candidate = {
-          name: matchedUser.Official_Name || matchedUser.name,
-          phone: tempUserToVerify.phone,
-          email: tempUserToVerify.email,
-          valid_until: matchedUser.valid_until || null,
-          is_premium: matchedUser.is_premium || false
-        };
-        localStorage.setItem('sk_candidate_user', JSON.stringify(candidate));
-        
-        fetch(`${FIREBASE_DB_URL}/users/${tempUserToVerify.phone}.json`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ Email: tempUserToVerify.email, Email_Verified: true })
-        }).catch(() => null);
-
-        activateUserSession();
-        fetchFirebaseData();
-      } else {
-        document.getElementById('otpVerifyForm').classList.add('hidden');
-        document.getElementById('registerNameForm').classList.remove('hidden');
-        document.getElementById('authCardTitle').innerText = "പ്രൊഫൈൽ രജിസ്ട്രേഷൻ";
-      }
-    };
-
-    document.getElementById('registerNameForm').onsubmit = async (e) => {
-      e.preventDefault();
-      const name = document.getElementById('registerName').value.trim();
-      if (!name) return;
-
-      const newUserObj = {
-        Official_Name: name,
-        Phone: tempUserToVerify.phone,
-        Email: tempUserToVerify.email,
-        Email_Verified: true,
-        Unique_Exams: 0,
-        First_Attempt_Avg: 0,
-        Registered_At: new Date().toISOString()
-      };
-
-      await fetch(`${FIREBASE_DB_URL}/users/${tempUserToVerify.phone}.json`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newUserObj)
-      }).catch(() => null);
-
-      candidate = { name: name, phone: tempUserToVerify.phone, email: tempUserToVerify.email };
-      localStorage.setItem('sk_candidate_user', JSON.stringify(candidate));
-      allUsersCache.push(newUserObj);
-      activateUserSession();
-    };
-
-    function resetAuthView() {
-      generatedOTP = null;
-      document.getElementById('registerNameForm').classList.add('hidden');
-      document.getElementById('otpVerifyForm').classList.add('hidden');
-      document.getElementById('phoneCheckForm').classList.remove('hidden');
-      document.getElementById('authCardTitle').innerText = "വിദ്യാർത്ഥി ലോഗിൻ / രജിസ്ട്രേഷൻ";
-      document.getElementById('authCardDesc').innerText = "മൊബൈൽ നമ്പറും ഇമെയിലും നൽകി OTP നേടുക.";
-      document.getElementById('loginPhone').value = '';
-      document.getElementById('loginEmail').value = '';
-      document.getElementById('enteredOtpInput').value = '';
     }
 
     function updateProfileAnalytics() {
