@@ -153,8 +153,9 @@
             <span>🎯</span>
             <span>SK PSC EXAM HUB</span>
           </span>
-          <span class="text-[11px] font-semibold text-teal-400/90 bg-slate-950 px-2.5 py-0.5 rounded-md border border-slate-800">
-            ലക്ഷ്യത്തിലേക്ക് ഒരു ചുവട്
+          <!-- ഗ്ലോബൽ ട്രയൽ ബാഡ്ജ് -->
+          <span id="heroTrialBadge" class="hidden text-[11px] font-bold text-amber-300 bg-amber-950/80 px-2.5 py-0.5 rounded-md border border-amber-500/40 animate-pulse">
+            🎁 സൗജന്യ ട്രയൽ ആക്റ്റീവ് ആണ്
           </span>
         </div>
 
@@ -400,6 +401,61 @@
 
   </main>
 
+  <!-- ================= 💳 പ്രീമിയം സബ്സ്ക്രിപ്ഷൻ & പേയ്‌മെന്റ് MODAL ================= -->
+  <div id="subscriptionModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border-2 border-amber-500/50 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5 text-center relative animate-fade-in">
+      
+      <!-- ക്ലോസ് ബട്ടൺ -->
+      <button onclick="closeSubscriptionModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-800 rounded-xl w-8 h-8 flex items-center justify-center font-bold text-sm cursor-pointer">✕</button>
+
+      <!-- ഹെഡർ -->
+      <div class="space-y-1">
+        <div class="w-12 h-12 bg-amber-500/20 text-amber-400 rounded-2xl flex items-center justify-center text-2xl mx-auto font-black border border-amber-500/30">🔒</div>
+        <h3 class="text-base font-black text-white" id="modalExamTitleBanner">SK PSC പ്രീമിയം ബാച്ച്</h3>
+        <p class="text-xs text-slate-400">ഈ പരീക്ഷ എഴുതാൻ പ്രീമിയം വാലിഡിറ്റി ആവശ്യമാണ്.</p>
+      </div>
+
+      <!-- പ്ലാനുകൾ (Dynamic Cards) -->
+      <div class="grid grid-cols-2 gap-3 text-left">
+        <!-- Plan 1 -->
+        <div onclick="selectSubscriptionPlan(1)" id="planCard1" class="p-3.5 rounded-2xl border-2 border-emerald-500 bg-emerald-950/30 cursor-pointer transition">
+          <span class="text-[10px] font-black uppercase text-emerald-400 block" id="modalPlan1Title">30 Days Pack</span>
+          <span class="text-xl font-black text-white mt-1 block" id="modalPlan1Price">₹50</span>
+          <span class="text-[10px] text-slate-400 block mt-0.5" id="modalPlan1Days">30 ദിവസത്തേക്ക്</span>
+        </div>
+
+        <!-- Plan 2 -->
+        <div onclick="selectSubscriptionPlan(2)" id="planCard2" class="p-3.5 rounded-2xl border border-slate-800 bg-slate-950 hover:border-slate-700 cursor-pointer transition">
+          <span class="text-[10px] font-black uppercase text-cyan-400 block" id="modalPlan2Title">200 Days Pack</span>
+          <span class="text-xl font-black text-white mt-1 block" id="modalPlan2Price">₹200</span>
+          <span class="text-[10px] text-slate-400 block mt-0.5" id="modalPlan2Days">200 ദിവസത്തേക്ക്</span>
+        </div>
+      </div>
+
+      <!-- QR കോഡും UPI വിവരങ്ങളും -->
+      <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
+        <div class="flex items-center justify-center">
+          <img id="modalQrCodeImg" src="" alt="GPay QR Code" class="w-36 h-36 rounded-xl border border-slate-700 object-contain hidden bg-white p-1">
+        </div>
+        <div>
+          <span class="text-[10px] text-slate-400 font-semibold block uppercase">Google Pay / PhonePe UPI ID:</span>
+          <div class="flex items-center justify-center space-x-2 mt-1">
+            <span id="modalUpiIdText" class="font-mono font-bold text-xs text-amber-300 bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800"></span>
+            <button onclick="copyModalUpiId()" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-bold transition cursor-pointer">കോപ്പി 📋</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- WhatsApp സബ്മിഷൻ ബട്ടൺ -->
+      <button onclick="sendPaymentProofWhatsApp()" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 text-slate-950 font-black rounded-xl text-xs transition shadow-lg flex items-center justify-center space-x-2 cursor-pointer">
+        <span>📲</span>
+        <span>പണം അടച്ച ശേഷം സ്ക്രീൻഷോട്ട് അയക്കുക</span>
+      </button>
+
+      <p class="text-[10px] text-slate-500">പേയ്‌മെന്റ് സ്ഥിരീകരിച്ച ഉടൻ നിങ്ങളുടെ അക്കൗണ്ട് അൺലോക്ക് ചെയ്യപ്പെടും.</p>
+    </div>
+  </div>
+
   <!-- PWA ആപ്പ് ഇൻസ്റ്റാൾ ബട്ടൺ -->
   <button id="pwaInstallBtn" class="hidden fixed bottom-20 left-4 sm:left-6 z-40 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black px-4 py-2.5 rounded-2xl shadow-[0_8px_20px_rgba(6,182,212,0.4)] flex items-center space-x-2 text-xs border border-cyan-400/50 animate-bounce cursor-pointer">
     <span class="text-base">📲</span>
@@ -462,6 +518,7 @@
             <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/40" id="growthBadge">Verified</span>
           </div>
           <p class="text-xs text-slate-400" id="profileDisplayPhone"></p>
+          <p class="text-[11px] text-amber-400 font-mono mt-0.5" id="profileDisplayValidity"></p>
         </div>
         <button onclick="closeProfileModal()" class="text-slate-400 hover:text-white text-2xl font-bold p-1 cursor-pointer">&times;</button>
       </div>
@@ -579,6 +636,9 @@
     let tempUserToVerify = null;
     let deferredPrompt = null;
 
+    let portalConfigCache = {};
+    let selectedPlanIndex = 1;
+
     function sanitizePhone(rawPhone) {
       if (!rawPhone) return "";
       let clean = String(rawPhone).replace(/\D/g, '');
@@ -664,7 +724,102 @@
       return 0;
     }
 
-    // 🌟 OneSignal വർക്കറെ നിർബന്ധമായും ഫോണിൽ ആക്റ്റീവ് ആക്കുന്നു (Foreground & Background Work)
+    // 🌟 വിദ്യാർത്ഥിക്ക് പരീക്ഷ എഴുതാൻ ആക്സസ് ഉണ്ടോ എന്ന് പരിശോധിക്കുന്നു
+    function canStudentAccessExam(examItem) {
+      // 1. അഡ്മിൻ ഗ്ലോബൽ ട്രയൽ ആക്റ്റീവ് ആക്കിയിട്ടുണ്ടെങ്കിൽ എല്ലാവർക്കും ഫ്രീ
+      if (!portalConfigCache || portalConfigCache.global_trial_active !== false) {
+        return true;
+      }
+
+      // 2. അഡ്മിൻ ഈ പരീക്ഷ 'FREE' ആക്കി വെച്ചിട്ടുണ്ടെങ്കിൽ
+      if (examItem.accessType === 'FREE' || examItem.access_type === 'FREE') {
+        return true;
+      }
+
+      // 3. വിദ്യാർത്ഥിക്ക് സജീവ വാലിഡിറ്റി ഉണ്ടോ എന്ന് പരിശോധിക്കുന്നു
+      if (candidate && candidate.valid_until) {
+        const todayStr = new Date().toISOString().split('T')[0];
+        if (candidate.valid_until >= todayStr) {
+          return true;
+        }
+      }
+
+      return false; // പരീക്ഷ ലോക്ക് ആണ്
+    }
+
+    // 🌟 സബ്സ്ക്രിപ്ഷൻ പേയ്‌മെന്റ് MODAL തുറക്കുന്നു
+    function openSubscriptionModal(examTitle = "") {
+      const modal = document.getElementById('subscriptionModal');
+      if (!modal) return;
+
+      document.getElementById('modalExamTitleBanner').innerText = examTitle ? `"${examTitle}"` : "SK PSC പ്രീമിയം ബാച്ച്";
+
+      const cfg = portalConfigCache || {};
+      const upi = cfg.upi_id || "yourname@okhdfcbank";
+      document.getElementById('modalUpiIdText').textContent = upi;
+
+      const qrImg = document.getElementById('modalQrCodeImg');
+      if (cfg.qr_image_url && String(cfg.qr_image_url).trim() !== "") {
+        qrImg.src = cfg.qr_image_url;
+        qrImg.classList.remove('hidden');
+      } else {
+        qrImg.classList.add('hidden');
+      }
+
+      const p1 = (cfg.plans && cfg.plans.plan_1) ? cfg.plans.plan_1 : { price: 50, days: 30, title: "30 Days Pack" };
+      const p2 = (cfg.plans && cfg.plans.plan_2) ? cfg.plans.plan_2 : { price: 200, days: 200, title: "200 Days Pack" };
+
+      document.getElementById('modalPlan1Title').textContent = p1.title || "30 Days Pack";
+      document.getElementById('modalPlan1Price').textContent = `₹${p1.price}`;
+      document.getElementById('modalPlan1Days').textContent = `${p1.days} ദിവസത്തേക്ക്`;
+
+      document.getElementById('modalPlan2Title').textContent = p2.title || "200 Days Pack";
+      document.getElementById('modalPlan2Price').textContent = `₹${p2.price}`;
+      document.getElementById('modalPlan2Days').textContent = `${p2.days} ദിവസത്തേക്ക്`;
+
+      selectSubscriptionPlan(1);
+      modal.classList.remove('hidden');
+    }
+
+    function closeSubscriptionModal() {
+      document.getElementById('subscriptionModal').classList.add('hidden');
+    }
+
+    function selectSubscriptionPlan(planIdx) {
+      selectedPlanIndex = planIdx;
+      const c1 = document.getElementById('planCard1');
+      const c2 = document.getElementById('planCard2');
+      if (planIdx === 1) {
+        c1.className = "p-3.5 rounded-2xl border-2 border-emerald-500 bg-emerald-950/30 cursor-pointer transition";
+        c2.className = "p-3.5 rounded-2xl border border-slate-800 bg-slate-950 hover:border-slate-700 cursor-pointer transition";
+      } else {
+        c2.className = "p-3.5 rounded-2xl border-2 border-cyan-500 bg-cyan-950/30 cursor-pointer transition";
+        c1.className = "p-3.5 rounded-2xl border border-slate-800 bg-slate-950 hover:border-slate-700 cursor-pointer transition";
+      }
+    }
+
+    function copyModalUpiId() {
+      const upi = document.getElementById('modalUpiIdText').textContent;
+      navigator.clipboard.writeText(upi);
+      alert("UPI ID കോപ്പി ചെയ്തു: " + upi);
+    }
+
+    function sendPaymentProofWhatsApp() {
+      const cfg = portalConfigCache || {};
+      const wa = cfg.whatsapp_number || "919XXXXXXXXX";
+      const planTxt = selectedPlanIndex === 1 
+        ? document.getElementById('modalPlan1Price').textContent + " (" + document.getElementById('modalPlan1Days').textContent + ")"
+        : document.getElementById('modalPlan2Price').textContent + " (" + document.getElementById('modalPlan2Days').textContent + ")";
+
+      const studName = candidate ? (candidate.Official_Name || candidate.name || 'Student') : 'Student';
+      const studPhone = candidate ? (candidate.phone || candidate.Phone || '') : '';
+
+      const msg = `ഹലോ സർ, ഞാൻ SK PSC മോഡൽ എക്സാം പോർട്ടലിലേക്ക് ഫീസ് അടച്ചിട്ടുണ്ട്.\n\n👤 പേര്: ${studName}\n📞 ഫോൺ: ${studPhone}\n📦 തിരഞ്ഞെടുത്ത പ്ലാൻ: ${planTxt}\n\n(ദയവായി പേയ്‌മെന്റ് സ്ക്രീൻഷോട്ട് ഇതിനൊപ്പം അയക്കുക. നന്ദി!)`;
+      const url = `https://wa.me/${wa.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`;
+      window.open(url, '_blank');
+    }
+
+    // 🌟 OneSignal വർക്കറെ ഫോണിൽ ആക്റ്റീവ് ആക്കുന്നു
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', async () => {
         try {
@@ -678,7 +833,6 @@
       });
     }
 
-    // 🌟 2. ഇൻസ്റ്റാൾ ബട്ടൺ ട്രിഗർ
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
@@ -697,7 +851,6 @@
       }
     });
 
-    // 🌟 3. ഉറപ്പായും പ്രവർത്തിക്കുന്ന നോട്ടിഫിക്കേഷൻ എഞ്ചിൻ (Service Worker + Direct Fallback)
     async function requestNotificationPermission() {
       if (!('Notification' in window)) return;
       if (Notification.permission === 'default') {
@@ -739,7 +892,6 @@
       }
     }
 
-    // 🌟 4. അഡ്മിൻ റിപ്ലൈ തത്സമയം പരിശോധിച്ച് നോട്ടിഫിക്കേഷൻ നൽകുന്നു
     async function listenForChatReplies() {
       if (!candidate || !candidate.phone) return;
       const cleanPhone = sanitizePhone(candidate.phone);
@@ -748,7 +900,6 @@
         const data = await res.json();
         if (!data) return;
 
-        // UI ബാഡ്ജുകൾ ഉടൻ അപ്ഡേറ്റ് ചെയ്യുന്നു
         const navBadge = document.getElementById('navUnreadChatBadge');
         const floatBadge = document.getElementById('floatingUnreadBadge');
         const tabBadge = document.getElementById('profTabChatBadge');
@@ -778,7 +929,6 @@
       } catch(e) {}
     }
 
-    // 🌟 5. പുതിയ പരീക്ഷ വരുമ്പോൾ (ഷെഡ്യൂൾ സമയം ഇല്ലെങ്കിലും ഉണ്ടെങ്കിലും) ഉടൻ നോട്ടിഫിക്കേഷൻ നൽകുന്നു
     function checkLiveExamNotifications() {
       if (!rawQuizList || rawQuizList.length === 0) return;
 
@@ -843,7 +993,6 @@
 
       fetchFirebaseData();
 
-      // ആപ്പ് തുറന്നിരിക്കുമ്പോഴും പശ്ചാത്തലത്തിലും ഓരോ 10 സെക്കൻഡിലും പരിശോധിക്കുന്നു
       setInterval(() => {
         if (candidate) {
           listenForChatReplies();
@@ -894,12 +1043,22 @@
           examsPromise, usersPromise, configPromise, userHistPromise
         ]);
 
+        portalConfigCache = configData || {};
+
         if (!cachedExams && examsData) {
           try {
             sessionStorage.setItem('sk_cached_exams', JSON.stringify(examsData));
             sessionStorage.setItem('sk_cached_config', JSON.stringify(configData));
             sessionStorage.setItem('sk_cache_time', String(now));
           } catch(e) {}
+        }
+
+        // ഗ്ലോബൽ ട്രയൽ ബാനർ
+        const trialBadge = document.getElementById('heroTrialBadge');
+        if (portalConfigCache.global_trial_active !== false) {
+          trialBadge.classList.remove('hidden');
+        } else {
+          trialBadge.classList.add('hidden');
         }
 
         userAttemptsMap = {};
@@ -971,6 +1130,7 @@
 
             let badge = (ctrl && ctrl.status) ? ctrl.status : (item.BADGE || 'NORMAL');
             let relDate = (ctrl && ctrl.releaseDate) ? ctrl.releaseDate : (item.Release_Date || '');
+            let accessType = (ctrl && ctrl.access_type) ? ctrl.access_type : (item.access_type || 'FREE');
 
             let rawMainFolder = (ctrl && ctrl.mainFolder) ? ctrl.mainFolder : (item.MAIN_FOLDER || item.mainFolder || 'LDC');
             let mainFoldersArr = parseMainFolders(rawMainFolder);
@@ -981,6 +1141,7 @@
               key: String(rawExamKey).trim(),
               fileUrl: buildExamUrl(item),
               category: String(category).trim(),
+              accessType: String(accessType).toUpperCase(),
               mainFolders: mainFoldersArr,
               mainFolderLabel: mainFoldersArr.join(', '),
               questions: Number(questions) || 25,
@@ -1010,6 +1171,18 @@
           allUsersCache = uList.filter(u => u !== null && u !== undefined);
           document.getElementById('topUserCount').innerText = `${allUsersCache.length} Users`;
           calculateLiveHallOfFameFromUsers(usersData);
+
+          // നിലവിലെ വിദ്യാർത്ഥിയുടെ വാലിഡിറ്റി തത്സമയം അപ്ഡേറ്റ് ചെയ്യുന്നു
+          if (candidate && candidate.phone) {
+            const cleanPhone = sanitizePhone(candidate.phone);
+            const myDbData = usersData[cleanPhone] || allUsersCache.find(u => sanitizePhone(u.Phone || u.phone || u.key) === cleanPhone);
+            if (myDbData) {
+              candidate.valid_until = myDbData.valid_until || null;
+              candidate.is_premium = myDbData.is_premium || false;
+              localStorage.setItem('sk_candidate_user', JSON.stringify(candidate));
+              updateProfileAnalytics();
+            }
+          }
         }
 
         if (candidate) {
@@ -1335,14 +1508,21 @@
 
       if (todayItems.length > 0) {
         todayItems.forEach(todayItem => {
-          const locked = isExamLocked(todayItem.releaseDate);
-          let badgeMarkup = !locked
+          const lockedByTime = isExamLocked(todayItem.releaseDate);
+          const hasAccess = canStudentAccessExam(todayItem);
+
+          let badgeMarkup = !lockedByTime
             ? `<span class="px-2 py-0.5 rounded bg-emerald-500 text-slate-950 font-black text-[10px] tracking-wider uppercase animate-pulse">● LIVE NOW</span>`
             : `<span class="auto-upcoming-badge px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-emerald-400 text-slate-950 font-mono">● UPCOMING</span>`;
 
-          let actionMarkup = !locked
-            ? `<a href="${todayItem.fileUrl}" class="px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 text-slate-950 font-black rounded-xl text-xs transition text-center shadow whitespace-nowrap">പരീക്ഷ ആരംഭിക്കുക ›</a>`
-            : `<button disabled class="px-4 py-2.5 bg-slate-900 border border-emerald-500/30 text-emerald-400 font-bold rounded-xl text-xs cursor-not-allowed opacity-90 shadow-inner select-none whitespace-nowrap flex items-center space-x-1.5"><span>🔒</span><span>ഉടൻ വരുന്നു</span></button>`;
+          let actionMarkup = '';
+          if (lockedByTime) {
+            actionMarkup = `<button disabled class="px-4 py-2.5 bg-slate-900 border border-emerald-500/30 text-emerald-400 font-bold rounded-xl text-xs cursor-not-allowed opacity-90 shadow-inner select-none whitespace-nowrap flex items-center space-x-1.5"><span>🔒</span><span>ഉടൻ വരുന്നു</span></button>`;
+          } else if (!hasAccess) {
+            actionMarkup = `<button onclick="openSubscriptionModal('${todayItem.title.replace(/'/g, "\\'")}')" class="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 font-black rounded-xl text-xs transition text-center shadow whitespace-nowrap cursor-pointer flex items-center space-x-1.5"><span>🔒</span><span>അൺലോക്ക് ചെയ്യുക</span></button>`;
+          } else {
+            actionMarkup = `<a href="${todayItem.fileUrl}" class="px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 text-slate-950 font-black rounded-xl text-xs transition text-center shadow whitespace-nowrap">പരീക്ഷ ആരംഭിക്കുക ›</a>`;
+          }
 
           const cardDiv = document.createElement('div');
           cardDiv.className = "bg-slate-950 p-3 rounded-xl border border-emerald-500/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-inner";
@@ -1410,6 +1590,11 @@
       reelBox.classList.remove('hidden');
       let cardsHtml = '';
       latestItems.forEach(q => {
+        const hasAccess = canStudentAccessExam(q);
+        const actionBtn = hasAccess
+          ? `<a href="${q.fileUrl}" class="px-3 py-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-lg text-[11px] transition shadow">ആരംഭിക്കുക ›</a>`
+          : `<button onclick="openSubscriptionModal('${q.title.replace(/'/g, "\\'")}')" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-lg text-[11px] transition shadow flex items-center space-x-1 cursor-pointer"><span>🔒</span><span>അൺലോക്ക്</span></button>`;
+
         cardsHtml += `
           <div class="w-64 sm:w-72 bg-slate-900 border-2 border-rose-500/50 rounded-2xl p-3.5 shadow-lg flex-shrink-0 snap-start flex flex-col justify-between space-y-2 relative">
             <div>
@@ -1425,7 +1610,7 @@
             </div>
             <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between">
               <span class="text-[10px] text-slate-500 font-mono">📝 ${q.questions} Qs • ⏱ ${q.time}</span>
-              <a href="${q.fileUrl}" class="px-3 py-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-lg text-[11px] transition shadow">ആരംഭിക്കുക ›</a>
+              ${actionBtn}
             </div>
           </div>
         `;
@@ -1448,31 +1633,47 @@
       const fragment = document.createDocumentFragment();
       list.forEach(q => {
         const card = document.createElement('div');
-        const locked = isExamLocked(q.releaseDate);
-        const isLatest = (q.badge === 'LATEST') && !locked;
+        const lockedByTime = isExamLocked(q.releaseDate);
+        const hasAccess = canStudentAccessExam(q);
+        const isLatest = (q.badge === 'LATEST') && !lockedByTime;
         const cleanT = cleanTitleForMatch(q.title);
         const previousAttempt = userAttemptsMap[cleanT] || null;
         let userScore = extractActualScore(previousAttempt);
 
-        let badgeMarkup = locked
-          ? `<span class="auto-upcoming-badge px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-emerald-400 text-slate-950 font-mono">● UPCOMING</span>`
-          : (isLatest ? `<span class="auto-latest-badge px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-rose-600 text-white">● LATEST</span>`
-                      : `<span class="text-[9px] font-bold uppercase tracking-wider text-emerald-400 bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-800/40">${q.badge || 'SET'}</span>`);
+        let badgeMarkup = '';
+        if (lockedByTime) {
+          badgeMarkup = `<span class="auto-upcoming-badge px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-emerald-400 text-slate-950 font-mono">● UPCOMING</span>`;
+        } else if (!hasAccess) {
+          badgeMarkup = `<span class="text-[9px] font-black uppercase tracking-wider text-amber-300 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-500/40">🔒 പ്രീമിയം</span>`;
+        } else if (isLatest) {
+          badgeMarkup = `<span class="auto-latest-badge px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-rose-600 text-white">● LATEST</span>`;
+        } else {
+          badgeMarkup = `<span class="text-[9px] font-bold uppercase tracking-wider text-emerald-400 bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-800/40">${q.badge || 'SET'}</span>`;
+        }
 
-        let borderClass = locked 
+        let borderClass = lockedByTime 
           ? 'border-emerald-400/80 shadow-[0_0_12px_rgba(16,185,129,0.2)]' 
-          : (isLatest ? 'border-rose-500/60 ring-1 ring-rose-500/50' : 'border-slate-800 hover:border-emerald-500/80');
+          : (!hasAccess ? 'border-amber-500/40 bg-slate-900/90' : (isLatest ? 'border-rose-500/60 ring-1 ring-rose-500/50' : 'border-slate-800 hover:border-emerald-500/80'));
 
         card.className = `bg-slate-900 border ${borderClass} rounded-2xl p-4 shadow flex flex-col justify-between transition-all duration-200`;
 
         let scoreBarMarkup = '';
         let actionAreaMarkup = '';
 
-        if (locked) {
+        if (lockedByTime) {
           actionAreaMarkup = `
             <div class="pt-2 w-full">
               <button disabled class="w-full py-2 bg-slate-950 border border-emerald-500/30 text-emerald-400 font-bold rounded-xl text-xs cursor-not-allowed opacity-90 truncate flex items-center justify-center space-x-1.5">
                 <span>🔒</span><span>ഉടൻ വരുന്നു</span>
+              </button>
+            </div>
+          `;
+        } else if (!hasAccess) {
+          // 🔒 സബ്സ്ക്രിപ്ഷൻ ഇല്ലാത്ത കുട്ടികൾക്ക് അൺലോക്ക് ബട്ടൺ
+          actionAreaMarkup = `
+            <div class="pt-2 w-full">
+              <button onclick="openSubscriptionModal('${q.title.replace(/'/g, "\\'")}')" class="w-full py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 font-black rounded-xl text-xs transition text-center shadow flex items-center justify-center space-x-1.5 cursor-pointer">
+                <span>🔒</span><span>അൺലോക്ക് ചെയ്യുക</span>
               </button>
             </div>
           `;
@@ -1853,7 +2054,6 @@
       alert('പേര് അപ്ഡേറ്റ് ചെയ്തു!');
     }
 
-    // 🌟 വിദ്യാർത്ഥി ലോഗിൻ ചെയ്യുമ്പോൾ OneSignal-ൽ മൊബൈൽ നമ്പർ ലിങ്ക് ചെയ്യുകയും ബാക്ക്ഗ്രൗണ്ട് പുഷ് ഉറപ്പാക്കുകയും ചെയ്യുന്നു
     function activateUserSession() {
       if (!candidate) return;
       document.getElementById('homeLoginCard').classList.add('hidden');
@@ -1865,7 +2065,6 @@
       document.getElementById('profileDisplayPhone').innerText = `ഫോൺ: +91 ${candidate.phone}`;
       updateProfileAnalytics();
 
-      // 🌟 OneSignal ലോഗിൻ & പുഷ് ഓപ്റ്റ്-ഇൻ (ബാക്ക്ഗ്രൗണ്ട് ലിങ്ക് ഉറപ്പാക്കുന്നു)
       if (window.OneSignalDeferred && candidate.phone) {
         window.OneSignalDeferred.push(async function(OneSignal) {
           try {
@@ -1960,7 +2159,9 @@
         candidate = {
           name: matchedUser.Official_Name || matchedUser.name,
           phone: tempUserToVerify.phone,
-          email: tempUserToVerify.email
+          email: tempUserToVerify.email,
+          valid_until: matchedUser.valid_until || null,
+          is_premium: matchedUser.is_premium || false
         };
         localStorage.setItem('sk_candidate_user', JSON.stringify(candidate));
         
@@ -2034,6 +2235,16 @@
       document.getElementById('statTotalTests').innerText = totalUniqueExams;
       document.getElementById('statAvgScore').innerText = avgScore;
       document.getElementById('statAccuracy').innerText = `${accuracy}%`;
+
+      const valEl = document.getElementById('profileDisplayValidity');
+      if (valEl) {
+        const todayStr = new Date().toISOString().split('T')[0];
+        if (candidate.valid_until && candidate.valid_until >= todayStr) {
+          valEl.innerText = `⭐ പ്രീമിയം വാലിഡിറ്റി: ${candidate.valid_until} വരെ`;
+        } else {
+          valEl.innerText = `സൗജന്യ അംഗത്വം (Free Plan)`;
+        }
+      }
     }
 
     document.getElementById('searchInput').addEventListener('input', () => {
