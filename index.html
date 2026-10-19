@@ -1749,9 +1749,9 @@
           <div class="mt-2.5 border-t border-slate-800/80 pt-2">
             <div class="flex items-center justify-between text-[11px] text-slate-400">
               <span>📄 ${q.questions} Qs • ⏱ ${q.time}</span>
-              <button onclick="('${q.key || ''}', '${q.title}')" class="text-[10px] font-bold text-cyan-400 hover:text-cyan-300 transition flex items-center space-x-1 cursor-pointer">
-                <span>🏆</span><span>റാങ്ക് ലിസ്റ്റ്</span>
-              </button>
+             <button onclick="showExamLiveRankList('${q.key || ''}', '${q.title.replace(/'/g, &quot;\\'&quot;)}')" class="text-[10px] font-bold text-cyan-400 hover:text-cyan-300 transition flex items-center space-x-1 cursor-pointer">
+  <span>🏆</span><span>റാങ്ക് ലിസ്റ്റ്</span>
+</button>
             </div>
             ${actionAreaMarkup}
           </div>
