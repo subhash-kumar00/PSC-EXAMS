@@ -306,6 +306,7 @@
     }
 
     window.addEventListener('DOMContentLoaded', async () => {
+  window.addEventListener('DOMContentLoaded', async () => {
       const urlParams = new URLSearchParams(window.location.search);
       const passedName = urlParams.get('name');
       const passedPhone = urlParams.get('phone');
@@ -316,7 +317,102 @@
       if (passedName) currentUser.name = decodeURIComponent(passedName).trim();
       if (passedPhone) currentUser.phone = sanitizePhone(decodeURIComponent(passedPhone));
       if (passedTitle) examTitle = decodeURIComponent(passedTitle).trim();
-      if (passedKey) quizKey = passedKey.trim();
+      
+      // ✅ ശരിയായ രീതിയിൽ കീ ഡീകോഡ് ചെയ്യുന്നു (സ്പേസ് വന്നാലും തനിയെ ശരിയാകും)
+      if (passedKey) {
+        try {
+          quizKey = decodeURIComponent(passedKey).trim();
+        } catch(e) {
+          quizKey = passedKey.trim();
+        }
+      }
+      if (passedPdf) ORIGINAL_PDF_URL = decodeURIComponent(passedPdf).trim();
+
+      if (!currentUser.phone || currentUser.phone.length < 10) {
+        try {
+          const stored = localStorage.getItem('sk_candidate_user');
+          if (stored) {
+            const u = JSON.parse(stored);
+            if (u.phone) currentUser.phone = sanitizePhone(u.phone);
+            if (u.name && currentUser.name === "പഠിതാവ്") currentUser.name = u.name;
+          }
+        } catch (e) {}
+      }
+
+      document.getElementById('headerExamTitle').innerText = examTitle;
+      document.getElementById('displayUser').innerText = (currentUser.phone && currentUser.phone.length === 10)
+        ? `${currentUser.name} (+91 ${currentUser.phone})`
+        : currentUser.name;
+      document.getElementById('motivateName').innerText = `ഹലോ, ${currentUser.name}! ✨`;
+      document.getElementById('motivateSubTitle').innerText = `${examTitle} പരീക്ഷയിലേക്ക് സ്വാഗതം!`;
+
+      try {
+        // ✅ എൻകോഡ് ചെയ്തും അല്ലാതെയും ചോദ്യങ്ങൾ പരിശോധിക്കുന്നു
+        let fetchUrl = `${FIREBASE_DB_URL}/quiz_contents/${encodeURIComponent(quizKey)}.json`;
+        let res = await fetch(fetchUrl);
+        let data = await res.json();
+
+        // ചോദ്യങ്ങൾ ആദ്യ റിക്വസ്റ്റിൽ കിട്ടിയില്ലെങ്കിൽ ഡയറക്ട് ആയി നോക്കുന്നു
+        if (!data) {
+          let fallbackRes = await fetch(`${FIREBASE_DB_URL}/quiz_contents/${quizKey}.json`);
+          data = await fallbackRes.json();
+        }
+
+        // 🌟 ചോദ്യങ്ങൾ അറേ ആയി എക്സ്ട്രാക്റ്റ് ചെയ്യുന്നു
+        let extractedQuestions = null;
+        if (Array.isArray(data)) {
+          extractedQuestions = data;
+        } else if (data && data.questions) {
+          extractedQuestions = Array.isArray(data.questions) ? data.questions : Object.values(data.questions);
+        } else if (data && typeof data === 'object') {
+          extractedQuestions = Object.values(data);
+        }
+
+        if (extractedQuestions) {
+          extractedQuestions = extractedQuestions.filter(item => item !== null && typeof item === 'object');
+        }
+
+        if (extractedQuestions && extractedQuestions.length > 0) {
+          questionsData = extractedQuestions.map(item => ({
+            q: item.q || item.question || item.title || '',
+            options: item.options || item.choices || [],
+            ans: item.ans !== undefined ? Number(item.ans) : (item.answer !== undefined ? Number(item.answer) : 0),
+            exp: item.exp || item.explanation || item.note || 'വിശദീകരണം ലഭ്യമല്ല.'
+          }));
+
+          if (data && data.examTitle && !passedTitle) examTitle = data.examTitle;
+          document.getElementById('headerExamTitle').innerText = examTitle;
+          document.getElementById('headerSubInfo').innerText = `${questionsData.length} ചോദ്യങ്ങൾ (${Math.round(questionsData.length)} മിനിറ്റ്)`;
+          document.getElementById('footerExamTitle').innerText = `${examTitle} | PSC Model Exam`;
+          document.getElementById('totalMarksLabel').innerText = `${questionsData.length} ൽ`;
+          timeLeft = questionsData.length * 60;
+
+          userAnswers = new Array(questionsData.length).fill(null);
+          document.getElementById('loadingScreen').classList.add('hidden');
+
+          const currentFullUrl = window.location.href.toLowerCase();
+          const isReviewMode = currentFullUrl.includes("review=true") || 
+                               currentFullUrl.includes("viewresult=true") || 
+                               currentFullUrl.includes("view=solution") ||
+                               urlParams.get('review') === 'true';
+
+          if (isReviewMode) {
+            document.getElementById('motivationScreen').style.setProperty('display', 'none', 'important');
+            document.getElementById('quizScreen').style.setProperty('display', 'none', 'important');
+            document.getElementById('resultScreen').classList.remove('hidden');
+            document.getElementById('resultScreen').style.setProperty('display', 'block', 'important');
+            loadPreviousAttemptFromFirebase();
+          } else {
+            document.getElementById('motivationScreen').classList.remove('hidden');
+          }
+        } else {
+          document.getElementById('loadingScreen').innerHTML = `<p class="text-rose-400 font-bold">ഈ പരീക്ഷയുടെ ചോദ്യങ്ങൾ ഫയർബേസിൽ ലഭ്യമായിട്ടില്ല.</p>`;
+        }
+      } catch (err) {
+        console.error("Firebase fetch error:", err);
+        document.getElementById('loadingScreen').innerHTML = `<p class="text-rose-400 font-bold">ഡാറ്റ ലോഡ് ചെയ്യുന്നതിൽ തടസ്സം നേരിട്ടു.</p>`;
+      }
+    });
       if (passedPdf) ORIGINAL_PDF_URL = decodeURIComponent(passedPdf).trim();
 
       if (!currentUser.phone || currentUser.phone.length < 10) {
