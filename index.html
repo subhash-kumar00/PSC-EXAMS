@@ -20,19 +20,31 @@
   <meta name="apple-mobile-web-app-title" content="SK PSC">
   <link rel="apple-touch-icon" href="logo.png">
 
-  <!-- 🌟 OneSignal Push Notification SDK -->
+  <!-- 🌟 OneSignal Push Notification SDK (Fixed for Background Service Worker) -->
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
   <script>
     window.OneSignalDeferred = window.OneSignalDeferred || [];
     OneSignalDeferred.push(async function(OneSignal) {
       await OneSignal.init({
         appId: "39db2070-7998-49fc-b624-28b368a1674a",
-        serviceWorkerPath: "/PSC-EXAMS/OneSignalSDKWorker.js",
+        serviceWorkerPath: "PSC-EXAMS/OneSignalSDKWorker.js",
         serviceWorkerParam: { scope: "/PSC-EXAMS/" },
         notifyButton: {
           enable: true
-        }
+        },
+        allowLocalhostAsSecureOrigin: true
       });
+
+      const savedUser = localStorage.getItem('sk_candidate_user');
+      if (savedUser) {
+        try {
+          const parsed = JSON.parse(savedUser);
+          if (parsed && parsed.phone) {
+            const cleanP = String(parsed.phone).replace(/\D/g, '').slice(-10);
+            await OneSignal.login(cleanP);
+          }
+        } catch (e) {}
+      }
     });
   </script>
 
@@ -341,7 +353,7 @@
         </div>
       </div>
 
-      <!-- STEP 1: പ്രധാന പരീക്ഷാ ഫോൾഡറുകൾ -->
+      <!-- STEP 1: പ്രധാന പരീക്ഷാ ഫോൾഡറുകൾ (SCERT ഉൾപ്പെടുത്തി) -->
       <div class="space-y-3">
         <div class="flex items-center justify-between">
           <h3 class="text-xs sm:text-sm font-black text-white uppercase tracking-wider flex items-center space-x-2">
@@ -351,7 +363,7 @@
           <span class="text-[10px] text-emerald-400 font-mono">Step 1: ഫോൾഡർ തുറക്കുക ▾</span>
         </div>
 
-        <div id="mainFoldersContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5"></div>
+        <div id="mainFoldersContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5"></div>
       </div>
 
       <!-- STEP 2: സബ്ജക്റ്റ് ഫോൾഡറുകൾ -->
@@ -361,7 +373,7 @@
             <span class="text-base">📁</span>
             <div>
               <h3 id="selectedMainFolderTitle" class="text-xs sm:text-sm font-black text-emerald-400 uppercase tracking-wider">
-                LDC - വിഷയങ്ങൾ (Subject Folders)
+                വിഷയങ്ങൾ (Subject Folders)
               </h3>
               <p class="text-[10px] text-slate-400">പരീക്ഷ എഴുതാനായി താഴെ നിന്ന് വിഷയം തിരഞ്ഞെടുക്കുക</p>
             </div>
@@ -398,35 +410,26 @@
 
   </main>
 
-  <!-- ================= 💳 പ്രീമിയം സബ്സ്ക്രിപ്ഷൻ & പേയ്‌മെന്റ് MODAL ================= -->
+  <!-- ================= 💳 ഡൈനാമിക് കോഴ്സ് സബ്സ്ക്രിപ്ഷൻ MODAL ================= -->
   <div id="subscriptionModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-slate-900 border-2 border-amber-500/50 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5 text-center relative animate-fade-in">
+    <div class="bg-slate-900 border-2 border-amber-500/50 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 text-center relative max-h-[90vh] overflow-y-auto custom-scroll">
       
       <button onclick="closeSubscriptionModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-800 rounded-xl w-8 h-8 flex items-center justify-center font-bold text-sm cursor-pointer">✕</button>
 
       <div class="space-y-1">
         <div class="w-12 h-12 bg-amber-500/20 text-amber-400 rounded-2xl flex items-center justify-center text-2xl mx-auto font-black border border-amber-500/30">🔒</div>
-        <h3 class="text-base font-black text-white" id="modalExamTitleBanner">SK PSC പ്രീമിയം ബാച്ച്</h3>
-        <p class="text-xs text-slate-400">ഈ പരീക്ഷ എഴുതാൻ പ്രീമിയം വാലിഡിറ്റി ആവശ്യമാണ്.</p>
+        <h3 class="text-base font-black text-white" id="modalExamTitleBanner">SK PSC കോഴ്സ് പാക്കുകൾ</h3>
+        <p class="text-xs text-slate-400">ഈ പരീക്ഷ എഴുതാൻ അനുയോജ്യമായ കോഴ്സ് പാക്ക് തിരഞ്ഞെടുക്കുക.</p>
       </div>
 
-      <div class="grid grid-cols-2 gap-3 text-left">
-        <div onclick="selectSubscriptionPlan(1)" id="planCard1" class="p-3.5 rounded-2xl border-2 border-emerald-500 bg-emerald-950/30 cursor-pointer transition">
-          <span class="text-[10px] font-black uppercase text-emerald-400 block" id="modalPlan1Title">30 Days Pack</span>
-          <span class="text-xl font-black text-white mt-1 block" id="modalPlan1Price">₹50</span>
-          <span class="text-[10px] text-slate-400 block mt-0.5" id="modalPlan1Days">30 ദിവസത്തേക്ക്</span>
-        </div>
-
-        <div onclick="selectSubscriptionPlan(2)" id="planCard2" class="p-3.5 rounded-2xl border border-slate-800 bg-slate-950 hover:border-slate-700 cursor-pointer transition">
-          <span class="text-[10px] font-black uppercase text-cyan-400 block" id="modalPlan2Title">200 Days Pack</span>
-          <span class="text-xl font-black text-white mt-1 block" id="modalPlan2Price">₹200</span>
-          <span class="text-[10px] text-slate-400 block mt-0.5" id="modalPlan2Days">200 ദിവസത്തേക്ക്</span>
-        </div>
+      <!-- ഡൈനാമിക് കോഴ്സ് പ്ലാനുകൾ ലിസ്റ്റ് ചെയ്യുന്ന ഗ്രിഡ് -->
+      <div id="modalCoursesListGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-left pt-1">
+        <!-- കോഴ്സ് കാർഡുകൾ ഇവിടെ തനിയെ വരും -->
       </div>
 
-      <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
+      <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 space-y-3">
         <div class="flex items-center justify-center">
-          <img id="modalQrCodeImg" src="" alt="GPay QR Code" class="w-36 h-36 rounded-xl border border-slate-700 object-contain hidden bg-white p-1">
+          <img id="modalQrCodeImg" src="" alt="GPay QR Code" class="w-32 h-32 rounded-xl border border-slate-700 object-contain hidden bg-white p-1">
         </div>
         <div>
           <span class="text-[10px] text-slate-400 font-semibold block uppercase">Google Pay / PhonePe UPI ID:</span>
@@ -442,7 +445,7 @@
         <span>പണം അടച്ച ശേഷം സ്ക്രീൻഷോട്ട് അയക്കുക</span>
       </button>
 
-      <p class="text-[10px] text-slate-500">പേയ്‌മെന്റ് സ്ഥിരീകരിച്ച ഉടൻ നിങ്ങളുടെ അക്കൗണ്ട് അൺലോക്ക് ചെയ്യപ്പെടും.</p>
+      <p class="text-[10px] text-slate-500">പേയ്‌മെന്റ് സ്ഥിരീകരിച്ച ഉടൻ അഡ്മിൻ നിങ്ങളുടെ കോഴ്സ് അൺലോക്ക് ചെയ്യും.</p>
     </div>
   </div>
 
@@ -508,7 +511,10 @@
             <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/40" id="growthBadge">Verified</span>
           </div>
           <p class="text-xs text-slate-400" id="profileDisplayPhone"></p>
-          <p class="text-[11px] text-amber-400 font-mono mt-0.5" id="profileDisplayValidity"></p>
+          <div class="flex flex-wrap items-center gap-2 mt-1">
+            <span class="text-[11px] text-amber-300 font-mono font-bold bg-amber-950/80 px-2 py-0.5 rounded border border-amber-500/40" id="profileDisplayValidity"></span>
+            <span class="text-[11px] text-cyan-300 font-mono font-bold bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-500/40" id="profileDisplayCourse"></span>
+          </div>
         </div>
         <button onclick="closeProfileModal()" class="text-slate-400 hover:text-white text-2xl font-bold p-1 cursor-pointer">&times;</button>
       </div>
@@ -591,7 +597,9 @@
     const FIREBASE_DB_URL = "https://sk-psc-portal-default-rtdb.asia-southeast1.firebasedatabase.app";
     const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
 
+    // 🌟 ഫോൾഡറുകളിൽ SCERT ഉൾപ്പെടുത്തി പുതുക്കിയ ലിസ്റ്റ്
     const MAIN_EXAM_FOLDERS = [
+      { id: 'SCERT', title: 'SCERT Special', subtitle: 'പാഠപുസ്തക ചോദ്യങ്ങൾ', icon: '📖' },
       { id: 'LDC', title: 'LDC (എൽ.ഡി.സി)', subtitle: 'Lower Division Clerk Exams', icon: '🏛️' },
       { id: 'LGS', title: 'LGS (എൽ.ജി.എസ്)', subtitle: 'Last Grade Servants Exams', icon: '🛡️' },
       { id: 'DEGREE', title: 'Degree Level (ഡിഗ്രി)', subtitle: 'Degree Preliminary & Mains', icon: '🎓' },
@@ -608,9 +616,8 @@
     let deferredPrompt = null;
 
     let portalConfigCache = {};
-    let selectedPlanIndex = 1;
+    let selectedCoursePlanId = 'all';
 
-    // 🌟 യൂണീക് ഡിവൈസ് ഐഡിയും ഡിവൈസ് ടൈപ്പും (1 Mobile + 1 PC Lock)
     function getOrCreateDeviceId() {
       let dId = localStorage.getItem('sk_device_id');
       if (!dId) {
@@ -637,15 +644,16 @@
     }
 
     function cleanTitleForMatch(str) {
-      return String(str || '').replace(/[\s\-_,.:;()\/\\|\[\]+&]+/g, '').toLowerCase();
+      return String(str || '').replace(/[\s\-_,.:;()\/\|\[\]+&]+/g, '').toLowerCase();
     }
 
     function parseMainFolders(rawFolderValue) {
       if (!rawFolderValue || String(rawFolderValue).trim() === '') return ['LDC'];
       const upper = String(rawFolderValue).toUpperCase().trim();
-      if (upper === 'ALL' || upper === 'COMMON' || upper === 'എല്ലാം') return ['LDC', 'LGS', 'DEGREE'];
+      if (upper === 'ALL' || upper === 'COMMON' || upper === 'എല്ലാം') return ['SCERT', 'LDC', 'LGS', 'DEGREE'];
 
       const matched = [];
+      if (upper.includes('SCERT')) matched.push('SCERT');
       if (upper.includes('LDC') || upper.includes('എൽഡിസി') || upper.includes('എൽ.ഡി.സി')) matched.push('LDC');
       if (upper.includes('LGS') || upper.includes('എൽജിഎസ്') || upper.includes('എൽ.ജി.എസ്')) matched.push('LGS');
       if (upper.includes('DEGREE') || upper.includes('ഡിഗ്രി')) matched.push('DEGREE');
@@ -709,27 +717,47 @@
       return 0;
     }
 
+    // 🌟 പരീക്ഷാ ആക്സസ് കൺട്രോൾ ഫംഗ്ഷൻ (ഡൈനാമിക് കോഴ്സ് അധിഷ്ഠിതം)
     function canStudentAccessExam(examItem) {
+      // 1. ഗ്ലോബൽ ട്രയൽ ആക്റ്റീവ് ആണെങ്കിൽ സൗജന്യമായി തുറക്കാം
       if (!portalConfigCache || portalConfigCache.global_trial_active !== false) {
         return true;
       }
+      // 2. പരീക്ഷ FREE ആണെങ്കിൽ ആർക്കും തുറക്കാം
       if (examItem.accessType === 'FREE' || examItem.access_type === 'FREE') {
         return true;
       }
-      if (candidate && candidate.valid_until) {
-        const todayStr = new Date().toISOString().split('T')[0];
-        if (candidate.valid_until >= todayStr) {
-          return true;
-        }
+      // 3. ലോഗിൻ ചെയ്തിട്ടില്ലെങ്കിൽ ലോക്ക്
+      if (!candidate) return false;
+
+      // 4. വാലിഡിറ്റി പരിശോധന
+      const todayStr = new Date().toISOString().split('T')[0];
+      if (!candidate.valid_until || candidate.valid_until < todayStr) {
+        return false;
       }
+
+      // 5. കോഴ്സ് അനുമതി പരിശോധന
+      const userCourse = String(candidate.purchased_course || 'all').toLowerCase();
+      const examFolder = String(examItem.mainFolderLabel || examItem.mainFolders?.join(',') || '').toUpperCase();
+      const examCat = String(examItem.category || '').toUpperCase();
+
+      if (userCourse === 'all' || userCourse === 'all_exams') return true;
+      if (userCourse === 'scert' && (examFolder.includes('SCERT') || examCat.includes('SCERT'))) return true;
+      if (userCourse === 'lgs' && examFolder.includes('LGS')) return true;
+      if (userCourse === 'ldc' && examFolder.includes('LDC')) return true;
+      if (userCourse === 'degree' && examFolder.includes('DEGREE')) return true;
+      if (userCourse === 'ldc_lgs' && (examFolder.includes('LDC') || examFolder.includes('LGS'))) return true;
+      if (userCourse === 'ldc_degree' && (examFolder.includes('LDC') || examFolder.includes('DEGREE'))) return true;
+
       return false;
     }
 
+    // 🌟 ഡൈനാമിക് കോഴ്സ് മോഡൽ തുറക്കുന്നു
     function openSubscriptionModal(examTitle = "") {
       const modal = document.getElementById('subscriptionModal');
       if (!modal) return;
 
-      document.getElementById('modalExamTitleBanner').innerText = examTitle ? `"${examTitle}"` : "SK PSC പ്രീമിയം ബാച്ച്";
+      document.getElementById('modalExamTitleBanner').innerText = examTitle ? `"${examTitle}"` : "SK PSC കോഴ്സ് പാക്കുകൾ";
 
       const cfg = portalConfigCache || {};
       const upi = cfg.upi_id || "yourname@okhdfcbank";
@@ -743,19 +771,62 @@
         qrImg.classList.add('hidden');
       }
 
-      const p1 = (cfg.plans && cfg.plans.plan_1) ? cfg.plans.plan_1 : { price: 50, days: 30, title: "30 Days Pack" };
-      const p2 = (cfg.plans && cfg.plans.plan_2) ? cfg.plans.plan_2 : { price: 200, days: 200, title: "200 Days Pack" };
+      // ഡൈനാമിക് കോഴ്സുകൾ ലിസ്റ്റ് ചെയ്യുന്നു
+      const container = document.getElementById('modalCoursesListGrid');
+      container.innerHTML = '';
 
-      document.getElementById('modalPlan1Title').textContent = p1.title || "30 Days Pack";
-      document.getElementById('modalPlan1Price').textContent = `₹${p1.price}`;
-      document.getElementById('modalPlan1Days').textContent = `${p1.days} ദിവസത്തേക്ക്`;
+      const courses = cfg.course_plans || {
+        "scert": { name: "SCERT Special", price: 99, days: 60, id: "scert" },
+        "lgs": { name: "LGS Complete", price: 149, days: 90, id: "lgs" },
+        "ldc": { name: "LDC Complete", price: 199, days: 120, id: "ldc" },
+        "degree": { name: "DEGREE Level", price: 249, days: 150, id: "degree" },
+        "ldc_lgs": { name: "LDC + LGS Combo", price: 299, days: 180, id: "ldc_lgs" },
+        "ldc_degree": { name: "LDC + DEGREE Combo", price: 349, days: 180, id: "ldc_degree" },
+        "all": { name: "ALL EXAMS PASS", price: 499, days: 365, id: "all" }
+      };
 
-      document.getElementById('modalPlan2Title').textContent = p2.title || "200 Days Pack";
-      document.getElementById('modalPlan2Price').textContent = `₹${p2.price}`;
-      document.getElementById('modalPlan2Days').textContent = `${p2.days} ദിവസത്തേക്ക്`;
+      const keys = Object.keys(courses);
+      if (keys.length > 0 && !courses[selectedCoursePlanId]) {
+        selectedCoursePlanId = keys[0];
+      }
 
-      selectSubscriptionPlan(1);
+      keys.forEach(k => {
+        const c = courses[k];
+        const isSelected = selectedCoursePlanId === k;
+        const card = document.createElement('div');
+        card.id = `modalCourseCard_${k}`;
+        card.onclick = () => selectModalCoursePlan(k);
+        card.className = `p-3 rounded-2xl border cursor-pointer transition ${isSelected ? 'border-2 border-emerald-500 bg-emerald-950/40' : 'border-slate-800 bg-slate-950 hover:border-slate-700'}`;
+        card.innerHTML = `
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-amber-400 uppercase tracking-wide truncate">${c.name}</span>
+            <span class="text-[10px] font-mono text-cyan-400 bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800">${c.days} Days</span>
+          </div>
+          <div class="flex items-center justify-between mt-1 pt-1 border-t border-slate-900">
+            <span class="text-xs text-slate-400">ഫീസ്:</span>
+            <span class="text-lg font-black text-emerald-400 font-mono">₹${c.price}</span>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
       modal.classList.remove('hidden');
+    }
+
+    function selectModalCoursePlan(courseId) {
+      selectedCoursePlanId = courseId;
+      const cfg = portalConfigCache || {};
+      const courses = cfg.course_plans || {};
+      Object.keys(courses).forEach(k => {
+        const card = document.getElementById(`modalCourseCard_${k}`);
+        if (card) {
+          if (k === courseId) {
+            card.className = "p-3 rounded-2xl border-2 border-emerald-500 bg-emerald-950/40 cursor-pointer transition";
+          } else {
+            card.className = "p-3 rounded-2xl border border-slate-800 bg-slate-950 hover:border-slate-700 cursor-pointer transition";
+          }
+        }
+      });
     }
 
     function openSubscriptionModalByIndex(idx) {
@@ -765,19 +836,6 @@
 
     function closeSubscriptionModal() {
       document.getElementById('subscriptionModal').classList.add('hidden');
-    }
-
-    function selectSubscriptionPlan(planIdx) {
-      selectedPlanIndex = planIdx;
-      const c1 = document.getElementById('planCard1');
-      const c2 = document.getElementById('planCard2');
-      if (planIdx === 1) {
-        c1.className = "p-3.5 rounded-2xl border-2 border-emerald-500 bg-emerald-950/30 cursor-pointer transition";
-        c2.className = "p-3.5 rounded-2xl border border-slate-800 bg-slate-950 hover:border-slate-700 cursor-pointer transition";
-      } else {
-        c2.className = "p-3.5 rounded-2xl border-2 border-cyan-500 bg-cyan-950/30 cursor-pointer transition";
-        c1.className = "p-3.5 rounded-2xl border border-slate-800 bg-slate-950 hover:border-slate-700 cursor-pointer transition";
-      }
     }
 
     function copyModalUpiId() {
@@ -792,41 +850,33 @@
         let wa = cfg.whatsapp_number || "";
         let cleanWa = String(wa).replace(/\D/g, '');
 
-        if (cleanWa.length === 10) {
-          cleanWa = '91' + cleanWa;
-        }
+        if (cleanWa.length === 10) cleanWa = '91' + cleanWa;
 
         if (!cleanWa || cleanWa.length < 10 || cleanWa.includes('XXXX')) {
-          alert("അഡ്മിൻ പാനലിൽ ശരിയായ WhatsApp നമ്പർ നൽകിയിട്ടില്ല! ദയവായി അഡ്മിൻ പാനലിൽ പോയി 10 അക്ക മൊബൈൽ നമ്പർ സേവ് ചെയ്യുക.");
+          alert("അഡ്മിൻ പാനലിൽ ശരിയായ WhatsApp നമ്പർ നൽകിയിട്ടില്ല! ദയവായി അഡ്മിൻ പാനലിൽ സേവ് ചെയ്യുക.");
           return;
         }
 
-        const p1Price = document.getElementById('modalPlan1Price') ? document.getElementById('modalPlan1Price').textContent : "₹50";
-        const p1Days = document.getElementById('modalPlan1Days') ? document.getElementById('modalPlan1Days').textContent : "30 ദിവസം";
-        const p2Price = document.getElementById('modalPlan2Price') ? document.getElementById('modalPlan2Price').textContent : "₹200";
-        const p2Days = document.getElementById('modalPlan2Days') ? document.getElementById('modalPlan2Days').textContent : "200 ദിവസം";
-
-        const planTxt = (selectedPlanIndex === 1) ? `${p1Price} (${p1Days})` : `${p2Price} (${p2Days})`;
+        const courses = cfg.course_plans || {};
+        const selPlan = courses[selectedCoursePlanId] || { name: "Selected Plan", price: 0, days: 30 };
         const studName = candidate ? (candidate.Official_Name || candidate.name || 'Student') : 'Student';
         const studPhone = candidate ? (candidate.phone || candidate.Phone || '') : '';
 
-        const msg = `ഹലോ സർ, ഞാൻ SK PSC മോഡൽ എക്സാം പോർട്ടലിലേക്ക് ഫീസ് അടച്ചിട്ടുണ്ട്.\n\n👤 പേര്: ${studName}\n📞 ഫോൺ: ${studPhone}\n📦 തിരഞ്ഞെടുത്ത പ്ലാൻ: ${planTxt}\n\n(ദയവായി പേയ്‌മെന്റ് സ്ക്രീൻഷോട്ട് ഇതിനൊപ്പം അയക്കുക. നന്ദി!)`;
+        const msg = `ഹലോ സർ, ഞാൻ SK PSC മോഡൽ എക്സാം പോർട്ടലിലേക്ക് ഫീസ് അടച്ചിട്ടുണ്ട്.
+
+👤 പേര്: ${studName}
+📞 ഫോൺ: ${studPhone}
+📦 തിരഞ്ഞെടുത്ത കോഴ്സ്: ${selPlan.name} (₹${selPlan.price} - ${selPlan.days} Days)
+
+(ദയവായി പേയ്‌മെന്റ് സ്ക്രീൻഷോട്ട് ഇതിനൊപ്പം അയക്കുക. നന്ദി!)`;
         const url = `https://api.whatsapp.com/send?phone=${cleanWa}&text=${encodeURIComponent(msg)}`;
         window.location.href = url;
       } catch (err) {
         console.error("WhatsApp redirect error:", err);
-        alert("വാട്ട്സാപ്പ് തുറക്കുന്നതിൽ തടസ്സം നേരിട്ടു: " + err.message);
       }
     }
 
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', async () => {
-        try {
-          await navigator.serviceWorker.register('/PSC-EXAMS/OneSignalSDKWorker.js', { scope: '/PSC-EXAMS/' });
-        } catch (err) {}
-      });
-    }
-
+    // 🌟 Service worker direct registration removed to prevent OneSignal conflicts
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
@@ -844,26 +894,20 @@
       }
     });
 
+    // 🌟 OneSignal വഴിയുള്ള നോട്ടിഫിക്കേഷൻ പെർമിഷൻ
     async function requestNotificationPermission() {
-      if (!('Notification' in window)) return;
-      if (Notification.permission === 'default') {
-        const perm = await Notification.requestPermission();
-        if (perm === 'granted') {
-          sendLocalNotification("SK PSC നോട്ടിഫിക്കേഷൻ ഓൺ ആയി 🔔", "പരീക്ഷാ അറിയിപ്പുകൾ ഇനി തത്സമയം ലഭിക്കും!");
-        }
+      if (window.OneSignalDeferred) {
+        window.OneSignalDeferred.push(async function(OneSignal) {
+          try {
+            if (candidate && candidate.phone) {
+              const cleanPhone = sanitizePhone(candidate.phone);
+              await OneSignal.login(cleanPhone);
+            }
+            await OneSignal.Notifications.requestPermission();
+            await OneSignal.User.PushSubscription.optIn();
+          } catch (e) {}
+        });
       }
-    }
-
-    async function sendLocalNotification(title, bodyText, tagId = 'sk_psc_alert') {
-      if (!('Notification' in window) || Notification.permission !== 'granted') return;
-      const options = { body: bodyText, icon: 'logo.png', badge: 'logo.png', tag: tagId, renotify: true, vibrate: [250, 120, 250] };
-      try {
-        if ('serviceWorker' in navigator) {
-          const reg = await navigator.serviceWorker.getRegistration();
-          if (reg && reg.showNotification) return await reg.showNotification(title, options);
-        }
-        new Notification(title, options);
-      } catch (e) {}
     }
 
     async function listenForChatReplies() {
@@ -890,7 +934,7 @@
       } catch(e) {}
     }
 
-    // ================= 🔐 മൊബൈൽ നമ്പർ + PIN + ഡിവൈസ് ലോക്കിംഗ് ഫംഗ്ഷനുകൾ =================
+    // ================= 🔐 മൊബൈൽ നമ്പർ + PIN + ഡിവൈസ് ലോക്കിംഗ് =================
     let pendingAuthPhone = null;
     let pendingUserDbData = null;
 
@@ -913,14 +957,12 @@
         document.getElementById('stepPhoneForm').classList.add('hidden');
 
         if (pendingUserDbData && pendingUserDbData.PIN) {
-          // നിലവിലുള്ള വിദ്യാർത്ഥി ➔ PIN നൽകാനുള്ള ഫോം കാണിക്കുന്നു
           document.getElementById('stepPinLoginForm').classList.remove('hidden');
           document.getElementById('loginWelcomeName').innerText = pendingUserDbData.Official_Name || pendingUserDbData.name || 'Student';
           document.getElementById('authCardTitle').innerText = "സുരക്ഷിത പ്രവേശനം";
           document.getElementById('authCardDesc').innerText = `ഫോൺ: +91 ${cleanP}`;
           setTimeout(() => document.getElementById('authPinInput').focus(), 100);
         } else {
-          // പുതിയ വിദ്യാർത്ഥി ➔ പേരും PIN-ഉം രജിസ്റ്റർ ചെയ്യാനുള്ള ഫോം കാണിക്കുന്നു
           document.getElementById('stepRegisterForm').classList.remove('hidden');
           document.getElementById('authCardTitle').innerText = "പുതിയ രജിസ്ട്രേഷൻ";
           document.getElementById('authCardDesc').innerText = `ഫോൺ: +91 ${cleanP}`;
@@ -934,7 +976,6 @@
       }
     }
 
-    // PIN ലോഗിൻ & ഡിവൈസ് പരിശോധന (1 Mobile + 1 PC)
     async function handlePinLogin(e) {
       e.preventDefault();
       const enteredPin = document.getElementById('authPinInput').value.trim();
@@ -949,14 +990,12 @@
       btn.innerText = "ഡിവൈസ് പരിശോധിക്കുന്നു...";
       btn.disabled = true;
 
-      // 🌟 1 Mobile + 1 PC Lock Logic
       const currentDevId = getOrCreateDeviceId();
-      const currentDevType = getDeviceType(); // 'mobile' അല്ലെങ്കിൽ 'desktop'
+      const currentDevType = getDeviceType();
       const boundDevices = pendingUserDbData.bound_devices || {};
       const linkedDevId = boundDevices[currentDevType];
 
       if (!linkedDevId) {
-        // ആദ്യമായി ഈ ഡിവൈസ് ടൈപ്പിൽ കയറുന്നു ➔ Bind ചെയ്യുന്നു
         await fetch(`${FIREBASE_DB_URL}/users/${pendingAuthPhone}/bound_devices/${currentDevType}.json`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -964,18 +1003,22 @@
         });
       } else if (linkedDevId !== currentDevId) {
         const typeName = currentDevType === 'mobile' ? 'മൊബൈൽ ഫോണിൽ' : 'കമ്പ്യൂട്ടറിൽ';
-        alert(`🔒 സുരക്ഷാ മുന്നറിയിപ്പ്:\n\nഈ അക്കൗണ്ട് മറ്റൊരു ${typeName} ഇതിനകം രജിസ്റ്റർ ചെയ്തിട്ടുണ്ട്!\n\nഒരു അക്കൗണ്ട് പരമാവധി ഒരു ഫോണിലും ഒരു കമ്പ്യൂട്ടറിലും മാത്രമേ ഉപയോഗിക്കാൻ സാധിക്കൂ. പുതിയ ഡിവൈസ് മാറ്റുന്നതിനായി അഡ്മിനെ വാട്ട്സാപ്പിൽ ബന്ധപ്പെടുക.`);
+        alert(`🔒 സുരക്ഷാ മുന്നറിയിപ്പ്:
+
+ഈ അക്കൗണ്ട് മറ്റൊരു ${typeName} ഇതിനകം രജിസ്റ്റർ ചെയ്തിട്ടുണ്ട്!
+
+ഒരു അക്കൗണ്ട് പരമാവധി ഒരു ഫോണിലും ഒരു കമ്പ്യൂട്ടറിലും മാത്രമേ ഉപയോഗിക്കാൻ സാധിക്കൂ. പുതിയ ഡിവൈസ് മാറ്റുന്നതിനായി അഡ്മിനെ വാട്ട്സാപ്പിൽ ബന്ധപ്പെടുക.`);
         btn.innerText = "Login ›";
         btn.disabled = false;
         return;
       }
 
-      // ലോഗിൻ വിജയം
       candidate = {
         name: pendingUserDbData.Official_Name || pendingUserDbData.name || 'Student',
         phone: pendingAuthPhone,
         valid_until: pendingUserDbData.valid_until || null,
-        is_premium: pendingUserDbData.is_premium || false
+        is_premium: pendingUserDbData.is_premium || false,
+        purchased_course: pendingUserDbData.purchased_course || 'all'
       };
 
       localStorage.setItem('sk_candidate_user', JSON.stringify(candidate));
@@ -983,7 +1026,6 @@
       fetchFirebaseData();
     }
 
-    // പുതിയ വിദ്യാർത്ഥി രജിസ്ട്രേഷൻ
     async function handleNewRegistration(e) {
       e.preventDefault();
       const name = document.getElementById('regNameInput').value.trim();
@@ -999,33 +1041,35 @@
       const currentDevId = getOrCreateDeviceId();
       const currentDevType = getDeviceType();
 
-      const newUserObj = {
+      // 🌟 പഴയ കൗണ്ട് മാഞ്ഞുപോകാതിരിക്കാൻ PATCH മെത്തേഡ് ഉപയോഗിക്കുന്നു
+      const userPatchData = {
         Official_Name: name,
         Phone: pendingAuthPhone,
         PIN: pin,
-        bound_devices: {
-          [currentDevType]: currentDevId
-        },
-        Unique_Exams: 0,
-        First_Attempt_Avg: 0,
         Registered_At: new Date().toISOString()
       };
 
       await fetch(`${FIREBASE_DB_URL}/users/${pendingAuthPhone}.json`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userPatchData)
+      });
+
+      await fetch(`${FIREBASE_DB_URL}/users/${pendingAuthPhone}/bound_devices/${currentDevType}.json`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newUserObj)
+        body: JSON.stringify(currentDevId)
       });
 
       candidate = {
         name: name,
         phone: pendingAuthPhone,
         valid_until: null,
-        is_premium: false
+        is_premium: false,
+        purchased_course: 'all'
       };
 
       localStorage.setItem('sk_candidate_user', JSON.stringify(candidate));
-      allUsersCache.push(newUserObj);
       activateUserSession();
       fetchFirebaseData();
     }
@@ -1195,6 +1239,7 @@
             if (myDbData) {
               candidate.valid_until = myDbData.valid_until || null;
               candidate.is_premium = myDbData.is_premium || false;
+              candidate.purchased_course = myDbData.purchased_course || 'all';
               localStorage.setItem('sk_candidate_user', JSON.stringify(candidate));
               updateProfileAnalytics();
             }
@@ -1757,8 +1802,8 @@
       const tbody = document.getElementById('rankListTableBody');
       tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-400">റാങ്ക് ലിസ്റ്റ് ശേഖരിക്കുന്നു...</td></tr>';
 
-      const cleanWithoutAnd = (str) => String(str || '').replace(/[\s\-_,.:;()\/\\|\[\]+&]+/g, '').toLowerCase();
-      const cleanWithAnd = (str) => String(str || '').replace(/[\s\-_,.:;()\/\\|\[\]+]+/g, '').toLowerCase();
+      const cleanWithoutAnd = (str) => String(str || '').replace(/[\s\-_,.:;()\/\|\[\]+&]+/g, '').toLowerCase();
+      const cleanWithAnd = (str) => String(str || '').replace(/[\s\-_,.:;()\/\|\[\]+]+/g, '').toLowerCase();
 
       const searchKeys = new Set();
       [examKeyParam, examTitle].forEach(val => {
@@ -2144,13 +2189,22 @@
       document.getElementById('statAccuracy').innerText = `${accuracy}%`;
 
       const valEl = document.getElementById('profileDisplayValidity');
+      const crsEl = document.getElementById('profileDisplayCourse');
+      const todayStr = new Date().toISOString().split('T')[0];
+
       if (valEl) {
-        const todayStr = new Date().toISOString().split('T')[0];
         if (candidate.valid_until && candidate.valid_until >= todayStr) {
           valEl.innerText = `⭐ പ്രീമിയം വാലിഡിറ്റി: ${candidate.valid_until} വരെ`;
         } else {
           valEl.innerText = `സൗജന്യ അംഗത്വം (Free Plan)`;
         }
+      }
+
+      if (crsEl) {
+        const cId = candidate.purchased_course || 'all';
+        const cfg = portalConfigCache || {};
+        const cMeta = cfg.course_plans && cfg.course_plans[cId] ? cfg.course_plans[cId].name : cId.toUpperCase();
+        crsEl.innerText = `📚 കോഴ്സ്: ${cMeta}`;
       }
     }
 
@@ -2171,3 +2225,4 @@
   </script>
 </body>
 </html>
+
