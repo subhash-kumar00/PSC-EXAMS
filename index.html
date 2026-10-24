@@ -395,6 +395,25 @@
         
         <div id="foldersContainer" class="grid grid-rows-2 sm:grid-rows-none sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 grid-flow-col sm:grid-flow-row auto-cols-[185px] sm:auto-cols-auto gap-2.5 overflow-x-auto sm:overflow-visible custom-scroll pb-2.5 pt-1 snap-x"></div>
       </div>
+      <!-- 🌟 STEP 2.5: സബ് ഫോൾഡറുകൾ (Sub Topic Folders) -->
+      <div id="subFoldersSection" class="hidden bg-slate-900/60 border border-slate-800/90 rounded-3xl p-4 sm:p-5 space-y-3.5 shadow-xl">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+          <div class="flex items-center space-x-2">
+            <span class="text-base">📂</span>
+            <div>
+              <h3 id="selectedSubFolderTitle" class="text-xs sm:text-sm font-black text-cyan-400 uppercase tracking-wider">
+                സബ് ടോപ്പിക്കുകൾ (Sub Topics)
+              </h3>
+              <p class="text-[10px] text-slate-400">പരീക്ഷ എഴുതാനായി താഴെ നിന്ന് സബ് ഫോൾഡർ തിരഞ്ഞെടുക്കുക</p>
+            </div>
+          </div>
+          <button onclick="closeSubFolderSection()" class="text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-xl border border-slate-700 transition cursor-pointer">
+            ✕ സബ് ഫോൾഡർ മടക്കുക
+          </button>
+        </div>
+        
+        <div id="subFoldersContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5"></div>
+      </div>
 
       <!-- STEP 3: പരീക്ഷാ കാർഡുകൾ -->
       <div id="examsDisplayArea" class="hidden space-y-3 pt-2 border-t border-slate-800/80">
@@ -666,6 +685,7 @@
     let candidate = null;
     let selectedMainFolder = null;
     let selectedCategory = null;
+    let selectedSubFolder = null; // 🌟 പുതിയ സബ് ഫോൾഡർ ട്രാക്ക് ചെയ്യാൻ
     let allUsersCache = [];
     let userAttemptsMap = {}; 
     let chatRefreshInterval = null;
@@ -1282,15 +1302,19 @@
           let parsedList = [];
           list.forEach((item, idx) => {
             let title = item.TITLE || item.title || `Exam ${idx + 1}`;
-            let category = item.CATEGORY || item.category || 'പൊതുവിജ്ഞാനം';
-            let topics = item.TOPICS || item.topics || 'പ്രധാന പരീക്ഷാ ചോദ്യങ്ങൾ';
-            let questions = item.QUESTIONS || item.questions || 25;
-            let time = item.TIME || item.time || '20 മിനിറ്റ്';
-            let pdf = item.pdfUrl || item.pdfurl || '';
-            let rawExamKey = item.KEY || item.key || '';
+const cleanT = cleanTitleForMatch(title);
+let ctrl = adminControls[cleanT] || null;
 
-            const cleanT = cleanTitleForMatch(title);
-            let ctrl = adminControls[cleanT] || null;
+if (ctrl && ctrl.isPublished === false) return;
+
+let category = item.CATEGORY || item.category || 'പൊതുവിജ്ഞാനം';
+let subFolder = item.SUB_FOLDER || item.subFolder || item.sub_folder || (ctrl && ctrl.subFolder) || '';
+let topics = item.TOPICS || item.topics || 'പ്രധാന പരീക്ഷാ ചോദ്യങ്ങൾ';
+
+let questions = item.QUESTIONS || item.questions || 25;
+let time = item.TIME || item.time || '20 മിനിറ്റ്';
+let pdf = item.pdfUrl || item.pdfurl || '';
+let rawExamKey = item.KEY || item.key || '';
 
             if (ctrl && ctrl.isPublished === false) return;
 
@@ -1308,6 +1332,7 @@ let mainFoldersArr = parseMainFolders(rawMainFolder);
               key: String(rawExamKey).trim(),
               fileUrl: buildExamUrl(item),
               category: String(category).trim(),
+              subFolder: String(subFolder).trim(),
               accessType: String(accessType).toUpperCase(),
               mainFolders: mainFoldersArr,
               mainFolderLabel: mainFoldersArr.join(', '),
@@ -1429,12 +1454,14 @@ let mainFoldersArr = parseMainFolders(rawMainFolder);
     }
 
     function closeMainFolder() {
-      selectedMainFolder = null;
-      selectedCategory = null;
-      renderMainExamFolders();
-      document.getElementById('subjectFoldersSection').classList.add('hidden');
-      document.getElementById('examsDisplayArea').classList.add('hidden');
-    }
+  selectedMainFolder = null;
+  selectedCategory = null;
+  selectedSubFolder = null; // 🌟 സബ് ഫോൾഡർ റീസെറ്റ് ചെയ്യുന്നു
+  renderMainExamFolders();
+  document.getElementById('subjectFoldersSection').classList.add('hidden');
+  document.getElementById('subFoldersSection').classList.add('hidden'); // 🌟 സബ് ഫോൾഡറും ഹൈഡ് ചെയ്യുന്നു
+  document.getElementById('examsDisplayArea').classList.add('hidden');
+}
 
     function renderSubjectFolders() {
       const container = document.getElementById('foldersContainer');
@@ -1504,35 +1531,132 @@ let mainFoldersArr = parseMainFolders(rawMainFolder);
       });
     }
 
+    // 🌟 സബ്ജക്റ്റ് ഫോൾഡർ ക്ലിക്ക് ചെയ്യുമ്പോൾ
     function selectFolder(cat) {
-      if (selectedCategory === cat) {
+      if (selectedCategory === cat && !selectedSubFolder) {
         closeSelectedCategory();
         return;
       }
       selectedCategory = cat;
+      selectedSubFolder = null;
       renderSubjectFolders();
+
+      const folderExams = rawQuizList.filter(q => 
+        doesExamBelongToMainFolder(q, selectedMainFolder) && (cat === 'all' || q.category === cat)
+      );
+
+      // സബ് ഫോൾഡറുകൾ ഉണ്ടോയെന്ന് പരിശോധിക്കുന്നു
+      const subFolderSet = new Set();
+      folderExams.forEach(q => {
+        if (q.subFolder && q.subFolder.trim() !== '') {
+          subFolderSet.add(q.subFolder.trim());
+        }
+      });
+
+      const subSection = document.getElementById('subFoldersSection');
+      if (subFolderSet.size > 0 && cat !== 'all') {
+        renderSubFoldersList(Array.from(subFolderSet), folderExams);
+        subSection.classList.remove('hidden');
+      } else {
+        subSection.classList.add('hidden');
+      }
 
       const area = document.getElementById('examsDisplayArea');
       area.classList.remove('hidden');
 
+      updateCategoryHeaderTitle();
+      applyFiltersAndRender();
+      setTimeout(() => (subFolderSet.size > 0 ? subSection : area).scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+    }
+
+    // 🌟 സബ് ഫോൾഡറുകൾ ലിസ്റ്റ് ചെയ്യുന്നു
+    function renderSubFoldersList(subFolders, folderExams) {
+      const container = document.getElementById('subFoldersContainer');
+      container.innerHTML = '';
+
+      const counts = {};
+      folderExams.forEach(q => {
+        if (q.subFolder) {
+          counts[q.subFolder] = (counts[q.subFolder] || 0) + 1;
+        }
+      });
+
+      // 1. "എല്ലാം (All)" കാർഡ്
+      const allActive = !selectedSubFolder;
+      const allCard = document.createElement('div');
+      allCard.className = `p-3 rounded-2xl border cursor-pointer transition transform active:scale-95 flex items-center justify-between ${allActive ? 'bg-cyan-950/90 border-cyan-400 ring-1 ring-cyan-400' : 'bg-slate-950 border-slate-800 hover:border-slate-700'}`;
+      allCard.onclick = () => selectSubFolder(null);
+      allCard.innerHTML = `
+        <div class="flex items-center space-x-2 min-w-0">
+          <div class="w-7 h-7 rounded-lg ${allActive ? 'bg-cyan-500 text-slate-950' : 'bg-slate-900 text-cyan-400'} flex items-center justify-center text-xs font-bold shrink-0">🌟</div>
+          <div class="min-w-0">
+            <h5 class="text-xs font-bold text-white truncate">എല്ലാം (All)</h5>
+            <span class="text-[9px] text-slate-400 font-mono block">${folderExams.length} പരീക്ഷകൾ</span>
+          </div>
+        </div>
+      `;
+      container.appendChild(allCard);
+
+      // 2. ഓരോ സബ് ടോപ്പിക് കാർഡുകൾ
+      subFolders.forEach(sf => {
+        const isActive = selectedSubFolder === sf;
+        const card = document.createElement('div');
+        card.className = `p-3 rounded-2xl border cursor-pointer transition transform active:scale-95 flex items-center justify-between ${isActive ? 'bg-cyan-950/90 border-cyan-400 ring-1 ring-cyan-400' : 'bg-slate-950 border-slate-800 hover:border-slate-700'}`;
+        card.onclick = () => selectSubFolder(sf);
+        card.innerHTML = `
+          <div class="flex items-center space-x-2 min-w-0">
+            <div class="w-7 h-7 rounded-lg ${isActive ? 'bg-cyan-500 text-slate-950' : 'bg-slate-900 text-cyan-400'} flex items-center justify-center text-xs font-bold shrink-0">📂</div>
+            <div class="min-w-0">
+              <h5 class="text-xs font-bold text-white truncate">${sf}</h5>
+              <span class="text-[9px] text-slate-400 font-mono block">${counts[sf] || 0} പരീക്ഷകൾ</span>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // 🌟 സബ് ഫോൾഡർ ക്ലിക്ക് ചെയ്യുമ്പോൾ
+    function selectSubFolder(sf) {
+      selectedSubFolder = sf;
+      const folderExams = rawQuizList.filter(q => 
+        doesExamBelongToMainFolder(q, selectedMainFolder) && (selectedCategory === 'all' || q.category === selectedCategory)
+      );
+      const subFolderSet = new Set(folderExams.map(q => q.subFolder).filter(Boolean));
+      renderSubFoldersList(Array.from(subFolderSet), folderExams);
+      updateCategoryHeaderTitle();
+      applyFiltersAndRender();
+    }
+
+    function closeSubFolderSection() {
+      selectedSubFolder = null;
+      document.getElementById('subFoldersSection').classList.add('hidden');
+      updateCategoryHeaderTitle();
+      applyFiltersAndRender();
+    }
+
+    function updateCategoryHeaderTitle() {
       const folderMeta = MAIN_EXAM_FOLDERS.find(f => f.id === selectedMainFolder);
       const mainLabel = folderMeta ? folderMeta.id : 'ALL';
-
       const headerTitle = document.getElementById('activeCategoryHeader');
-      headerTitle.innerHTML = (cat === 'all') 
-        ? `<span>📑</span><span>${mainLabel} › എല്ലാ പരീക്ഷകളും</span>` 
-        : `<span>📁</span><span>${mainLabel} › ${cat} - പരീക്ഷകൾ</span>`;
 
-      applyFiltersAndRender();
-      setTimeout(() => area.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+      let text = `<span>📁</span><span>${mainLabel} › ${selectedCategory}</span>`;
+      if (selectedSubFolder) {
+        text += `<span> › 📂 ${selectedSubFolder}</span>`;
+      }
+      text += `<span> - പരീക്ഷകൾ</span>`;
+      headerTitle.innerHTML = text;
     }
 
     function closeSelectedCategory() {
       selectedCategory = null;
+      selectedSubFolder = null;
       renderSubjectFolders();
+      document.getElementById('subFoldersSection').classList.add('hidden');
       document.getElementById('examsDisplayArea').classList.add('hidden');
     }
 
+    // 🌟 സബ് ഫോൾഡർ കൂടി വെച്ച് പരീക്ഷകൾ ഫിൽട്ടർ ചെയ്യുന്നു
     function applyFiltersAndRender() {
       const searchText = document.getElementById('searchInput').value.trim().toLowerCase();
       const sortBy = document.getElementById('sortSelect').value;
@@ -1540,12 +1664,14 @@ let mainFoldersArr = parseMainFolders(rawMainFolder);
       let filtered = rawQuizList.filter(q => {
         const matchMain = doesExamBelongToMainFolder(q, selectedMainFolder);
         const matchCat = (!selectedCategory || selectedCategory === 'all' || q.category === selectedCategory);
+        const matchSub = (!selectedSubFolder || q.subFolder === selectedSubFolder);
         const matchSearch = !searchText || 
                             q.title.toLowerCase().includes(searchText) || 
                             q.topics.toLowerCase().includes(searchText) || 
                             q.category.toLowerCase().includes(searchText) ||
+                            (q.subFolder && q.subFolder.toLowerCase().includes(searchText)) ||
                             q.mainFolderLabel.toLowerCase().includes(searchText);
-        return matchMain && matchCat && matchSearch;
+        return matchMain && matchCat && matchSub && matchSearch;
       });
 
       if (sortBy === 'newest') filtered.sort((a, b) => b.originalIndex - a.originalIndex);
@@ -1555,7 +1681,6 @@ let mainFoldersArr = parseMainFolders(rawMainFolder);
 
       renderCompactCards(filtered);
     }
-
     function calculateLiveHallOfFameFromUsers(allUsersObj) {
       const container = document.getElementById('topStudentsList');
       const section = document.getElementById('topStudentsSection');
@@ -2394,8 +2519,4 @@ function closePolicyModal() {
   </script>
 </body>
 </html>
-  <body>
-
-    <script src="./script.js"></script>
-  </body>
-</html>
+  
