@@ -875,8 +875,8 @@
         card.className = `p-3 rounded-2xl border cursor-pointer transition ${borderClasses}`;
 
         const badgeMarkup = isPrebook
-          ? `<span class="bg-gradient-to-r from-amber-500 to-rose-500 text-slate-950 text-[8px] font-black px-1.5 py-0.2 rounded-full uppercase">⚡ PRE-BOOK</span>`
-          : `<span class="text-[10px] font-mono text-cyan-400 bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800">${c.days} Days</span>`;
+          ? `<span class="bg-gradient-to-r from-amber-500 to-rose-500 text-slate-950 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shadow">⚡ PRE-BOOK</span>`
+          : `<span class="bg-slate-800 text-slate-300 text-[9px] font-bold px-2 py-0.5 rounded uppercase">REGULAR</span>`;
 
         let priceHtml = `<span class="text-base sm:text-lg font-black text-emerald-400 font-mono">₹${c.price}</span>`;
         if (c.original_price && Number(c.original_price) > Number(c.price)) {
@@ -890,12 +890,21 @@
           `;
         }
 
+        // 🌟 വാലിഡിറ്റി ദിവസങ്ങൾ മഞ്ഞ ബോക്സിൽ വ്യക്തമായി കാണിക്കുന്നു
         card.innerHTML = `
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-amber-300 uppercase tracking-wide truncate max-w-[160px]">${c.name}</span>
+          <div class="flex items-center justify-between gap-1">
+            <span class="text-xs font-black text-white uppercase tracking-wide truncate max-w-[150px]">${c.name}</span>
             ${badgeMarkup}
           </div>
-          ${isPrebook && c.launch_date ? `<span class="text-[9px] text-slate-400 font-mono block mt-0.5">📅 ആരംഭം: ${c.launch_date}</span>` : ''}
+
+          <div class="flex items-center justify-between text-[11px] font-mono mt-1 pt-1 border-t border-slate-800/80">
+            <span class="text-amber-300 font-bold bg-amber-950/70 border border-amber-500/40 px-2 py-0.5 rounded-md flex items-center space-x-1">
+              <span>⏳</span>
+              <span>വാലിഡിറ്റി: <strong>${c.days || 30} Days</strong></span>
+            </span>
+            ${isPrebook && c.launch_date ? `<span class="text-[10px] text-slate-400">📅 ${c.launch_date}</span>` : ''}
+          </div>
+
           <div class="flex items-center justify-between mt-1 pt-1 border-t border-slate-900">
             <span class="text-[11px] text-slate-400">ഫീസ്:</span>
             ${priceHtml}
