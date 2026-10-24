@@ -11,7 +11,7 @@
   
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- 🌟 PWA Meta Tags & Manifest -->
+  <!-- PWA Meta Tags & Manifest -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#020617">
   <meta name="mobile-web-app-capable" content="yes">
@@ -20,7 +20,7 @@
   <meta name="apple-mobile-web-app-title" content="SK PSC">
   <link rel="apple-touch-icon" href="logo.png">
 
-  <!-- 🌟 OneSignal Push Notification SDK (Fixed for Background Service Worker) -->
+  <!-- OneSignal Push Notification SDK (Fixed for Background Service Worker) -->
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
   <script>
     window.OneSignalDeferred = window.OneSignalDeferred || [];
@@ -115,15 +115,21 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between">
 
-  <!-- Header -->
-  <header class="bg-slate-900/95 backdrop-blur border-b border-slate-800 px-4 sm:px-8 py-3.5 sticky top-0 z-40">
-    <div class="max-w-7xl mx-auto flex items-center justify-between">
-      <div class="flex items-center space-x-3">
-        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-500 via-teal-500 to-cyan-500 flex items-center justify-center font-black text-xl shadow-lg shadow-emerald-950/50 text-slate-950 border border-emerald-400/40">
-          SK
-        </div>
-        <div>
-          <div class="flex items-center space-x-2">
+  <!-- 🌟 വലിയ വലിപ്പത്തിൽ ലോഗോ മുകളിൽ നൽകിയ ഹെഡർ -->
+  <header class="bg-slate-900/95 backdrop-blur border-b border-slate-800 px-3.5 sm:px-8 py-2.5 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-3">
+      <div class="flex items-center space-x-3 min-w-0">
+        <!-- മുകളിലേക്ക് മാറ്റിയ വലുപ്പമുള്ള ഔദ്യോഗിക ലോഗോ -->
+        <img 
+          src="logo.png" 
+          alt="SK PSC Logo" 
+          width="56" 
+          height="56" 
+          class="w-12 h-12 sm:w-14 sm:h-14 object-contain rounded-2xl drop-shadow-[0_4px_12px_rgba(16,185,129,0.35)] shrink-0 border-2 border-emerald-500/40 bg-slate-950 p-1"
+          onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/subhash-kumar00/PSC-EXAMS/main/logo.png';"
+        />
+        <div class="min-w-0">
+          <div class="flex items-center space-x-2 flex-wrap">
             <h1 class="font-extrabold text-base sm:text-lg text-emerald-400 leading-tight tracking-wide flex items-center space-x-1.5">
               <span>SK PSC</span>
               <span class="text-[10px] bg-emerald-500/20 text-emerald-300 font-bold px-1.5 py-0.5 rounded border border-emerald-500/30">PORTAL</span>
@@ -133,30 +139,38 @@
               <span id="topUserCount">...</span>
             </span>
           </div>
-          <p class="text-[11px] text-slate-400">Special Notes & Guidance by Subhash Kumar</p>
+          <p class="text-[11px] text-slate-400 truncate">Special Notes & Guidance by SK</p>
         </div>
       </div>
       
-      <div id="navUserBox" class="hidden flex items-center space-x-2.5 sm:space-x-3">
-        <button id="openProfileBtn" onclick="openProfileModal('history')" class="relative text-left px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700/80 border border-slate-700 transition flex items-center space-x-2 shadow cursor-pointer">
-          <div class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">👤</div>
-          <div>
-            <span id="navUserName" class="text-xs font-bold text-slate-200 block truncate max-w-[110px] sm:max-w-none"></span>
-            <span class="text-[10px] text-emerald-400 block font-semibold hover:underline">പ്രൊഫൈൽ & ചാറ്റ് 💬</span>
-          </div>
-          <span id="navUnreadChatBadge" class="hidden absolute -top-1.5 -right-1.5 bg-rose-600 text-white text-[9px] font-black px-1.5 py-0.2 rounded-full animate-bounce shadow">NEW</span>
+      <div class="flex items-center space-x-2 shrink-0">
+        <!-- ഒറ്റ ക്ലിക്കിൽ സബ്സ്ക്രിപ്ഷൻ പ്ലാനുകൾ തുറക്കാനുള്ള ബട്ടൺ -->
+        <button onclick="openSubscriptionModal('SK PSC പ്രീമിയം കോഴ്സുകൾ')" class="px-3 py-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-slate-950 font-black rounded-xl text-xs transition shadow flex items-center space-x-1.5 cursor-pointer">
+          <span>💳</span>
+          <span class="hidden sm:inline">കോഴ്സ് പ്ലാനുകൾ</span>
         </button>
-        <button onclick="logoutCandidate()" class="text-xs text-rose-400 hover:text-rose-300 border border-rose-500/30 px-2.5 py-1.5 rounded-xl hover:bg-rose-950/30 transition cursor-pointer">Logout</button>
+
+        <div id="navUserBox" class="hidden flex items-center space-x-2 sm:space-x-3">
+          <button id="openProfileBtn" onclick="openProfileModal('history')" class="relative text-left px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700/80 border border-slate-700 transition flex items-center space-x-2 shadow cursor-pointer">
+            <div class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">👤</div>
+            <div>
+              <span id="navUserName" class="text-xs font-bold text-slate-200 block truncate max-w-[100px] sm:max-w-none"></span>
+              <span class="text-[10px] text-emerald-400 block font-semibold hover:underline">പ്രൊഫൈൽ & ചാറ്റ് 💬</span>
+            </div>
+            <span id="navUnreadChatBadge" class="hidden absolute -top-1.5 -right-1.5 bg-rose-600 text-white text-[9px] font-black px-1.5 py-0.2 rounded-full animate-bounce shadow">NEW</span>
+          </button>
+          <button onclick="logoutCandidate()" class="text-xs text-rose-400 hover:text-rose-300 border border-rose-500/30 px-2.5 py-1.5 rounded-xl hover:bg-rose-950/30 transition cursor-pointer">Logout</button>
+        </div>
       </div>
     </div>
   </header>
 
-  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-5">
     
-    <!-- Hero Branding -->
-    <div class="hero-glow bg-slate-900 border border-slate-800/90 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6">
-      <div class="max-w-2xl relative z-10 space-y-3.5 text-left flex-1">
-        <div class="flex flex-wrap items-center gap-2">
+    <!-- 🌟 ക്ലീൻ & കംഫർട്ടബിൾ ഹീറോ സെക്ഷൻ (Mess-free Slim Layout) -->
+    <div class="hero-glow bg-slate-900 border border-slate-800/90 rounded-3xl p-5 sm:p-7 shadow-2xl relative overflow-hidden space-y-4 text-left">
+      <div class="flex flex-wrap items-center justify-between gap-2.5">
+        <div class="flex items-center space-x-2">
           <span class="text-xs font-black uppercase tracking-wider text-emerald-300 bg-emerald-950/80 px-3 py-1 rounded-lg border border-emerald-500/40 flex items-center space-x-1.5">
             <span>🎯</span>
             <span>SK PSC EXAM HUB</span>
@@ -167,53 +181,52 @@
         </div>
 
         <!-- റെഡ് ബ്ലിങ്ക് മെസ്സേജ് ബാനർ -->
-        <div id="heroBlinkAlertBox" class="red-blink-banner bg-rose-950/50 border-2 border-rose-500/80 rounded-2xl px-3.5 py-2.5 inline-flex flex-wrap items-center gap-2.5 shadow-lg">
-          <span class="auto-latest-badge px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-rose-600 text-white shadow-md">
+        <div id="heroBlinkAlertBox" class="red-blink-banner bg-rose-950/50 border border-rose-500/80 rounded-xl px-3 py-1.5 inline-flex items-center gap-2 shadow-md">
+          <span class="auto-latest-badge px-1.5 py-0.2 rounded text-[9px] font-black uppercase tracking-wider bg-rose-600 text-white shadow-sm">
             ● LATEST
           </span>
-          <span id="heroBlinkAlertText" class="text-xs sm:text-sm font-black text-rose-200 tracking-wide uppercase text-blink-red">
+          <span id="heroBlinkAlertText" class="text-xs font-black text-rose-200 tracking-wide uppercase text-blink-red">
             2027 LDC & LGS EXAMS COMMING SOON
           </span>
         </div>
+      </div>
 
-        <h2 class="text-2xl sm:text-3xl font-black text-white leading-tight">
-          ഉയർന്ന റാങ്കിനായി കഠിനമായി പ്രയത്നിക്കുക!
+      <div class="space-y-1">
+        <h2 class="text-xl sm:text-2xl font-black text-white leading-tight">
+          ഉയർന്ന റാങ്കിനായി കൃത്യതയോടെയുള്ള പരിശീലനം!
         </h2>
-        
-        <div class="bg-slate-950/80 border border-slate-800/80 rounded-2xl p-4 text-xs sm:text-sm text-slate-300 leading-relaxed shadow-inner space-y-1">
-          <p class="font-bold text-emerald-400 flex items-center space-x-1.5">
-            <span>🚀</span>
-            <span>"നിങ്ങളുടെ സ്വപ്ന ജോലിയിലേക്കുള്ള വഴിയിൽ സമ്പൂർണ്ണ പിന്തുണയുമായി SK PSC നിങ്ങളോടൊപ്പമുണ്ട്!"</span>
-          </p>
-          <p class="text-slate-400 text-xs">
-            സ്ഥിരമായ പരിശീലനവും നെഗറ്റീവ് മാർക്കുകൾ ഒഴിവാക്കിയുള്ള കൃത്യതയുമാണ് ആദ്യ റാങ്കിലേക്ക് നിങ്ങളെ എത്തിക്കുന്നത്.
-          </p>
-        </div>
+        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-medium">
+          "നിങ്ങളുടെ സ്വപ്ന ജോലിയിലേക്കുള്ള വഴിയിൽ സമ്പൂർണ്ണ പിന്തുണയുമായി SK PSC നിങ്ങളോടൊപ്പമുണ്ട്!"
+        </p>
+      </div>
 
-        <!-- നോട്ടീസ് ബോർഡ് -->
-        <div id="heroNoticeBox" class="hidden bg-emerald-950/50 border border-emerald-500/40 rounded-2xl p-3 flex items-start space-x-2.5 shadow-lg">
-          <span class="text-sm shrink-0 mt-0.5">📢</span>
-          <div class="text-xs text-emerald-200 leading-relaxed font-medium">
-            <span class="font-bold text-emerald-400 uppercase tracking-wide block text-[10px] mb-0.5">അറിയിപ്പ്:</span>
-            <div id="heroNoticeText" class="whitespace-pre-line"></div>
+      <!-- 🌟 സബ്സ്ക്രിപ്ഷൻ & പ്രീ-ബുക്കിംഗ് ക്ലിക്ക് ചെയ്തു തുറക്കാനുള്ള സ്മാർട്ട് കാർഡ് -->
+      <div onclick="openSubscriptionModal('SK PSC പ്രീമിയം കോഴ്സുകൾ')" class="bg-gradient-to-r from-amber-950/60 via-slate-950 to-emerald-950/50 border-2 border-amber-500/50 hover:border-amber-400 p-3.5 sm:p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-lg cursor-pointer transition transform active:scale-98">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xl shrink-0 border border-amber-500/40">
+            💳
           </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <h4 class="text-xs sm:text-sm font-black text-white">സബ്സ്ക്രിപ്ഷൻ & പ്രീ-ബുക്കിംഗ് പാക്കേജുകൾ</h4>
+              <span class="text-[9px] bg-rose-600 text-white font-bold px-1.5 py-0.2 rounded-full uppercase animate-pulse">OFFER</span>
+            </div>
+            <p class="text-[11px] text-amber-200/90 mt-0.5">SCERT, LDC, LGS, DEGREE സ്പെഷ്യൽ കോഴ്സ് നിരക്കുകൾ കാണാൻ ക്ലിക്ക് ചെയ്യുക.</p>
+          </div>
+        </div>
+        <div class="flex items-center space-x-2 self-end sm:self-auto shrink-0">
+          <span class="text-xs font-bold text-emerald-400 hover:underline">വിശദാംശങ്ങൾ കാണുക</span>
+          <span class="w-6 h-6 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center font-bold text-xs">›</span>
         </div>
       </div>
 
-      <div class="w-36 h-36 sm:w-44 sm:h-44 md:w-52 md:h-52 shrink-0 flex items-center justify-center relative z-10">
-        <div class="absolute inset-0 bg-emerald-500/15 rounded-full blur-2xl"></div>
-        <img 
-          id="heroLogoImg"
-          src="logo.png" 
-          alt="SK PSC Logo" 
-          width="200"
-          height="200"
-          loading="eager"
-          fetchpriority="high"
-          decoding="async"
-          class="w-full h-full object-contain relative z-10 drop-shadow-[0_10px_20px_rgba(16,185,129,0.3)] hover:scale-105 transition-transform duration-300"
-          onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/subhash-kumar00/PSC-EXAMS/main/logo.png';"
-        />
+      <!-- നോട്ടീസ് ബോർഡ് -->
+      <div id="heroNoticeBox" class="hidden bg-emerald-950/50 border border-emerald-500/40 rounded-2xl p-3 flex items-start space-x-2.5 shadow-lg">
+        <span class="text-sm shrink-0 mt-0.5">📢</span>
+        <div class="text-xs text-emerald-200 leading-relaxed font-medium">
+          <span class="font-bold text-emerald-400 uppercase tracking-wide block text-[10px] mb-0.5">അറിയിപ്പ്:</span>
+          <div id="heroNoticeText" class="whitespace-pre-line"></div>
+        </div>
       </div>
     </div>
 
@@ -229,7 +242,7 @@
       <div id="topStudentsList" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5"></div>
     </div>
 
-    <!-- ================= 🔐 സുരക്ഷിത ലോഗിൻ കാർഡ് (Mobile + 4-Digit PIN) ================= -->
+    <!-- സുരക്ഷിത ലോഗിൻ കാർഡ് (Mobile + 4-Digit PIN) -->
     <div id="homeLoginCard" class="max-w-md mx-auto bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-4">
       <div class="text-center space-y-1">
         <span class="inline-block p-3 rounded-2xl bg-emerald-500/10 text-emerald-400 mb-1 text-2xl">
@@ -239,7 +252,6 @@
         <p id="authCardDesc" class="text-xs text-slate-400">10 അക്ക മൊബൈൽ നമ്പർ നൽകുക</p>
       </div>
 
-      <!-- ഘട്ടം 1: മൊബൈൽ നമ്പർ നൽകൽ -->
       <form id="stepPhoneForm" onsubmit="handlePhoneStep(event)" class="space-y-3.5">
         <div>
           <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">മൊബൈൽ നമ്പർ</label>
@@ -255,7 +267,6 @@
         </button>
       </form>
 
-      <!-- ഘട്ടം 2A: നിലവിലുള്ള വിദ്യാർത്ഥിക്ക് PIN നൽകാനുള്ള ഫോം -->
       <form id="stepPinLoginForm" onsubmit="handlePinLogin(event)" class="space-y-3.5 hidden">
         <div class="bg-emerald-500/10 border border-emerald-500/30 p-3 rounded-xl text-xs text-emerald-300 text-center">
           സ്വാഗതം <strong id="loginWelcomeName" class="text-white"></strong>! നിങ്ങളുടെ 4 അക്ക സെക്യൂരിറ്റി PIN നൽകുക.
@@ -270,7 +281,6 @@
         </div>
       </form>
 
-      <!-- ഘട്ടം 2B: പുതിയ വിദ്യാർത്ഥിക്ക് രജിസ്റ്റർ ചെയ്യാനുള്ള ഫോം -->
       <form id="stepRegisterForm" onsubmit="handleNewRegistration(event)" class="space-y-3.5 hidden">
         <div class="bg-cyan-500/10 border border-cyan-500/30 p-3 rounded-xl text-xs text-cyan-300 text-center leading-relaxed">
           പുതിയ രജിസ്ട്രേഷൻ! നിങ്ങളുടെ പേരും എപ്പോഴും ലോഗിൻ ചെയ്യാൻ ഒരു 4 അക്ക രഹസ്യ പിന്നും നൽകുക.
@@ -291,7 +301,7 @@
     </div>
 
     <!-- Exam Section -->
-    <div id="examSection" class="hidden space-y-6">
+    <div id="examSection" class="hidden space-y-5">
 
       <!-- ടൈംടേബിൾ & ലോക്കിംഗ് കാർഡ് -->
       <div id="timetableWrapper" class="hidden bg-slate-900 border border-emerald-500/40 rounded-2xl p-4 sm:p-5 shadow-xl space-y-3">
@@ -409,8 +419,29 @@
     </div>
 
   </main>
+ <!-- 🌟 Legal Policies Modal (Z-Index 999999 നേരിട്ട് നൽകി ഏറ്റവും മുന്നിൽ കൊണ്ടുവന്നത്) -->
+<div id="legalPolicyModal" style="z-index: 999999 !important;" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md hidden flex items-center justify-center p-4">
+  <div class="bg-slate-900 border border-slate-700 rounded-3xl max-w-xl w-full p-6 shadow-2xl space-y-4 flex flex-col max-h-[85vh]">
+    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+      <h3 id="policyModalTitle" class="text-base font-bold text-white flex items-center space-x-2">
+        <span>📜</span>
+        <span id="policyHeadingText">പോളിസി വിവരങ്ങൾ</span>
+      </h3>
+      <button onclick="closePolicyModal()" class="text-slate-400 hover:text-white text-xl font-bold p-1 bg-slate-800 rounded-xl w-8 h-8 flex items-center justify-center cursor-pointer">✕</button>
+    </div>
 
-  <!-- ================= 💳 ഡൈനാമിക് കോഴ്സ് സബ്സ്ക്രിപ്ഷൻ MODAL ================= -->
+    <!-- പോളിസി ഉള്ളടക്കം -->
+    <div id="policyModalBody" class="flex-1 overflow-y-auto custom-scroll text-xs text-slate-300 space-y-3 leading-relaxed pr-1">
+      <!-- ഇവിടെ വിവരങ്ങൾ വരും -->
+    </div>
+
+    <div class="pt-3 border-t border-slate-800 flex justify-end">
+      <button onclick="closePolicyModal()" class="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl transition cursor-pointer">അടയ്ക്കുക</button>
+    </div>
+  </div>
+</div>
+
+  <!-- ================= 💳 ഡൈനാമിക് തുക തനിയെ വരുന്ന പേയ്‌മെന്റ് MODAL ================= -->
   <div id="subscriptionModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-slate-900 border-2 border-amber-500/50 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 text-center relative max-h-[90vh] overflow-y-auto custom-scroll">
       
@@ -427,19 +458,34 @@
         <!-- കോഴ്സ് കാർഡുകൾ ഇവിടെ തനിയെ വരും -->
       </div>
 
-      <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 space-y-3">
-        <div class="flex items-center justify-center">
-          <img id="modalQrCodeImg" src="" alt="GPay QR Code" class="w-32 h-32 rounded-xl border border-slate-700 object-contain hidden bg-white p-1">
+      <!-- 🌟 Dynamic Auto-Amount UPI QR Area -->
+      <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
+        <div class="flex flex-col items-center justify-center space-y-2">
+          <div class="p-2 bg-white rounded-2xl shadow-lg border-2 border-emerald-500/50">
+            <img id="modalQrCodeImg" src="" alt="Auto Amount UPI QR" class="w-44 h-44 sm:w-48 sm:h-48 object-contain block">
+          </div>
+          <span class="text-[11px] font-mono text-emerald-400 font-bold bg-emerald-950/80 px-3 py-1 rounded-full border border-emerald-500/40">
+            ✨ സ്കാൻ ചെയ്യുമ്പോൾ തുക: <strong id="modalQrAmountDisplay" class="text-white text-xs">₹0</strong>
+          </span>
         </div>
+
+        <!-- മൊബൈൽ ഫോണിൽ നേരിട്ട് UPI ആപ്പ് തുറക്കാൻ -->
+        <a id="btnDirectUpiPay" href="#" class="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-cyan-300 border border-cyan-500/40 font-bold rounded-xl text-xs transition flex items-center justify-center space-x-2 shadow cursor-pointer">
+          <span>📱 ഫോണിൽ നിന്ന് നേരിട്ട് Pay ചെയ്യാം (GPay / PhonePe / Paytm)</span>
+        </a>
+
         <div>
-          <span class="text-[10px] text-slate-400 font-semibold block uppercase">Google Pay / PhonePe UPI ID:</span>
+          <span class="text-[10px] text-slate-400 font-semibold block uppercase">അല്ലെങ്കിൽ UPI ID കോപ്പി ചെയ്യാം:</span>
           <div class="flex items-center justify-center space-x-2 mt-1">
             <span id="modalUpiIdText" class="font-mono font-bold text-xs text-amber-300 bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800"></span>
             <button onclick="copyModalUpiId()" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-bold transition cursor-pointer">കോപ്പി 📋</button>
           </div>
         </div>
       </div>
-
+<label class="flex items-center justify-center space-x-2 text-[11px] text-slate-300 cursor-pointer my-2 select-none">
+  <input type="checkbox" id="acceptTermsCheckbox" checked class="rounded accent-emerald-500 w-3.5 h-3.5 cursor-pointer">
+  <span>ഞാൻ <button type="button" onclick="openPolicyModal('terms')" class="text-emerald-400 underline font-bold">നിബന്ധനകളും</button> <button type="button" onclick="openPolicyModal('refund')" class="text-emerald-400 underline font-bold">റീഫണ്ട് നയവും</button> വായിച്ചു സമ്മതിക്കുന്നു.</span>
+</label>
       <button onclick="sendPaymentProofWhatsApp()" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 text-slate-950 font-black rounded-xl text-xs transition shadow-lg flex items-center justify-center space-x-2 cursor-pointer">
         <span>📲</span>
         <span>പണം അടച്ച ശേഷം സ്ക്രീൻഷോട്ട് അയക്കുക</span>
@@ -589,15 +635,25 @@
     </div>
   </div>
 
-  <footer class="text-center py-4 text-xs text-slate-500 border-t border-slate-900 bg-slate-950">
-    © 2026 മോഡൽ എക്സാം പോർട്ടൽ | SK PSC | Special Notes by Subhash Kumar
-  </footer>
+  <footer class="text-center py-6 text-xs text-slate-500 border-t border-slate-900 bg-slate-950 space-y-3">
+  <!-- പോളിസി ലിങ്കുകൾ -->
+  <div class="flex flex-wrap justify-center items-center gap-4 text-[11px] text-slate-400 font-medium">
+    <button onclick="openPolicyModal('terms')" class="hover:text-emerald-400 hover:underline cursor-pointer">Terms & Conditions</button>
+    <span>•</span>
+    <button onclick="openPolicyModal('privacy')" class="hover:text-emerald-400 hover:underline cursor-pointer">Privacy Policy</button>
+    <span>•</span>
+    <button onclick="openPolicyModal('refund')" class="hover:text-emerald-400 hover:underline cursor-pointer">Refund Policy</button>
+    <span>•</span>
+    <button onclick="openPolicyModal('contact')" class="hover:text-emerald-400 hover:underline cursor-pointer">Contact Us</button>
+  </div>
+
+  <p>© 2026 മോഡൽ എക്സാം പോർട്ടൽ | SK PSC | Guidance by SK</p>
+</footer>
 
   <script>
     const FIREBASE_DB_URL = "https://sk-psc-portal-default-rtdb.asia-southeast1.firebasedatabase.app";
     const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
 
-    // 🌟 ഫോൾഡറുകളിൽ SCERT ഉൾപ്പെടുത്തി പുതുക്കിയ ലിസ്റ്റ്
     const MAIN_EXAM_FOLDERS = [
       { id: 'SCERT', title: 'SCERT Special', subtitle: 'പാഠപുസ്തക ചോദ്യങ്ങൾ', icon: '📖' },
       { id: 'LDC', title: 'LDC (എൽ.ഡി.സി)', subtitle: 'Lower Division Clerk Exams', icon: '🏛️' },
@@ -647,18 +703,21 @@
       return String(str || '').replace(/[\s\-_,.:;()\/\|\[\]+&]+/g, '').toLowerCase();
     }
 
-    function parseMainFolders(rawFolderValue) {
-      if (!rawFolderValue || String(rawFolderValue).trim() === '') return ['LDC'];
-      const upper = String(rawFolderValue).toUpperCase().trim();
-      if (upper === 'ALL' || upper === 'COMMON' || upper === 'എല്ലാം') return ['SCERT', 'LDC', 'LGS', 'DEGREE'];
-
-      const matched = [];
-      if (upper.includes('SCERT')) matched.push('SCERT');
-      if (upper.includes('LDC') || upper.includes('എൽഡിസി') || upper.includes('എൽ.ഡി.സി')) matched.push('LDC');
-      if (upper.includes('LGS') || upper.includes('എൽജിഎസ്') || upper.includes('എൽ.ജി.എസ്')) matched.push('LGS');
-      if (upper.includes('DEGREE') || upper.includes('ഡിഗ്രി')) matched.push('DEGREE');
-      return matched.length > 0 ? matched : ['LDC'];
-    }
+  function parseMainFolders(rawFolderValue) {
+  if (!rawFolderValue || String(rawFolderValue).trim() === '') return ['ALL_EXAMS', 'LDC'];
+  const upper = String(rawFolderValue).toUpperCase().trim();
+  
+  const matched = [];
+  if (upper.includes('SCERT')) matched.push('SCERT');
+  if (upper.includes('LDC') || upper.includes('എൽഡിസി') || upper.includes('എൽ.ഡി.സി')) matched.push('LDC');
+  if (upper.includes('LGS') || upper.includes('എൽജിഎസ്') || upper.includes('എൽ.ജി.എസ്')) matched.push('LGS');
+  if (upper.includes('DEGREE') || upper.includes('ഡിഗ്രി')) matched.push('DEGREE');
+  
+  // എല്ലാ ഫോൾഡറിലും അല്ലെങ്കിൽ കസ്റ്റം കോഴ്സിലും പരീക്ഷ കാണിക്കാൻ:
+  matched.push('ALL_EXAMS');
+  
+  return matched.length > 0 ? matched : ['ALL_EXAMS', 'LDC'];
+}
 
     function doesExamBelongToMainFolder(examItem, folderId) {
       if (!folderId || folderId === 'ALL_EXAMS') return true;
@@ -717,26 +776,20 @@
       return 0;
     }
 
-    // 🌟 പരീക്ഷാ ആക്സസ് കൺട്രോൾ ഫംഗ്ഷൻ (ഡൈനാമിക് കോഴ്സ് അധിഷ്ഠിതം)
     function canStudentAccessExam(examItem) {
-      // 1. ഗ്ലോബൽ ട്രയൽ ആക്റ്റീവ് ആണെങ്കിൽ സൗജന്യമായി തുറക്കാം
       if (!portalConfigCache || portalConfigCache.global_trial_active !== false) {
         return true;
       }
-      // 2. പരീക്ഷ FREE ആണെങ്കിൽ ആർക്കും തുറക്കാം
       if (examItem.accessType === 'FREE' || examItem.access_type === 'FREE') {
         return true;
       }
-      // 3. ലോഗിൻ ചെയ്തിട്ടില്ലെങ്കിൽ ലോക്ക്
       if (!candidate) return false;
 
-      // 4. വാലിഡിറ്റി പരിശോധന
       const todayStr = new Date().toISOString().split('T')[0];
       if (!candidate.valid_until || candidate.valid_until < todayStr) {
         return false;
       }
 
-      // 5. കോഴ്സ് അനുമതി പരിശോധന
       const userCourse = String(candidate.purchased_course || 'all').toLowerCase();
       const examFolder = String(examItem.mainFolderLabel || examItem.mainFolders?.join(',') || '').toUpperCase();
       const examCat = String(examItem.category || '').toUpperCase();
@@ -752,6 +805,32 @@
       return false;
     }
 
+    function openSubscriptionModalWithPlan(courseKey, courseName) {
+      selectedCoursePlanId = courseKey;
+      openSubscriptionModal(courseName);
+    }
+
+    // 🌟 കോഴ്സ് തിരഞ്ഞെടുക്കുമ്പോൾ തുക തനിയെ വെച്ച് Dynamic UPI QR ഉണ്ടാക്കുന്ന ഫംഗ്ഷൻ
+    function updateModalUpiQrAndPayLink(planObj) {
+      if (!planObj) return;
+      const cfg = portalConfigCache || {};
+      const upiId = cfg.upi_id || "yourname@okhdfcbank";
+      const amount = Number(planObj.price) || 0;
+      const courseTitle = planObj.name || "SK PSC Course";
+
+      const upiDeepLink = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent("SK PSC")}&am=${amount}&cu=INR&tn=${encodeURIComponent(courseTitle)}`;
+      const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=5&data=${encodeURIComponent(upiDeepLink)}`;
+      
+      const qrImg = document.getElementById('modalQrCodeImg');
+      if (qrImg) qrImg.src = qrApiUrl;
+
+      const amtDisplay = document.getElementById('modalQrAmountDisplay');
+      if (amtDisplay) amtDisplay.innerText = `₹${amount}`;
+
+      const directPayBtn = document.getElementById('btnDirectUpiPay');
+      if (directPayBtn) directPayBtn.href = upiDeepLink;
+    }
+
     // 🌟 ഡൈനാമിക് കോഴ്സ് മോഡൽ തുറക്കുന്നു
     function openSubscriptionModal(examTitle = "") {
       const modal = document.getElementById('subscriptionModal');
@@ -763,26 +842,16 @@
       const upi = cfg.upi_id || "yourname@okhdfcbank";
       document.getElementById('modalUpiIdText').textContent = upi;
 
-      const qrImg = document.getElementById('modalQrCodeImg');
-      if (cfg.qr_image_url && String(cfg.qr_image_url).trim() !== "") {
-        qrImg.src = cfg.qr_image_url;
-        qrImg.classList.remove('hidden');
-      } else {
-        qrImg.classList.add('hidden');
-      }
-
-      // ഡൈനാമിക് കോഴ്സുകൾ ലിസ്റ്റ് ചെയ്യുന്നു
       const container = document.getElementById('modalCoursesListGrid');
       container.innerHTML = '';
 
       const courses = cfg.course_plans || {
-        "scert": { name: "SCERT Special", price: 99, days: 60, id: "scert" },
-        "lgs": { name: "LGS Complete", price: 149, days: 90, id: "lgs" },
-        "ldc": { name: "LDC Complete", price: 199, days: 120, id: "ldc" },
-        "degree": { name: "DEGREE Level", price: 249, days: 150, id: "degree" },
-        "ldc_lgs": { name: "LDC + LGS Combo", price: 299, days: 180, id: "ldc_lgs" },
-        "ldc_degree": { name: "LDC + DEGREE Combo", price: 349, days: 180, id: "ldc_degree" },
-        "all": { name: "ALL EXAMS PASS", price: 499, days: 365, id: "all" }
+        "scert": { name: "SCERT Special", price: 99, original_price: 199, days: 60, id: "scert" },
+        "lgs": { name: "LGS Complete", price: 149, original_price: 299, days: 90, id: "lgs" },
+        "ldc": { name: "LDC Complete", price: 199, original_price: 399, days: 120, id: "ldc" },
+        "degree": { name: "DEGREE Level", price: 249, original_price: 499, days: 150, id: "degree" },
+        "ldc_lgs": { name: "LDC + LGS Combo", price: 299, original_price: 599, days: 180, id: "ldc_lgs" },
+        "all": { name: "ALL EXAMS PASS", price: 499, original_price: 999, days: 365, id: "all" }
       };
 
       const keys = Object.keys(courses);
@@ -793,22 +862,52 @@
       keys.forEach(k => {
         const c = courses[k];
         const isSelected = selectedCoursePlanId === k;
+        const isPrebook = c.is_prebook === true;
+
         const card = document.createElement('div');
         card.id = `modalCourseCard_${k}`;
         card.onclick = () => selectModalCoursePlan(k);
-        card.className = `p-3 rounded-2xl border cursor-pointer transition ${isSelected ? 'border-2 border-emerald-500 bg-emerald-950/40' : 'border-slate-800 bg-slate-950 hover:border-slate-700'}`;
+        
+        let borderClasses = isSelected
+          ? 'border-2 border-emerald-500 bg-emerald-950/50 shadow-md ring-1 ring-emerald-400'
+          : (isPrebook ? 'border-amber-500/50 bg-slate-950 hover:border-amber-400' : 'border-slate-800 bg-slate-950 hover:border-slate-700');
+
+        card.className = `p-3 rounded-2xl border cursor-pointer transition ${borderClasses}`;
+
+        const badgeMarkup = isPrebook
+          ? `<span class="bg-gradient-to-r from-amber-500 to-rose-500 text-slate-950 text-[8px] font-black px-1.5 py-0.2 rounded-full uppercase">⚡ PRE-BOOK</span>`
+          : `<span class="text-[10px] font-mono text-cyan-400 bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800">${c.days} Days</span>`;
+
+        let priceHtml = `<span class="text-base sm:text-lg font-black text-emerald-400 font-mono">₹${c.price}</span>`;
+        if (c.original_price && Number(c.original_price) > Number(c.price)) {
+          const discountPct = Math.round(((Number(c.original_price) - Number(c.price)) / Number(c.original_price)) * 100);
+          priceHtml = `
+            <div class="flex items-center space-x-1.5">
+              <span class="text-base sm:text-lg font-black text-emerald-400 font-mono">₹${c.price}</span>
+              <span class="text-[11px] text-rose-400 line-through font-mono">₹${c.original_price}</span>
+              <span class="text-[8px] bg-rose-600/30 text-rose-300 px-1 py-0.2 rounded border border-rose-500/30 font-bold">${discountPct}% OFF</span>
+            </div>
+          `;
+        }
+
         card.innerHTML = `
           <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-amber-400 uppercase tracking-wide truncate">${c.name}</span>
-            <span class="text-[10px] font-mono text-cyan-400 bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800">${c.days} Days</span>
+            <span class="text-xs font-black text-amber-300 uppercase tracking-wide truncate max-w-[160px]">${c.name}</span>
+            ${badgeMarkup}
           </div>
+          ${isPrebook && c.launch_date ? `<span class="text-[9px] text-slate-400 font-mono block mt-0.5">📅 ആരംഭം: ${c.launch_date}</span>` : ''}
           <div class="flex items-center justify-between mt-1 pt-1 border-t border-slate-900">
-            <span class="text-xs text-slate-400">ഫീസ്:</span>
-            <span class="text-lg font-black text-emerald-400 font-mono">₹${c.price}</span>
+            <span class="text-[11px] text-slate-400">ഫീസ്:</span>
+            ${priceHtml}
           </div>
         `;
         container.appendChild(card);
       });
+
+      // സെലക്ട് ചെയ്ത ആദ്യ കോഴ്സിന്റെ തുക ഉൾപ്പെടുത്തി QR ജനറേറ്റ് ചെയ്യുന്നു
+      if (courses[selectedCoursePlanId]) {
+        updateModalUpiQrAndPayLink(courses[selectedCoursePlanId]);
+      }
 
       modal.classList.remove('hidden');
     }
@@ -817,16 +916,22 @@
       selectedCoursePlanId = courseId;
       const cfg = portalConfigCache || {};
       const courses = cfg.course_plans || {};
+      
       Object.keys(courses).forEach(k => {
         const card = document.getElementById(`modalCourseCard_${k}`);
         if (card) {
           if (k === courseId) {
-            card.className = "p-3 rounded-2xl border-2 border-emerald-500 bg-emerald-950/40 cursor-pointer transition";
+            card.className = "p-3 rounded-2xl border-2 border-emerald-500 bg-emerald-950/50 shadow-md ring-1 ring-emerald-400 cursor-pointer transition";
           } else {
-            card.className = "p-3 rounded-2xl border border-slate-800 bg-slate-950 hover:border-slate-700 cursor-pointer transition";
+            const isPre = courses[k]?.is_prebook === true;
+            card.className = `p-3 rounded-2xl border ${isPre ? 'border-amber-500/50' : 'border-slate-800'} bg-slate-950 hover:border-slate-700 cursor-pointer transition`;
           }
         }
       });
+
+      if (courses[courseId]) {
+        updateModalUpiQrAndPayLink(courses[courseId]);
+      }
     }
 
     function openSubscriptionModalByIndex(idx) {
@@ -862,13 +967,8 @@
         const studName = candidate ? (candidate.Official_Name || candidate.name || 'Student') : 'Student';
         const studPhone = candidate ? (candidate.phone || candidate.Phone || '') : '';
 
-        const msg = `ഹലോ സർ, ഞാൻ SK PSC മോഡൽ എക്സാം പോർട്ടലിലേക്ക് ഫീസ് അടച്ചിട്ടുണ്ട്.
-
-👤 പേര്: ${studName}
-📞 ഫോൺ: ${studPhone}
-📦 തിരഞ്ഞെടുത്ത കോഴ്സ്: ${selPlan.name} (₹${selPlan.price} - ${selPlan.days} Days)
-
-(ദയവായി പേയ്‌മെന്റ് സ്ക്രീൻഷോട്ട് ഇതിനൊപ്പം അയക്കുക. നന്ദി!)`;
+        const isPre = selPlan.is_prebook === true;
+        const msg = `ഹലോ സർ, ഞാൻ SK PSC മോഡൽ എക്സാം പോർട്ടലിലേക്ക് ${isPre ? 'പ്രീ-ബുക്കിംഗ് ' : ''}ഫീസ് അടച്ചിട്ടുണ്ട്.\n\n👤 പേര്: ${studName}\n📞 ഫോൺ: ${studPhone}\n📦 ${isPre ? '⚡ മുൻകൂട്ടി ബുക്ക് ചെയ്ത കോഴ്സ്' : 'തിരഞ്ഞെടുത്ത കോഴ്സ്'}: ${selPlan.name} (₹${selPlan.price} - ${selPlan.days} Days)${isPre && selPlan.launch_date ? `\n📅 ബാച്ച് ആരംഭം: ${selPlan.launch_date}` : ''}\n\n(ദയവായി പേയ്‌മെന്റ് സ്ക്രീൻഷോട്ട് ഇതിനൊപ്പം അയക്കുക. നന്ദി!)`;
         const url = `https://api.whatsapp.com/send?phone=${cleanWa}&text=${encodeURIComponent(msg)}`;
         window.location.href = url;
       } catch (err) {
@@ -876,7 +976,6 @@
       }
     }
 
-    // 🌟 Service worker direct registration removed to prevent OneSignal conflicts
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
@@ -894,7 +993,6 @@
       }
     });
 
-    // 🌟 OneSignal വഴിയുള്ള നോട്ടിഫിക്കേഷൻ പെർമിഷൻ
     async function requestNotificationPermission() {
       if (window.OneSignalDeferred) {
         window.OneSignalDeferred.push(async function(OneSignal) {
@@ -934,7 +1032,6 @@
       } catch(e) {}
     }
 
-    // ================= 🔐 മൊബൈൽ നമ്പർ + PIN + ഡിവൈസ് ലോക്കിംഗ് =================
     let pendingAuthPhone = null;
     let pendingUserDbData = null;
 
@@ -1003,11 +1100,7 @@
         });
       } else if (linkedDevId !== currentDevId) {
         const typeName = currentDevType === 'mobile' ? 'മൊബൈൽ ഫോണിൽ' : 'കമ്പ്യൂട്ടറിൽ';
-        alert(`🔒 സുരക്ഷാ മുന്നറിയിപ്പ്:
-
-ഈ അക്കൗണ്ട് മറ്റൊരു ${typeName} ഇതിനകം രജിസ്റ്റർ ചെയ്തിട്ടുണ്ട്!
-
-ഒരു അക്കൗണ്ട് പരമാവധി ഒരു ഫോണിലും ഒരു കമ്പ്യൂട്ടറിലും മാത്രമേ ഉപയോഗിക്കാൻ സാധിക്കൂ. പുതിയ ഡിവൈസ് മാറ്റുന്നതിനായി അഡ്മിനെ വാട്ട്സാപ്പിൽ ബന്ധപ്പെടുക.`);
+        alert(`🔒 സുരക്ഷാ മുന്നറിയിപ്പ്:\n\nഈ അക്കൗണ്ട് മറ്റൊരു ${typeName} ഇതിനകം രജിസ്റ്റർ ചെയ്തിട്ടുണ്ട്!\n\nഒരു അക്കൗണ്ട് പരമാവധി ഒരു ഫോണിലും ഒരു കമ്പ്യൂട്ടറിലും മാത്രമേ ഉപയോഗിക്കാൻ സാധിക്കൂ. പുതിയ ഡിവൈസ് മാറ്റുന്നതിനായി അഡ്മിനെ വാട്ട്സാപ്പിൽ ബന്ധപ്പെടുക.`);
         btn.innerText = "Login ›";
         btn.disabled = false;
         return;
@@ -1041,7 +1134,6 @@
       const currentDevId = getOrCreateDeviceId();
       const currentDevType = getDeviceType();
 
-      // 🌟 പഴയ കൗണ്ട് മാഞ്ഞുപോകാതിരിക്കാൻ PATCH മെത്തേഡ് ഉപയോഗിക്കുന്നു
       const userPatchData = {
         Official_Name: name,
         Phone: pendingAuthPhone,
@@ -1197,8 +1289,9 @@
             let relDate = (ctrl && ctrl.releaseDate) ? ctrl.releaseDate : (item.Release_Date || '');
             let accessType = (ctrl && ctrl.access_type) ? ctrl.access_type : (item.access_type || 'FREE');
 
-            let rawMainFolder = (ctrl && ctrl.mainFolder) ? ctrl.mainFolder : (item.MAIN_FOLDER || item.mainFolder || 'LDC');
-            let mainFoldersArr = parseMainFolders(rawMainFolder);
+            // അഡ്മിൻ പാനൽ വഴി മാറ്റിയ ഫോൾഡറും ഒറിജിനൽ ഫോൾഡറും കൃത്യമായി എടുക്കുന്നു
+let rawMainFolder = (item.MAIN_FOLDER || item.mainFolder || item.EXAM_FOLDER || (ctrl && ctrl.mainFolder) || 'LDC');
+let mainFoldersArr = parseMainFolders(rawMainFolder);
 
             parsedList.push({
               originalIndex: idx,
@@ -2222,7 +2315,78 @@
     });
 
     document.getElementById('sortSelect').addEventListener('change', applyFiltersAndRender);
+ // 🌟 ലീഗൽ പോളിസികൾ കാണിക്കുന്ന ഫംഗ്ഷൻ
+const LEGAL_POLICIES = {
+  terms: {
+    title: "Terms and Conditions",
+    content: `
+      <h4 class="font-bold text-white text-sm mb-1">1. സേവന നിബന്ധനകൾ</h4>
+      <p>SK PSC പോർട്ടലിൽ ലഭ്യമാകുന്ന മോഡൽ പരീക്ഷകളും പഠന സാമഗ്രികളും വ്യക്തിഗത പഠനാവശ്യങ്ങൾക്ക് മാത്രമുള്ളതാണ്.</p>
+      <h4 class="font-bold text-white text-sm mt-3 mb-1">2.കോഴ്‌സ് വാലിഡിറ്റി നിബന്ധനകൾ (Course Validity)</h4>
+<ul class="list-disc pl-5 space-y-1">
+  <li>ഓരോ കോഴ്‌സിന്റെയും വാലിഡിറ്റി (കാലാവധി), വിദ്യാർത്ഥി ആ കോഴ്‌സ് പർച്ചേസ് ചെയ്യുന്ന (വാങ്ങുന്ന) സമയത്ത് പോർട്ടലിൽ രേഖപ്പെടുത്തിയിട്ടുള്ള നിശ്ചിത ദിവസങ്ങളിലേക്ക് (Validity Period) മാത്രമായിരിക്കും.</li>
+  <li>നിശ്ചിത വാലിഡിറ്റി കാലാവധി പൂർത്തിയാകുന്നതോടെ ആ കോഴ്‌സിലെ പരീക്ഷകളിലേക്കുള്ള ആക്‌സസ് തനിയെ അവസാനിക്കുന്നതാണ്.</li>
+  <li>പരീക്ഷാ തീയതികൾ പിന്നീട് മാറുകയോ നീട്ടിവെക്കുകയോ ചെയ്താലും, പർച്ചേസ് ചെയ്യുമ്പോൾ നിശ്ചയിച്ചിട്ടുള്ള വാലിഡിറ്റി ദിവസങ്ങളിൽ യാതൊരുവിധ മാറ്റവും ഉണ്ടായിരിക്കുന്നതല്ല. തുടർന്ന് ആക്‌സസ് ലഭിക്കുന്നതിന് കോഴ്‌സ് വീണ്ടും പുതുക്കേണ്ടതാണ് (Renewal).</li>
+</ul>
+      
+      <h4 class="font-bold text-white text-sm mt-3 mb-1">3. അക്കൗണ്ട് സുരക്ഷ & ഡിവൈസ് പരിധി</h4>
+      
+      <p>ഒരു രജിസ്റ്റർ ചെയ്ത യൂസർ അക്കൗണ്ട് പരമാവധി ഒരു മൊബൈൽ ഫോണിലും ഒരു കമ്പ്യൂട്ടറിലും മാത്രമേ ഉപയോഗിക്കാൻ അനുവദിക്കൂ. അക്കൗണ്ട് വിവരങ്ങൾ മറ്റുള്ളവരുമായി പങ്കുവെക്കുകയോ ദുരുപയോഗം ചെയ്യുകയോ ചെയ്താൽ മുന്നറിയിപ്പില്ലാതെ അക്കൗണ്ട് റദ്ദാക്കാൻ അഡ്മിന് അധികാരമുണ്ടായിരിക്കും.</p>
+
+      <h4 class="font-bold text-white text-sm mt-3 mb-1">4. പരീക്ഷാ ഉള്ളടക്കങ്ങൾ</h4>
+      <p>ചോദ്യങ്ങളും ഉത്തരങ്ങളും തികച്ചും വിജ്ഞാനപ്രദമായ ആവശ്യങ്ങൾക്ക് വേണ്ടി തയ്യാറാക്കിയതാണ്. ചോദ്യങ്ങളിലോ ഉത്തരങ്ങളിലോ എന്തെങ്കിലും അപാകത ശ്രദ്ധയിൽപ്പെട്ടാൽ തിരുത്തലുകൾ വരുത്താൻ റിപ്പോർട്ട് ഓപ്ഷൻ ഉപയോഗിക്കാം.</p>
+    `
+  },
+  privacy: {
+    title: "Privacy Policy",
+    content: `
+      <h4 class="font-bold text-white text-sm mb-1">1. വിവര ശേഖരണം</h4>
+      <p>ലോഗിൻ ചെയ്യുന്നതിനും റാങ്ക് ലിസ്റ്റുകൾ പ്രസിദ്ധീകരിക്കുന്നതിനുമായി വിദ്യാർത്ഥിയുടെ പേര്, മൊബൈൽ നമ്പർ എന്നിവ മാത്രമേ ശേഖരിക്കുന്നുള്ളൂ.</p>
+
+      <h4 class="font-bold text-white text-sm mt-3 mb-1">2. വിവരങ്ങളുടെ സുരക്ഷ</h4>
+      <p>വിദ്യാർത്ഥികളുടെ ഫോൺ നമ്പറുകൾ റാങ്ക് ലിസ്റ്റുകളിൽ പൊതുവായി കാണിക്കുമ്പോൾ 3 അക്കങ്ങൾ മാത്രമാണ് കാണിക്കുക (Protected/Masked format). നിങ്ങളുടെ വിവരങ്ങൾ മൂന്നാം കക്ഷികൾക്ക് പങ്കുവെക്കുകയോ വാണിജ്യ ആവശ്യങ്ങൾക്ക് ഉപയോഗിക്കുകയോ ചെയ്യുന്നതല്ല.</p>
+    `
+  },
+  refund: {
+    title: "Refund and Cancellation Policy",
+    content: `
+      <h4 class="font-bold text-white text-sm mb-1">1. റീഫണ്ട് നയം (Refund Policy)</h4>
+      <p>SK PSC പോർട്ടലിലെ കോഴ്സുകളും മോഡൽ പരീക്ഷകളും ഡിജിറ്റൽ സേവനങ്ങളായതിനാൽ (Digital Content), ഫീസ് അടച്ച ശേഷം <strong>റീഫണ്ട് അല്ലെങ്കിൽ ക്യാൻസലേഷൻ അനുവദിക്കുന്നതല്ല</strong>.</p>
+
+      <h4 class="font-bold text-white text-sm mt-3 mb-1">2. സാങ്കേതിക തകരാറുകൾ</h4>
+      <p>പേയ്‌മെന്റ് ചെയ്തതിന് ശേഷം അക്കൗണ്ട് അൺലോക്ക് ആയിട്ടില്ലെങ്കിലോ തുക രണ്ടുതവണ നഷ്ടപ്പെടുകയോ ചെയ്താൽ, പേയ്‌മെന്റ് സ്ക്രീൻഷോട്ട് സഹിതം 48 മണിക്കൂറിനകം വാട്ട്സാപ്പിൽ ബന്ധപ്പെട്ടാൽ പരിശോധിച്ച ശേഷം ഉടൻ പരിഹരിക്കുന്നതാണ്.</p>
+    `
+  },
+  contact: {
+    title: "Contact Us & Support",
+    content: `
+      <h4 class="font-bold text-white text-sm mb-1">SK PSC Guidance Desk</h4>
+      <p><strong>മെന്റർ & അഡ്മിൻ:</strong> DIVYA PK</p>
+      <p><strong>സ്ഥലം:</strong> Kerala, India</p>
+      <p><strong>സപ്പോർട്ട് വാട്ട്സാപ്പ്:</strong> +91 8075437820</p>
+      <p><strong>ഇമെയിൽ:</strong> skpscporal@gmail.com</p>
+      <p class="mt-2 text-slate-400">പഠന സംശയങ്ങൾക്കും പേയ്‌മെന്റ് വെരിഫിക്കേഷനും പോർട്ടലിലെ ഡൗട്ട് ചാറ്റ് വഴിയോ വാട്ട്സാപ്പ് വഴിയോ ബന്ധപ്പെടാവുന്നതാണ്.</p>
+    `
+  }
+};
+
+function openPolicyModal(type) {
+  const policy = LEGAL_POLICIES[type];
+  if (!policy) return;
+
+  document.getElementById('policyHeadingText').innerText = policy.title;
+  document.getElementById('policyModalBody').innerHTML = policy.content;
+  document.getElementById('legalPolicyModal').classList.remove('hidden');
+}
+
+function closePolicyModal() {
+  document.getElementById('legalPolicyModal').classList.add('hidden');
+}
   </script>
 </body>
 </html>
+  <body>
 
+    <script src="./script.js"></script>
+  </body>
+</html>
