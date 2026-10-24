@@ -33,7 +33,7 @@
       </div>
     </div>
     <div class="flex items-center space-x-3">
-      <button id="fullscreenToggleBtn" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-semibold rounded-lg border border-slate-600 transition flex items-center space-x-1">
+      <button id="fullscreenToggleBtn" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-semibold rounded-lg border border-slate-600 transition flex items-center space-x-1 cursor-pointer">
         <span>⛶ Fullscreen</span>
       </button>
       <div class="text-right">
@@ -71,7 +71,7 @@
           <span>പരീക്ഷ ആരംഭിക്കുക</span>
           <span>🚀</span>
         </button>
-        <button type="button" onclick="fetchLiveLeaderboard()" class="w-full py-2.5 bg-slate-700 hover:bg-slate-600 text-cyan-300 font-bold rounded-xl text-xs transition">
+        <button type="button" onclick="fetchLiveLeaderboard()" class="w-full py-2.5 bg-slate-700 hover:bg-slate-600 text-cyan-300 font-bold rounded-xl text-xs transition cursor-pointer">
           📊 ലൈവ് റാങ്ക് ലിസ്റ്റ് കാണുക
         </button>
       </div>
@@ -87,9 +87,9 @@
 
         <div class="flex items-center space-x-1 bg-slate-900 px-2 py-1 rounded-xl border border-slate-700 text-xs">
           <span class="text-slate-400 text-[10px] mr-1">Font:</span>
-          <button id="fontDecrease" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded text-xs">A-</button>
-          <button id="fontReset" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-xs">Norm</button>
-          <button id="fontIncrease" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded text-xs">A+</button>
+          <button id="fontDecrease" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded text-xs cursor-pointer">A-</button>
+          <button id="fontReset" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-xs cursor-pointer">Norm</button>
+          <button id="fontIncrease" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded text-xs cursor-pointer">A+</button>
         </div>
 
         <div class="flex items-center space-x-2 bg-slate-900/90 border border-slate-700 px-3.5 py-1 rounded-xl shadow-inner">
@@ -98,14 +98,14 @@
           <span id="examTimer" class="font-mono text-sm font-black text-cyan-400">30:00</span>
         </div>
 
-        <button id="finishMidBtn" class="px-3 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 text-xs font-semibold rounded-lg transition">
+        <button id="finishMidBtn" class="px-3 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 text-xs font-semibold rounded-lg transition cursor-pointer">
           ഫിനിഷ് ചെയ്യുക
         </button>
       </div>
 
       <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 sm:p-8 shadow-2xl relative">
         <div class="flex justify-end mb-2">
-          <button id="reportQuestionBtn" class="px-2.5 py-1 bg-rose-950/70 hover:bg-rose-900 border border-rose-600/60 rounded-lg text-[11px] font-bold text-rose-300 flex items-center space-x-1 transition shadow-sm">
+          <button id="reportQuestionBtn" class="px-2.5 py-1 bg-rose-950/70 hover:bg-rose-900 border border-rose-600/60 rounded-lg text-[11px] font-bold text-rose-300 flex items-center space-x-1 transition shadow-sm cursor-pointer">
             <svg class="w-3.5 h-3.5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
             <span>Report Question</span>
           </button>
@@ -118,10 +118,10 @@
         <div id="optionsContainer" class="space-y-2.5 mb-6"></div>
 
         <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-700">
-          <button id="prevBtn" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs sm:text-sm font-semibold rounded-xl transition disabled:opacity-40">‹ Previous</button>
+          <button id="prevBtn" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs sm:text-sm font-semibold rounded-xl transition disabled:opacity-40 cursor-pointer">‹ Previous</button>
           <div class="flex items-center space-x-2">
-            <button id="skipBtn" class="px-3.5 py-2 bg-slate-700/50 hover:bg-slate-700 text-slate-300 text-xs sm:text-sm rounded-xl border border-slate-600 transition">Skip</button>
-            <button id="nextBtn" class="px-5 py-2 bg-cyan-500 hover:bg-cyan-600 text-slate-950 font-bold text-xs sm:text-sm rounded-xl transition transform active:scale-95 shadow-md">Next ›</button>
+            <button id="skipBtn" class="px-3.5 py-2 bg-slate-700/50 hover:bg-slate-700 text-slate-300 text-xs sm:text-sm rounded-xl border border-slate-600 transition cursor-pointer">Skip</button>
+            <button id="nextBtn" class="px-5 py-2 bg-cyan-500 hover:bg-cyan-600 text-slate-950 font-bold text-xs sm:text-sm rounded-xl transition transform active:scale-95 shadow-md cursor-pointer">Next ›</button>
           </div>
         </div>
       </div>
@@ -191,12 +191,12 @@
             <span>ഔദ്യോഗിക നോട്ടുകൾ PDF ഡൗൺലോഡ് ചെയ്യുക 📥</span>
           </button>
 
-          <button type="button" id="downloadPdfBtn" class="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-sm transition shadow-lg flex items-center space-x-2">
+          <button type="button" id="downloadPdfBtn" class="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-sm transition shadow-lg flex items-center space-x-2 cursor-pointer">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
             <span>സ്കോർകാർഡ് PDF</span>
           </button>
 
-          <button type="button" onclick="fetchLiveLeaderboard()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-sm transition shadow-lg">
+          <button type="button" onclick="fetchLiveLeaderboard()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-sm transition shadow-lg cursor-pointer">
             📊 ലൈവ് റാങ്ക് ലിസ്റ്റ് കാണുക
           </button>
 
@@ -210,7 +210,7 @@
       <div id="filterReviewArea" class="hidden bg-slate-800 border-2 border-cyan-500/50 rounded-2xl p-6 sm:p-8 shadow-2xl space-y-4">
         <div class="flex items-center justify-between border-b border-slate-700 pb-3">
           <h3 id="filterReviewTitle" class="text-lg font-bold text-white"></h3>
-          <button type="button" id="closeFilterReviewBtn" class="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded-lg text-white font-semibold">ക്ലോസ് ചെയ്യുക ✕</button>
+          <button type="button" id="closeFilterReviewBtn" class="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded-lg text-white font-semibold cursor-pointer">ക്ലോസ് ചെയ്യുക ✕</button>
         </div>
         <div id="filterReviewList" class="space-y-4 max-h-[60vh] overflow-y-auto custom-scroll pr-1"></div>
       </div>
@@ -232,7 +232,7 @@
             <h3 class="text-xl font-bold text-cyan-400">ലൈവ് റാങ്ക് ലിസ്റ്റ്</h3>
             <p class="text-xs text-slate-400">ആദ്യ ശ്രമത്തിലെ സ്കോർ അടിസ്ഥാനമാക്കി ക്രമീകരിച്ചത്</p>
           </div>
-          <button type="button" onclick="closeLeaderboard()" class="text-slate-400 hover:text-white text-2xl font-bold">&times;</button>
+          <button type="button" onclick="closeLeaderboard()" class="text-slate-400 hover:text-white text-2xl font-bold cursor-pointer">&times;</button>
         </div>
         <div id="leaderboardLoading" class="py-10 text-center text-sm text-slate-400">റാങ്ക് ലിസ്റ്റ് ശേഖരിക്കുന്നു...</div>
         <div class="flex-1 overflow-y-auto custom-scroll pr-1 hidden" id="leaderboardTableWrapper">
@@ -249,7 +249,7 @@
           </table>
         </div>
         <div class="pt-4 border-t border-slate-700 mt-4 text-center">
-          <button type="button" onclick="closeLeaderboard()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-xs font-semibold text-white">ക്ലോസ് ചെയ്യുക</button>
+          <button type="button" onclick="closeLeaderboard()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-xs font-semibold text-white cursor-pointer">ക്ലോസ് ചെയ്യുക</button>
         </div>
       </div>
     </div>
@@ -261,8 +261,8 @@
         <h3 class="text-lg font-bold text-white">നിങ്ങൾക്ക് ഈ ക്വിസ് ഇഷ്ടമായോ?</h3>
         <p class="text-xs text-slate-400">പ്രതികരണം നൽകിയ ശേഷം ഔദ്യോഗിക നോട്ട്സ് PDF ഡൗൺലോഡ് ചെയ്യാം.</p>
         <div class="flex items-center justify-center space-x-4 pt-2">
-          <button type="button" onclick="recordFeedbackAndOpenDownload('Like')" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-sm transition">👍 Like</button>
-          <button type="button" onclick="recordFeedbackAndOpenDownload('Dislike')" class="px-5 py-2.5 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-xl text-sm transition">👎 Dislike</button>
+          <button type="button" onclick="recordFeedbackAndOpenDownload('Like')" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-sm transition cursor-pointer">👍 Like</button>
+          <button type="button" onclick="recordFeedbackAndOpenDownload('Dislike')" class="px-5 py-2.5 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-xl text-sm transition cursor-pointer">👎 Dislike</button>
         </div>
       </div>
     </div>
@@ -305,8 +305,8 @@
       return clean.length >= 10 ? clean.slice(-10) : clean;
     }
 
+    // ✅ ശരിയാക്കിയ ഒറ്റ DOMContentLoaded ഇവന്റ്
     window.addEventListener('DOMContentLoaded', async () => {
-  window.addEventListener('DOMContentLoaded', async () => {
       const urlParams = new URLSearchParams(window.location.search);
       const passedName = urlParams.get('name');
       const passedPhone = urlParams.get('phone');
@@ -368,86 +368,6 @@
           extractedQuestions = Object.values(data);
         }
 
-        if (extractedQuestions) {
-          extractedQuestions = extractedQuestions.filter(item => item !== null && typeof item === 'object');
-        }
-
-        if (extractedQuestions && extractedQuestions.length > 0) {
-          questionsData = extractedQuestions.map(item => ({
-            q: item.q || item.question || item.title || '',
-            options: item.options || item.choices || [],
-            ans: item.ans !== undefined ? Number(item.ans) : (item.answer !== undefined ? Number(item.answer) : 0),
-            exp: item.exp || item.explanation || item.note || 'വിശദീകരണം ലഭ്യമല്ല.'
-          }));
-
-          if (data && data.examTitle && !passedTitle) examTitle = data.examTitle;
-          document.getElementById('headerExamTitle').innerText = examTitle;
-          document.getElementById('headerSubInfo').innerText = `${questionsData.length} ചോദ്യങ്ങൾ (${Math.round(questionsData.length)} മിനിറ്റ്)`;
-          document.getElementById('footerExamTitle').innerText = `${examTitle} | PSC Model Exam`;
-          document.getElementById('totalMarksLabel').innerText = `${questionsData.length} ൽ`;
-          timeLeft = questionsData.length * 60;
-
-          userAnswers = new Array(questionsData.length).fill(null);
-          document.getElementById('loadingScreen').classList.add('hidden');
-
-          const currentFullUrl = window.location.href.toLowerCase();
-          const isReviewMode = currentFullUrl.includes("review=true") || 
-                               currentFullUrl.includes("viewresult=true") || 
-                               currentFullUrl.includes("view=solution") ||
-                               urlParams.get('review') === 'true';
-
-          if (isReviewMode) {
-            document.getElementById('motivationScreen').style.setProperty('display', 'none', 'important');
-            document.getElementById('quizScreen').style.setProperty('display', 'none', 'important');
-            document.getElementById('resultScreen').classList.remove('hidden');
-            document.getElementById('resultScreen').style.setProperty('display', 'block', 'important');
-            loadPreviousAttemptFromFirebase();
-          } else {
-            document.getElementById('motivationScreen').classList.remove('hidden');
-          }
-        } else {
-          document.getElementById('loadingScreen').innerHTML = `<p class="text-rose-400 font-bold">ഈ പരീക്ഷയുടെ ചോദ്യങ്ങൾ ഫയർബേസിൽ ലഭ്യമായിട്ടില്ല.</p>`;
-        }
-      } catch (err) {
-        console.error("Firebase fetch error:", err);
-        document.getElementById('loadingScreen').innerHTML = `<p class="text-rose-400 font-bold">ഡാറ്റ ലോഡ് ചെയ്യുന്നതിൽ തടസ്സം നേരിട്ടു.</p>`;
-      }
-    });
-      if (passedPdf) ORIGINAL_PDF_URL = decodeURIComponent(passedPdf).trim();
-
-      if (!currentUser.phone || currentUser.phone.length < 10) {
-        try {
-          const stored = localStorage.getItem('sk_candidate_user');
-          if (stored) {
-            const u = JSON.parse(stored);
-            if (u.phone) currentUser.phone = sanitizePhone(u.phone);
-            if (u.name && currentUser.name === "പഠിതാവ്") currentUser.name = u.name;
-          }
-        } catch (e) {}
-      }
-
-      document.getElementById('headerExamTitle').innerText = examTitle;
-      document.getElementById('displayUser').innerText = (currentUser.phone && currentUser.phone.length === 10)
-        ? `${currentUser.name} (+91 ${currentUser.phone})`
-        : currentUser.name;
-      document.getElementById('motivateName').innerText = `ഹലോ, ${currentUser.name}! ✨`;
-      document.getElementById('motivateSubTitle').innerText = `${examTitle} പരീക്ഷയിലേക്ക് സ്വാഗതം!`;
-
-      try {
-        const res = await fetch(`${FIREBASE_DB_URL}/quiz_contents/${quizKey}.json`);
-        const data = await res.json();
-
-        // 🌟 ഡാറ്റ നേരിട്ട് അറേ (Array) ആയോ, ഒബ്ജക്റ്റ് ആയോ, data.questions ആയോ വന്നാലും ഫിൽട്ടർ ചെയ്തു എടുക്കുന്നു
-        let extractedQuestions = null;
-        if (Array.isArray(data)) {
-          extractedQuestions = data;
-        } else if (data && data.questions) {
-          extractedQuestions = Array.isArray(data.questions) ? data.questions : Object.values(data.questions);
-        } else if (data && typeof data === 'object') {
-          extractedQuestions = Object.values(data);
-        }
-
-        // ശൂന്യമായ ഐറ്റങ്ങൾ ഒഴിവാക്കുന്നു
         if (extractedQuestions) {
           extractedQuestions = extractedQuestions.filter(item => item !== null && typeof item === 'object');
         }
@@ -999,7 +919,7 @@
             <span class="font-bold text-cyan-400 text-sm">ചോദ്യം ${idx + 1}</span>
             <div class="flex items-center space-x-2">
               <div>${badge}</div>
-              <button onclick="handleReportQuestion(${idx + 1})" class="px-2 py-0.5 bg-rose-950 border border-rose-700 text-[10px] font-bold text-rose-300 rounded hover:bg-rose-900 transition">Report 🚩</button>
+              <button onclick="handleReportQuestion(${idx + 1})" class="px-2 py-0.5 bg-rose-950 border border-rose-700 text-[10px] font-bold text-rose-300 rounded hover:bg-rose-900 transition cursor-pointer">Report 🚩</button>
             </div>
           </div>
           <p class="text-sm font-medium text-slate-200 whitespace-pre-line">${q.q}</p>
