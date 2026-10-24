@@ -673,7 +673,7 @@
     const FIREBASE_DB_URL = "https://sk-psc-portal-default-rtdb.asia-southeast1.firebasedatabase.app";
     const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
 
-    const MAIN_EXAM_FOLDERS = [
+    let MAIN_EXAM_FOLDERS = [
       { id: 'SCERT', title: 'SCERT Special', subtitle: 'പാഠപുസ്തക ചോദ്യങ്ങൾ', icon: '📖' },
       { id: 'LDC', title: 'LDC (എൽ.ഡി.സി)', subtitle: 'Lower Division Clerk Exams', icon: '🏛️' },
       { id: 'LGS', title: 'LGS (എൽ.ജി.എസ്)', subtitle: 'Last Grade Servants Exams', icon: '🛡️' },
@@ -723,21 +723,26 @@
       return String(str || '').replace(/[\s\-_,.:;()\/\|\[\]+&]+/g, '').toLowerCase();
     }
 
-  function parseMainFolders(rawFolderValue) {
-  if (!rawFolderValue || String(rawFolderValue).trim() === '') return ['ALL_EXAMS', 'LDC'];
-  const upper = String(rawFolderValue).toUpperCase().trim();
-  
-  const matched = [];
-  if (upper.includes('SCERT')) matched.push('SCERT');
-  if (upper.includes('LDC') || upper.includes('എൽഡിസി') || upper.includes('എൽ.ഡി.സി')) matched.push('LDC');
-  if (upper.includes('LGS') || upper.includes('എൽജിഎസ്') || upper.includes('എൽ.ജി.എസ്')) matched.push('LGS');
-  if (upper.includes('DEGREE') || upper.includes('ഡിഗ്രി')) matched.push('DEGREE');
-  
-  // എല്ലാ ഫോൾഡറിലും അല്ലെങ്കിൽ കസ്റ്റം കോഴ്സിലും പരീക്ഷ കാണിക്കാൻ:
-  matched.push('ALL_EXAMS');
-  
-  return matched.length > 0 ? matched : ['ALL_EXAMS', 'LDC'];
-}
+function parseMainFolders(rawFolderValue) {
+      if (!rawFolderValue || String(rawFolderValue).trim() === '') return ['ALL_EXAMS', 'LDC'];
+      const upper = String(rawFolderValue).toUpperCase().trim();
+      const matched = [];
+
+      // നിലവിലുള്ള എല്ലാ ഫോൾഡറുകളുമായും ഒത്തുനോക്കുന്നു (FREE അടക്കം)
+      MAIN_EXAM_FOLDERS.forEach(f => {
+        if (f.id !== 'ALL_EXAMS' && upper.includes(f.id.toUpperCase())) {
+          matched.push(f.id);
+        }
+      });
+
+      // മലയാളം പേരുകൾ വന്നാൽ തിരിച്ചറിയാൻ
+      if (upper.includes('എൽഡിസി') || upper.includes('എൽ.ഡി.സി')) matched.push('LDC');
+      if (upper.includes('എൽജിഎസ്') || upper.includes('എൽ.ജി.എസ്')) matched.push('LGS');
+      if (upper.includes('ഡിഗ്രി')) matched.push('DEGREE');
+
+      matched.push('ALL_EXAMS');
+      return Array.from(new Set(matched));
+    }
 
     function doesExamBelongToMainFolder(examItem, folderId) {
       if (!folderId || folderId === 'ALL_EXAMS') return true;
@@ -1254,6 +1259,18 @@
         ]);
 
         portalConfigCache = configData || {};
+
+        // 🌟 അഡ്മിൻ ഉണ്ടാക്കിയ ഫോൾഡറുകൾ ഫയർബേസിൽ നിന്ന് സുരക്ഷിതമായി എടുക്കുന്നു
+        if (configData && configData.main_folders) {
+          let fbFolders = Array.isArray(configData.main_folders) ? configData.main_folders : Object.values(configData.main_folders);
+          fbFolders = fbFolders.filter(f => f && f.id);
+          if (fbFolders.length > 0) {
+            MAIN_EXAM_FOLDERS = [...fbFolders];
+            if (!MAIN_EXAM_FOLDERS.some(f => f.id === 'ALL_EXAMS')) {
+              MAIN_EXAM_FOLDERS.push({ id: 'ALL_EXAMS', title: 'എല്ലാ പരീക്ഷകളും', subtitle: 'All Combined PSC Exams', icon: '🌟' });
+            }
+          }
+        }
 
         const trialBadge = document.getElementById('heroTrialBadge');
         if (portalConfigCache.global_trial_active !== false) {
