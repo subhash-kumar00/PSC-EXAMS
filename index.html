@@ -2481,6 +2481,24 @@ let mainFoldersArr = parseMainFolders(rawMainFolder);
             unreadByAdmin: true
           })
         });
+        // 🌟 അഡ്മിന്റെ ഫോണിലേക്ക് ഇൻസ്റ്റന്റ് പുഷ് നോട്ടിഫിക്കേഷൻ അയക്കുന്നു
+        fetch("https://api.onesignal.com/notifications?c=push", {
+          method: "POST",
+          headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json; charset=utf-8",
+            "Authorization": "Key b3NfdjJfYXBwX2hobnNhNGR6dGJlN3pucmVmY3p3cmlsaGprbGx0N3RjemprZTR1bnozbmZkaG4zMm80bHJ1NXl3b2N2dm83a2MzdWZ2bHZtYnQ0bG9kbDJvamN2c21udXd2NHE3bmg3c2tjYXJ5aXk="
+          },
+          body: JSON.stringify({
+            app_id: "39db2070-7998-49fc-b624-28b368a1674a",
+            include_aliases: { external_id: ["ADMIN_SK_PSC"] },
+            target_channel: "push",
+            priority: 10,
+            headings: { en: `💬 പുതിയ സംശയം: ${candidate.name}` },
+            contents: { en: text.length > 50 ? text.substring(0, 50) + '...' : text },
+            url: "https://subhash-kumar00.github.io/ADMIN/"
+          })
+        }).catch(err => console.error("Admin Push Error:", err));
       } catch (err) {
         console.error("Firebase send error:", err);
       } finally {
