@@ -461,57 +461,106 @@
 </div>
 
   <!-- ================= 💳 ഡൈനാമിക് തുക തനിയെ വരുന്ന പേയ്‌മെന്റ് MODAL ================= -->
-  <div id="subscriptionModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-slate-900 border-2 border-amber-500/50 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 text-center relative max-h-[90vh] overflow-y-auto custom-scroll">
+ <!-- ================= 💳 2-STEP ഡൈനാമിക് പേയ്‌മെന്റ് MODAL ================= -->
+  <div id="subscriptionModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-slate-900 border-2 border-amber-500/50 rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scroll">
       
-      <button onclick="closeSubscriptionModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-800 rounded-xl w-8 h-8 flex items-center justify-center font-bold text-sm cursor-pointer">✕</button>
+      <button onclick="closeSubscriptionModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-800 rounded-xl w-8 h-8 flex items-center justify-center font-bold text-sm cursor-pointer z-10">✕</button>
 
-      <div class="space-y-1">
-        <div class="w-12 h-12 bg-amber-500/20 text-amber-400 rounded-2xl flex items-center justify-center text-2xl mx-auto font-black border border-amber-500/30">🔒</div>
-        <h3 class="text-base font-black text-white" id="modalExamTitleBanner">SK PSC കോഴ്സ് പാക്കുകൾ</h3>
-        <p class="text-xs text-slate-400">ഈ പരീക്ഷ എഴുതാൻ അനുയോജ്യമായ കോഴ്സ് പാക്ക് തിരഞ്ഞെടുക്കുക.</p>
-      </div>
-
-      <!-- ഡൈനാമിക് കോഴ്സ് പ്ലാനുകൾ ലിസ്റ്റ് ചെയ്യുന്ന ഗ്രിഡ് -->
-      <div id="modalCoursesListGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-left pt-1">
-        <!-- കോഴ്സ് കാർഡുകൾ ഇവിടെ തനിയെ വരും -->
-      </div>
-
-      <!-- 🌟 Dynamic Auto-Amount UPI QR Area -->
-      <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
-        <div class="flex flex-col items-center justify-center space-y-2">
-          <div class="p-2 bg-white rounded-2xl shadow-lg border-2 border-emerald-500/50">
-            <img id="modalQrCodeImg" src="" alt="Auto Amount UPI QR" class="w-44 h-44 sm:w-48 sm:h-48 object-contain block">
-          </div>
-          <span class="text-[11px] font-mono text-emerald-400 font-bold bg-emerald-950/80 px-3 py-1 rounded-full border border-emerald-500/40">
-            ✨ സ്കാൻ ചെയ്യുമ്പോൾ തുക: <strong id="modalQrAmountDisplay" class="text-white text-xs">₹0</strong>
-          </span>
+      <!-- 🌟 STEP 1: കോഴ്സ് പാക്കുകൾ തിരഞ്ഞെടുക്കുന്ന ഭാഗം -->
+      <div id="subModalStep1" class="space-y-4">
+        <div class="text-center space-y-1">
+          <div class="w-12 h-12 bg-amber-500/20 text-amber-400 rounded-2xl flex items-center justify-center text-2xl mx-auto font-black border border-amber-500/30">🔒</div>
+          <h3 class="text-base font-black text-white" id="modalExamTitleBanner">SK PSC പ്രീമിയം കോഴ്സുകൾ</h3>
+          <p class="text-xs text-slate-400">നിങ്ങൾക്ക് ആവശ്യമുള്ള അനുയോജ്യമായ കോഴ്സ് പാക്ക് തിരഞ്ഞെടുക്കുക.</p>
         </div>
 
-        <!-- മൊബൈൽ ഫോണിൽ നേരിട്ട് UPI ആപ്പ് തുറക്കാൻ -->
-        <a id="btnDirectUpiPay" href="#" class="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-cyan-300 border border-cyan-500/40 font-bold rounded-xl text-xs transition flex items-center justify-center space-x-2 shadow cursor-pointer">
-          <span>📱 ഫോണിൽ നിന്ന് നേരിട്ട് Pay ചെയ്യാം (GPay / PhonePe / Paytm)</span>
-        </a>
+        <!-- ഡൈനാമിക് കോഴ്സ് പ്ലാനുകൾ ലിസ്റ്റ് ചെയ്യുന്ന ഗ്രിഡ് -->
+        <div id="modalCoursesListGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-left pt-1"></div>
 
-        <div>
-          <span class="text-[10px] text-slate-400 font-semibold block uppercase">അല്ലെങ്കിൽ UPI ID കോപ്പി ചെയ്യാം:</span>
-          <div class="flex items-center justify-center space-x-2 mt-1">
-            <span id="modalUpiIdText" class="font-mono font-bold text-xs text-amber-300 bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800"></span>
-            <button onclick="copyModalUpiId()" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-bold transition cursor-pointer">കോപ്പി 📋</button>
+        <button onclick="proceedToCourseDetailsStep()" class="w-full py-3.5 bg-gradient-to-r from-amber-500 to-emerald-500 hover:from-amber-400 hover:to-emerald-400 text-slate-950 font-black rounded-xl text-xs sm:text-sm transition shadow-lg flex items-center justify-center space-x-2 cursor-pointer">
+          <span>ഈ കോഴ്സിന്റെ വിവരങ്ങളും പേയ്‌മെന്റും കാണുക</span>
+          <span>›</span>
+        </button>
+      </div>
+
+      <!-- 🌟 STEP 2: കോഴ്സിന്റെ വിശദാംശങ്ങളും (Offers) പേയ്‌മെന്റും -->
+      <div id="subModalStep2" class="hidden space-y-4 text-left">
+        <!-- ബാക്ക് ബട്ടൺ -->
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+          <button onclick="backToCourseSelectionStep()" class="text-xs text-amber-400 hover:text-amber-300 font-bold flex items-center space-x-1 cursor-pointer">
+            <span>‹</span>
+            <span>മറ്റ് കോഴ്സുകൾ കാണുക</span>
+          </button>
+          <span class="text-[10px] text-emerald-400 font-mono bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">STEP 2 OF 2</span>
+        </div>
+
+        <!-- തിരഞ്ഞെടുത്ത കോഴ്സിന്റെ ഹൈലൈറ്റ് കാർഡ് -->
+        <div class="bg-gradient-to-r from-slate-950 to-emerald-950/60 p-4 rounded-2xl border border-emerald-500/40 space-y-2">
+          <div class="flex items-center justify-between">
+            <span id="detailCourseBadge" class="bg-amber-500 text-slate-950 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">REGULAR</span>
+            <span id="detailCourseValidity" class="text-xs text-amber-300 font-mono font-bold bg-slate-900 px-2.5 py-0.5 rounded-lg border border-slate-800"></span>
+          </div>
+          <h4 id="detailCourseName" class="text-base font-black text-white"></h4>
+          <p id="detailCourseTagline" class="text-[11px] text-amber-200/90"></p>
+          
+          <div class="flex items-center justify-between pt-2 border-t border-slate-800/80">
+            <span class="text-xs text-slate-400">ആകെ ഫീസ്:</span>
+            <div id="detailCoursePriceHtml" class="flex items-center space-x-2"></div>
           </div>
         </div>
-      </div>
-<label class="flex items-center justify-center space-x-2 text-[11px] text-slate-300 cursor-pointer my-2 select-none">
-  <input type="checkbox" id="acceptTermsCheckbox" checked class="rounded accent-emerald-500 w-3.5 h-3.5 cursor-pointer">
-  <span>ഞാൻ <button type="button" onclick="openPolicyModal('terms')" class="text-emerald-400 underline font-bold">നിബന്ധനകളും</button> <button type="button" onclick="openPolicyModal('refund')" class="text-emerald-400 underline font-bold">റീഫണ്ട് നയവും</button> വായിച്ചു സമ്മതിക്കുന്നു.</span>
-</label>
-      <button onclick="sendPaymentProofWhatsApp()" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 text-slate-950 font-black rounded-xl text-xs transition shadow-lg flex items-center justify-center space-x-2 cursor-pointer">
-        <span>📲</span>
-        <span>പണം അടച്ച ശേഷം സ്ക്രീൻഷോട്ട് അയക്കുക</span>
-      </button>
 
-      <p class="text-[10px] text-slate-500">പേയ്‌മെന്റ് സ്ഥിരീകരിച്ച ഉടൻ അഡ്മിൻ നിങ്ങളുടെ കോഴ്സ് അൺലോക്ക് ചെയ്യും.</p>
+        <!-- 🌟 കോഴ്സ് എന്താണ് നൽകുന്നത് എന്നുള്ള വിശദാംശങ്ങൾ (What course offers) -->
+        <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2.5">
+          <h5 class="text-xs font-bold text-emerald-400 flex items-center space-x-1.5 uppercase tracking-wider">
+            <span>🎯</span>
+            <span>ഈ കോഴ്സിൽ ഉൾപ്പെടുത്തിയിട്ടുള്ളവ:</span>
+          </h5>
+          <ul id="detailCourseFeaturesList" class="space-y-1.5 text-xs text-slate-300">
+            <!-- ഫീച്ചറുകൾ ഇവിടെ ഡൈനാമിക് ആയി വരും -->
+          </ul>
+        </div>
+
+        <!-- UPI QR Code & Payment Section -->
+        <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3 text-center">
+          <div class="flex flex-col items-center justify-center space-y-2">
+            <div class="p-2 bg-white rounded-2xl shadow-lg border-2 border-emerald-500/50">
+              <img id="modalQrCodeImg" src="" alt="Auto Amount UPI QR" class="w-40 h-40 sm:w-44 sm:h-44 object-contain block">
+            </div>
+            <span class="text-[11px] font-mono text-emerald-400 font-bold bg-emerald-950/80 px-3 py-1 rounded-full border border-emerald-500/40">
+              ✨ സ്കാൻ ചെയ്യുമ്പോൾ തുക: <strong id="modalQrAmountDisplay" class="text-white text-xs">₹0</strong>
+            </span>
+          </div>
+
+          <a id="btnDirectUpiPay" href="#" class="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-cyan-300 border border-cyan-500/40 font-bold rounded-xl text-xs transition flex items-center justify-center space-x-2 shadow cursor-pointer">
+            <span>📱 ഫോണിൽ നിന്ന് നേരിട്ട് Pay ചെയ്യാം (GPay / PhonePe)</span>
+          </a>
+
+          <div>
+            <span class="text-[10px] text-slate-400 font-semibold block uppercase">അല്ലെങ്കിൽ UPI ID കോപ്പി ചെയ്യാം:</span>
+            <div class="flex items-center justify-center space-x-2 mt-1">
+              <span id="modalUpiIdText" class="font-mono font-bold text-xs text-amber-300 bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800"></span>
+              <button onclick="copyModalUpiId()" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-bold transition cursor-pointer">കോപ്പി 📋</button>
+            </div>
+          </div>
+        </div>
+
+        <label class="flex items-center justify-center space-x-2 text-[11px] text-slate-300 cursor-pointer my-1 select-none">
+          <input type="checkbox" id="acceptTermsCheckbox" checked class="rounded accent-emerald-500 w-3.5 h-3.5 cursor-pointer">
+          <span>ഞാൻ <button type="button" onclick="openPolicyModal('terms')" class="text-emerald-400 underline font-bold">നിബന്ധനകളും</button> <button type="button" onclick="openPolicyModal('refund')" class="text-emerald-400 underline font-bold">റീഫണ്ട് നയവും</button> വായിച്ചു സമ്മതിക്കുന്നു.</span>
+        </label>
+
+        <button onclick="sendPaymentProofWhatsApp()" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 text-slate-950 font-black rounded-xl text-xs transition shadow-lg flex items-center justify-center space-x-2 cursor-pointer">
+          <span>📲</span>
+          <span>പണം അടച്ച ശേഷം സ്ക്രീൻഷോട്ട് അയക്കുക</span>
+        </button>
+
+        <p class="text-[10px] text-slate-500 text-center">പേയ്‌മെന്റ് സ്ഥിരീകരിച്ച ഉടൻ അഡ്മിൻ നിങ്ങളുടെ കോഴ്സ് അൺലോക്ക് ചെയ്യുന്നതാണ്.</p>
+      </div>
+
     </div>
+  </div>
+   
   </div>
 
   <!-- PWA ആപ്പ് ഇൻസ്റ്റാൾ ബട്ടൺ -->
@@ -856,12 +905,16 @@ function parseMainFolders(rawFolderValue) {
       if (directPayBtn) directPayBtn.href = upiDeepLink;
     }
 
-    // 🌟 ഡൈനാമിക് കോഴ്സ് മോഡൽ തുറക്കുന്നു
+   // 🌟 കോഴ്സ് മോഡൽ തുറക്കുമ്പോൾ ആദ്യം Step 1 കാണിക്കുന്നു
     function openSubscriptionModal(examTitle = "") {
       const modal = document.getElementById('subscriptionModal');
       if (!modal) return;
 
-      document.getElementById('modalExamTitleBanner').innerText = examTitle ? `"${examTitle}"` : "SK PSC കോഴ്സ് പാക്കുകൾ";
+      // എപ്പോഴും ആദ്യ സ്റ്റെപ്പിലേക്ക് റീസെറ്റ് ചെയ്യുന്നു
+      document.getElementById('subModalStep1').classList.remove('hidden');
+      document.getElementById('subModalStep2').classList.add('hidden');
+
+      document.getElementById('modalExamTitleBanner').innerText = examTitle ? `"${examTitle}"` : "SK PSC പ്രീമിയം കോഴ്സുകൾ";
 
       const cfg = portalConfigCache || {};
       const upi = cfg.upi_id || "yourname@okhdfcbank";
@@ -915,7 +968,6 @@ function parseMainFolders(rawFolderValue) {
           `;
         }
 
-        // 🌟 വാലിഡിറ്റി ദിവസങ്ങൾ മഞ്ഞ ബോക്സിൽ വ്യക്തമായി കാണിക്കുന്നു
         card.innerHTML = `
           <div class="flex items-center justify-between gap-1">
             <span class="text-xs font-black text-white uppercase tracking-wide truncate max-w-[150px]">${c.name}</span>
@@ -938,11 +990,6 @@ function parseMainFolders(rawFolderValue) {
         container.appendChild(card);
       });
 
-      // സെലക്ട് ചെയ്ത ആദ്യ കോഴ്സിന്റെ തുക ഉൾപ്പെടുത്തി QR ജനറേറ്റ് ചെയ്യുന്നു
-      if (courses[selectedCoursePlanId]) {
-        updateModalUpiQrAndPayLink(courses[selectedCoursePlanId]);
-      }
-
       modal.classList.remove('hidden');
     }
 
@@ -962,11 +1009,100 @@ function parseMainFolders(rawFolderValue) {
           }
         }
       });
-
-      if (courses[courseId]) {
-        updateModalUpiQrAndPayLink(courses[courseId]);
-      }
     }
+
+    // 🌟 STEP 2-ലേക്ക് കടക്കുന്ന ഫംഗ്ഷൻ (കോഴ്സ് ഓഫറുകളും പേയ്‌മെന്റും കാണിക്കുന്നു)
+    function proceedToCourseDetailsStep() {
+      const cfg = portalConfigCache || {};
+      const courses = cfg.course_plans || {};
+      const plan = courses[selectedCoursePlanId];
+      if (!plan) return alert("ദയവായി ഒരു കോഴ്സ് തിരഞ്ഞെടുക്കുക!");
+
+      document.getElementById('subModalStep1').classList.add('hidden');
+      document.getElementById('subModalStep2').classList.remove('hidden');
+
+      // കോഴ്സ് വിവരങ്ങൾ കാർഡിൽ സെറ്റ് ചെയ്യുന്നു
+      document.getElementById('detailCourseName').innerText = plan.name;
+      document.getElementById('detailCourseValidity').innerText = `⏳ ${plan.days} ദിവസത്തെ വാലിഡിറ്റി`;
+      document.getElementById('detailCourseBadge').innerText = plan.is_prebook ? "⚡ PRE-BOOKING" : "REGULAR BATCH";
+      document.getElementById('detailCourseTagline').innerText = plan.tagline || (plan.is_prebook && plan.launch_date ? `ബാച്ച് ആരംഭം: ${plan.launch_date}` : "പരീക്ഷാ വിജയത്തിനായുള്ള പ്രത്യേക ബാച്ച്");
+
+      let priceHtml = `<span class="text-xl font-black text-emerald-400 font-mono">₹${plan.price}</span>`;
+      if (plan.original_price && Number(plan.original_price) > Number(plan.price)) {
+        const discountPct = Math.round(((Number(plan.original_price) - Number(plan.price)) / Number(plan.original_price)) * 100);
+        priceHtml += `<span class="text-xs text-rose-400 line-through font-mono">₹${plan.original_price}</span>
+                      <span class="text-[9px] bg-rose-600/30 text-rose-300 px-1.5 py-0.5 rounded border border-rose-500/30 font-bold">${discountPct}% OFF</span>`;
+      }
+      document.getElementById('detailCoursePriceHtml').innerHTML = priceHtml;
+
+      // കോഴ്സിന്റെ പ്രത്യേകതകൾ നൽകുന്നു
+      renderDynamicCourseFeatures(plan);
+
+      // പേയ്‌മെന്റ് QR കോഡ് സെറ്റ് ചെയ്യുന്നു
+      updateModalUpiQrAndPayLink(plan);
+    }
+
+    // 🌟 കോഴ്സിന്റെ ഫീച്ചറുകൾ നിർമ്മിക്കുന്ന ഫംഗ്ഷൻ
+    function renderDynamicCourseFeatures(plan) {
+      const listEl = document.getElementById('detailCourseFeaturesList');
+      const cid = String(plan.id || '').toLowerCase();
+      let features = [];
+
+      if (cid.includes('scert')) {
+        features = [
+          "📖 5 മുതൽ 12 വരെയുള്ള SCERT/NCERT പാഠപുസ്തക അടിസ്ഥാന ചോദ്യങ്ങൾ",
+          "🔬 സയൻസ് & സോഷ്യൽ സയൻസ് ചാപ്റ്റർ തിരിച്ചുള്ള പരീക്ഷകൾ",
+          "📥 ഓരോ പരീക്ഷയ്ക്കും Direct PDF ഡൗൺലോഡ് സൗകര്യം",
+          "🏆 തത്സമയ റാങ്ക് ലിസ്റ്റും മാർക്ക് വിശകലനവും",
+          "💬 മെന്റർ ഡൗട്ട് ചാറ്റ് സപ്പോർട്ട്"
+        ];
+      } else if (cid.includes('ldc') && cid.includes('lgs')) {
+        features = [
+          "🏛️ LDC & LGS പരീക്ഷകൾക്കായുള്ള സമ്പൂർണ്ണ കോംബോ പരിശീലനം",
+          "⚡ സിലബസ് പൂർണ്ണമായി ഉൾക്കൊള്ളുന്ന മോഡൽ പരീക്ഷകൾ",
+          "📊 ചോദ്യങ്ങളുടെ വിശദമായ എക്സ്പ്ലനേഷനും റിവ്യൂവും",
+          "💬 മെന്റർ ഡൗട്ട് ചാറ്റ് സപ്പോർട്ട്"
+        ];
+      } else if (cid.includes('ldc')) {
+        features = [
+          "🏛️ 2027 LDC പുതിയ സിലബസ് അധിഷ്ഠിത മോഡൽ എക്സാമുകൾ",
+          "📰 കറന്റ് അഫയേഴ്സ് & 12 SCERT/NCERT CHAPTERS സ്പെഷ്യൽ ഫോക്കസ്",
+          "📑 അൺലിമിറ്റഡ് റീ-അറ്റംപ്റ്റുകളും ടൈമർ മോക്ക് ടെസ്റ്റുകളും",
+          "🏆 ഔദ്യോഗിക റാങ്ക് ലിസ്റ്റും പെർഫോമൻസ് റിപ്പോർട്ട് PDF-ഉം",
+          "💬 മെന്റർ ഡൗട്ട് ചാറ്റ് സപ്പോർട്ട്"
+        ];
+      } else if (cid.includes('degree')) {
+        features = [
+          "🎓 Degree Prelims & Mains നിലവാരത്തിലുള്ള പ്രസ്താവനാ ചോദ്യങ്ങൾ",
+          "🔍 സ്റ്റേറ്റ്മെന്റ് & ഉയർന്ന നിലവാരത്തിലുള്ള ചോദ്യങ്ങളുടെ പരിശീലനം",
+          "📥 ഓരോ ടെസ്റ്റിനും ഡൗൺലോഡ് ചെയ്യാവുന്ന റിവ്യൂ റിപ്പോർട്ട്",
+          "💬 അഡ്മിൻ മെന്റർ ഡൗട്ട് ക്ലിയറൻസ് സപ്പോർട്ട്"
+        ];
+      } else if (cid.includes('all')) {
+        features = [
+          "🌟 പോർട്ടലിലെ മുഴുവൻ എക്സാമുകളിലേക്കും (LDC, LGS, SCERT, Degree) ആക്സസ്",
+          "🚀 വാലിഡിറ്റി കാലയളവിൽ വരുന്ന എല്ലാ പുതിയ പരീക്ഷകളും സൗജന്യം",
+          "📊 സമ്പൂർണ്ണ വിദ്യാർത്ഥി പ്രൊഫൈൽ അനലിറ്റിക്സും റാങ്ക് ലിസ്റ്റുകളും",
+          "💬 അഡ്മിൻ മെന്റർ ഡൗട്ട് ക്ലിയറൻസ് സപ്പോർട്ട്"
+        ];
+      } else {
+        features = [
+          "✅ സിലബസ് അടിസ്ഥാനമാക്കിയുള്ള സമ്പൂർണ്ണ മോഡൽ പരീക്ഷകൾ",
+          "✅ അൺലിമിറ്റഡ് റീ-അറ്റംപ്റ്റുകളും സമയബന്ധിതമായ പരിശീലനവും",
+          "✅ തത്സമയ റാങ്ക് ലിസ്റ്റും വിശദമായ സ്കോർ കാർഡും",
+          "✅ സംശയങ്ങൾ ചോദിക്കാൻ മെന്റർ ചാറ്റ് സപ്പോർട്ട്"
+        ];
+      }
+
+      listEl.innerHTML = features.map(f => `<li class="flex items-start space-x-2"><span>${f.substring(0, 2)}</span><span>${f.substring(2)}</span></li>`).join('');
+    }
+
+    // 🌟 തിരികെ കോഴ്സ് ലിസ്റ്റിലേക്ക് പോകാനുള്ള ഫംഗ്ഷൻ
+    function backToCourseSelectionStep() {
+      document.getElementById('subModalStep2').classList.add('hidden');
+      document.getElementById('subModalStep1').classList.remove('hidden');
+    }
+    
 
     function openSubscriptionModalByIndex(idx) {
       const q = rawQuizList.find(item => item.originalIndex === idx);
