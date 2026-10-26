@@ -1910,14 +1910,17 @@ function parseMainFolders(rawFolderValue) {
       renderCompactCards(filtered);
     }
     // 🌟 അഡ്മിൻ പാനലിൽ നിന്നുള്ള ഡെയ്ലി ക്വിസ് ഹോം പേജിൽ കാണിക്കുന്നു
+    // 🌟 അഡ്മിൻ പാനലിൽ നിന്നുള്ള ഡെയ്ലി ക്വിസ് ഹോം പേജിൽ കാണിക്കുന്നു
     function renderDailyQuizCard(dailyConfig) {
       const section = document.getElementById('dailyQuizSection');
       if (!section) return;
 
-      const todayStr = new Date().toISOString().split('T')[0];
+      // ഇന്ത്യൻ ലോക്കൽ തീയതി കൃത്യമായി എടുക്കുന്നു (YYYY-MM-DD)
+      const now = new Date();
+      const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
-      // 🌟 തീയതി മാറുകയോ, അഡ്മിൻ ഓഫ് ചെയ്യുകയോ ചെയ്താൽ കാർഡ് തനിയെ ഹൈഡ് ആകും
-      if (!dailyConfig || dailyConfig.active === false || dailyConfig.date !== todayStr) {
+      // അഡ്മിൻ ഓഫ് ചെയ്താലോ, ക്വിസിന്റെ തീയതി കഴിഞ്ഞുപോയാലോ (Past Date) മാത്രം ഹൈഡ് ചെയ്യും
+      if (!dailyConfig || dailyConfig.active === false || (dailyConfig.date && dailyConfig.date < todayStr)) {
         section.classList.add('hidden');
         return;
       }
@@ -1939,7 +1942,7 @@ function parseMainFolders(rawFolderValue) {
       }
 
       startBtn.href = targetUrl;
-      section.classList.remove('hidden');
+      section.classList.remove('hidden'); // 🌟 കാർഡ് ഹോം പേജിൽ ലൈവ് ആക്കുന്നു
     }
 
       
