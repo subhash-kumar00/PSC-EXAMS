@@ -402,6 +402,9 @@
             document.getElementById('resultScreen').classList.remove('hidden');
             document.getElementById('resultScreen').style.setProperty('display', 'block', 'important');
             loadPreviousAttemptFromFirebase();
+          } else if (urlParams.get('key') === 'daily_quiz' || urlParams.get('autostart') === 'true') {
+            // 🌟 Daily Quiz ആണെങ്കിൽ ചോദ്യങ്ങൾ ഫയർബേസിൽ നിന്ന് ലോഡ് ആയയുടൻ നേരിട്ട് പരീക്ഷ ആരംഭിക്കുന്നു
+            startExamDirectly();
           } else {
             document.getElementById('motivationScreen').classList.remove('hidden');
           }
