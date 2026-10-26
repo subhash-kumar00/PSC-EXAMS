@@ -886,17 +886,21 @@ function parseMainFolders(rawFolderValue) {
         return false;
       }
 
-      const userCourse = String(candidate.purchased_course || 'all').toLowerCase();
-      const examFolder = String(examItem.mainFolderLabel || examItem.mainFolders?.join(',') || '').toUpperCase();
-      const examCat = String(examItem.category || '').toUpperCase();
+      const userCourse = String(candidate.purchased_course || 'all').toLowerCase().trim();
+      const examFolder = String(examItem.mainFolderLabel || examItem.mainFolders?.join(',') || '').toLowerCase();
+      const examCat = String(examItem.category || '').toLowerCase();
 
+      // 'all' നൽകിയിട്ടുണ്ടെങ്കിൽ എല്ലാ പരീക്ഷകളും അൺലോക്ക് ആകും
       if (userCourse === 'all' || userCourse === 'all_exams') return true;
-      if (userCourse === 'scert' && (examFolder.includes('SCERT') || examCat.includes('SCERT'))) return true;
-      if (userCourse === 'lgs' && examFolder.includes('LGS')) return true;
-      if (userCourse === 'ldc' && examFolder.includes('LDC')) return true;
-      if (userCourse === 'degree' && examFolder.includes('DEGREE')) return true;
-      if (userCourse === 'ldc_lgs' && (examFolder.includes('LDC') || examFolder.includes('LGS'))) return true;
-      if (userCourse === 'ldc_degree' && (examFolder.includes('LDC') || examFolder.includes('DEGREE'))) return true;
+
+      // പ്രത്യേക കോഴ്സുകൾ മാച്ച് ചെയ്യുന്നുണ്ടോ എന്ന് പരിശോധിക്കുന്നു
+      if (userCourse.includes('scert') && (examFolder.includes('scert') || examCat.includes('scert'))) return true;
+      if (userCourse.includes('lgs') && examFolder.includes('lgs')) return true;
+      if (userCourse.includes('ldc') && examFolder.includes('ldc')) return true;
+      if (userCourse.includes('degree') && examFolder.includes('degree')) return true;
+
+      // ഒരേ ഐഡി തന്നെയാണ് നൽകിയിട്ടുള്ളതെങ്കിലും അൺലോക്ക് ആകും
+      if (examFolder.includes(userCourse)) return true;
 
       return false;
     }
@@ -1126,8 +1130,35 @@ function parseMainFolders(rawFolderValue) {
     }
     
 
-    function openSubscriptionModalByIndex(idx) {
+    async function openSubscriptionModalByIndex(idx) {
       const q = rawQuizList.find(item => item.originalIndex === idx);
+      
+      // 🌟 അഡ്മിൻ അൺലോക്ക് ചെയ്തിട്ടുണ്ടോ എന്ന് തത്സമയം ഫയർബേസിൽ പരിശോധിക്കുന്നു
+      if (candidate && candidate.phone) {
+        try {
+          const cleanPhone = sanitizePhone(candidate.phone);
+          const res = await fetch(`${FIREBASE_DB_URL}/users/${cleanPhone}.json`);
+          const latestUserData = await res.json();
+          
+          if (latestUserData && latestUserData.valid_until) {
+            candidate.valid_until = latestUserData.valid_until;
+            candidate.is_premium = latestUserData.is_premium || false;
+            candidate.purchased_course = latestUserData.purchased_course || 'all';
+            localStorage.setItem('sk_candidate_user', JSON.stringify(candidate));
+            
+            // കോഴ്സ് സാധുതയുണ്ടെങ്കിൽ ഉടൻ കാർഡുകൾ അൺലോക്ക് ചെയ്യുന്നു
+            if (canStudentAccessExam(q)) {
+              alert("🎉 അഭിനന്ദനങ്ങൾ! നിങ്ങളുടെ കോഴ്സ് അൺലോക്ക് ആയിട്ടുണ്ട്.");
+              applyFiltersAndRender();
+              return;
+            }
+          }
+        } catch(e) {
+          console.error("Live Unlock Check Error:", e);
+        }
+      }
+
+      // അൺലോക്ക് ആയിട്ടില്ലെങ്കിൽ മാത്രം പേയ്‌മെന്റ് മോഡൽ തുറക്കുന്നു
       openSubscriptionModal(q ? q.title : '');
     }
 
