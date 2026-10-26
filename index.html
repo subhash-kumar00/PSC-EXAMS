@@ -1926,14 +1926,23 @@ function parseMainFolders(rawFolderValue) {
       document.getElementById('dailyQuizMeta').innerText = `📝 ${dailyConfig.questions || 20} Qs • ⏱ ${dailyConfig.time || '15 മിനിറ്റ്'}`;
 
       const startBtn = document.getElementById('dailyQuizStartBtn');
-      // നിർദ്ദിഷ്ട പരീക്ഷാ ലിങ്ക് അല്ലെങ്കിൽ എക്സാം കീ വെച്ച് ലിങ്ക് നൽകുന്നു
+      
+      // ലിങ്ക് തയ്യാറാക്കുന്നു
+      let targetUrl = 'quiz.html?key=daily_quiz';
       if (dailyConfig.examUrl) {
-        startBtn.href = dailyConfig.examUrl;
+        targetUrl = dailyConfig.examUrl;
       } else if (dailyConfig.examKey) {
         const matchingExam = rawQuizList.find(q => q.key === dailyConfig.examKey);
-        startBtn.href = matchingExam ? matchingExam.fileUrl : `quiz.html?key=${encodeURIComponent(dailyConfig.examKey)}`;
+        targetUrl = matchingExam ? matchingExam.fileUrl : `quiz.html?key=${encodeURIComponent(dailyConfig.examKey)}`;
       }
 
+      // 👇 കുട്ടിയുടെ പേരും ഫോൺ നമ്പറും ലിങ്കിലേക്ക് ചേർക്കുന്നു 👇
+      if (candidate && candidate.phone) {
+        const separator = targetUrl.includes('?') ? '&' : '?';
+        targetUrl += `${separator}name=${encodeURIComponent(candidate.name || 'Student')}&phone=${encodeURIComponent(candidate.phone)}`;
+      }
+
+      startBtn.href = targetUrl;
       section.classList.remove('hidden');
     }
 
