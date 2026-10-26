@@ -1928,7 +1928,7 @@ function parseMainFolders(rawFolderValue) {
       const startBtn = document.getElementById('dailyQuizStartBtn');
       
       // ലിങ്ക് തയ്യാറാക്കുന്നു
-      let targetUrl = 'quiz.html?key=daily_quiz';
+      let targetUrl = 'quiz.html?key=daily_quiz&autostart=true';
       if (dailyConfig.examUrl) {
         targetUrl = dailyConfig.examUrl;
       } else if (dailyConfig.examKey) {
