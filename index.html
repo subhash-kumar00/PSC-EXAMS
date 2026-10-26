@@ -2740,6 +2740,49 @@ function openPolicyModal(type) {
 function closePolicyModal() {
   document.getElementById('legalPolicyModal').classList.add('hidden');
 }
+    <!-- പേജിലുള്ള നിലവിലെ മറ്റ് സ്ക്രിപ്റ്റുകൾ -->
+    <script src="app.js"></script>
+    <script>
+      // നിലവിലുള്ള മറ്റ് കോഡുകൾ...
+    </script>
+
+    <!-- 👇 പുതിയ Auto-Sync സ്ക്രിപ്റ്റ് ഇവിടെ ഏറ്റവും താഴെ നൽകുക 👇 -->
+    <script>
+      window.addEventListener('DOMContentLoaded', () => {
+        try {
+          const localUserStr = localStorage.getItem('sk_candidate_user');
+          const localUser = localUserStr ? JSON.parse(localUserStr) : null;
+          const phone = localUser?.phone || localUser?.Phone || localStorage.getItem('sk_user_phone');
+
+          if (phone && phone.length >= 10) {
+            if (localUser) {
+              fetch(`https://sk-psc-portal-default-rtdb.asia-southeast1.firebasedatabase.app/users/${phone}.json`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(localUser)
+              }).catch(err => console.warn("User sync skipped"));
+            }
+
+            const historyKey = `sk_history_${phone}`;
+            const localHistoryStr = localStorage.getItem(historyKey);
+            const localHistory = localHistoryStr ? JSON.parse(localHistoryStr) : null;
+
+            if (localHistory && Array.isArray(localHistory) && localHistory.length > 0) {
+              fetch(`https://sk-psc-portal-default-rtdb.asia-southeast1.firebasedatabase.app/users_history/${phone}.json`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(localHistory)
+              }).catch(err => console.warn("History sync skipped"));
+            }
+          }
+        } catch (e) {
+          console.warn("Background auto-sync completed.");
+        }
+      });
+    </script>
+
+  </body>
+</html>
   </script>
 </body>
 </html>
