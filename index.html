@@ -252,16 +252,39 @@
       </div>
     </div>
 
-    <!-- ടോപ്പ് 3 സ്റ്റുഡന്റ്സ് ലീഡർബോർഡ് -->
-    <div id="topStudentsSection" class="hidden bg-slate-900/90 border border-amber-500/30 rounded-2xl p-4 shadow-xl">
-      <div class="flex items-center justify-between mb-3 border-b border-slate-800 pb-2">
-        <div class="flex items-center space-x-2">
-          <span class="text-lg">👑</span>
-          <h3 class="text-xs sm:text-sm font-black text-amber-400 uppercase tracking-wider">ടോപ്പ് പെർഫോമേഴ്സ് (Hall of Fame)</h3>
+   <!-- 🌟 ഇന്നത്തെ ഡെയ്ലി ക്വിസ് (Daily Quiz Card - Controlled by Admin) -->
+    <div id="dailyQuizSection" class="hidden bg-gradient-to-r from-emerald-950/70 via-slate-900 to-teal-950/70 border-2 border-emerald-500/60 rounded-3xl p-4 sm:p-5 shadow-2xl relative overflow-hidden">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="flex items-center space-x-3.5">
+          <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center text-2xl shrink-0 shadow-inner">
+            ⚡
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <span class="auto-latest-badge px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-emerald-500 text-slate-950 shadow">
+                ● TODAY'S SPECIAL
+              </span>
+              <span class="text-xs font-black text-amber-300 font-mono" id="dailyQuizDate">TODAY</span>
+            </div>
+            <h3 class="text-sm sm:text-base font-black text-white mt-0.5 leading-tight" id="dailyQuizTitle">
+              ഇന്നത്തെ ഡെയ്ലി ക്വിസ്
+            </h3>
+            <p class="text-[11px] text-slate-400 mt-0.5" id="dailyQuizSubtitle">
+              ദിവസേനയുള്ള കറന്റ് അഫയേഴ്സ് & മോഡൽ ചോദ്യങ്ങൾ
+            </p>
+          </div>
         </div>
-        <span class="text-[10px] text-slate-400 font-mono">Performance Index (60% Exams + 40% Accuracy)</span>
+
+        <div class="flex items-center justify-between sm:justify-end space-x-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-800">
+          <span class="text-xs font-mono text-emerald-400 font-semibold" id="dailyQuizMeta">
+            📝 20 Qs • ⏱ 15 മിനിറ്റ്
+          </span>
+          <a id="dailyQuizStartBtn" href="#" class="px-5 py-2.5 bg-gradient-to-r from-emerald-400 to-teal-500 hover:from-emerald-300 text-slate-950 font-black rounded-xl text-xs sm:text-sm transition shadow-lg transform active:scale-95 flex items-center space-x-1.5 whitespace-nowrap cursor-pointer">
+            <span>പരീക്ഷ എഴുതാം</span>
+            <span>›</span>
+          </a>
+        </div>
       </div>
-      <div id="topStudentsList" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5"></div>
     </div>
 
     <!-- സുരക്ഷിത ലോഗിൻ കാർഡ് (Mobile + 4-Digit PIN) -->
@@ -1449,7 +1472,7 @@ function parseMainFolders(rawFolderValue) {
 
         portalConfigCache = configData || {};
 
-        // 🌟 അഡ്മിൻ ഉണ്ടാക്കിയ ഫോൾഡറുകൾ ഫയർബേസിൽ നിന്ന് സുരക്ഷിതമായി എടുക്കുന്നു
+        // 🌟 അഡ്മിൻ ഉണ്ടാക്കിയ ഫോൾഡറുകൾ ഫയർബേസിൽ നിന്ന് എടുക്കുന്നു
         if (configData && configData.main_folders) {
           let fbFolders = Array.isArray(configData.main_folders) ? configData.main_folders : Object.values(configData.main_folders);
           fbFolders = fbFolders.filter(f => f && f.id);
@@ -1508,29 +1531,25 @@ function parseMainFolders(rawFolderValue) {
           let parsedList = [];
           list.forEach((item, idx) => {
             let title = item.TITLE || item.title || `Exam ${idx + 1}`;
-const cleanT = cleanTitleForMatch(title);
-let ctrl = adminControls[cleanT] || null;
-
-if (ctrl && ctrl.isPublished === false) return;
-
-let category = item.CATEGORY || item.category || 'പൊതുവിജ്ഞാനം';
-let subFolder = item.SUB_FOLDER || item.subFolder || item.sub_folder || (ctrl && ctrl.subFolder) || '';
-let topics = item.TOPICS || item.topics || 'പ്രധാന പരീക്ഷാ ചോദ്യങ്ങൾ';
-
-let questions = item.QUESTIONS || item.questions || 25;
-let time = item.TIME || item.time || '20 മിനിറ്റ്';
-let pdf = item.pdfUrl || item.pdfurl || '';
-let rawExamKey = item.KEY || item.key || '';
+            const cleanT = cleanTitleForMatch(title);
+            let ctrl = adminControls[cleanT] || null;
 
             if (ctrl && ctrl.isPublished === false) return;
+
+            let category = item.CATEGORY || item.category || 'പൊതുവിജ്ഞാനം';
+            let subFolder = item.SUB_FOLDER || item.subFolder || item.sub_folder || (ctrl && ctrl.subFolder) || '';
+            let topics = item.TOPICS || item.topics || 'പ്രധാന പരീക്ഷാ ചോദ്യങ്ങൾ';
+            let questions = item.QUESTIONS || item.questions || 25;
+            let time = item.TIME || item.time || '20 മിനിറ്റ്';
+            let pdf = item.pdfUrl || item.pdfurl || '';
+            let rawExamKey = item.KEY || item.key || '';
 
             let badge = (ctrl && ctrl.status) ? ctrl.status : (item.BADGE || 'NORMAL');
             let relDate = (ctrl && ctrl.releaseDate) ? ctrl.releaseDate : (item.Release_Date || '');
             let accessType = (ctrl && ctrl.access_type) ? ctrl.access_type : (item.access_type || 'FREE');
 
-            // അഡ്മിൻ പാനൽ വഴി മാറ്റിയ ഫോൾഡറും ഒറിജിനൽ ഫോൾഡറും കൃത്യമായി എടുക്കുന്നു
-let rawMainFolder = (item.MAIN_FOLDER || item.mainFolder || item.EXAM_FOLDER || (ctrl && ctrl.mainFolder) || 'LDC');
-let mainFoldersArr = parseMainFolders(rawMainFolder);
+            let rawMainFolder = (item.MAIN_FOLDER || item.mainFolder || item.EXAM_FOLDER || (ctrl && ctrl.mainFolder) || 'LDC');
+            let mainFoldersArr = parseMainFolders(rawMainFolder);
 
             parsedList.push({
               originalIndex: idx,
@@ -1556,6 +1575,11 @@ let mainFoldersArr = parseMainFolders(rawMainFolder);
           renderLatestReel();
           renderTimetableSection();
 
+          // 🌟 ഡെയ്ലി ക്വിസ് കൃത്യമായി ഇവിടെ കോൾ ചെയ്യുന്നു
+          if (portalConfigCache && portalConfigCache.daily_quiz) {
+            renderDailyQuizCard(portalConfigCache.daily_quiz);
+          }
+
           if (selectedMainFolder) renderSubjectFolders();
           if (selectedCategory) applyFiltersAndRender();
         }
@@ -1563,8 +1587,6 @@ let mainFoldersArr = parseMainFolders(rawMainFolder);
         if (usersData) {
           let uList = Array.isArray(usersData) ? usersData : Object.values(usersData);
           allUsersCache = uList.filter(u => u !== null && u !== undefined);
-          document.getElementById('topUserCount').innerText = `${allUsersCache.length} Users`;
-          calculateLiveHallOfFameFromUsers(usersData);
 
           if (candidate && candidate.phone) {
             const cleanPhone = sanitizePhone(candidate.phone);
@@ -1887,92 +1909,35 @@ let mainFoldersArr = parseMainFolders(rawMainFolder);
 
       renderCompactCards(filtered);
     }
-    function calculateLiveHallOfFameFromUsers(allUsersObj) {
-      const container = document.getElementById('topStudentsList');
-      const section = document.getElementById('topStudentsSection');
-      if (!container || !section || !allUsersObj) return;
+    // 🌟 അഡ്മിൻ പാനലിൽ നിന്നുള്ള ഡെയ്ലി ക്വിസ് ഹോം പേജിൽ കാണിക്കുന്നു
+    function renderDailyQuizCard(dailyConfig) {
+      const section = document.getElementById('dailyQuizSection');
+      if (!section) return;
 
-      let uArr = Array.isArray(allUsersObj) ? allUsersObj : Object.values(allUsersObj);
-      const studentMap = {};
-
-      uArr.forEach(u => {
-        if (!u) return;
-        const p = sanitizePhone(u.Phone || u.phone || u.key);
-        if (!p || p.length < 10) return;
-
-        const totalUniqueTests = Number(u.Unique_Exams || u.totalExams || u.Total_Attempts || 0);
-        const avgScore = Number(u.First_Attempt_Avg || u.avgScore || 0);
-        if (totalUniqueTests < 5) return;
-
-        const candidateName = String(u.Official_Name || u.name || 'വിദ്യാർത്ഥി').trim();
-        if (candidateName === 'വിദ്യാർത്ഥി') return;
-
-        if (!studentMap[p] || totalUniqueTests > studentMap[p].totalExams) {
-          studentMap[p] = {
-            phone: p,
-            name: candidateName,
-            totalExams: totalUniqueTests,
-            avgScore: avgScore,
-            accuracy: Math.max(0, Math.min(100, Math.round((avgScore / 25) * 100)))
-          };
-        }
-      });
-
-      let performanceList = Object.values(studentMap);
-      const nameMap = {};
-      performanceList.forEach(std => {
-        const cleanName = std.name.toLowerCase().replace(/\s+/g, '');
-        if (!nameMap[cleanName] || std.totalExams > nameMap[cleanName].totalExams) {
-          nameMap[cleanName] = std;
-        }
-      });
-
-      performanceList = Object.values(nameMap);
-      if (performanceList.length === 0) {
+      // അഡ്മിൻ ഇത് ഓഫ് ചെയ്തു വെച്ചിരിക്കുകയാണെങ്കിലോ ഡാറ്റ ഇല്ലെങ്കിലോ ഹൈഡ് ചെയ്യും
+      if (!dailyConfig || dailyConfig.active === false) {
         section.classList.add('hidden');
         return;
       }
 
-      const maxExams = Math.max(...performanceList.map(s => s.totalExams), 1);
-      performanceList.forEach(std => {
-        const volumeScore = Math.min(100, (std.totalExams / maxExams) * 100);
-        std.compositeScore = (volumeScore * 0.6) + (std.accuracy * 0.4);
-      });
+      document.getElementById('dailyQuizTitle').innerText = dailyConfig.title || "ഇന്നത്തെ ഡെയ്ലി ക്വിസ്";
+      document.getElementById('dailyQuizSubtitle').innerText = dailyConfig.subtitle || "സൗജന്യ പരിശീലന പരീക്ഷ";
+      document.getElementById('dailyQuizDate').innerText = dailyConfig.date || new Date().toISOString().split('T')[0];
+      document.getElementById('dailyQuizMeta').innerText = `📝 ${dailyConfig.questions || 20} Qs • ⏱ ${dailyConfig.time || '15 മിനിറ്റ്'}`;
 
-      performanceList.sort((a, b) => {
-        if (b.compositeScore !== a.compositeScore) return b.compositeScore - a.compositeScore;
-        if (b.totalExams !== a.totalExams) return b.totalExams - a.totalExams;
-        return b.avgScore - a.avgScore;
-      });
-
-      const top3 = performanceList.slice(0, 3);
-      container.innerHTML = '';
-
-      const badges = ['🥇 1st Rank', '🥈 2nd Rank', '🥉 3rd Rank'];
-      const borders = ['border-amber-400/50 bg-amber-950/20', 'border-slate-400/40 bg-slate-900/80', 'border-amber-700/40 bg-amber-950/15'];
-      const textColors = ['text-amber-400', 'text-slate-300', 'text-amber-500'];
-
-      top3.forEach((std, i) => {
-        const card = document.createElement('div');
-        card.className = `p-2.5 rounded-xl border ${borders[i]} flex items-center justify-between shadow`;
-        card.innerHTML = `
-          <div class="flex items-center space-x-2.5">
-            <span class="font-bold text-xs ${textColors[i]} font-mono bg-slate-950 px-2 py-0.5 rounded border border-slate-800">${badges[i]}</span>
-            <div>
-              <h4 class="text-xs font-bold text-white truncate max-w-[110px] sm:max-w-[130px]">${std.name}</h4>
-              <span class="text-[10px] text-cyan-400 font-mono font-bold">${std.totalExams} Tests</span>
-            </div>
-          </div>
-          <div class="text-right">
-            <span class="text-xs font-black text-emerald-400 font-mono block">${std.accuracy}%</span>
-            <span class="text-[9px] text-slate-500 uppercase">Score Accuracy (${std.avgScore.toFixed(1)} Avg)</span>
-          </div>
-        `;
-        container.appendChild(card);
-      });
+      const startBtn = document.getElementById('dailyQuizStartBtn');
+      // നിർദ്ദിഷ്ട പരീക്ഷാ ലിങ്ക് അല്ലെങ്കിൽ എക്സാം കീ വെച്ച് ലിങ്ക് നൽകുന്നു
+      if (dailyConfig.examUrl) {
+        startBtn.href = dailyConfig.examUrl;
+      } else if (dailyConfig.examKey) {
+        const matchingExam = rawQuizList.find(q => q.key === dailyConfig.examKey);
+        startBtn.href = matchingExam ? matchingExam.fileUrl : `quiz.html?key=${encodeURIComponent(dailyConfig.examKey)}`;
+      }
 
       section.classList.remove('hidden');
     }
+
+      
 
     function renderTimetableSection() {
       const ttBox = document.getElementById('timetableWrapper');
