@@ -1914,32 +1914,28 @@ function parseMainFolders(rawFolderValue) {
       const section = document.getElementById('dailyQuizSection');
       if (!section) return;
 
-      // അഡ്മിൻ ഇത് ഓഫ് ചെയ്തു വെച്ചിരിക്കുകയാണെങ്കിലോ ഡാറ്റ ഇല്ലെങ്കിലോ ഹൈഡ് ചെയ്യും
-      if (!dailyConfig || dailyConfig.active === false) {
+      const todayStr = new Date().toISOString().split('T')[0];
+
+      // 🌟 തീയതി മാറുകയോ, അഡ്മിൻ ഓഫ് ചെയ്യുകയോ ചെയ്താൽ കാർഡ് തനിയെ ഹൈഡ് ആകും
+      if (!dailyConfig || dailyConfig.active === false || dailyConfig.date !== todayStr) {
         section.classList.add('hidden');
         return;
       }
 
       document.getElementById('dailyQuizTitle').innerText = dailyConfig.title || "ഇന്നത്തെ ഡെയ്ലി ക്വിസ്";
       document.getElementById('dailyQuizSubtitle').innerText = dailyConfig.subtitle || "സൗജന്യ പരിശീലന പരീക്ഷ";
-      document.getElementById('dailyQuizDate').innerText = dailyConfig.date || new Date().toISOString().split('T')[0];
+      document.getElementById('dailyQuizDate').innerText = dailyConfig.date || todayStr;
       document.getElementById('dailyQuizMeta').innerText = `📝 ${dailyConfig.questions || 20} Qs • ⏱ ${dailyConfig.time || '15 മിനിറ്റ്'}`;
 
       const startBtn = document.getElementById('dailyQuizStartBtn');
       
       // ലിങ്ക് തയ്യാറാക്കുന്നു
-      let targetUrl = 'quiz.html?key=daily_quiz&autostart=true';
-      if (dailyConfig.examUrl) {
-        targetUrl = dailyConfig.examUrl;
-      } else if (dailyConfig.examKey) {
-        const matchingExam = rawQuizList.find(q => q.key === dailyConfig.examKey);
-        targetUrl = matchingExam ? matchingExam.fileUrl : `quiz.html?key=${encodeURIComponent(dailyConfig.examKey)}`;
-      }
+      const examKey = dailyConfig.examKey || 'daily_quiz';
+      let targetUrl = `quiz.html?key=${encodeURIComponent(examKey)}&autostart=true`;
 
-      // 👇 കുട്ടിയുടെ പേരും ഫോൺ നമ്പറും ലിങ്കിലേക്ക് ചേർക്കുന്നു 👇
+      // കുട്ടിയുടെ പേരും ഫോൺ നമ്പറും ലിങ്കിലേക്ക് ചേർക്കുന്നു
       if (candidate && candidate.phone) {
-        const separator = targetUrl.includes('?') ? '&' : '?';
-        targetUrl += `${separator}name=${encodeURIComponent(candidate.name || 'Student')}&phone=${encodeURIComponent(candidate.phone)}`;
+        targetUrl += `&name=${encodeURIComponent(candidate.name || 'Student')}&phone=${encodeURIComponent(candidate.phone)}`;
       }
 
       startBtn.href = targetUrl;
