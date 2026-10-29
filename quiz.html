@@ -17,6 +17,23 @@
       100% { transform: scale(1); opacity: 1; }
     }
     .animate-pop { animation: popZoom 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+
+    /* 🌟 ഔദ്യോഗിക സ്റ്റഡി നോട്ട്സ് PDF പ്രിന്റ് ഫോർമാറ്റ് */
+    .official-pdf-box {
+      background: #ffffff !important;
+      color: #0f172a !important;
+      font-family: 'Noto Sans Malayalam', sans-serif !important;
+      width: 780px !important;
+      padding: 30px 40px !important;
+      box-sizing: border-box;
+    }
+    .pdf-q-block {
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+      margin-bottom: 20px;
+      padding-bottom: 14px;
+      border-bottom: 1px dashed #cbd5e1;
+    }
   </style>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between select-none">
@@ -269,6 +286,11 @@
 
   </main>
 
+  <!-- 🌟 ഒഫീഷ്യൽ സ്റ്റഡി നോട്ട്സ് PDF തനിയെ ഉണ്ടാക്കുന്ന ഏരിയ -->
+  <div id="autoOfficialPdfArea" style="position: absolute; left: -99999px; top: -99999px;">
+    <div id="officialPdfContent" class="official-pdf-box"></div>
+  </div>
+
   <footer class="text-center py-3 text-[11px] text-slate-500 border-t border-slate-800">
     <span id="footerExamTitle">SK PSC Model Exam Portal</span>
   </footer>
@@ -318,7 +340,7 @@
       if (passedPhone) currentUser.phone = sanitizePhone(decodeURIComponent(passedPhone));
       if (passedTitle) examTitle = decodeURIComponent(passedTitle).trim();
       
-      // ✅ ശരിയായ രീതിയിൽ കീ ഡീകോഡ് ചെയ്യുന്നു (സ്പേസ് വന്നാലും തനിയെ ശരിയാകും)
+      // ✅ ശരിയായ രീതിയിൽ കീ ഡീകോഡ് ചെയ്യുന്നു
       if (passedKey) {
         try {
           quizKey = decodeURIComponent(passedKey).trim();
@@ -347,18 +369,15 @@
       document.getElementById('motivateSubTitle').innerText = `${examTitle} പരീക്ഷയിലേക്ക് സ്വാഗതം!`;
 
       try {
-        // ✅ എൻകോഡ് ചെയ്തും അല്ലാതെയും ചോദ്യങ്ങൾ പരിശോധിക്കുന്നു
         let fetchUrl = `${FIREBASE_DB_URL}/quiz_contents/${encodeURIComponent(quizKey)}.json`;
         let res = await fetch(fetchUrl);
         let data = await res.json();
 
-        // ചോദ്യങ്ങൾ ആദ്യ റിക്വസ്റ്റിൽ കിട്ടിയില്ലെങ്കിൽ ഡയറക്ട് ആയി നോക്കുന്നു
         if (!data) {
           let fallbackRes = await fetch(`${FIREBASE_DB_URL}/quiz_contents/${quizKey}.json`);
           data = await fallbackRes.json();
         }
 
-        // 🌟 ചോദ്യങ്ങൾ അറേ ആയി എക്സ്ട്രാക്റ്റ് ചെയ്യുന്നു
         let extractedQuestions = null;
         if (Array.isArray(data)) {
           extractedQuestions = data;
@@ -403,7 +422,6 @@
             document.getElementById('resultScreen').style.setProperty('display', 'block', 'important');
             loadPreviousAttemptFromFirebase();
           } else if (urlParams.get('key') === 'daily_quiz' || urlParams.get('autostart') === 'true') {
-            // 🌟 Daily Quiz ആണെങ്കിൽ ചോദ്യങ്ങൾ ഫയർബേസിൽ നിന്ന് ലോഡ് ആയയുടൻ നേരിട്ട് പരീക്ഷ ആരംഭിക്കുന്നു
             startExamDirectly();
           } else {
             document.getElementById('motivationScreen').classList.remove('hidden');
@@ -464,6 +482,17 @@
       if (badge) {
         badge.className = "max-w-xl mx-auto p-4 rounded-2xl border border-cyan-500/60 bg-cyan-950/40 text-cyan-300";
         badge.innerHTML = `📖 <strong>മുൻപത്തെ സ്കോർ അവലോകനം</strong> (Previous Attempt Review Mode)`;
+      }
+
+      // മുൻപ് 8 മാർക്ക് നേടിയിട്ടുണ്ടെങ്കിൽ ഔദ്യോഗിക നോട്ട്സ് ഡൗൺലോഡ് ചെയ്യാനുള്ള ബട്ടൺ നൽകുന്നു
+      const downloadBtn = document.getElementById('downloadOriginalNoteBtn');
+      const lockNotice = document.getElementById('pdfLockNotice');
+      if (prevScore >= 8.0) {
+        if (downloadBtn) downloadBtn.classList.remove('hidden');
+        if (lockNotice) lockNotice.classList.add('hidden');
+      } else {
+        if (downloadBtn) downloadBtn.classList.add('hidden');
+        if (lockNotice) lockNotice.classList.remove('hidden');
       }
 
       renderReviewOnlySolutions();
@@ -659,14 +688,15 @@
         badge.innerHTML = `💪 <strong>തളരരുത്!</strong> നോട്ട്സുകൾ കൂടുതൽ ആഴത്തിൽ പഠിച്ച് വീണ്ടും പരിശീലിക്കുക.`;
       }
 
+      // 🌟 ഡ്രൈവ് ലിങ്ക് ഇല്ലെങ്കിലും ചോദ്യങ്ങൾ ലഭ്യമാണെങ്കിൽ 8 മാർക്കിൽ കൂടുതൽ ലഭിച്ചാൽ ബട്ടൺ തെളിയും
       const downloadBtn = document.getElementById('downloadOriginalNoteBtn');
       const lockNotice = document.getElementById('pdfLockNotice');
-      if (scoreNum >= 8.0 && ORIGINAL_PDF_URL) {
+      if (scoreNum >= 8.0) {
         downloadBtn.classList.remove('hidden');
         lockNotice.classList.add('hidden');
       } else {
         downloadBtn.classList.add('hidden');
-        if (ORIGINAL_PDF_URL) lockNotice.classList.remove('hidden');
+        lockNotice.classList.remove('hidden');
       }
 
       renderSolutions();
@@ -875,10 +905,92 @@
     document.getElementById('closeFilterReviewBtn').onclick = () => document.getElementById('filterReviewArea').classList.add('hidden');
 
     function openFeedbackModal() { document.getElementById('feedbackModal').classList.remove('hidden'); }
+    
+    // 🌟 ഡ്രൈവ് ലിങ്ക് ഉണ്ടെങ്കിൽ അത് തുറക്കും; ഇല്ലെങ്കിൽ പോർട്ടലിലെ ചോദ്യങ്ങൾ വെച്ച് തനിയെ PDF ഉണ്ടാക്കും
     function recordFeedbackAndOpenDownload(feedbackVal) {
       document.getElementById('feedbackModal').classList.add('hidden');
-      if (ORIGINAL_PDF_URL) window.open(ORIGINAL_PDF_URL, '_blank');
-      else alert('ഔദ്യോഗിക PDF ലിങ്ക് ഉടൻ ലഭ്യമാക്കുന്നതാണ്.');
+      if (ORIGINAL_PDF_URL && ORIGINAL_PDF_URL.trim() !== '') {
+        window.open(ORIGINAL_PDF_URL, '_blank');
+      } else {
+        generateAutoOfficialNotesPDF();
+      }
+    }
+
+    // 🌟 നിങ്ങളുടെ സാമ്പിൾ PDF-ന്റെ അതേ ഫോർമാറ്റിൽ ഓട്ടോമാറ്റിക് ആയി PDF നിർമ്മിക്കുന്ന ഫങ്ഷൻ
+    function generateAutoOfficialNotesPDF() {
+      const container = document.getElementById('officialPdfContent');
+      const letters = ['A', 'B', 'C', 'D'];
+      const currentYear = new Date().getFullYear();
+
+      let html = `
+        <div style="border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+              <h1 style="font-size: 22px; font-weight: 900; margin: 0; color: #0284c7; letter-spacing: 0.5px;">SK PSC</h1>
+              <h3 style="font-size: 13px; font-weight: 800; margin: 2px 0; color: #334155;">SK PSC COACHING</h3>
+              <h2 style="font-size: 16px; font-weight: 900; margin: 4px 0; color: #0f172a;">${examTitle}</h2>
+            </div>
+            <div style="text-align: right;">
+              <h4 style="font-size: 14px; font-weight: 800; margin: 0; color: #0f172a;">Subhash Kumar</h4>
+              <p style="font-size: 11px; font-weight: 600; margin: 2px 0; color: #64748b;">Special Study Notes & Explanations</p>
+              <span style="display: inline-block; background: #e0f2fe; color: #0369a1; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 4px; border: 1px solid #bae6fd; margin-top: 4px;">OFFICIAL Q&A</span>
+            </div>
+          </div>
+        </div>
+      `;
+
+      questionsData.forEach((q, idx) => {
+        let optA = q.options[0] || '';
+        let optB = q.options[1] || '';
+        let optC = q.options[2] || '';
+        let optD = q.options[3] || '';
+
+        html += `
+          <div class="pdf-q-block">
+            <div style="font-size: 13px; font-weight: 800; line-height: 1.6; color: #0f172a; margin-bottom: 8px;">
+              ചോദ്യം ${idx + 1} : ${q.q}
+            </div>
+
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 8px; font-size: 12px; color: #1e293b;">
+              <tr>
+                <td style="width: 50%; padding: 3px 0;">(A) ${optA}</td>
+                <td style="width: 50%; padding: 3px 0;">(B) ${optB}</td>
+              </tr>
+              <tr>
+                <td style="width: 50%; padding: 3px 0;">(C) ${optC}</td>
+                <td style="width: 50%; padding: 3px 0;">(D) ${optD}</td>
+              </tr>
+            </table>
+
+            <div style="font-size: 12px; font-weight: 800; color: #0f172a; margin-bottom: 4px;">
+              ശരിയുത്തരം: (${letters[q.ans] || 'A'})
+            </div>
+
+            <div style="font-size: 11.5px; line-height: 1.5; color: #334155; text-align: justify;">
+              <strong>വിശദീകരണം:</strong> ${q.exp}
+            </div>
+          </div>
+        `;
+      });
+
+      html += `
+        <div style="margin-top: 25px; padding-top: 10px; border-top: 1px solid #cbd5e1; display: flex; justify-content: space-between; align-items: center; font-size: 10.5px; color: #64748b;">
+          <div>https://subhash-kumar00.github.io/PSC-EXAMS/</div>
+          <div>A4 Document • SK PSC Examination Portal © ${currentYear}</div>
+        </div>
+      `;
+
+      container.innerHTML = html;
+
+      const opt = {
+        margin: [10, 8, 10, 8],
+        filename: `${examTitle}_Official_Notes.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      html2pdf().set(opt).from(container).save();
     }
 
     function renderSolutions() {
