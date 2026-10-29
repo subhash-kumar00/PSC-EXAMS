@@ -24,15 +24,15 @@
       color: #0f172a !important;
       font-family: 'Noto Sans Malayalam', sans-serif !important;
       width: 680px !important;
-      padding: 15px 20px 25px 20px !important;
+      padding: 12px 18px 25px 18px !important;
       box-sizing: border-box !important;
     }
     .pdf-header-block {
       page-break-inside: avoid !important;
       break-inside: avoid !important;
-      border-bottom: 2px solid #0f172a;
+      border-bottom: 2px solid #059669;
       padding-bottom: 12px;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
     }
     .pdf-q-block {
       page-break-inside: avoid !important;
@@ -211,7 +211,7 @@
         </div>
 
         <div class="flex flex-wrap items-center justify-center gap-3 pt-2">
-          <button type="button" id="downloadOriginalNoteBtn" onclick="openFeedbackModal()" class="hidden px-5 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 text-slate-950 font-black rounded-xl text-sm transition shadow-lg flex items-center space-x-2 cursor-pointer">
+          <button type="button" id="downloadOriginalNoteBtn" onclick="openFeedbackModal()" class="hidden px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 text-slate-950 font-black rounded-xl text-sm transition shadow-lg flex items-center space-x-2 cursor-pointer">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path></svg>
             <span id="downloadOriginalNoteBtnText">ഔദ്യോഗിക നോട്ടുകൾ PDF ഡൗൺലോഡ് ചെയ്യുക 📥</span>
           </button>
@@ -924,7 +924,34 @@
       }
     }
 
-    // 🌟 നിങ്ങളുടെ സാമ്പിൾ PDF-ന്റെ അതേ ഫോർമാറ്റിൽ ഓട്ടോമാറ്റിക് ആയി PDF നിർമ്മിക്കുന്ന ഫങ്ഷൻ
+    // 🌟 പ്രസ്താവനകളെ (Statements 1, 2, 3...) മനോഹരമായി താഴേക്ക് താഴേക്ക് വിന്യസിക്കുന്ന ഫങ്ഷൻ
+    function formatQuestionStem(qText) {
+      if (!qText) return '';
+      let text = qText.trim();
+      text = text.replace(/\r\n/g, '\n');
+
+      // വാചകങ്ങളുടെ ഇടയിൽ വരുന്ന 1., 2., 3. തുടങ്ങിയ പ്രസ്താവനകളെ തനിയെ പുതിയ വരിയിലേക്ക് മാറ്റുന്നു
+      text = text.replace(/([?.:;।\n])\s*([0-9]+[\.\)]|\([0-9]+\)|[ivxIVX]+[\.\)])\s+/g, '$1\n$2 ');
+
+      const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+      if (lines.length <= 1) {
+        return `<span>${lines[0] || text}</span>`;
+      }
+
+      let html = `<div style="font-weight: 800; color: #0f172a; margin-bottom: 5px;">${lines[0]}</div>`;
+      for (let i = 1; i < lines.length; i++) {
+        const line = lines[i];
+        const isStatement = /^([0-9]+[\.\)]|\([0-9]+\)|[ivxIVX]+[\.\)])\s+/.test(line);
+        if (isStatement) {
+          html += `<div style="margin: 3.5px 0 3.5px 14px; line-height: 1.55; color: #1e293b; font-weight: 600;">${line}</div>`;
+        } else {
+          html += `<div style="margin-top: 4px; line-height: 1.5; color: #0f172a; font-weight: 700;">${line}</div>`;
+        }
+      }
+      return html;
+    }
+
+    // 🌟 ലോഗോ തീം നിറങ്ങളും സെന്റർ ടോപ്പിക്കും ഉൾപ്പെടുത്തി PDF ജനറേറ്റ് ചെയ്യുന്ന ഫങ്ഷൻ
     function generateAutoOfficialNotesPDF() {
       const container = document.getElementById('officialPdfContent');
       const letters = ['A', 'B', 'C', 'D'];
@@ -934,20 +961,25 @@
 
       let html = `
         <div class="pdf-header-block">
+          <!-- ഹെഡർ നിര: ഇടത് (ലോഗോ + പോർട്ടൽ പേര്), വലത് (Subhash Kumar) -->
           <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-            <div style="display: flex; align-items: center; gap: 12px;">
-              <img src="logo.png" onerror="this.onerror=null; this.src='${GITHUB_LOGO_URL}';" style="width: 50px; height: 50px; object-fit: contain; border-radius: 10px; border: 1px solid #cbd5e1; padding: 2px;" crossorigin="anonymous" alt="Logo">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <img src="logo.png" onerror="this.onerror=null; this.src='${GITHUB_LOGO_URL}';" style="width: 44px; height: 44px; object-fit: contain; border-radius: 8px; border: 1.5px solid #10b981; padding: 2px;" crossorigin="anonymous" alt="Logo">
               <div>
-                <h1 style="font-size: 20px; font-weight: 900; margin: 0; color: #0284c7; line-height: 1.1;">SK PSC</h1>
-                <h3 style="font-size: 12px; font-weight: 800; margin: 2px 0 0 0; color: #475569;">SK PSC COACHING</h3>
-                <h2 style="font-size: 14px; font-weight: 900; margin: 3px 0 0 0; color: #0f172a;">${examTitle}</h2>
+                <h1 style="font-size: 19px; font-weight: 900; margin: 0; color: #059669; line-height: 1.1; letter-spacing: 0.5px;">SK PSC</h1>
+                <h3 style="font-size: 11px; font-weight: 800; margin: 3px 0 0 0; color: #334155; letter-spacing: 0.5px;">SK PSC EXAM PORTAL</h3>
               </div>
             </div>
             <div style="text-align: right;">
               <h4 style="font-size: 13px; font-weight: 800; margin: 0; color: #0f172a;">Subhash Kumar</h4>
-              <p style="font-size: 10.5px; font-weight: 600; margin: 2px 0 0 0; color: #64748b;">Special Study Notes & Explanations</p>
-              <span style="display: inline-block; background: #e0f2fe; color: #0369a1; font-size: 9.5px; font-weight: 800; padding: 2px 7px; border-radius: 4px; border: 1px solid #bae6fd; margin-top: 3px;">OFFICIAL Q&A</span>
+              <p style="font-size: 10px; font-weight: 600; margin: 2px 0 0 0; color: #64748b;">Special Study Notes & Explanations</p>
+              <span style="display: inline-block; background: #ecfdf5; color: #047857; font-size: 9px; font-weight: 800; padding: 2px 8px; border-radius: 4px; border: 1px solid #a7f3d0; margin-top: 3px;">OFFICIAL Q&A</span>
             </div>
+          </div>
+
+          <!-- 🌟 ടോപ്പിക്ക് പേര് കൃത്യമായി നടുവിൽ (Centered Exam Title) -->
+          <div style="text-align: center; margin-top: 12px; padding: 5px 12px; background: #f0fdf4; border: 1.5px solid #a7f3d0; border-radius: 8px;">
+            <h2 style="font-size: 14.5px; font-weight: 900; margin: 0; color: #047857; letter-spacing: 0.5px; text-transform: uppercase;">${examTitle}</h2>
           </div>
         </div>
       `;
@@ -960,18 +992,18 @@
 
         html += `
           <div class="pdf-q-block">
-            <div style="font-size: 12.5px; font-weight: 800; line-height: 1.55; color: #0f172a; margin-bottom: 7px;">
-              ചോദ്യം ${idx + 1} : ${q.q}
+            <div style="font-size: 12.5px; line-height: 1.6; color: #0f172a; margin-bottom: 7px;">
+              <span style="font-weight: 900; color: #047857;">ചോദ്യം ${idx + 1} :</span> ${formatQuestionStem(q.q)}
             </div>
 
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 7px; font-size: 11.5px; color: #1e293b;">
+            <table style="width: 100%; border-collapse: collapse; margin: 6px 0 7px 0; font-size: 11.5px; color: #1e293b;">
               <tr>
-                <td style="width: 50%; padding: 2.5px 4px 2.5px 0; vertical-align: top;">(A) ${optA}</td>
-                <td style="width: 50%; padding: 2.5px 0 2.5px 4px; vertical-align: top;">(B) ${optB}</td>
+                <td style="width: 50%; padding: 2.5px 6px 2.5px 0; vertical-align: top;"><b>(A)</b> ${optA}</td>
+                <td style="width: 50%; padding: 2.5px 0 2.5px 6px; vertical-align: top;"><b>(B)</b> ${optB}</td>
               </tr>
               <tr>
-                <td style="width: 50%; padding: 2.5px 4px 2.5px 0; vertical-align: top;">(C) ${optC}</td>
-                <td style="width: 50%; padding: 2.5px 0 2.5px 4px; vertical-align: top;">(D) ${optD}</td>
+                <td style="width: 50%; padding: 2.5px 6px 2.5px 0; vertical-align: top;"><b>(C)</b> ${optC}</td>
+                <td style="width: 50%; padding: 2.5px 0 2.5px 6px; vertical-align: top;"><b>(D)</b> ${optD}</td>
               </tr>
             </table>
 
@@ -979,8 +1011,8 @@
               ശരിയുത്തരം: (${letters[q.ans] || 'A'})
             </div>
 
-            <div style="font-size: 11px; line-height: 1.5; color: #334155; text-align: justify;">
-              <strong>വിശദീകരണം:</strong> ${q.exp}
+            <div style="font-size: 11px; line-height: 1.55; color: #334155; text-align: justify;">
+              <strong style="color: #047857;">വിശദീകരണം:</strong> ${q.exp}
             </div>
           </div>
         `;
@@ -993,7 +1025,7 @@
         filename: `${examTitle}_Official_Notes.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
         enableLinks: true,
-        html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+        html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', scrollY: 0 },
         pagebreak: { mode: ['avoid-all', 'css', 'legacy'], avoid: ['.pdf-q-block', '.pdf-header-block'] },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
@@ -1011,8 +1043,8 @@
           pdf.setLineWidth(0.3);
           pdf.line(10, 287, 200, 287);
 
-          // ക്ലിക്ക് ചെയ്യാവുന്ന പോർട്ടൽ ലിങ്ക് (ഇടതുവശത്ത്)
-          pdf.setTextColor(2, 132, 199);
+          // ക്ലിക്ക് ചെയ്യാവുന്ന പോർട്ടൽ ലിങ്ക് (ഇടതുവശത്ത് - Emerald Green)
+          pdf.setTextColor(5, 150, 105);
           pdf.textWithLink(portalUrl, 10, 292, { url: portalUrl });
 
           // പേജ് നമ്പർ വിവരങ്ങൾ (വലതുവശത്ത്)
