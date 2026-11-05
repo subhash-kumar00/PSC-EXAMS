@@ -189,164 +189,106 @@
 
   <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-5">
     
-    <!-- 🌟 ക്ലീൻ & കംഫർട്ടബിൾ ഹീറോ സെക്ഷൻ (Mess-free Slim Layout) -->
-    <div class="hero-glow bg-slate-900 border border-slate-800/90 rounded-3xl p-5 sm:p-7 shadow-2xl relative overflow-hidden space-y-4 text-left">
-      <div class="flex flex-wrap items-center justify-between gap-2.5">
-        <div class="flex items-center space-x-2">
-          <span class="text-xs font-black uppercase tracking-wider text-emerald-300 bg-emerald-950/80 px-3 py-1 rounded-lg border border-emerald-500/40 flex items-center space-x-1.5">
-            <span>🎯</span>
-            <span>SK PSC EXAM HUB</span>
-          </span>
-          <span id="heroTrialBadge" class="hidden text-[11px] font-bold text-amber-300 bg-amber-950/80 px-2.5 py-0.5 rounded-md border border-amber-500/40 animate-pulse">
-            🎁 സൗജന്യ ട്രയൽ ആക്റ്റീവ് ആണ്
-          </span>
-        </div>
+    <!-- ================= 🌟 ലെവൽ 1: ഹോം പേജ് സ്ക്രീൻ (Home View) ================= -->
+    <div id="homeMainViewWrapper" class="space-y-5">
 
-        <!-- റെഡ് ബ്ലിങ്ക് മെസ്സേജ് ബാനർ -->
-        <div id="heroBlinkAlertBox" class="red-blink-banner bg-rose-950/50 border border-rose-500/80 rounded-xl px-3 py-1.5 inline-flex items-center gap-2 shadow-md">
-          <span class="auto-latest-badge px-1.5 py-0.2 rounded text-[9px] font-black uppercase tracking-wider bg-rose-600 text-white shadow-sm">
-            ● LATEST
-          </span>
-          <span id="heroBlinkAlertText" class="text-xs font-black text-rose-200 tracking-wide uppercase text-blink-red">
-            2027 LDC & LGS EXAMS COMMING SOON
-          </span>
-        </div>
-      </div>
-
-      <div class="space-y-1">
-        <h2 class="text-xl sm:text-2xl font-black text-white leading-tight">
-          ഉയർന്ന റാങ്കിനായി കൃത്യതയോടെയുള്ള പരിശീലനം!
-        </h2>
-        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-medium">
-          "നിങ്ങളുടെ സ്വപ്ന ജോലിയിലേക്കുള്ള വഴിയിൽ സമ്പൂർണ്ണ പിന്തുണയുമായി SK PSC നിങ്ങളോടൊപ്പമുണ്ട്!"
-        </p>
-      </div>
-
-      <!-- 🌟 സബ്സ്ക്രിപ്ഷൻ & പ്രീ-ബുക്കിംഗ് ക്ലിക്ക് ചെയ്തു തുറക്കാനുള്ള സ്മാർട്ട് കാർഡ് -->
-      <div onclick="openSubscriptionModal('SK PSC പ്രീമിയം കോഴ്സുകൾ')" class="bg-gradient-to-r from-amber-950/60 via-slate-950 to-emerald-950/50 border-2 border-amber-500/50 hover:border-amber-400 p-3.5 sm:p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-lg cursor-pointer transition transform active:scale-98">
-        <div class="flex items-center space-x-3">
-          <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xl shrink-0 border border-amber-500/40">
-            💳
-          </div>
-          <div>
-            <div class="flex items-center space-x-2">
-              <h4 class="text-xs sm:text-sm font-black text-white">സബ്സ്ക്രിപ്ഷൻ & പ്രീ-ബുക്കിംഗ് പാക്കേജുകൾ</h4>
-              <span class="text-[9px] bg-rose-600 text-white font-bold px-1.5 py-0.2 rounded-full uppercase animate-pulse">OFFER</span>
-            </div>
-            <p class="text-[11px] text-amber-200/90 mt-0.5">SCERT, LDC, LGS, DEGREE സ്പെഷ്യൽ കോഴ്സ് നിരക്കുകൾ കാണാൻ ക്ലിക്ക് ചെയ്യുക.</p>
-          </div>
-        </div>
-        <div class="flex items-center space-x-2 self-end sm:self-auto shrink-0">
-          <span class="text-xs font-bold text-emerald-400 hover:underline">വിശദാംശങ്ങൾ കാണുക</span>
-          <span class="w-6 h-6 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center font-bold text-xs">›</span>
-        </div>
-      </div>
-
-      <!-- നോട്ടീസ് ബോർഡ് -->
-      <div id="heroNoticeBox" class="hidden bg-emerald-950/50 border border-emerald-500/40 rounded-2xl p-3 flex items-start space-x-2.5 shadow-lg">
-        <span class="text-sm shrink-0 mt-0.5">📢</span>
-        <div class="text-xs text-emerald-200 leading-relaxed font-medium">
-          <span class="font-bold text-emerald-400 uppercase tracking-wide block text-[10px] mb-0.5">അറിയിപ്പ്:</span>
-          <div id="heroNoticeText" class="whitespace-pre-line"></div>
-        </div>
-      </div>
-    </div>
-
-   <!-- 🌟 ഇന്നത്തെ ഡെയ്ലി ക്വിസ് (Daily Quiz Card - Controlled by Admin) -->
-    <div id="dailyQuizSection" class="hidden bg-gradient-to-r from-emerald-950/70 via-slate-900 to-teal-950/70 border-2 border-emerald-500/60 rounded-3xl p-4 sm:p-5 shadow-2xl relative overflow-hidden">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div class="flex items-center space-x-3.5">
-          <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center text-2xl shrink-0 shadow-inner">
-            ⚡
-          </div>
-          <div>
-            <div class="flex items-center space-x-2">
-              <span class="auto-latest-badge px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-emerald-500 text-slate-950 shadow">
-                ● TODAY'S SPECIAL
-              </span>
-              <span class="text-xs font-black text-amber-300 font-mono" id="dailyQuizDate">TODAY</span>
-            </div>
-            <h3 class="text-sm sm:text-base font-black text-white mt-0.5 leading-tight" id="dailyQuizTitle">
-              ഇന്നത്തെ ഡെയ്ലി ക്വിസ്
-            </h3>
-            <p class="text-[11px] text-slate-400 mt-0.5" id="dailyQuizSubtitle">
-              ദിവസേനയുള്ള കറന്റ് അഫയേഴ്സ് & മോഡൽ ചോദ്യങ്ങൾ
-            </p>
-          </div>
-        </div>
-
-        <div class="flex items-center justify-between sm:justify-end space-x-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-800">
-          <span class="text-xs font-mono text-emerald-400 font-semibold" id="dailyQuizMeta">
-            📝 20 Qs • ⏱ 15 മിനിറ്റ്
-          </span>
-          <a id="dailyQuizStartBtn" href="#" class="px-5 py-2.5 bg-gradient-to-r from-emerald-400 to-teal-500 hover:from-emerald-300 text-slate-950 font-black rounded-xl text-xs sm:text-sm transition shadow-lg transform active:scale-95 flex items-center space-x-1.5 whitespace-nowrap cursor-pointer">
-            <span>പരീക്ഷ എഴുതാം</span>
-            <span>›</span>
-          </a>
-        </div>
-      </div>
-    </div>
-
-    <!-- സുരക്ഷിത ലോഗിൻ കാർഡ് (Mobile + 4-Digit PIN) -->
-    <div id="homeLoginCard" class="max-w-md mx-auto bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-4">
-      <div class="text-center space-y-1">
-        <span class="inline-block p-3 rounded-2xl bg-emerald-500/10 text-emerald-400 mb-1 text-2xl">
-          📱
-        </span>
-        <h3 id="authCardTitle" class="text-lg sm:text-xl font-bold text-white">വിദ്യാർത്ഥി ലോഗിൻ / രജിസ്ട്രേഷൻ</h3>
-        <p id="authCardDesc" class="text-xs text-slate-400">10 അക്ക മൊബൈൽ നമ്പർ നൽകുക</p>
-      </div>
-
-      <form id="stepPhoneForm" onsubmit="handlePhoneStep(event)" class="space-y-3.5">
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">മൊബൈൽ നമ്പർ</label>
+      <!-- ഹീറോ സെക്ഷൻ & നോട്ടീസ് ബോർഡ് -->
+      <div class="hero-glow bg-slate-900 border border-slate-800/90 rounded-3xl p-5 sm:p-7 shadow-2xl relative overflow-hidden space-y-4 text-left">
+        <div class="flex flex-wrap items-center justify-between gap-2.5">
           <div class="flex items-center space-x-2">
-            <span class="bg-slate-950 border border-slate-800 px-3 py-3 rounded-xl text-slate-300 font-mono text-xs select-none">🇮🇳 +91</span>
-            <input type="tel" id="authPhoneInput" pattern="[0-9]{10}" required class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition font-mono tracking-wider text-xs sm:text-sm" placeholder="10 അക്ക നമ്പർ">
+            <span class="text-xs font-black uppercase tracking-wider text-emerald-300 bg-emerald-950/80 px-3 py-1 rounded-lg border border-emerald-500/40 flex items-center space-x-1.5">
+              <span>🎯</span>
+              <span>SK PSC EXAM HUB</span>
+            </span>
+            <span id="heroTrialBadge" class="hidden text-[11px] font-bold text-amber-300 bg-amber-950/80 px-2.5 py-0.5 rounded-md border border-amber-500/40 animate-pulse">
+              🎁 സൗജന്യ ട്രയൽ ആക്റ്റീവ് ആണ്
+            </span>
+          </div>
+
+          <!-- റെഡ് ബ്ലിങ്ക് മെസ്സേജ് ബാനർ -->
+          <div id="heroBlinkAlertBox" class="red-blink-banner bg-rose-950/50 border border-rose-500/80 rounded-xl px-3 py-1.5 inline-flex items-center gap-2 shadow-md">
+            <span class="auto-latest-badge px-1.5 py-0.2 rounded text-[9px] font-black uppercase tracking-wider bg-rose-600 text-white shadow-sm">
+              ● LATEST
+            </span>
+            <span id="heroBlinkAlertText" class="text-xs font-black text-rose-200 tracking-wide uppercase text-blink-red">
+              2027 LDC & LGS EXAMS COMMING SOON
+            </span>
           </div>
         </div>
 
-        <button type="submit" id="btnPhoneNext" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 text-slate-950 font-black rounded-xl transition transform active:scale-95 shadow-lg text-xs sm:text-sm cursor-pointer flex items-center justify-center space-x-1.5">
-          <span>തുടരുക</span>
-          <span>›</span>
-        </button>
-      </form>
+        <div class="space-y-1">
+          <h2 class="text-xl sm:text-2xl font-black text-white leading-tight">
+            ഉയർന്ന റാങ്കിനായി കൃത്യതയോടെയുള്ള പരിശീലനം!
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-medium">
+            "നിങ്ങളുടെ സ്വപ്ന ജോലിയിലേക്കുള്ള വഴിയിൽ സമ്പൂർണ്ണ പിന്തുണയുമായി SK PSC നിങ്ങളോടൊപ്പമുണ്ട്!"
+          </p>
+        </div>
 
-      <form id="stepPinLoginForm" onsubmit="handlePinLogin(event)" class="space-y-3.5 hidden">
-        <div class="bg-emerald-500/10 border border-emerald-500/30 p-3 rounded-xl text-xs text-emerald-300 text-center">
-          സ്വാഗതം <strong id="loginWelcomeName" class="text-white"></strong>! നിങ്ങളുടെ 4 അക്ക സെക്യൂരിറ്റി PIN നൽകുക.
+        <!-- സബ്സ്ക്രിപ്ഷൻ കാർഡ് -->
+        <div onclick="openSubscriptionModal('SK PSC പ്രീമിയം കോഴ്സുകൾ')" class="bg-gradient-to-r from-amber-950/60 via-slate-950 to-emerald-950/50 border-2 border-amber-500/50 hover:border-amber-400 p-3.5 sm:p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-lg cursor-pointer transition transform active:scale-98">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xl shrink-0 border border-amber-500/40">
+              💳
+            </div>
+            <div>
+              <div class="flex items-center space-x-2">
+                <h4 class="text-xs sm:text-sm font-black text-white">സബ്സ്ക്രിപ്ഷൻ & പ്രീ-ബുക്കിംഗ് പാക്കേജുകൾ</h4>
+                <span class="text-[9px] bg-rose-600 text-white font-bold px-1.5 py-0.2 rounded-full uppercase animate-pulse">OFFER</span>
+              </div>
+              <p class="text-[11px] text-amber-200/90 mt-0.5">SCERT, LDC, LGS, DEGREE സ്പെഷ്യൽ കോഴ്സ് നിരക്കുകൾ കാണാൻ ക്ലിക്ക് ചെയ്യുക.</p>
+            </div>
+          </div>
+          <div class="flex items-center space-x-2 self-end sm:self-auto shrink-0">
+            <span class="text-xs font-bold text-emerald-400 hover:underline">വിശദാംശങ്ങൾ കാണുക</span>
+            <span class="w-6 h-6 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center font-bold text-xs">›</span>
+          </div>
         </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Enter 4-Digit PIN</label>
-          <input type="password" id="authPinInput" maxlength="4" pattern="[0-9]{4}" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-center text-white tracking-[0.5em] font-mono text-xl focus:outline-none focus:border-emerald-500 transition" placeholder="••••">
-        </div>
-        <div class="flex space-x-2">
-          <button type="button" onclick="resetAuthView()" class="w-1/3 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-xs transition cursor-pointer">പിന്നോട്ട്</button>
-          <button type="submit" id="btnLoginSubmit" class="w-2/3 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 text-slate-950 font-black rounded-xl text-xs sm:text-sm transition shadow-lg cursor-pointer">Login ›</button>
-        </div>
-      </form>
 
-      <form id="stepRegisterForm" onsubmit="handleNewRegistration(event)" class="space-y-3.5 hidden">
-        <div class="bg-cyan-500/10 border border-cyan-500/30 p-3 rounded-xl text-xs text-cyan-300 text-center leading-relaxed">
-          പുതിയ രജിസ്ട്രേഷൻ! നിങ്ങളുടെ പേരും എപ്പോഴും ലോഗിൻ ചെയ്യാൻ ഒരു 4 അക്ക രഹസ്യ പിന്നും നൽകുക.
+        <!-- നോട്ടീസ് ബോർഡ് -->
+        <div id="heroNoticeBox" class="hidden bg-emerald-950/50 border border-emerald-500/40 rounded-2xl p-3 flex items-start space-x-2.5 shadow-lg">
+          <span class="text-sm shrink-0 mt-0.5">📢</span>
+          <div class="text-xs text-emerald-200 leading-relaxed font-medium">
+            <span class="font-bold text-emerald-400 uppercase tracking-wide block text-[10px] mb-0.5">അറിയിപ്പ്:</span>
+            <div id="heroNoticeText" class="whitespace-pre-line"></div>
+          </div>
         </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">ഔദ്യോഗിക പേര് (Official Name)</label>
-          <input type="text" id="regNameInput" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500 transition text-xs sm:text-sm" placeholder="ഉദാ: സുഭാഷ് കുമാർ സി">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">4 അക്ക രഹസ്യ PIN നൽകുക (Create 4-Digit PIN)</label>
-          <input type="password" id="regPinInput" maxlength="4" pattern="[0-9]{4}" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-center text-white tracking-[0.4em] font-mono text-lg focus:outline-none focus:border-emerald-500 transition" placeholder="••••">
-        </div>
-        <div class="flex space-x-2">
-          <button type="button" onclick="resetAuthView()" class="w-1/3 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-xs transition cursor-pointer">പിന്നോട്ട്</button>
-          <button type="submit" id="btnRegisterSubmit" class="w-2/3 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 text-slate-950 font-black rounded-xl text-xs sm:text-sm transition shadow-lg cursor-pointer">രജിസ്റ്റർ ചെയ്യുക ›</button>
-        </div>
-      </form>
-    </div>
+      </div>
 
-    <!-- Exam Section -->
-    <div id="examSection" class="hidden space-y-5">
+      <!-- ഇന്നത്തെ ഡെയ്ലി ക്വിസ് -->
+      <div id="dailyQuizSection" class="hidden bg-gradient-to-r from-emerald-950/70 via-slate-900 to-teal-950/70 border-2 border-emerald-500/60 rounded-3xl p-4 sm:p-5 shadow-2xl relative overflow-hidden">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="flex items-center space-x-3.5">
+            <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center text-2xl shrink-0 shadow-inner">
+              ⚡
+            </div>
+            <div>
+              <div class="flex items-center space-x-2">
+                <span class="auto-latest-badge px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-emerald-500 text-slate-950 shadow">
+                  ● TODAY'S SPECIAL
+                </span>
+                <span class="text-xs font-black text-amber-300 font-mono" id="dailyQuizDate">TODAY</span>
+              </div>
+              <h3 class="text-sm sm:text-base font-black text-white mt-0.5 leading-tight" id="dailyQuizTitle">
+                ഇന്നത്തെ ഡെയ്ലി ക്വിസ്
+              </h3>
+              <p class="text-[11px] text-slate-400 mt-0.5" id="dailyQuizSubtitle">
+                ദിവസേനയുള്ള കറന്റ് അഫയേഴ്സ് & മോഡൽ ചോദ്യങ്ങൾ
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between sm:justify-end space-x-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-800">
+            <span class="text-xs font-mono text-emerald-400 font-semibold" id="dailyQuizMeta">
+              📝 20 Qs • ⏱ 15 മിനിറ്റ്
+            </span>
+            <a id="dailyQuizStartBtn" href="#" class="px-5 py-2.5 bg-gradient-to-r from-emerald-400 to-teal-500 hover:from-emerald-300 text-slate-950 font-black rounded-xl text-xs sm:text-sm transition shadow-lg transform active:scale-95 flex items-center space-x-1.5 whitespace-nowrap cursor-pointer">
+              <span>പരീക്ഷ എഴുതാം</span>
+              <span>›</span>
+            </a>
+          </div>
+        </div>
+      </div>
 
       <!-- ടൈംടേബിൾ & ലോക്കിംഗ് കാർഡ് -->
       <div id="timetableWrapper" class="hidden bg-slate-900 border border-emerald-500/40 rounded-2xl p-4 sm:p-5 shadow-xl space-y-3">
@@ -392,14 +334,125 @@
         <div id="latestReelList" class="flex space-x-3.5 overflow-x-auto custom-scroll pb-2.5 pt-1 snap-x"></div>
       </div>
 
+      <!-- സുരക്ഷിത ലോഗിൻ കാർഡ് (Mobile + 4-Digit PIN) -->
+      <div id="homeLoginCard" class="max-w-md mx-auto bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-4">
+        <div class="text-center space-y-1">
+          <span class="inline-block p-3 rounded-2xl bg-emerald-500/10 text-emerald-400 mb-1 text-2xl">
+            📱
+          </span>
+          <h3 id="authCardTitle" class="text-lg sm:text-xl font-bold text-white">വിദ്യാർത്ഥി ലോഗിൻ / രജിസ്ട്രേഷൻ</h3>
+          <p id="authCardDesc" class="text-xs text-slate-400">10 അക്ക മൊബൈൽ നമ്പർ നൽകുക</p>
+        </div>
+
+        <form id="stepPhoneForm" onsubmit="handlePhoneStep(event)" class="space-y-3.5">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">മൊബൈൽ നമ്പർ</label>
+            <div class="flex items-center space-x-2">
+              <span class="bg-slate-950 border border-slate-800 px-3 py-3 rounded-xl text-slate-300 font-mono text-xs select-none">🇮🇳 +91</span>
+              <input type="tel" id="authPhoneInput" pattern="[0-9]{10}" required class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition font-mono tracking-wider text-xs sm:text-sm" placeholder="10 അക്ക നമ്പർ">
+            </div>
+          </div>
+
+          <button type="submit" id="btnPhoneNext" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 text-slate-950 font-black rounded-xl transition transform active:scale-95 shadow-lg text-xs sm:text-sm cursor-pointer flex items-center justify-center space-x-1.5">
+            <span>തുടരുക</span>
+            <span>›</span>
+          </button>
+        </form>
+
+        <form id="stepPinLoginForm" onsubmit="handlePinLogin(event)" class="space-y-3.5 hidden">
+          <div class="bg-emerald-500/10 border border-emerald-500/30 p-3 rounded-xl text-xs text-emerald-300 text-center">
+            സ്വാഗതം <strong id="loginWelcomeName" class="text-white"></strong>! നിങ്ങളുടെ 4 അക്ക സെക്യൂരിറ്റി PIN നൽകുക.
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Enter 4-Digit PIN</label>
+            <input type="password" id="authPinInput" maxlength="4" pattern="[0-9]{4}" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-center text-white tracking-[0.5em] font-mono text-xl focus:outline-none focus:border-emerald-500 transition" placeholder="••••">
+          </div>
+          <div class="flex space-x-2">
+            <button type="button" onclick="resetAuthView()" class="w-1/3 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-xs transition cursor-pointer">പിന്നോട്ട്</button>
+            <button type="submit" id="btnLoginSubmit" class="w-2/3 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 text-slate-950 font-black rounded-xl text-xs sm:text-sm transition shadow-lg cursor-pointer">Login ›</button>
+          </div>
+        </form>
+
+        <form id="stepRegisterForm" onsubmit="handleNewRegistration(event)" class="space-y-3.5 hidden">
+          <div class="bg-cyan-500/10 border border-cyan-500/30 p-3 rounded-xl text-xs text-cyan-300 text-center leading-relaxed">
+            പുതിയ രജിസ്ട്രേഷൻ! നിങ്ങളുടെ പേരും എപ്പോഴും ലോഗിൻ ചെയ്യാൻ ഒരു 4 അക്ക രഹസ്യ പിന്നും നൽകുക.
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">ഔദ്യോഗിക പേര് (Official Name)</label>
+            <input type="text" id="regNameInput" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500 transition text-xs sm:text-sm" placeholder="ഉദാ: സുഭാഷ് കുമാർ സി">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">4 അക്ക രഹസ്യ PIN നൽകുക (Create 4-Digit PIN)</label>
+            <input type="password" id="regPinInput" maxlength="4" pattern="[0-9]{4}" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-center text-white tracking-[0.4em] font-mono text-lg focus:outline-none focus:border-emerald-500 transition" placeholder="••••">
+          </div>
+          <div class="flex space-x-2">
+            <button type="button" onclick="resetAuthView()" class="w-1/3 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-xs transition cursor-pointer">പിന്നോട്ട്</button>
+            <button type="submit" id="btnRegisterSubmit" class="w-2/3 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 text-slate-950 font-black rounded-xl text-xs sm:text-sm transition shadow-lg cursor-pointer">രജിസ്റ്റർ ചെയ്യുക ›</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- പ്രധാന പരീക്ഷാ ഫോൾഡറുകൾ (LDC, LGS, SCERT, Degree, All) -->
+      <div id="mainFolderSection" class="hidden space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xs sm:text-sm font-black text-white uppercase tracking-wider flex items-center space-x-2">
+            <span>🗂️</span>
+            <span>പരീക്ഷാ വിഭാഗം തിരഞ്ഞെടുക്കുക (Select Exam Category)</span>
+          </h3>
+          <span class="text-[10px] text-emerald-400 font-mono">ഫോൾഡർ തിരഞ്ഞെടുക്കാം ▾</span>
+        </div>
+        <div id="mainFoldersContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5"></div>
+      </div>
+
+    </div>
+    <!-- 👆 ലെവൽ 1 (ഹോം പേജ്) ഇവിടെ അവസാനിക്കുന്നു 👆 -->
+
+
+    <!-- ================= 🌟 ലെവൽ 2: വിഷയങ്ങളുടെ സ്ക്രീൻ (Subjects Page) ================= -->
+    <div id="subjectsPageViewWrapper" class="hidden space-y-4">
+      
+      <!-- ബാക്ക് ബട്ടൺ (ഹോം പേജിലേക്ക്) -->
+      <div class="bg-slate-900/95 backdrop-blur border border-emerald-500/40 p-3 sm:p-4 rounded-2xl flex items-center justify-between shadow-xl sticky top-14 z-30">
+        <button onclick="goBackToHomeView()" class="px-3.5 py-1.5 sm:px-4 sm:py-2 bg-slate-800 hover:bg-slate-700 text-emerald-400 font-bold rounded-xl text-xs sm:text-sm transition flex items-center space-x-1.5 cursor-pointer border border-emerald-500/30 shadow">
+          <span>‹</span>
+          <span>ഹോം പേജിലേക്ക് മടങ്ങുക</span>
+        </button>
+        <span id="activeMainCategoryBadge" class="text-xs font-black text-white uppercase tracking-wider bg-emerald-950 px-2.5 py-1 rounded-lg border border-emerald-500/40 font-mono"></span>
+      </div>
+
+      <!-- വിഷയങ്ങൾ ലിസ്റ്റ് ചെയ്യുന്ന ബോക്സ് -->
+      <div class="bg-slate-900/80 border border-slate-800 rounded-3xl p-4 sm:p-6 space-y-3 shadow-xl">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+          <h3 id="selectedMainFolderTitle" class="text-xs sm:text-sm font-black text-emerald-400 uppercase tracking-wider">വിഷയങ്ങൾ (Subject Folders)</h3>
+          <span class="text-[10px] text-slate-400">പരീക്ഷ എഴുതാൻ വിഷയം തിരഞ്ഞെടുക്കുക ▾</span>
+        </div>
+        <div id="foldersContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5"></div>
+      </div>
+
+    </div>
+    <!-- 👆 ലെവൽ 2 (വിഷയങ്ങൾ) ഇവിടെ അവസാനിക്കുന്നു 👆 -->
+
+
+    <!-- ================= 🌟 ലെവൽ 3: പരീക്ഷകളുടെ സ്ക്രീൻ (Exams Page) ================= -->
+    <div id="examsPageViewWrapper" class="hidden space-y-4">
+      
+      <!-- ബാക്ക് ബട്ടൺ (വിഷയങ്ങളിലേക്ക് മടങ്ങാൻ) -->
+      <div class="bg-slate-900/95 backdrop-blur border border-cyan-500/40 p-3 sm:p-4 rounded-2xl flex items-center justify-between shadow-xl sticky top-14 z-30">
+        <button onclick="goBackToSubjectsView()" class="px-3.5 py-1.5 sm:px-4 sm:py-2 bg-slate-800 hover:bg-slate-700 text-cyan-400 font-bold rounded-xl text-xs sm:text-sm transition flex items-center space-x-1.5 cursor-pointer border border-cyan-500/30 shadow">
+          <span>‹</span>
+          <span>വിഷയങ്ങളിലേക്ക് മടങ്ങുക</span>
+        </button>
+        <span id="activeSubjectBadge" class="text-xs font-black text-white uppercase tracking-wider bg-cyan-950 px-2.5 py-1 rounded-lg border border-cyan-500/40 font-mono"></span>
+      </div>
+
       <!-- സെർച്ച് & സോർട്ടിംഗ് ബാർ -->
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-lg flex flex-col sm:flex-row gap-3 items-center justify-between">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 shadow-lg flex flex-col sm:flex-row gap-3 items-center justify-between">
         <div class="w-full sm:flex-1 relative">
-          <input type="text" id="searchInput" placeholder="പരീക്ഷയുടെ പേരോ വിഷയമോ തിരയുക..." class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-3.5 pr-8 py-2.5 text-xs sm:text-sm text-slate-200 focus:outline-none focus:border-emerald-500 transition shadow-inner">
+          <input type="text" id="searchInput" placeholder="ഈ വിഷയത്തിലെ പരീക്ഷകൾ തിരയുക..." class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-3.5 pr-8 py-2.5 text-xs sm:text-sm text-slate-200 focus:outline-none focus:border-emerald-500 transition shadow-inner">
           <span class="absolute right-3 top-3 text-xs text-slate-500">🔍</span>
         </div>
         <div class="w-full sm:w-48">
-          <select id="sortSelect" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500 transition cursor-pointer">
+          <select id="sortSelect" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-500 transition cursor-pointer">
             <option value="newest">പുതിയത് ആദ്യം</option>
             <option value="oldest">പഴയത് ആദ്യം</option>
             <option value="questions_desc">കൂടുതൽ ചോദ്യങ്ങൾ</option>
@@ -408,81 +461,35 @@
         </div>
       </div>
 
-      <!-- STEP 1: പ്രധാന പരീക്ഷാ ഫോൾഡറുകൾ (SCERT ഉൾപ്പെടുത്തി) -->
-      <div class="space-y-3">
-        <div class="flex items-center justify-between">
-          <h3 class="text-xs sm:text-sm font-black text-white uppercase tracking-wider flex items-center space-x-2">
-            <span>🗂️</span>
-            <span>പരീക്ഷാ വിഭാഗം തിരഞ്ഞെടുക്കുക (Select Exam Category)</span>
-          </h3>
-          <span class="text-[10px] text-emerald-400 font-mono">Step 1: ഫോൾഡർ തുറക്കുക ▾</span>
+      <!-- സബ് ഫോൾഡറുകൾ (ഉണ്ടെങ്കിൽ മാത്രം കാണും) -->
+      <div id="subFoldersSection" class="hidden bg-slate-900/80 border border-slate-800 rounded-3xl p-4 sm:p-5 space-y-3 shadow-xl">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+          <h4 id="selectedSubFolderTitle" class="text-xs font-bold text-cyan-400 uppercase tracking-wider">സബ് ടോപ്പിക്കുകൾ:</h4>
+          <button onclick="closeSubFolderSection()" class="text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700 cursor-pointer">✕ മടക്കുക</button>
         </div>
-
-        <div id="mainFoldersContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5"></div>
-      </div>
-
-      <!-- STEP 2: സബ്ജക്റ്റ് ഫോൾഡറുകൾ -->
-      <div id="subjectFoldersSection" class="hidden bg-slate-900/60 border border-slate-800/90 rounded-3xl p-4 sm:p-5 space-y-3.5 shadow-xl">
-        <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
-          <div class="flex items-center space-x-2">
-            <span class="text-base">📁</span>
-            <div>
-              <h3 id="selectedMainFolderTitle" class="text-xs sm:text-sm font-black text-emerald-400 uppercase tracking-wider">
-                വിഷയങ്ങൾ (Subject Folders)
-              </h3>
-              <p class="text-[10px] text-slate-400">പരീക്ഷ എഴുതാനായി താഴെ നിന്ന് വിഷയം തിരഞ്ഞെടുക്കുക</p>
-            </div>
-          </div>
-          <button onclick="closeMainFolder()" class="text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-xl border border-slate-700 transition cursor-pointer">
-            ✕ ഫോൾഡർ മടക്കുക
-          </button>
-        </div>
-        
-        <div id="foldersContainer" class="grid grid-rows-2 sm:grid-rows-none sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 grid-flow-col sm:grid-flow-row auto-cols-[185px] sm:auto-cols-auto gap-2.5 overflow-x-auto sm:overflow-visible custom-scroll pb-2.5 pt-1 snap-x"></div>
-      </div>
-      <!-- 🌟 STEP 2.5: സബ് ഫോൾഡറുകൾ (Sub Topic Folders) -->
-      <div id="subFoldersSection" class="hidden bg-slate-900/60 border border-slate-800/90 rounded-3xl p-4 sm:p-5 space-y-3.5 shadow-xl">
-        <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
-          <div class="flex items-center space-x-2">
-            <span class="text-base">📂</span>
-            <div>
-              <h3 id="selectedSubFolderTitle" class="text-xs sm:text-sm font-black text-cyan-400 uppercase tracking-wider">
-                സബ് ടോപ്പിക്കുകൾ (Sub Topics)
-              </h3>
-              <p class="text-[10px] text-slate-400">പരീക്ഷ എഴുതാനായി താഴെ നിന്ന് സബ് ഫോൾഡർ തിരഞ്ഞെടുക്കുക</p>
-            </div>
-          </div>
-          <button onclick="closeSubFolderSection()" class="text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-xl border border-slate-700 transition cursor-pointer">
-            ✕ സബ് ഫോൾഡർ മടക്കുക
-          </button>
-        </div>
-        
         <div id="subFoldersContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5"></div>
       </div>
 
-      <!-- STEP 3: പരീക്ഷാ കാർഡുകൾ -->
-      <div id="examsDisplayArea" class="hidden space-y-3 pt-2 border-t border-slate-800/80">
+      <!-- പരീക്ഷാ കാർഡുകൾ ലിസ്റ്റ് ചെയ്യുന്നു -->
+      <div id="examsDisplayArea" class="space-y-3 pt-2">
         <div class="flex items-center justify-between">
           <h4 class="text-xs sm:text-sm font-bold text-emerald-400 flex items-center space-x-1.5" id="activeCategoryHeader">
             <span>📑</span>
             <span>പരീക്ഷകൾ</span>
           </h4>
-          <div class="flex items-center space-x-3">
-            <span class="text-[11px] text-slate-400 font-mono">ലഭ്യമായവ: <strong id="examCountDisplay" class="text-emerald-400">0</strong></span>
-            <button onclick="closeSelectedCategory()" class="text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700 transition cursor-pointer">✕ മടക്കുക</button>
-          </div>
+          <span class="text-[11px] text-slate-400 font-mono">ലഭ്യമായവ: <strong id="examCountDisplay" class="text-emerald-400">0</strong></span>
         </div>
-
         <div id="quizGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5"></div>
-
         <div id="emptyState" class="hidden text-center py-16 text-slate-500 text-xs sm:text-sm bg-slate-900/40 rounded-2xl border border-slate-800">
           ഈ വിഭാഗത്തിൽ പരീക്ഷകൾ ഒന്നും കണ്ടെത്തിയില്ല.
         </div>
       </div>
 
     </div>
+    <!-- 👆 ലെവൽ 3 (പരീക്ഷകൾ) ഇവിടെ അവസാനിക്കുന്നു 👆 -->
 
   </main>
+  
  <!-- 🌟 Legal Policies Modal (Z-Index 999999 നേരിട്ട് നൽകി ഏറ്റവും മുന്നിൽ കൊണ്ടുവന്നത്) -->
 <div id="legalPolicyModal" style="z-index: 999999 !important;" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md hidden flex items-center justify-center p-4">
   <div class="bg-slate-900 border border-slate-700 rounded-3xl max-w-xl w-full p-6 shadow-2xl space-y-4 flex flex-col max-h-[85vh]">
@@ -604,8 +611,6 @@
       </div>
 
     </div>
-  </div>
-   
   </div>
 
   <!-- PWA ആപ്പ് ഇൻസ്റ്റാൾ ബട്ടൺ -->
@@ -1662,34 +1667,108 @@ function parseMainFolders(rawFolderValue) {
       });
     }
 
+    // 🌟 ഫോൾഡർ ക്ലിക്ക് ചെയ്യുമ്പോൾ ഹോം പേജ് മറച്ച് കാറ്റഗറി പേജ് തുറക്കുന്നു
+    // 🌟 ലെവൽ 1 -> ലെവൽ 2: മെയിൻ ഫോൾഡർ (ഉദാ: LGS) തൊടുമ്പോൾ വിഷയങ്ങളുടെ സ്ക്രീൻ തുറക്കുന്നു
     function selectMainFolder(folderId) {
-      if (selectedMainFolder === folderId) {
-        closeMainFolder();
-        return;
-      }
       selectedMainFolder = folderId;
       selectedCategory = null;
-      renderMainExamFolders();
-      renderSubjectFolders();
-
-      document.getElementById('examsDisplayArea').classList.add('hidden');
-      const subjectSection = document.getElementById('subjectFoldersSection');
-      subjectSection.classList.remove('hidden');
+      selectedSubFolder = null;
 
       const folderMeta = MAIN_EXAM_FOLDERS.find(f => f.id === folderId);
-      document.getElementById('selectedMainFolderTitle').innerText = `${folderMeta ? folderMeta.title : folderId} - വിഷയങ്ങൾ (Subject Folders)`;
-      setTimeout(() => subjectSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+      const folderName = folderMeta ? folderMeta.title : folderId;
+
+      // 1. ഹോം പേജും പരീക്ഷാ പേജും ഹൈഡ് ചെയ്യുന്നു
+      document.getElementById('homeMainViewWrapper').classList.add('hidden');
+      document.getElementById('examsPageViewWrapper').classList.add('hidden');
+
+      // 2. വിഷയങ്ങളുടെ സ്ക്രീൻ (ലെവൽ 2) മാത്രം കാണിക്കുന്നു
+      const subjectsView = document.getElementById('subjectsPageViewWrapper');
+      subjectsView.classList.remove('hidden');
+
+      // ഹെഡറിൽ പേര് നൽകുന്നു
+      document.getElementById('activeMainCategoryBadge').innerHTML = `${folderMeta ? folderMeta.icon : '📁'} ${folderName}`;
+      document.getElementById('selectedMainFolderTitle').innerText = `${folderName} - വിഷയങ്ങൾ`;
+
+      renderSubjectFolders();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // 🌟 ലെവൽ 2 -> ലെവൽ 1: വിഷയങ്ങളുടെ സ്ക്രീനിൽ നിന്ന് തിരികെ ഹോം പേജിലേക്ക് പോകുന്നു
+    function goBackToHomeView() {
+      document.getElementById('subjectsPageViewWrapper').classList.add('hidden');
+      document.getElementById('examsPageViewWrapper').classList.add('hidden');
+      document.getElementById('homeMainViewWrapper').classList.remove('hidden');
+
+      selectedMainFolder = null;
+      selectedCategory = null;
+      selectedSubFolder = null;
+
+      renderMainExamFolders();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // 🌟 ലെവൽ 2 -> ലെവൽ 3: വിഷയം (ഉദാ: ഭരണഘടന) ക്ലിക്ക് ചെയ്യുമ്പോൾ പരീക്ഷകളുടെ പുതിയ സ്ക്രീൻ തുറക്കുന്നു
+    function selectFolder(cat) {
+      selectedCategory = cat;
+      selectedSubFolder = null;
+
+      const folderMeta = MAIN_EXAM_FOLDERS.find(f => f.id === selectedMainFolder);
+      const mainLabel = folderMeta ? folderMeta.id : 'EXAMS';
+
+      // 1. വിഷയങ്ങളുടെ സ്ക്രീൻ ഹൈഡ് ചെയ്യുന്നു
+      document.getElementById('subjectsPageViewWrapper').classList.add('hidden');
+
+      // 2. പരീക്ഷകളുടെ സ്ക്രീൻ (ലെവൽ 3) മാത്രം കാണിക്കുന്നു
+      const examsView = document.getElementById('examsPageViewWrapper');
+      examsView.classList.remove('hidden');
+
+      // ഹെഡർ ബാഡ്ജ് സെറ്റ് ചെയ്യുന്നു
+      document.getElementById('activeSubjectBadge').innerHTML = `📁 ${mainLabel} › ${cat === 'all' ? 'എല്ലാ വിഷയങ്ങളും' : cat}`;
+
+      const folderExams = rawQuizList.filter(q => 
+        doesExamBelongToMainFolder(q, selectedMainFolder) && (cat === 'all' || q.category === cat)
+      );
+
+      // സബ് ഫോൾഡറുകൾ ഉണ്ടോയെന്ന് നോക്കുന്നു
+      const subFolderSet = new Set();
+      folderExams.forEach(q => {
+        if (q.subFolder && q.subFolder.trim() !== '') {
+          subFolderSet.add(q.subFolder.trim());
+        }
+      });
+
+      const subSection = document.getElementById('subFoldersSection');
+      if (subFolderSet.size > 0 && cat !== 'all') {
+        renderSubFoldersList(Array.from(subFolderSet), folderExams);
+        subSection.classList.remove('hidden');
+      } else {
+        subSection.classList.add('hidden');
+      }
+
+      updateCategoryHeaderTitle();
+      applyFiltersAndRender();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // 🌟 ലെവൽ 3 -> ലെവൽ 2: പരീക്ഷകളിൽ നിന്ന് തിരികെ വിഷയങ്ങളിലേക്ക് പോകുന്നു
+    function goBackToSubjectsView() {
+      document.getElementById('examsPageViewWrapper').classList.add('hidden');
+      document.getElementById('subjectsPageViewWrapper').classList.remove('hidden');
+
+      selectedCategory = null;
+      selectedSubFolder = null;
+
+      renderSubjectFolders();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function closeMainFolder() {
-  selectedMainFolder = null;
-  selectedCategory = null;
-  selectedSubFolder = null; // 🌟 സബ് ഫോൾഡർ റീസെറ്റ് ചെയ്യുന്നു
-  renderMainExamFolders();
-  document.getElementById('subjectFoldersSection').classList.add('hidden');
-  document.getElementById('subFoldersSection').classList.add('hidden'); // 🌟 സബ് ഫോൾഡറും ഹൈഡ് ചെയ്യുന്നു
-  document.getElementById('examsDisplayArea').classList.add('hidden');
-}
+      goBackToHomeView();
+    }
+
+    function closeSelectedCategory() {
+      goBackToSubjectsView();
+    }
 
     function renderSubjectFolders() {
       const container = document.getElementById('foldersContainer');
@@ -1759,43 +1838,7 @@ function parseMainFolders(rawFolderValue) {
       });
     }
 
-    // 🌟 സബ്ജക്റ്റ് ഫോൾഡർ ക്ലിക്ക് ചെയ്യുമ്പോൾ
-    function selectFolder(cat) {
-      if (selectedCategory === cat && !selectedSubFolder) {
-        closeSelectedCategory();
-        return;
-      }
-      selectedCategory = cat;
-      selectedSubFolder = null;
-      renderSubjectFolders();
-
-      const folderExams = rawQuizList.filter(q => 
-        doesExamBelongToMainFolder(q, selectedMainFolder) && (cat === 'all' || q.category === cat)
-      );
-
-      // സബ് ഫോൾഡറുകൾ ഉണ്ടോയെന്ന് പരിശോധിക്കുന്നു
-      const subFolderSet = new Set();
-      folderExams.forEach(q => {
-        if (q.subFolder && q.subFolder.trim() !== '') {
-          subFolderSet.add(q.subFolder.trim());
-        }
-      });
-
-      const subSection = document.getElementById('subFoldersSection');
-      if (subFolderSet.size > 0 && cat !== 'all') {
-        renderSubFoldersList(Array.from(subFolderSet), folderExams);
-        subSection.classList.remove('hidden');
-      } else {
-        subSection.classList.add('hidden');
-      }
-
-      const area = document.getElementById('examsDisplayArea');
-      area.classList.remove('hidden');
-
-      updateCategoryHeaderTitle();
-      applyFiltersAndRender();
-      setTimeout(() => (subFolderSet.size > 0 ? subSection : area).scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
-    }
+   
 
     // 🌟 സബ് ഫോൾഡറുകൾ ലിസ്റ്റ് ചെയ്യുന്നു
     function renderSubFoldersList(subFolders, folderExams) {
@@ -1876,13 +1919,7 @@ function parseMainFolders(rawFolderValue) {
       headerTitle.innerHTML = text;
     }
 
-    function closeSelectedCategory() {
-      selectedCategory = null;
-      selectedSubFolder = null;
-      renderSubjectFolders();
-      document.getElementById('subFoldersSection').classList.add('hidden');
-      document.getElementById('examsDisplayArea').classList.add('hidden');
-    }
+    
 
     // 🌟 സബ് ഫോൾഡർ കൂടി വെച്ച് പരീക്ഷകൾ ഫിൽട്ടർ ചെയ്യുന്നു
     function applyFiltersAndRender() {
@@ -2552,10 +2589,14 @@ function parseMainFolders(rawFolderValue) {
       alert('പേര് അപ്ഡേറ്റ് ചെയ്തു!');
     }
 
-    function activateUserSession() {
+function activateUserSession() {
       if (!candidate) return;
       document.getElementById('homeLoginCard').classList.add('hidden');
-      document.getElementById('examSection').classList.remove('hidden');
+      
+      // 👇 ഈ വരി ഉണ്ടെന്ന് ഉറപ്പാക്കുക 👇
+      const mfSec = document.getElementById('mainFolderSection');
+      if (mfSec) mfSec.classList.remove('hidden');
+
       document.getElementById('navUserName').innerText = candidate.name;
       document.getElementById('navUserBox').classList.remove('hidden');
       document.getElementById('floatingChatBtn').classList.remove('hidden');
@@ -2576,7 +2617,7 @@ function parseMainFolders(rawFolderValue) {
       requestNotificationPermission();
       listenForChatReplies();
     }
-
+    
     function logoutCandidate() {
       if (confirm('ലോഗ് ഔട്ട് ചെയ്യണമെന്നുറപ്പാണോ?')) {
         if (window.OneSignalDeferred) {
@@ -2589,7 +2630,9 @@ function parseMainFolders(rawFolderValue) {
         userAttemptsMap = {};
         if (chatRefreshInterval) clearInterval(chatRefreshInterval);
         document.getElementById('homeLoginCard').classList.remove('hidden');
-        document.getElementById('examSection').classList.add('hidden');
+        const mfSec = document.getElementById('mainFolderSection');
+        if (mfSec) mfSec.classList.add('hidden');
+        goBackToHomeView();
         document.getElementById('navUserBox').classList.add('hidden');
         resetAuthView();
       }
@@ -2632,19 +2675,7 @@ function parseMainFolders(rawFolderValue) {
       }
     }
 
-    document.getElementById('searchInput').addEventListener('input', () => {
-      const val = document.getElementById('searchInput').value.trim();
-      if (val) {
-        if (!selectedMainFolder) selectedMainFolder = 'ALL_EXAMS';
-        if (!selectedCategory) selectedCategory = 'all';
-        renderMainExamFolders();
-        renderSubjectFolders();
-        document.getElementById('subjectFoldersSection').classList.remove('hidden');
-        document.getElementById('examsDisplayArea').classList.remove('hidden');
-      }
-      applyFiltersAndRender();
-    });
-
+    document.getElementById('searchInput').addEventListener('input', applyFiltersAndRender);
     document.getElementById('sortSelect').addEventListener('change', applyFiltersAndRender);
  // 🌟 ലീഗൽ പോളിസികൾ കാണിക്കുന്ന ഫംഗ്ഷൻ
 const LEGAL_POLICIES = {
