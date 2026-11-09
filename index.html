@@ -191,7 +191,24 @@
     
     <!-- ================= 🌟 ലെവൽ 1: ഹോം പേജ് സ്ക്രീൻ (Home View) ================= -->
     <div id="homeMainViewWrapper" class="space-y-5">
-
+<!-- 🔴 തത്സമയ ലൈവ് ക്ലാസ് അലേർട്ട് ബാനർ (അധ്യാപകൻ ലൈവ് സ്റ്റാർട്ട് ചെയ്യുമ്പോൾ മാത്രം തെളിയും) -->
+<div id="homeLiveClassBanner" class="hidden bg-gradient-to-r from-rose-950/80 via-slate-900 to-rose-950/80 border-2 border-rose-500 rounded-3xl p-4 sm:p-5 shadow-[0_0_25px_rgba(244,63,94,0.35)] flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-pulse">
+  <div class="flex items-center space-x-3.5">
+    <div class="w-11 h-11 rounded-2xl bg-rose-600 text-white flex items-center justify-center text-xl font-black shadow-lg shrink-0">
+      🔴
+    </div>
+    <div>
+      <div class="flex items-center space-x-2">
+        <span class="text-[9px] bg-rose-600 text-white font-black px-2 py-0.5 rounded-full uppercase tracking-wider">LIVE NOW</span>
+        <span id="homeLiveAccessTag" class="text-[10px] bg-emerald-500/20 text-emerald-300 font-bold px-2 py-0.5 rounded border border-emerald-500/30">FREE</span>
+      </div>
+      <h4 id="homeLiveTitleText" class="text-xs sm:text-sm font-black text-white mt-1">പ്രത്യേക ലൈവ് ക്ലാസ് ആരംഭിച്ചിരിക്കുന്നു!</h4>
+    </div>
+  </div>
+  <a href="live.html" class="px-6 py-2.5 bg-gradient-to-r from-rose-500 to-amber-500 hover:from-rose-400 text-slate-950 font-black rounded-xl text-xs transition shadow-lg text-center cursor-pointer">
+    പങ്കെടുക്കുക (Join Class) ›
+  </a>
+</div>
       <!-- ഹീറോ സെക്ഷൻ & നോട്ടീസ് ബോർഡ് -->
       <div class="hero-glow bg-slate-900 border border-slate-800/90 rounded-3xl p-5 sm:p-7 shadow-2xl relative overflow-hidden space-y-4 text-left">
         <div class="flex flex-wrap items-center justify-between gap-2.5">
@@ -1474,7 +1491,18 @@ function parseMainFolders(rawFolderValue) {
           fetch(`${FIREBASE_DB_URL}/portal_config.json`).then(r => r.json()).catch(() => ({})),
           candidate && candidate.phone ? fetch(`${FIREBASE_DB_URL}/users_history/${sanitizePhone(candidate.phone)}.json`).then(r => r.json()).catch(() => null) : Promise.resolve(null)
         ]);
-
+// 🔴 ഹോം പേജിലെ ലൈവ് സ്റ്റാറ്റസ് പരിശോധിക്കുന്നു
+try {
+  const liveRes = await fetch(`${FIREBASE_DB_URL}/live_session.json`).then(r => r.json()).catch(() => null);
+  const liveBanner = document.getElementById('homeLiveClassBanner');
+  if (liveRes && liveRes.isLive === true) {
+    if (liveBanner) liveBanner.classList.remove('hidden');
+    document.getElementById('homeLiveTitleText').textContent = liveRes.title || 'പ്രത്യേക ലൈവ് ക്ലാസ് ആരംഭിച്ചിരിക്കുന്നു!';
+    document.getElementById('homeLiveAccessTag').textContent = liveRes.access_type === 'FREE' ? '🟢 സൗജന്യ പ്രവേശനം' : '🔒 പ്രീമിയം ബാച്ച്';
+  } else {
+    if (liveBanner) liveBanner.classList.add('hidden');
+  }
+} catch(e) {}
         portalConfigCache = configData || {};
 
         // 🌟 അഡ്മിൻ ഉണ്ടാക്കിയ ഫോൾഡറുകൾ ഫയർബേസിൽ നിന്ന് എടുക്കുന്നു
