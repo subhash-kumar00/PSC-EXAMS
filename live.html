@@ -2,7 +2,7 @@
 <html lang="ml">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>SK PSC - ലൈവ് ക്ലാസ് റൂം</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
@@ -10,124 +10,142 @@
   <script src="https://meet.jit.si/external_api.js"></script>
 
   <style>
-    body { font-family: 'Noto Sans Malayalam', 'Manrope', sans-serif; background-color: #020617; }
+    html, body {
+      font-family: 'Noto Sans Malayalam', 'Manrope', sans-serif;
+      background-color: #000000;
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+    }
     .custom-scroll::-webkit-scrollbar { width: 4px; }
     .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
     
     @keyframes compactGlow {
-      0%, 100% { box-shadow: 0 0 15px rgba(6, 182, 212, 0.45); }
-      50% { box-shadow: 0 0 4px rgba(6, 182, 212, 0.15); }
+      0%, 100% { box-shadow: 0 0 18px rgba(6, 182, 212, 0.55); }
+      50% { box-shadow: 0 0 5px rgba(6, 182, 212, 0.2); }
     }
     .poll-float-card { animation: compactGlow 1.2s infinite ease-in-out; }
   </style>
 </head>
-<body class="text-slate-100 min-h-screen flex flex-col justify-between select-none overflow-x-hidden">
+<body class="text-slate-100 h-screen w-screen flex flex-col justify-between select-none overflow-hidden">
 
-  <!-- Header -->
-  <header class="bg-slate-900/95 backdrop-blur border-b border-slate-800 px-3 py-2 sticky top-0 z-40">
-    <div class="max-w-7xl mx-auto flex items-center justify-between gap-2">
+  <!-- 🌟 മുഴുവൻ കണ്ടെന്റും ഉൾക്കൊള്ളുന്ന ഫുൾസ്ക്രീൻ റാപ്പർ -->
+  <div id="videoCardWrapper" class="relative w-full h-full flex-1 flex flex-col bg-black overflow-hidden">
+
+    <!-- 1. മുകളിലെ ഒതുക്കമുള്ള കൺട്രോൾ ഹെഡർ -->
+    <header class="bg-slate-900/95 backdrop-blur border-b border-slate-800 px-2.5 sm:px-4 py-1.5 flex items-center justify-between gap-1.5 z-40 shrink-0">
       <div class="flex items-center space-x-2 min-w-0">
-        <a href="index.html" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-xs font-bold text-slate-300 transition shrink-0">‹</a>
         <div class="min-w-0">
           <h1 class="text-xs font-bold text-white flex items-center space-x-1.5 truncate">
             <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping shrink-0"></span>
             <span id="liveRoomTitleDisplay" class="truncate">SK PSC ലൈവ്</span>
           </h1>
-          <p class="text-[9px] text-slate-400 truncate font-mono" id="liveUserRoleBadge">പഠിതാവ്</p>
+          <p class="text-[9px] text-emerald-400 truncate font-mono" id="liveUserRoleBadge">പഠിതാവ്</p>
         </div>
       </div>
       
-      <div class="flex items-center space-x-2 shrink-0">
-        <span id="liveAccessBadge" class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-          പരിശോധിക്കുന്നു...
+      <div class="flex items-center space-x-1.5 shrink-0">
+        <span id="liveAccessBadge" class="hidden sm:inline-block text-[9px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+          LIVE
         </span>
-        <button onclick="toggleVideoFullScreen()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-cyan-300 rounded-lg text-xs font-bold border border-slate-700 cursor-pointer">
-          ⛶ വിപുലീകരിക്കുക
+
+        <!-- വലതുവശത്തെ പാർട്ടിസിപ്പന്റ്സ് ബോക്സ് മറയ്ക്കാൻ/കാണിക്കാൻ -->
+        <button onclick="hideSideFilmstrip()" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-amber-300 rounded-lg text-[10px] font-bold border border-slate-700 cursor-pointer" title="സൈഡ് ബോക്സ് ഹൈഡ് ചെയ്യുക">
+          👁️ സൈഡ് ബോക്സ്
+        </button>
+
+        <!-- ഫുൾ സ്ക്രീൻ ബട്ടൺ -->
+        <button onclick="toggleVideoFullScreen()" id="btnFullScreen" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-cyan-300 rounded-lg text-[10px] sm:text-xs font-bold border border-slate-700 cursor-pointer">
+          ⛶ Fullscreen
+        </button>
+
+        <!-- 🚪 ക്ലാസിൽ നിന്ന് പുറത്തിറങ്ങാനുള്ള EXIT ബട്ടൺ -->
+        <button onclick="exitLiveClassRoom()" class="px-2.5 py-1 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-[10px] sm:text-xs font-black shadow cursor-pointer flex items-center space-x-1">
+          <span>🚪</span>
+          <span>Exit</span>
         </button>
       </div>
-    </div>
-  </header>
+    </header>
 
-  <!-- Main View Area -->
-  <main class="flex-1 w-full max-w-7xl mx-auto p-1.5 sm:p-3 flex flex-col relative">
-    
-    <!-- Video Container (ഫുൾ സ്ക്രീൻ ആയാലും ഇതിനുള്ളിൽ തന്നെ നിൽക്കും) -->
-    <div id="videoCardWrapper" class="w-full bg-black border border-slate-800 rounded-2xl overflow-hidden shadow-2xl relative flex-1 min-h-[75vh] flex flex-col">
-      <div id="jitsiContainer" class="w-full h-full flex-1 bg-black flex items-center justify-center">
-        <div id="videoLoadingBox" class="text-center py-16 space-y-2">
-          <div class="w-8 h-8 border-3 border-rose-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p class="text-xs text-slate-300 font-bold">ക്ലാസിലേക്ക് കണക്റ്റ് ചെയ്യുന്നു...</p>
-        </div>
-      </div>
-
-      <!-- 🌟 സ്ക്രീനിന്റെ മുകളിൽ ഓവർലാപ്പ് ആയി വരുന്ന ഒതുക്കമുള്ള പോൾ ബോക്സ് -->
-      <div id="pollAreaBox" class="hidden poll-float-card absolute bottom-4 left-1/2 -translate-x-1/2 z-50 bg-slate-950/90 backdrop-blur-md border border-cyan-400/80 rounded-2xl px-3 py-2 shadow-2xl flex flex-col items-center space-y-1.5 max-w-[95%] sm:max-w-md w-full">
-        
-        <div class="w-full flex items-center justify-between text-[11px] px-1 font-bold">
-          <span class="text-cyan-300 truncate">⚡ ശരിയുത്തരം തിരഞ്ഞെടുക്കുക:</span>
-          <span id="pollTimerBadge" class="text-[10px] font-mono px-2 py-0.2 rounded bg-amber-950 text-amber-300 border border-amber-500/40">10s</span>
-        </div>
-
-        <!-- ഒതുക്കമുള്ള A, B, C, D ബട്ടണുകൾ -->
-        <div class="grid grid-cols-4 gap-2 w-full">
-          <button type="button" onclick="submitQuickVote(0)" id="voteBtn_0" class="py-2 bg-slate-900 border border-slate-700 hover:border-cyan-400 rounded-xl text-base font-black text-white active:scale-95 cursor-pointer flex flex-col items-center justify-center shadow">
-            <span>A</span>
-            <span id="pct_0" class="hidden text-[8px] text-cyan-300 font-mono">0%</span>
-          </button>
-          <button type="button" onclick="submitQuickVote(1)" id="voteBtn_1" class="py-2 bg-slate-900 border border-slate-700 hover:border-cyan-400 rounded-xl text-base font-black text-white active:scale-95 cursor-pointer flex flex-col items-center justify-center shadow">
-            <span>B</span>
-            <span id="pct_1" class="hidden text-[8px] text-cyan-300 font-mono">0%</span>
-          </button>
-          <button type="button" onclick="submitQuickVote(2)" id="voteBtn_2" class="py-2 bg-slate-900 border border-slate-700 hover:border-cyan-400 rounded-xl text-base font-black text-white active:scale-95 cursor-pointer flex flex-col items-center justify-center shadow">
-            <span>C</span>
-            <span id="pct_2" class="hidden text-[8px] text-cyan-300 font-mono">0%</span>
-          </button>
-          <button type="button" onclick="submitQuickVote(3)" id="voteBtn_3" class="py-2 bg-slate-900 border border-slate-700 hover:border-cyan-400 rounded-xl text-base font-black text-white active:scale-95 cursor-pointer flex flex-col items-center justify-center shadow">
-            <span>D</span>
-            <span id="pct_3" class="hidden text-[8px] text-cyan-300 font-mono">0%</span>
-          </button>
-        </div>
-
-        <div class="w-full flex items-center justify-between text-[9px] px-1 font-mono">
-          <span id="pollFeedbackStatus" class="font-bold text-emerald-400"></span>
-          <span id="top3WinnersText" class="text-amber-300 truncate"></span>
-        </div>
-      </div>
-
-    </div>
-
-  </main>
-
-  <!-- 🏆 പോൾ റാങ്ക് ലിസ്റ്റ് MODAL -->
-  <div id="livePollRankModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3">
-    <div class="bg-slate-900 border border-amber-500/60 rounded-2xl max-w-sm w-full p-4 shadow-2xl space-y-3 flex flex-col max-h-[80vh]">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-        <h3 class="text-xs sm:text-sm font-black text-amber-400 flex items-center space-x-1.5">
-          <span>🏆</span>
-          <span>പോൾ റാങ്ക് ലിസ്റ്റ്</span>
-        </h3>
-        <button onclick="closePollRankModal()" class="text-slate-400 hover:text-white text-base font-bold p-1 bg-slate-800 rounded-lg w-6 h-6 flex items-center justify-center cursor-pointer">✕</button>
-      </div>
-
-      <div class="overflow-y-auto custom-scroll flex-1 pr-1">
-        <table class="w-full text-left text-xs text-slate-300">
-          <thead class="bg-slate-950 text-slate-400 uppercase text-[9px] border-b border-slate-800 sticky top-0">
-            <tr>
-              <th class="p-1.5 text-center">#</th>
-              <th class="p-1.5">വിദ്യാർത്ഥി</th>
-              <th class="p-1.5 text-center">പോയിന്റ്</th>
-            </tr>
-          </thead>
-          <tbody id="livePollRankTableBody" class="divide-y divide-slate-800/60 font-mono text-[11px]">
-            <tr><td colspan="3" class="p-3 text-center text-slate-500">പോൾ വിവരങ്ങൾ ലഭ്യമല്ല.</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="pt-1.5 border-t border-slate-800 flex justify-end">
-        <button onclick="closePollRankModal()" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold rounded-lg cursor-pointer">അടയ്ക്കുക</button>
+    <!-- 2. Jitsi Video Stream Container (100% വിസ്തൃതിയിൽ) -->
+    <div id="jitsiContainer" class="w-full flex-1 bg-black flex items-center justify-center relative overflow-hidden">
+      <div id="videoLoadingBox" class="text-center p-6 space-y-2">
+        <div class="w-8 h-8 border-3 border-rose-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+        <p class="text-xs text-slate-300 font-bold">ക്ലാസിലേക്ക് കണക്റ്റ് ചെയ്യുന്നു...</p>
       </div>
     </div>
+
+    <!-- 3. ⚡ ഫ്ലോട്ടിംഗ് ഇൻസ്റ്റന്റ് പോൾ (ഫുൾസ്ക്രീനിലും സ്ക്രീനിന് മുകളിൽ തെളിയും) -->
+    <div id="pollAreaBox" class="hidden poll-float-card absolute bottom-14 left-1/2 -translate-x-1/2 z-50 bg-slate-950/90 backdrop-blur-md border border-cyan-400 rounded-2xl px-3 py-2 shadow-2xl flex flex-col items-center space-y-1.5 w-[92%] max-w-xs">
+      
+      <div class="w-full flex items-center justify-between text-[10px] px-1 font-bold">
+        <span class="text-cyan-300 truncate">⚡ ഉത്തരം തിരഞ്ഞെടുക്കുക:</span>
+        <span id="pollTimerBadge" class="text-[10px] font-mono px-2 py-0.2 rounded bg-amber-950 text-amber-300 border border-amber-500/40">10s</span>
+      </div>
+
+      <!-- ചെറിയ A, B, C, D ബട്ടണുകൾ -->
+      <div class="grid grid-cols-4 gap-1.5 w-full">
+        <button type="button" onclick="submitQuickVote(0)" id="voteBtn_0" class="py-1.5 bg-slate-900 border border-slate-700 hover:border-cyan-400 rounded-xl text-sm font-black text-white active:scale-95 cursor-pointer flex flex-col items-center justify-center">
+          <span>A</span>
+          <span id="pct_0" class="hidden text-[8px] text-cyan-300 font-mono">0%</span>
+        </button>
+        <button type="button" onclick="submitQuickVote(1)" id="voteBtn_1" class="py-1.5 bg-slate-900 border border-slate-700 hover:border-cyan-400 rounded-xl text-sm font-black text-white active:scale-95 cursor-pointer flex flex-col items-center justify-center">
+          <span>B</span>
+          <span id="pct_1" class="hidden text-[8px] text-cyan-300 font-mono">0%</span>
+        </button>
+        <button type="button" onclick="submitQuickVote(2)" id="voteBtn_2" class="py-1.5 bg-slate-900 border border-slate-700 hover:border-cyan-400 rounded-xl text-sm font-black text-white active:scale-95 cursor-pointer flex flex-col items-center justify-center">
+          <span>C</span>
+          <span id="pct_2" class="hidden text-[8px] text-cyan-300 font-mono">0%</span>
+        </button>
+        <button type="button" onclick="submitQuickVote(3)" id="voteBtn_3" class="py-1.5 bg-slate-900 border border-slate-700 hover:border-cyan-400 rounded-xl text-sm font-black text-white active:scale-95 cursor-pointer flex flex-col items-center justify-center">
+          <span>D</span>
+          <span id="pct_3" class="hidden text-[8px] text-cyan-300 font-mono">0%</span>
+        </button>
+      </div>
+
+      <div class="w-full flex items-center justify-between text-[9px] px-1 font-mono">
+        <span id="pollFeedbackStatus" class="font-bold text-emerald-400"></span>
+        <span id="top3WinnersText" class="text-amber-300 truncate"></span>
+      </div>
+    </div>
+
+    <!-- 4. 🏆 ഫ്ലോട്ടിംഗ് റാങ്ക് ലിസ്റ്റ് പോപ്പ്-അപ്പ് (ഫുൾസ്ക്രീനിലും സ്ക്രീനിന് മുകളിൽ തെളിയും) -->
+    <div id="livePollRankModal" class="hidden absolute inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-3">
+      <div class="bg-slate-900 border-2 border-amber-500/70 rounded-2xl max-w-sm w-full p-4 shadow-2xl space-y-2.5 flex flex-col max-h-[82vh]">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+          <div>
+            <h3 class="text-xs sm:text-sm font-black text-amber-400 flex items-center space-x-1.5">
+              <span>🏆</span>
+              <span>തത്സമയ പോൾ റാങ്ക് ലിസ്റ്റ്</span>
+            </h3>
+            <p class="text-[9px] text-slate-400">ശരിയുത്തരത്തിന് +1 പോയിന്റ് (ക്ലാസിലുള്ള മുഴുവൻ പേരും)</p>
+          </div>
+          <button onclick="closePollRankModal()" class="text-slate-400 hover:text-white text-sm font-bold p-1 bg-slate-800 rounded-lg w-6 h-6 flex items-center justify-center cursor-pointer">✕</button>
+        </div>
+
+        <div class="overflow-y-auto custom-scroll flex-1 pr-1">
+          <table class="w-full text-left text-xs text-slate-300">
+            <thead class="bg-slate-950 text-slate-400 uppercase text-[9px] border-b border-slate-800 sticky top-0">
+              <tr>
+                <th class="p-1.5 text-center w-12">റാങ്ക്</th>
+                <th class="p-1.5">വിദ്യാർത്ഥി</th>
+                <th class="p-1.5 text-center w-20">മാർക്ക്</th>
+              </tr>
+            </thead>
+            <tbody id="livePollRankTableBody" class="divide-y divide-slate-800/60 font-mono text-[11px]">
+              <tr><td colspan="3" class="p-3 text-center text-slate-500">വിവരങ്ങൾ ശേഖരിക്കുന്നു...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pt-1.5 border-t border-slate-800 flex justify-end">
+          <button onclick="closePollRankModal()" class="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-lg cursor-pointer">അടയ്ക്കുക</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <script>
@@ -137,6 +155,7 @@
     let currentUser = null;
     let isTeacher = false;
     let liveSessionData = null;
+    let activePollObj = null;
     let activePollInterval = null;
     let autoDismissTimeout = null;
     let currentVotedOption = null;
@@ -149,11 +168,26 @@
     }
 
     function toggleVideoFullScreen() {
-      const card = document.getElementById('videoCardWrapper');
+      const wrapper = document.getElementById('videoCardWrapper');
       if (!document.fullscreenElement) {
-        card.requestFullscreen().catch(() => {});
+        wrapper.requestFullscreen().catch(() => {});
       } else {
         document.exitFullscreen().catch(() => {});
+      }
+    }
+
+    function hideSideFilmstrip() {
+      if (jitsiApiInstance) {
+        try { jitsiApiInstance.executeCommand('toggleFilmStrip'); } catch (e) {}
+      }
+    }
+
+    function exitLiveClassRoom() {
+      if (confirm("ലൈവ് ക്ലാസിൽ നിന്ന് പുറത്തിറങ്ങണമെന്നുറപ്പാണോ?")) {
+        if (jitsiApiInstance) {
+          try { jitsiApiInstance.dispose(); } catch (e) {}
+        }
+        window.location.replace("index.html");
       }
     }
 
@@ -174,7 +208,7 @@
           document.getElementById('liveUserRoleBadge').textContent = "👨‍🏫 അധ്യാപകൻ (Host)";
           document.getElementById('pollAreaBox').style.display = 'none';
         } else {
-          alert("തെറ്റായ PIN! വിദ്യാർത്ഥിയായി റീഡയറക്റ്റ് ചെയ്യുന്നു.");
+          alert("തെറ്റായ PIN! വിദ്യാർത്ഥിയായി പ്രവേശിക്കുന്നു.");
         }
       }
 
@@ -189,17 +223,49 @@
           }
         } catch (e) {}
 
-        if (!currentUser) {
+        if (!currentUser || !currentUser.phone) {
           alert("ലൈവ് ക്ലാസിൽ പങ്കെടുക്കാൻ ദയവായി ലോഗിൻ ചെയ്യുക!");
-          window.location.href = "index.html";
+          window.location.replace("index.html");
           return;
         }
-        document.getElementById('liveUserRoleBadge').textContent = currentUser.name || "വിദ്യാർത്ഥി";
+        document.getElementById('liveUserRoleBadge').textContent = currentUser.Official_Name || currentUser.name || "വിദ്യാർത്ഥി";
       }
 
       await verifyAccessAndStartMeeting();
       setInterval(syncRealtimePollAndRank, 2000);
     });
+
+    // 🌟 ക്ലാസിൽ കയറുന്ന എല്ലാ കുട്ടികളെയും തത്സമയം റാങ്ക് ലിസ്റ്റിൽ (0 മാർക്കിൽ) രജിസ്റ്റർ ചെയ്യുന്നു
+    async function registerStudentInLiveLeaderboard() {
+      if (isTeacher || !currentUser || !currentUser.phone) return;
+      const phone = sanitizePhone(currentUser.phone);
+      const studentName = currentUser.Official_Name || currentUser.name || "Student";
+
+      try {
+        const res = await fetch(`${FIREBASE_DB_URL}/live_session/pollLeaderboard/${phone}.json`);
+        const existing = await res.json();
+
+        if (!existing) {
+          await fetch(`${FIREBASE_DB_URL}/live_session/pollLeaderboard/${phone}.json`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: studentName,
+              phone: phone,
+              score: 0,
+              attempted: 0,
+              lastPollId: 0
+            })
+          });
+        } else {
+          await fetch(`${FIREBASE_DB_URL}/live_session/pollLeaderboard/${phone}/name.json`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(studentName)
+          });
+        }
+      } catch (e) {}
+    }
 
     async function verifyAccessAndStartMeeting() {
       try {
@@ -208,7 +274,7 @@
 
         if (liveSessionData.isLive !== true && !isTeacher) {
           alert("അധ്യാപകൻ നിലവിൽ ലൈവ് ആരംഭിച്ചിട്ടില്ല!");
-          window.location.href = "index.html";
+          window.location.replace("index.html");
           return;
         }
 
@@ -216,21 +282,20 @@
 
         const badge = document.getElementById('liveAccessBadge');
         const isFree = (liveSessionData.access_type === 'FREE');
-
-        badge.textContent = isTeacher ? "👑 HOST MODE" : (isFree ? "🟢 FREE LIVE" : "🔒 PAID BATCH");
-        badge.className = isTeacher 
-          ? "text-[9px] font-mono font-bold px-2 py-0.5 rounded-md bg-cyan-500/20 text-cyan-300 border border-cyan-500/40"
-          : (isFree ? "text-[9px] font-mono font-bold px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" : "text-[9px] font-mono font-bold px-2 py-0.5 rounded-md bg-rose-500/20 text-rose-400 border border-rose-500/30");
+        badge.textContent = isTeacher ? "👑 HOST" : (isFree ? "🟢 FREE" : "🔒 PAID");
 
         if (!isFree && !isTeacher) {
           const today = new Date().toISOString().split('T')[0];
           const isValid = currentUser.valid_until && (currentUser.valid_until >= today);
           if (!isValid) {
-            alert("🔒 പ്രീമിയം വിദ്യാർത്ഥികൾക്ക് മാത്രമുള്ള ക്ലാസ്!");
-            window.location.href = "index.html";
+            alert("🔒 ഈ ക്ലാസ് പ്രീമിയം വിദ്യാർത്ഥികൾക്ക് മാത്രമുള്ളതാണ്!");
+            window.location.replace("index.html");
             return;
           }
         }
+
+        // അറ്റൻഡൻസ് & ലീഡർബോർഡ് രജിസ്ട്രേഷൻ
+        await registerStudentInLiveLeaderboard();
 
         initJitsiMeeting(liveSessionData.roomId || "SK_PSC_LIVE_ROOM");
       } catch (err) {}
@@ -240,8 +305,9 @@
       const domain = "meet.jit.si";
       const studentName = isTeacher ? "സുഭാഷ് സർ (Teacher)" : (currentUser.Official_Name || currentUser.name || "Student");
 
-      const studentToolbar = ['raisehand', 'fullscreen', 'chat'];
-      const teacherToolbar = ['microphone', 'camera', 'desktop', 'fullscreen', 'tileview', 'mute-everyone', 'chat'];
+      // വിദ്യാർത്ഥികൾക്ക് ആവശ്യമുള്ള ടൂളുകൾ മാത്രം
+      const studentToolbar = ['raisehand', 'chat'];
+      const teacherToolbar = ['microphone', 'camera', 'desktop', 'tileview', 'mute-everyone', 'chat'];
 
       const options = {
         roomName: roomName,
@@ -256,14 +322,18 @@
           prejoinPageEnabled: false,
           enableWelcomePage: false,
           enableClosePage: false,
+          // 🌟 8x8 പരസ്യ പേജ് പൂർണ്ണമായും തടയുന്നു
           SHOW_PROMOTIONAL_CLOSE_PAGE: false,
-          HIDE_DEEP_LINKING_LOGO: true,
-          // 🌟 വലതുവശത്തെ പങ്കാളികളുടെ ബോക്സ് ഹൈഡ് ചെയ്തു സ്ക്രീൻഷെയർ വലുതാക്കാൻ:
+          enablePromotionalLobby: false,
+          hideLobbyButton: true,
+          disableProfile: true,
+          disableTileView: !isTeacher,
+          // 🌟 വലതുവശത്തെ പാർട്ടിസിപ്പന്റ്സ് ഫിലിംസ്ട്രിപ്പ് ഒഴിവാക്കുന്നു
           filmstrip: {
-            enabled: isTeacher,
-            disableStageFilmstrip: true
-          },
-          disableTileView: !isTeacher
+            disabled: !isTeacher,
+            disableStageFilmstrip: true,
+            disableTopPanel: true
+          }
         },
         interfaceConfigOverwrite: {
           TOOLBAR_BUTTONS: isTeacher ? teacherToolbar : studentToolbar,
@@ -272,20 +342,43 @@
           SHOW_BRAND_WATERMARK: false,
           SHOW_POWERED_BY: false,
           SHOW_PROMOTIONAL_CLOSE_PAGE: false,
-          DISABLE_JOIN_LEAVE_NOTIFICATIONS: true
+          DISABLE_JOIN_LEAVE_NOTIFICATIONS: true,
+          FILM_STRIP_MAX_HEIGHT: 0,
+          VERTICAL_FILMSTRIP: false
         }
       };
 
       document.getElementById('videoLoadingBox').style.display = 'none';
       jitsiApiInstance = new JitsiMeetExternalAPI(domain, options);
 
-      if (isTeacher) {
-        jitsiApiInstance.addEventListener('videoConferenceJoined', () => {
+      jitsiApiInstance.addEventListener('videoConferenceJoined', () => {
+        // 🌟 ക്ലാസിൽ കയറിയ ഉടനെ സൈഡ് ബോക്സ് ഹൈഡ് ചെയ്ത് ടീച്ചറുടെ സ്ക്രീൻ വലുതാക്കുന്നു
+        setTimeout(() => {
+          try {
+            jitsiApiInstance.executeCommand('setTileView', false);
+            jitsiApiInstance.executeCommand('toggleFilmStrip');
+          } catch (e) {}
+        }, 1500);
+
+        if (isTeacher) {
           setTimeout(() => {
             try { jitsiApiInstance.executeCommand('muteEveryone', 'audio'); } catch(e) {}
-          }, 3000);
-        });
-      } else {
+          }, 2500);
+        }
+      });
+
+      // 🌟 മീറ്റിംഗ് കട്ട് ആയാൽ 8x8 പരസ്യം കാണിക്കാതെ ഉടൻ ഹോം പേജിലേക്ക് മാറ്റുന്നു
+      jitsiApiInstance.addEventListener('readyToClose', () => {
+        jitsiApiInstance.dispose();
+        window.location.replace("index.html");
+      });
+
+      jitsiApiInstance.addEventListener('videoConferenceLeft', () => {
+        jitsiApiInstance.dispose();
+        window.location.replace("index.html");
+      });
+
+      if (!isTeacher) {
         jitsiApiInstance.addEventListener('audioMuteStatusChanged', (event) => {
           if (!event.muted) {
             jitsiApiInstance.executeCommand('muteEveryone', 'audio');
@@ -299,8 +392,10 @@
         const res = await fetch(`${FIREBASE_DB_URL}/live_session.json?_t=${Date.now()}`);
         const session = await res.json() || {};
         const poll = session.activePoll;
+        activePollObj = poll;
         const pollBox = document.getElementById('pollAreaBox');
 
+        // റാങ്ക് ലിസ്റ്റ് പോപ്പ്-അപ്പ് പരിശോധന
         if (session.showRankModal === true) {
           renderLivePollRankModal(session.pollLeaderboard || {});
           document.getElementById('livePollRankModal').classList.remove('hidden');
@@ -326,7 +421,7 @@
 
           [0, 1, 2, 3].forEach(idx => {
             const btn = document.getElementById(`voteBtn_${idx}`);
-            btn.className = "py-2 bg-slate-900 border border-slate-700 hover:border-cyan-400 rounded-xl text-base font-black text-white active:scale-95 cursor-pointer flex flex-col items-center justify-center shadow";
+            btn.className = "py-1.5 bg-slate-900 border border-slate-700 hover:border-cyan-400 rounded-xl text-sm font-black text-white active:scale-95 cursor-pointer flex flex-col items-center justify-center";
             btn.disabled = false;
             document.getElementById(`pct_${idx}`).classList.add('hidden');
           });
@@ -357,31 +452,65 @@
       } catch (err) {}
     }
 
+    // 🌟 കുട്ടി വോട്ട് ചെയ്യുമ്പോൾ തന്നെ ശരിയാണോ തെറ്റാണോ എന്ന് നോക്കി കൃത്യമായി മാർക്ക് സേവ് ചെയ്യുന്നു
     async function submitQuickVote(optionIndex) {
-      if (currentVotedOption !== null) return;
+      if (currentVotedOption !== null || !activePollObj) return;
       currentVotedOption = optionIndex;
 
-      document.getElementById(`voteBtn_${optionIndex}`).className = "py-2 bg-cyan-600 border border-cyan-300 rounded-xl text-base font-black text-slate-950 flex flex-col items-center justify-center shadow-lg ring-1 ring-cyan-400";
+      document.getElementById(`voteBtn_${optionIndex}`).className = "py-1.5 bg-cyan-600 border border-cyan-300 rounded-xl text-sm font-black text-slate-950 flex flex-col items-center justify-center shadow-lg";
       document.getElementById('pollFeedbackStatus').textContent = "✓ രേഖപ്പെടുത്തി!";
 
-      const studentId = currentUser.phone || "stud_" + Date.now().toString().slice(-4);
+      const phone = sanitizePhone(currentUser.phone) || "stud_" + Date.now().toString().slice(-4);
       const studentName = currentUser.Official_Name || currentUser.name || "Student";
+      const pollId = Number(activePollObj.startedAt);
+      const isCorrect = (Number(optionIndex) === Number(activePollObj.correctAnswer));
 
-      await fetch(`${FIREBASE_DB_URL}/live_session/activePoll/votes/${optionIndex}/${studentId}.json`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: studentName, time: Date.now() })
-      });
+      try {
+        // 1. ഓപ്ഷൻ വോട്ട് രേഖപ്പെടുത്തുന്നു
+        await fetch(`${FIREBASE_DB_URL}/live_session/activePoll/votes/${optionIndex}/${phone}.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: studentName, time: Date.now() })
+        });
+
+        // 2. കുട്ടിയുടെ ലീഡർബോർഡ് മാർക്ക് അപ്ഡേറ്റ് ചെയ്യുന്നു (ശരിയാണെങ്കിൽ മാത്രം +1, അല്ലെങ്കിൽ +0)
+        const lbRes = await fetch(`${FIREBASE_DB_URL}/live_session/pollLeaderboard/${phone}.json`);
+        let entry = await lbRes.json() || { name: studentName, phone: phone, score: 0, attempted: 0, lastPollId: 0 };
+
+        if (entry.lastPollId !== pollId) {
+          entry.name = studentName;
+          entry.attempted = (Number(entry.attempted) || 0) + 1;
+          if (isCorrect) {
+            entry.score = (Number(entry.score) || 0) + 1;
+          }
+          entry.lastPollId = pollId;
+
+          await fetch(`${FIREBASE_DB_URL}/live_session/pollLeaderboard/${phone}.json`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(entry)
+          });
+        }
+      } catch (e) {}
     }
 
     async function showPollResults(poll) {
       [0, 1, 2, 3].forEach(idx => {
         const btn = document.getElementById(`voteBtn_${idx}`);
         btn.disabled = true;
-        if (idx === poll.correctAnswer) {
-          btn.className = "py-2 bg-emerald-600 border border-emerald-300 rounded-xl text-base font-black text-white flex flex-col items-center justify-center shadow-lg ring-1 ring-emerald-400";
+        if (idx === Number(poll.correctAnswer)) {
+          btn.className = "py-1.5 bg-emerald-600 border border-emerald-300 rounded-xl text-sm font-black text-white flex flex-col items-center justify-center shadow-lg";
+        } else if (idx === currentVotedOption) {
+          btn.className = "py-1.5 bg-rose-600 border border-rose-300 rounded-xl text-sm font-black text-white flex flex-col items-center justify-center";
         }
       });
+
+      if (currentVotedOption !== null) {
+        const isRight = (currentVotedOption === Number(poll.correctAnswer));
+        const fb = document.getElementById('pollFeedbackStatus');
+        fb.textContent = isRight ? "🎉 ശരിയുത്തരം (+1)" : "❌ തെറ്റായ ഉത്തരം (0)";
+        fb.className = isRight ? "font-bold text-emerald-400" : "font-bold text-rose-400";
+      }
 
       try {
         const vRes = await fetch(`${FIREBASE_DB_URL}/live_session/activePoll/votes.json?_t=${Date.now()}`);
@@ -413,21 +542,27 @@
 
     function renderLivePollRankModal(leaderboardObj) {
       const tbody = document.getElementById('livePollRankTableBody');
-      const list = Object.values(leaderboardObj || {}).sort((a, b) => b.score - a.score);
+      const list = Object.values(leaderboardObj || {}).sort((a, b) => (Number(b.score) || 0) - (Number(a.score) || 0));
 
       if (list.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="3" class="p-3 text-center text-slate-500">പോൾ പോയിന്റുകൾ ലഭ്യമല്ല.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="3" class="p-3 text-center text-slate-500">വിദ്യാർത്ഥികൾ ആരും ചേർന്നിട്ടില്ല.</td></tr>';
         return;
       }
 
       tbody.innerHTML = '';
       list.forEach((item, index) => {
+        const scoreVal = Number(item.score) || 0;
+        let rankBadge = `${index + 1}`;
+        if (index === 0 && scoreVal > 0) rankBadge = `🥇 1`;
+        else if (index === 1 && scoreVal > 0) rankBadge = `🥈 2`;
+        else if (index === 2 && scoreVal > 0) rankBadge = `🥉 3`;
+
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-800/40 border-b border-slate-800/50";
         tr.innerHTML = `
-          <td class="p-2 text-center font-bold text-amber-400">${index + 1}</td>
-          <td class="p-2 font-bold text-white truncate max-w-[130px]">${item.name || 'Student'}</td>
-          <td class="p-2 text-center text-emerald-400 font-bold">${item.score || 0}</td>
+          <td class="p-2 text-center font-bold text-amber-400">${rankBadge}</td>
+          <td class="p-2 font-bold text-white truncate max-w-[150px]">${item.name || 'Student'}</td>
+          <td class="p-2 text-center font-bold ${scoreVal > 0 ? 'text-emerald-400' : 'text-slate-500'}">${scoreVal} Pt</td>
         `;
         tbody.appendChild(tr);
       });
