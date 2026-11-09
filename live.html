@@ -7,7 +7,6 @@
   
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Noto+Sans+Malayalam:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://meet.jit.si/external_api.js"></script>
 
   <style>
     html, body {
@@ -28,8 +27,8 @@
     }
     .poll-float-card { animation: compactGlow 1.2s infinite ease-in-out; }
     #videoCardWrapper:fullscreen { width:100vw; height:100vh; background:#000; }
-    #videoCardWrapper:fullscreen #jitsiContainer { min-height:0; flex:1 1 auto; }
-    #videoCardWrapper:fullscreen #jitsiContainer iframe {
+    #videoCardWrapper:fullscreen #liveVideoFrame { min-height:0; flex:1 1 auto; }
+    #videoCardWrapper:fullscreen #liveVideoFrame iframe {
       width:100% !important; height:100% !important; border:0;
     }
   </style>
@@ -39,49 +38,13 @@
   <!-- 🌟 മുഴുവൻ കണ്ടെന്റും ഉൾക്കൊള്ളുന്ന ഫുൾസ്ക്രീൻ റാപ്പർ -->
   <div id="videoCardWrapper" class="relative w-full h-full flex-1 flex flex-col bg-black overflow-hidden">
 
-    <!-- 1. മുകളിലെ ഒതുക്കമുള്ള കൺട്രോൾ ഹെഡർ -->
-    <header class="bg-slate-900/95 backdrop-blur border-b border-slate-800 px-2.5 sm:px-4 py-1.5 flex items-center justify-between gap-1.5 z-40 shrink-0">
-      <div class="flex items-center space-x-2 min-w-0">
-        <div class="min-w-0">
-          <h1 class="text-xs font-bold text-white flex items-center space-x-1.5 truncate">
-            <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping shrink-0"></span>
-            <span id="liveRoomTitleDisplay" class="truncate">SK PSC ലൈവ്</span>
-          </h1>
-          <p class="text-[9px] text-emerald-400 truncate font-mono" id="liveUserRoleBadge">പഠിതാവ്</p>
+    <!-- 100ms Prebuilt Room -->
+    <div id="liveVideoFrame" class="w-full flex-1 bg-black relative overflow-hidden">
+      <div id="videoLoadingBox" class="absolute inset-0 z-10 flex items-center justify-center text-center p-6 bg-black">
+        <div>
+          <div class="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+          <p class="text-xs text-slate-300 font-bold">100ms ക്ലാസിലേക്ക് കണക്റ്റ് ചെയ്യുന്നു...</p>
         </div>
-      </div>
-      
-      <div class="flex items-center space-x-1.5 shrink-0">
-        <span id="liveAccessBadge" class="hidden sm:inline-block text-[9px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-          LIVE
-        </span>
-
-        <!-- അധ്യാപകന് മാത്രം Filmstrip നിയന്ത്രണം -->
-        <button id="btnSideFilmstrip" onclick="hideSideFilmstrip()" class="hidden px-2 py-1 bg-slate-800 hover:bg-slate-700 text-amber-300 rounded-lg text-[10px] font-bold border border-slate-700 cursor-pointer" title="പങ്കെടുക്കുന്നവരുടെ സൈഡ് ബോക്സ് കാണിക്കുക/മറയ്ക്കുക">
-          👁️ സൈഡ് ബോക്സ്
-        </button>
-        <button onclick="toggleLiveChat()" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-cyan-300 rounded-lg text-[10px] font-bold border border-slate-700 cursor-pointer" title="ചാറ്റ് തുറക്കുക / അടയ്ക്കുക">
-          💬 Chat
-        </button>
-
-        <!-- ഫുൾ സ്ക്രീൻ ബട്ടൺ -->
-        <button onclick="toggleVideoFullScreen()" id="btnFullScreen" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-cyan-300 rounded-lg text-[10px] sm:text-xs font-bold border border-slate-700 cursor-pointer">
-          ⛶ Fullscreen
-        </button>
-
-        <!-- 🚪 ക്ലാസിൽ നിന്ന് പുറത്തിറങ്ങാനുള്ള EXIT ബട്ടൺ -->
-        <button onclick="exitLiveClassRoom()" class="px-2.5 py-1 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-[10px] sm:text-xs font-black shadow cursor-pointer flex items-center space-x-1">
-          <span>🚪</span>
-          <span>Exit</span>
-        </button>
-      </div>
-    </header>
-
-    <!-- 2. Jitsi Video Stream Container (100% വിസ്തൃതിയിൽ) -->
-    <div id="jitsiContainer" class="w-full flex-1 bg-black flex items-center justify-center relative overflow-hidden">
-      <div id="videoLoadingBox" class="text-center p-6 space-y-2">
-        <div class="w-8 h-8 border-3 border-rose-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-        <p class="text-xs text-slate-300 font-bold">ക്ലാസിലേക്ക് കണക്റ്റ് ചെയ്യുന്നു...</p>
       </div>
     </div>
 
@@ -158,7 +121,10 @@
 
   <script>
     const FIREBASE_DB_URL = "https://sk-psc-portal-default-rtdb.asia-southeast1.firebasedatabase.app";
-    const ADMIN_SECRET_PIN = "1234";
+    // Paste the NEW student viewer-near-realtime room code here.
+    // Never place the broadcaster room code in this public GitHub HTML.
+    const HMS_SUBDOMAIN = "maya-livestream-053";
+    const HMS_STUDENT_ROOM_CODE = "utp-awit-pgf";
 
     let currentUser = null;
     let isTeacher = false;
@@ -167,7 +133,7 @@
     let activePollInterval = null;
     let autoDismissTimeout = null;
     let currentVotedOption = null;
-    let jitsiApiInstance = null;
+    let liveRoomFrame = null;
 
     function sanitizePhone(raw) {
       if (!raw) return "";
@@ -176,7 +142,6 @@
     }
 
     let isLeavingMeeting = false;
-    let isReMoutingStudentAudio = false;
 
     function toggleVideoFullScreen() {
       const wrapper = document.getElementById('videoCardWrapper');
@@ -189,20 +154,12 @@
       }
     }
 
-    function enforceStageOnlyView() {
-      if (!jitsiApiInstance || isTeacher) return;
-      try { jitsiApiInstance.executeCommand('setTileView', false); } catch (e) {}
-    }
-
     function hideSideFilmstrip() {
-      if (!jitsiApiInstance || !isTeacher) return;
-      try { jitsiApiInstance.executeCommand('toggleFilmStrip'); } catch (e) {}
+      // Filmstrip visibility is controlled by the 100ms Prebuilt UI.
     }
 
     function toggleLiveChat() {
-      if (!jitsiApiInstance) return;
-      try { jitsiApiInstance.executeCommand('toggleChat'); }
-      catch (e) { console.warn('Jitsi chat command failed:', e); }
+      alert("Chat തുറക്കാൻ 100ms ക്ലാസ് സ്ക്രീനിലെ Chat ബട്ടൺ ഉപയോഗിക്കുക.");
     }
 
     document.addEventListener('fullscreenchange', () => {
@@ -220,20 +177,22 @@
       const roleQuery = urlParams.get('role');
 
       if (roleQuery === 'admin') {
-        const pin = prompt("അധ്യാപകനായി പ്രവേശിക്കാൻ അഡ്മിൻ PIN നൽകുക:");
-        if (pin === ADMIN_SECRET_PIN) {
+        const broadcasterCode = prompt("അധ്യാപകന്റെ പുതിയ 100ms Broadcaster Room Code നൽകുക:");
+        if (broadcasterCode && broadcasterCode.trim()) {
           isTeacher = true;
+          window.__SKPSC_BROADCASTER_ROOM_CODE__ = broadcasterCode.trim();
           currentUser = {
-            name: "സുഭാഷ് സർ (Teacher)",
+            name: "SK PSC Teacher",
             phone: "admin_master",
             is_premium: true,
             valid_until: "2099-12-31"
           };
           document.getElementById('liveUserRoleBadge').textContent = "👨‍🏫 അധ്യാപകൻ (Host)";
           document.getElementById('pollAreaBox').style.display = 'none';
-          document.getElementById('btnSideFilmstrip').classList.remove('hidden');
         } else {
-          alert("തെറ്റായ PIN! വിദ്യാർത്ഥിയായി പ്രവേശിക്കുന്നു.");
+          alert("Broadcaster Room Code നൽകിയിട്ടില്ല. Portal-ലേക്ക് മടങ്ങുന്നു.");
+          window.location.replace("index.html");
+          return;
         }
       }
 
@@ -323,7 +282,7 @@
         // അറ്റൻഡൻസ് & ലീഡർബോർഡ് രജിസ്ട്രേഷൻ
         await registerStudentInLiveLeaderboard();
 
-        initJitsiMeeting(liveSessionData.roomId || "SK_PSC_LIVE_ROOM");
+        init100msPrebuiltRoom();
       } catch (err) {
         const loading = document.getElementById('videoLoadingBox');
         if (loading) {
@@ -334,90 +293,48 @@
       }
     }
 
-    function initJitsiMeeting(roomName) {
-      const domain = "meet.jit.si";
-      const studentName = isTeacher ? "സുഭാഷ് സർ (Teacher)" : (currentUser.Official_Name || currentUser.name || "Student");
+    function init100msPrebuiltRoom() {
+      const roomCode = isTeacher
+        ? window.__SKPSC_BROADCASTER_ROOM_CODE__
+        : HMS_STUDENT_ROOM_CODE;
 
-      // വിദ്യാർത്ഥികൾക്ക് Chat/Raise hand മാത്രം; Host-ന് ക്ലാസ് നിയന്ത്രണങ്ങൾ.
-      const studentToolbar = ['chat', 'raisehand'];
-      const teacherToolbar = ['microphone', 'camera', 'desktop', 'chat', 'tileview', 'mute-everyone'];
-
-      const options = {
-        roomName,
-        width: "100%",
-        height: "100%",
-        parentNode: document.querySelector('#jitsiContainer'),
-        userInfo: { displayName: studentName },
-        configOverwrite: {
-          startWithAudioMuted: true,
-          startWithVideoMuted: true,
-          disableDeepLinking: true,
-          prejoinPageEnabled: false,
-          enableWelcomePage: false,
-          enableClosePage: false,
-          disableProfile: true,
-          disableTileView: !isTeacher,
-          toolbarButtons: isTeacher ? teacherToolbar : studentToolbar,
-          filmstrip: { disabled: !isTeacher },
-          toolbarConfig: { alwaysVisible: true, autoHideWhileChatIsOpen: false },
-          disableSelfView: true
-        },
-        interfaceConfigOverwrite: {
-          TOOLBAR_BUTTONS: isTeacher ? teacherToolbar : studentToolbar,
-          SHOW_JITSI_WATERMARK: false,
-          SHOW_WATERMARK_FOR_GUESTS: false,
-          SHOW_BRAND_WATERMARK: false,
-          SHOW_POWERED_BY: false,
-          SHOW_PROMOTIONAL_CLOSE_PAGE: false,
-          DISABLE_JOIN_LEAVE_NOTIFICATIONS: true,
-          FILM_STRIP_MAX_HEIGHT: 0,
-          VERTICAL_FILMSTRIP: false
-        }
-      };
-
-      document.getElementById('videoLoadingBox').style.display = 'none';
-      jitsiApiInstance = new JitsiMeetExternalAPI(domain, options);
-
-      jitsiApiInstance.addEventListener('videoConferenceJoined', () => {
-        if (!isTeacher) {
-          try { jitsiApiInstance.executeCommand('setTileView', false); } catch (e) {}
-        } else {
-          try { jitsiApiInstance.executeCommand('toggleFilmStrip'); } catch (e) {}
-        }
-        if (isTeacher) {
-          setTimeout(() => {
-            try { jitsiApiInstance.executeCommand('muteEveryone', 'audio'); } catch(e) {}
-          }, 2500);
-        }
-      });
-
-      jitsiApiInstance.addEventListener('filmstripDisplayChanged', (event) => {
-        const btn = document.getElementById('btnSideFilmstrip');
-        if (btn) btn.textContent = event && event.visible ? '🙈 സൈഡ് ബോക്സ് മറയ്ക്കുക' : '👁️ സൈഡ് ബോക്സ്';
-      });
-
-      if (!isTeacher) {
-        jitsiApiInstance.addEventListener('audioMuteStatusChanged', (event) => {
-          if (event && event.muted === false && !isReMoutingStudentAudio) {
-            isReMoutingStudentAudio = true;
-            try { jitsiApiInstance.executeCommand('toggleAudio'); } catch (e) {}
-            setTimeout(() => { isReMoutingStudentAudio = false; }, 500);
-          }
-        });
+      if (!roomCode || roomCode.includes("PASTE_NEW_")) {
+        const loading = document.getElementById('videoLoadingBox');
+        loading.innerHTML = '<p class="text-sm text-amber-300 font-bold">100ms Student Room Code ചേർത്തിട്ടില്ല. HTML-ലെ HMS_STUDENT_ROOM_CODE മാറ്റി വീണ്ടും അപ്‌ലോഡ് ചെയ്യുക.</p>';
+        return;
       }
 
-      jitsiApiInstance.addEventListener('readyToClose', leaveMeetingToHome);
-      jitsiApiInstance.addEventListener('videoConferenceLeft', leaveMeetingToHome);
+      const userName = isTeacher
+        ? "SK PSC Teacher"
+        : (currentUser.Official_Name || currentUser.name || "Student");
+      const userId = isTeacher ? "skpsc_teacher" : sanitizePhone(currentUser.phone);
+
+      const roomUrl = `https://${HMS_SUBDOMAIN}.app.100ms.live/meeting/${encodeURIComponent(roomCode)}?name=${encodeURIComponent(userName)}&userId=${encodeURIComponent(userId)}`;
+
+      const frame = document.createElement('iframe');
+      frame.title = "SK PSC 100ms Live Classroom";
+      frame.src = roomUrl;
+      frame.allow = "camera; microphone; fullscreen; display-capture; autoplay";
+      frame.referrerPolicy = "strict-origin-when-cross-origin";
+      frame.allowFullscreen = true;
+      frame.style.cssText = "width:100%;height:100%;border:0;display:block;background:#000;";
+      frame.addEventListener('load', () => {
+        const loading = document.getElementById('videoLoadingBox');
+        if (loading) loading.style.display = 'none';
+      });
+
+      document.getElementById('liveVideoFrame').appendChild(frame);
+      liveRoomFrame = frame;
     }
 
     function leaveMeetingToHome() {
       if (isLeavingMeeting) return;
       isLeavingMeeting = true;
       try {
-        if (jitsiApiInstance) {
-          const api = jitsiApiInstance;
-          jitsiApiInstance = null;
-          api.dispose();
+        if (liveRoomFrame) {
+          liveRoomFrame.src = "about:blank";
+          liveRoomFrame.remove();
+          liveRoomFrame = null;
         }
       } catch (e) {}
       window.location.replace("index.html");
