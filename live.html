@@ -7,8 +7,6 @@
   
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Noto+Sans+Malayalam:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <!-- 100ms Web SDK -->
-  <script src="https://cdn.jsdelivr.net/npm/@100mslive/hms-video-store@0.15.3/dist/index.umd.js"></script>
 
   <style>
     html, body {
@@ -154,9 +152,11 @@
 
   </div>
 
-  <script>
+  <script type="module">
+    import { HMSReactiveStore, selectTracksMap } from 'https://esm.sh/@100mslive/hms-video-store@0.15.3?bundle';
+
     const FIREBASE_DB_URL = "https://sk-psc-portal-default-rtdb.asia-southeast1.firebasedatabase.app";
-    const HMS_STUDENT_ROOM_CODE = "rsv-xgmu-aho"; 
+    const HMS_STUDENT_ROOM_CODE = "rsv-xgmu-aho";
 
     let currentUser = null;
     let isTeacher = false;
@@ -176,7 +176,7 @@
       return c.length >= 10 ? c.slice(-10) : c;
     }
 
-    function toggleVideoFullScreen() {
+    window.toggleVideoFullScreen = function() {
       const wrapper = document.getElementById('videoCardWrapper');
       if (!document.fullscreenElement) {
         if (wrapper.requestFullscreen) wrapper.requestFullscreen().catch(() => {});
@@ -185,14 +185,14 @@
         if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
         else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
       }
-    }
+    };
 
-    function exitLiveClassRoom() {
+    window.exitLiveClassRoom = function() {
       if (confirm("ലൈവ് ക്ലാസിൽ നിന്ന് പുറത്തിറങ്ങണമെന്നുറപ്പാണോ?")) {
         try { if (hmsActions) hmsActions.leave(); } catch (e) {}
         window.location.replace("index.html");
       }
-    }
+    };
 
     window.addEventListener('DOMContentLoaded', async () => {
       const urlParams = new URLSearchParams(window.location.search);
@@ -284,35 +284,42 @@
 
     async function connectCustom100msSDK() {
       try {
-        document.getElementById('loadingStatusText').textContent = "100ms റൂം തയ്യാറാക്കുന്നു...";
+        document.getElementById('loadingStatusText').textContent = "100ms ക്ലാസ് ലോഡ് ചെയ്യുന്നു...";
 
-        const hms = new HMSVideoStore.HMSReactiveStore();
-        hms.triggerOnSubscribe();
-        hmsStore = hms.getStore();
-        hmsActions = hms.getActions();
+        const hms = new HMSReactiveStore();[cite: 24]
+        hms.triggerOnSubscribe();[cite: 24]
+        hmsStore = hms.getStore();[cite: 24]
+        hmsActions = hms.getActions();[cite: 24]
 
-        const roomCode = isTeacher ? prompt("അധ്യാപകന്റെ Broadcaster Room Code നൽകുക:") : HMS_STUDENT_ROOM_CODE;
-        if (!roomCode || !roomCode.trim()) {
-          alert("Room Code നൽകിയിട്ടില്ല!");
-          window.location.replace("index.html");
-          return;
+        let roomCode = HMS_STUDENT_ROOM_CODE;
+        if (isTeacher) {
+          const savedCode = localStorage.getItem('sk_hms_host_code') || '';
+          const entered = prompt("അധ്യാപകന്റെ Host Room Code നൽകുക:", savedCode);
+          if (entered && entered.trim()) {
+            roomCode = entered.trim();
+            localStorage.setItem('sk_hms_host_code', roomCode);
+          } else {
+            alert("Host Room Code നൽകിയിട്ടില്ല!");
+            window.location.replace("index.html");
+            return;
+          }
         }
 
         const studentName = isTeacher ? "സുഭാഷ് സർ (Teacher)" : (currentUser.Official_Name || currentUser.name || "Student");
-        const authToken = await hmsActions.getAuthTokenByRoomCode({ roomCode: roomCode.trim() });
+        const authToken = await hmsActions.getAuthTokenByRoomCode({ roomCode: roomCode });[cite: 24]
         
-        await hmsActions.join({
-          userName: studentName,
-          authToken: authToken,
-          settings: { isAudioMuted: true, isVideoMuted: true }
+        await hmsActions.join({[cite: 24]
+          userName: studentName,[cite: 24]
+          authToken: authToken,[cite: 24]
+          settings: { isAudioMuted: !isTeacher, isVideoMuted: !isTeacher }[cite: 24]
         });
 
         document.getElementById('videoLoadingBox').style.display = 'none';
-        hmsStore.subscribe(handleTracksUpdate, HMSVideoStore.selectTracksMap);
+        hmsStore.subscribe(handleTracksUpdate, selectTracksMap);
 
       } catch (err) {
         console.error("SDK Error:", err);
-        document.getElementById('loadingStatusText').textContent = "കണക്റ്റ് ചെയ്യാൻ കഴിഞ്ഞില്ല. റീഫ്രഷ് ചെയ്യുക.";
+        document.getElementById('loadingStatusText').textContent = "കണക്റ്റ് ചെയ്യാൻ കഴിഞ്ഞില്ല: " + (err.message || 'റീഫ്രഷ് ചെയ്യുക');[cite: 27]
       }
     }
 
@@ -332,7 +339,7 @@
       if (foundScreenTrack) {
         if (currentScreenTrackId !== foundScreenTrack.id) {
           currentScreenTrackId = foundScreenTrack.id;
-          hmsActions.attachVideo(foundScreenTrack.id, videoEl);
+          hmsActions.attachVideo(foundScreenTrack.id, videoEl);[cite: 24]
           videoEl.classList.remove('hidden');
           fallbackEl.classList.add('hidden');
         }
@@ -407,7 +414,7 @@
       } catch (err) {}
     }
 
-    async function submitQuickVote(optionIndex) {
+    window.submitQuickVote = async function(optionIndex) {
       if (currentVotedOption !== null || !activePollObj) return;
       currentVotedOption = optionIndex;
 
@@ -442,7 +449,7 @@
           });
         }
       } catch (e) {}
-    }
+    };
 
     async function showPollResults(poll) {
       [0, 1, 2, 3].forEach(idx => {
@@ -517,9 +524,9 @@
       });
     }
 
-    function closePollRankModal() {
+    window.closePollRankModal = function() {
       document.getElementById('livePollRankModal').classList.add('hidden');
-    }
+    };
   </script>
 </body>
 </html>
