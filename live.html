@@ -2,44 +2,44 @@
 <html lang="ml">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>SK PSC - ലൈവ് ക്ലാസ് റൂം</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Noto+Sans+Malayalam:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- 100ms Web SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@100mslive/hms-video-store@0.15.3/dist/index.umd.js"></script>
 
   <style>
     html, body {
+      margin: 0; padding: 0; width: 100%; height: 100%;
+      background: #000000; color: #f8fafc;
       font-family: 'Noto Sans Malayalam', 'Manrope', sans-serif;
-      background-color: #000000;
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      width: 100%;
       overflow: hidden;
     }
     .custom-scroll::-webkit-scrollbar { width: 4px; }
     .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-    
+
     @keyframes compactGlow {
       0%, 100% { box-shadow: 0 0 18px rgba(6, 182, 212, 0.55); }
       50% { box-shadow: 0 0 5px rgba(6, 182, 212, 0.2); }
     }
     .poll-float-card { animation: compactGlow 1.2s infinite ease-in-out; }
-    #videoCardWrapper:fullscreen { width: 100vw; height: 100vh; background: #000; }
-    #videoCardWrapper:fullscreen #liveVideoFrame { min-height: 0; flex: 1 1 auto; }
-    #videoCardWrapper:fullscreen #liveVideoFrame iframe {
-      width: 100% !important; height: 100% !important; border: 0;
+    
+    .screen-video-fit {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: #000;
     }
   </style>
 </head>
-<body class="text-slate-100 h-screen w-screen flex flex-col justify-between select-none overflow-hidden">
+<body class="h-screen w-screen flex flex-col justify-between select-none overflow-hidden bg-black text-slate-100">
 
-  <!-- 🌟 മുഴുവൻ കണ്ടെന്റും ഉൾക്കൊള്ളുന്ന ഫുൾസ്ക്രീൻ റാപ്പർ -->
   <div id="videoCardWrapper" class="relative w-full h-full flex-1 flex flex-col bg-black overflow-hidden">
 
-    <!-- 1. മുകളിലെ നാവിഗേഷൻ ഹെഡർ (Exit & Fullscreen സഹിതം) -->
-    <header class="bg-slate-900/95 backdrop-blur border-b border-slate-800 px-3 sm:px-4 py-2 flex items-center justify-between gap-2 z-40 shrink-0">
+    <!-- 1. Top Header -->
+    <header class="bg-slate-900/95 backdrop-blur border-b border-slate-800 px-3 sm:px-4 py-1.5 flex items-center justify-between gap-2 z-40 shrink-0">
       <div class="flex items-center space-x-2 min-w-0">
         <a href="index.html" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-xs font-bold text-slate-300 transition shrink-0">‹</a>
         <div class="min-w-0">
@@ -55,13 +55,9 @@
         <span id="liveAccessBadge" class="text-[9px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
           LIVE
         </span>
-
-        <!-- ഫുൾ സ്ക്രീൻ ബട്ടൺ -->
         <button onclick="toggleVideoFullScreen()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-cyan-300 rounded-lg text-xs font-bold border border-slate-700 cursor-pointer">
           ⛶ Fullscreen
         </button>
-
-        <!-- 🚪 ക്ലാസിൽ നിന്ന് പുറത്തിറങ്ങാനുള്ള EXIT ബട്ടൺ -->
         <button onclick="exitLiveClassRoom()" class="px-3 py-1 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-xs font-black shadow cursor-pointer flex items-center space-x-1">
           <span>🚪</span>
           <span>Exit</span>
@@ -69,25 +65,33 @@
       </div>
     </header>
 
-    <!-- 2. 100ms Prebuilt Room Video Container -->
-    <div id="liveVideoFrame" class="w-full flex-1 bg-black relative overflow-hidden">
+    <!-- 2. Pure Full-Screen Stage -->
+    <div id="customVideoStage" class="w-full flex-1 bg-black relative flex items-center justify-center overflow-hidden">
+      
       <div id="videoLoadingBox" class="absolute inset-0 z-10 flex items-center justify-center text-center p-6 bg-black">
         <div>
-          <div class="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-          <p class="text-xs text-slate-300 font-bold">100ms ലൈവ് ക്ലാസിലേക്ക് കണക്റ്റ് ചെയ്യുന്നു...</p>
+          <div class="w-9 h-9 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+          <p class="text-xs text-slate-300 font-bold" id="loadingStatusText">ക്ലാസിലേക്ക് കണക്റ്റ് ചെയ്യുന്നു...</p>
         </div>
+      </div>
+
+      <!-- നോട്ട്സ് ഫുൾ ആയി കാണിക്കുന്ന വീഡിയോ സ്ക്രീൻ -->
+      <video id="teacherScreenVideo" class="screen-video-fit hidden" autoplay playsinline></video>
+
+      <div id="noScreenFallback" class="hidden text-center p-6 space-y-2">
+        <div class="w-16 h-16 bg-slate-900 border border-slate-800 rounded-full flex items-center justify-center text-2xl mx-auto shadow-inner text-emerald-400">📡</div>
+        <h3 class="text-sm font-bold text-white">അധ്യാപകൻ സ്ക്രീൻ ഷെയർ ചെയ്യുമ്പോൾ ഇവിടെ തെളിയും</h3>
+        <p class="text-[11px] text-slate-400">ദയവായി കാത്തിരിക്കുക...</p>
       </div>
     </div>
 
-    <!-- 3. ⚡ ഫ്ലോട്ടിംഗ് ഇൻസ്റ്റന്റ് പോൾ (ഫുൾസ്ക്രീനിലും സ്ക്രീനിന് മുകളിൽ തെളിയും) -->
-    <div id="pollAreaBox" class="hidden poll-float-card absolute bottom-14 left-1/2 -translate-x-1/2 z-50 bg-slate-950/90 backdrop-blur-md border border-cyan-400 rounded-2xl px-3 py-2 shadow-2xl flex flex-col items-center space-y-1.5 w-[92%] max-w-xs">
-      
+    <!-- 3. ⚡ ഫ്ലോട്ടിംഗ് ഇൻസ്റ്റന്റ് പോൾ -->
+    <div id="pollAreaBox" class="hidden poll-float-card absolute bottom-4 left-1/2 -translate-x-1/2 z-50 bg-slate-950/90 backdrop-blur-md border border-cyan-400 rounded-2xl px-3 py-2 shadow-2xl flex flex-col items-center space-y-1.5 w-[92%] max-w-xs">
       <div class="w-full flex items-center justify-between text-[10px] px-1 font-bold">
         <span class="text-cyan-300 truncate">⚡ ഉത്തരം തിരഞ്ഞെടുക്കുക:</span>
         <span id="pollTimerBadge" class="text-[10px] font-mono px-2 py-0.2 rounded bg-amber-950 text-amber-300 border border-amber-500/40">10s</span>
       </div>
 
-      <!-- ചെറിയ A, B, C, D ബട്ടണുകൾ -->
       <div class="grid grid-cols-4 gap-1.5 w-full">
         <button type="button" onclick="submitQuickVote(0)" id="voteBtn_0" class="py-1.5 bg-slate-900 border border-slate-700 hover:border-cyan-400 rounded-xl text-sm font-black text-white active:scale-95 cursor-pointer flex flex-col items-center justify-center">
           <span>A</span>
@@ -113,7 +117,7 @@
       </div>
     </div>
 
-    <!-- 4. 🏆 ഫ്ലോട്ടിംഗ് റാങ്ക് ലിസ്റ്റ് പോപ്പ്-അപ്പ് -->
+    <!-- 4. 🏆 പോൾ റാങ്ക് ലിസ്റ്റ് -->
     <div id="livePollRankModal" class="hidden absolute inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-3">
       <div class="bg-slate-900 border-2 border-amber-500/70 rounded-2xl max-w-sm w-full p-4 shadow-2xl space-y-2.5 flex flex-col max-h-[82vh]">
         <div class="flex items-center justify-between border-b border-slate-800 pb-2">
@@ -122,7 +126,7 @@
               <span>🏆</span>
               <span>തത്സമയ പോൾ റാങ്ക് ലിസ്റ്റ്</span>
             </h3>
-            <p class="text-[9px] text-slate-400">ശരിയുത്തരത്തിന് +1 പോയിന്റ് (ക്ലാസിലുള്ള മുഴുവൻ പേരും)</p>
+            <p class="text-[9px] text-slate-400">ശരിയുത്തരത്തിന് +1 പോയിന്റ്</p>
           </div>
           <button onclick="closePollRankModal()" class="text-slate-400 hover:text-white text-sm font-bold p-1 bg-slate-800 rounded-lg w-6 h-6 flex items-center justify-center cursor-pointer">✕</button>
         </div>
@@ -152,7 +156,6 @@
 
   <script>
     const FIREBASE_DB_URL = "https://sk-psc-portal-default-rtdb.asia-southeast1.firebasedatabase.app";
-    const HMS_SUBDOMAIN = "maya-videoconf-2232";
     const HMS_STUDENT_ROOM_CODE = "rsv-xgmu-aho"; 
 
     let currentUser = null;
@@ -162,8 +165,10 @@
     let activePollInterval = null;
     let autoDismissTimeout = null;
     let currentVotedOption = null;
-    let liveRoomFrame = null;
-    let isLeavingMeeting = false;
+
+    let hmsStore = null;
+    let hmsActions = null;
+    let currentScreenTrackId = null;
 
     function sanitizePhone(raw) {
       if (!raw) return "";
@@ -174,37 +179,19 @@
     function toggleVideoFullScreen() {
       const wrapper = document.getElementById('videoCardWrapper');
       if (!document.fullscreenElement) {
-        if (wrapper.requestFullscreen) {
-          wrapper.requestFullscreen().catch(() => {});
-        } else if (wrapper.webkitRequestFullscreen) {
-          wrapper.webkitRequestFullscreen();
-        }
+        if (wrapper.requestFullscreen) wrapper.requestFullscreen().catch(() => {});
+        else if (wrapper.webkitRequestFullscreen) wrapper.webkitRequestFullscreen();
       } else {
-        if (document.exitFullscreen) {
-          document.exitFullscreen().catch(() => {});
-        } else if (document.webkitExitFullscreen) {
-          document.webkitExitFullscreen();
-        }
+        if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
       }
     }
 
     function exitLiveClassRoom() {
       if (confirm("ലൈവ് ക്ലാസിൽ നിന്ന് പുറത്തിറങ്ങണമെന്നുറപ്പാണോ?")) {
-        leaveMeetingToHome();
+        try { if (hmsActions) hmsActions.leave(); } catch (e) {}
+        window.location.replace("index.html");
       }
-    }
-
-    function leaveMeetingToHome() {
-      if (isLeavingMeeting) return;
-      isLeavingMeeting = true;
-      try {
-        if (liveRoomFrame) {
-          liveRoomFrame.src = "about:blank";
-          liveRoomFrame.remove();
-          liveRoomFrame = null;
-        }
-      } catch (e) {}
-      window.location.replace("index.html");
     }
 
     window.addEventListener('DOMContentLoaded', async () => {
@@ -212,31 +199,16 @@
       const roleQuery = urlParams.get('role');
 
       if (roleQuery === 'admin') {
-        let savedBroadcasterCode = localStorage.getItem('sk_hms_broadcaster_code') || '';
-        let broadcasterCode = prompt("അധ്യാപകന്റെ 100ms Broadcaster Room Code നൽകുക:", savedBroadcasterCode);
-        
-        if (broadcasterCode && broadcasterCode.trim()) {
-          broadcasterCode = broadcasterCode.trim();
-          localStorage.setItem('sk_hms_broadcaster_code', broadcasterCode);
-          isTeacher = true;
-          window.__SKPSC_BROADCASTER_ROOM_CODE__ = broadcasterCode;
-          currentUser = {
-            name: "സുഭാഷ് സർ (Teacher)",
-            phone: "admin_master",
-            is_premium: true,
-            valid_until: "2099-12-31"
-          };
-          const roleBadge = document.getElementById('liveUserRoleBadge');
-          if (roleBadge) roleBadge.textContent = "👨‍🏫 അധ്യാപകൻ (Host)";
-          document.getElementById('pollAreaBox').style.display = 'none';
-        } else {
-          alert("Broadcaster Room Code നൽകിയിട്ടില്ല. പോർട്ടലിലേക്ക് മടങ്ങുന്നു.");
-          window.location.replace("index.html");
-          return;
-        }
-      }
-
-      if (!isTeacher) {
+        isTeacher = true;
+        currentUser = {
+          name: "സുഭാഷ് സർ (Teacher)",
+          phone: "admin_master",
+          is_premium: true,
+          valid_until: "2099-12-31"
+        };
+        document.getElementById('liveUserRoleBadge').textContent = "👨‍🏫 അധ്യാപകൻ (Host)";
+        document.getElementById('pollAreaBox').style.display = 'none';
+      } else {
         try {
           const saved = localStorage.getItem('sk_candidate_user');
           if (saved) {
@@ -252,15 +224,13 @@
           window.location.replace("index.html");
           return;
         }
-        const roleBadge = document.getElementById('liveUserRoleBadge');
-        if (roleBadge) roleBadge.textContent = currentUser.Official_Name || currentUser.name || "വിദ്യാർത്ഥി";
+        document.getElementById('liveUserRoleBadge').textContent = currentUser.Official_Name || currentUser.name || "വിദ്യാർത്ഥി";
       }
 
       await verifyAccessAndStartMeeting();
       setInterval(syncRealtimePollAndRank, 2000);
     });
 
-    // വിദ്യാർത്ഥികളെ 0 മാർക്കിൽ രജിസ്റ്റർ ചെയ്യുന്നു
     async function registerStudentInLiveLeaderboard() {
       if (isTeacher || !currentUser || !currentUser.phone) return;
       const phone = sanitizePhone(currentUser.phone);
@@ -269,18 +239,11 @@
       try {
         const res = await fetch(`${FIREBASE_DB_URL}/live_session/pollLeaderboard/${phone}.json`);
         const existing = await res.json();
-
         if (!existing) {
           await fetch(`${FIREBASE_DB_URL}/live_session/pollLeaderboard/${phone}.json`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              name: studentName,
-              phone: phone,
-              score: 0,
-              attempted: 0,
-              lastPollId: 0
-            })
+            body: JSON.stringify({ name: studentName, phone: phone, score: 0, attempted: 0, lastPollId: 0 })
           });
         }
       } catch (e) {}
@@ -289,7 +252,6 @@
     async function verifyAccessAndStartMeeting() {
       try {
         const res = await fetch(`${FIREBASE_DB_URL}/live_session.json?_t=${Date.now()}`);
-        if (!res.ok) throw new Error(`Firebase HTTP ${res.status}`);
         liveSessionData = await res.json() || {};
 
         if (liveSessionData.isLive !== true && !isTeacher) {
@@ -298,18 +260,15 @@
           return;
         }
 
-        const titleDisplay = document.getElementById('liveRoomTitleDisplay');
-        if (titleDisplay) titleDisplay.textContent = liveSessionData.title || "SK PSC Live Class";
-
+        document.getElementById('liveRoomTitleDisplay').textContent = liveSessionData.title || "SK PSC Live Class";
         const badge = document.getElementById('liveAccessBadge');
         const isFree = (liveSessionData.access_type === 'FREE');
-        if (badge) badge.textContent = isTeacher ? "👑 HOST" : (isFree ? "🟢 FREE" : "🔒 PAID");
+        badge.textContent = isTeacher ? "👑 HOST" : (isFree ? "🟢 FREE" : "🔒 PAID");
 
         if (!isFree && !isTeacher) {
           const now = new Date();
           const today = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-          const isValid = currentUser.valid_until && (currentUser.valid_until >= today);
-          if (!isValid) {
+          if (!currentUser.valid_until || currentUser.valid_until < today) {
             alert("🔒 ഈ ക്ലാസ് പ്രീമിയം വിദ്യാർത്ഥികൾക്ക് മാത്രമുള്ളതാണ്!");
             window.location.replace("index.html");
             return;
@@ -317,48 +276,71 @@
         }
 
         await registerStudentInLiveLeaderboard();
-        init100msPrebuiltRoom();
+        connectCustom100msSDK();
       } catch (err) {
-        const loading = document.getElementById('videoLoadingBox');
-        if (loading) {
-          loading.innerHTML = '<p class="text-sm text-rose-300 font-bold">ക്ലാസിലേക്ക് കണക്റ്റ് ചെയ്യാൻ കഴിഞ്ഞില്ല. കണക്ഷൻ പരിശോധിച്ച് വീണ്ടും ശ്രമിക്കുക.</p>';
-        }
+        document.getElementById('loadingStatusText').textContent = "ക്ലാസ് കണക്ഷനിൽ തടസ്സം നേരിട്ടു.";
       }
     }
 
-    function init100msPrebuiltRoom() {
-      const roomCode = isTeacher
-        ? window.__SKPSC_BROADCASTER_ROOM_CODE__
-        : HMS_STUDENT_ROOM_CODE;
+    async function connectCustom100msSDK() {
+      try {
+        document.getElementById('loadingStatusText').textContent = "100ms റൂം തയ്യാറാക്കുന്നു...";
 
-      if (!roomCode) {
-        const loading = document.getElementById('videoLoadingBox');
-        if (loading) loading.innerHTML = '<p class="text-sm text-amber-300 font-bold">100ms Room Code ലഭ്യമല്ല!</p>';
-        return;
+        const hms = new HMSVideoStore.HMSReactiveStore();
+        hms.triggerOnSubscribe();
+        hmsStore = hms.getStore();
+        hmsActions = hms.getActions();
+
+        const roomCode = isTeacher ? prompt("അധ്യാപകന്റെ Broadcaster Room Code നൽകുക:") : HMS_STUDENT_ROOM_CODE;
+        if (!roomCode || !roomCode.trim()) {
+          alert("Room Code നൽകിയിട്ടില്ല!");
+          window.location.replace("index.html");
+          return;
+        }
+
+        const studentName = isTeacher ? "സുഭാഷ് സർ (Teacher)" : (currentUser.Official_Name || currentUser.name || "Student");
+        const authToken = await hmsActions.getAuthTokenByRoomCode({ roomCode: roomCode.trim() });
+        
+        await hmsActions.join({
+          userName: studentName,
+          authToken: authToken,
+          settings: { isAudioMuted: true, isVideoMuted: true }
+        });
+
+        document.getElementById('videoLoadingBox').style.display = 'none';
+        hmsStore.subscribe(handleTracksUpdate, HMSVideoStore.selectTracksMap);
+
+      } catch (err) {
+        console.error("SDK Error:", err);
+        document.getElementById('loadingStatusText').textContent = "കണക്റ്റ് ചെയ്യാൻ കഴിഞ്ഞില്ല. റീഫ്രഷ് ചെയ്യുക.";
       }
+    }
 
-      const userName = isTeacher
-        ? "സുഭാഷ് സർ (Teacher)"
-        : (currentUser.Official_Name || currentUser.name || "Student");
-      const userId = isTeacher ? "skpsc_teacher" : sanitizePhone(currentUser.phone);
+    function handleTracksUpdate(tracksMap) {
+      if (!tracksMap) return;
+      const videoEl = document.getElementById('teacherScreenVideo');
+      const fallbackEl = document.getElementById('noScreenFallback');
 
-      const roomUrl = `https://${HMS_SUBDOMAIN}.app.100ms.live/meeting/${encodeURIComponent(roomCode)}?name=${encodeURIComponent(userName)}&userId=${encodeURIComponent(userId)}`;
+      let foundScreenTrack = null;
 
-      const frame = document.createElement('iframe');
-      frame.title = "SK PSC 100ms Live Classroom";
-      frame.src = roomUrl;
-      frame.allow = "camera; microphone; fullscreen; display-capture; autoplay";
-      frame.referrerPolicy = "strict-origin-when-cross-origin";
-      frame.allowFullscreen = true;
-      frame.style.cssText = "width:100%;height:100%;border:0;display:block;background:#000;";
-
-      frame.addEventListener('load', () => {
-        const loading = document.getElementById('videoLoadingBox');
-        if (loading) loading.style.display = 'none';
+      Object.values(tracksMap).forEach(track => {
+        if (track.source === 'screen' && track.type === 'video' && track.enabled) {
+          foundScreenTrack = track;
+        }
       });
 
-      document.getElementById('liveVideoFrame').appendChild(frame);
-      liveRoomFrame = frame;
+      if (foundScreenTrack) {
+        if (currentScreenTrackId !== foundScreenTrack.id) {
+          currentScreenTrackId = foundScreenTrack.id;
+          hmsActions.attachVideo(foundScreenTrack.id, videoEl);
+          videoEl.classList.remove('hidden');
+          fallbackEl.classList.add('hidden');
+        }
+      } else {
+        currentScreenTrackId = null;
+        videoEl.classList.add('hidden');
+        fallbackEl.classList.remove('hidden');
+      }
     }
 
     async function syncRealtimePollAndRank() {
@@ -450,9 +432,7 @@
         if (entry.lastPollId !== pollId) {
           entry.name = studentName;
           entry.attempted = (Number(entry.attempted) || 0) + 1;
-          if (isCorrect) {
-            entry.score = (Number(entry.score) || 0) + 1;
-          }
+          if (isCorrect) entry.score = (Number(entry.score) || 0) + 1;
           entry.lastPollId = pollId;
 
           await fetch(`${FIREBASE_DB_URL}/live_session/pollLeaderboard/${phone}.json`, {
@@ -485,33 +465,26 @@
       try {
         const vRes = await fetch(`${FIREBASE_DB_URL}/live_session/activePoll/votes.json?_t=${Date.now()}`);
         const vData = await vRes.json() || {};
-
         const pollStart = Number(poll.startedAt) || 0;
-        const countCurrentPollVotes = (optionVotes) => Object.values(optionVotes || {})
-          .filter(vote => Number(vote && vote.time) >= pollStart).length;
-        const c0 = countCurrentPollVotes(vData[0]);
-        const c1 = countCurrentPollVotes(vData[1]);
-        const c2 = countCurrentPollVotes(vData[2]);
-        const c3 = countCurrentPollVotes(vData[3]);
+        const countCurrent = (obj) => Object.values(obj || {}).filter(v => Number(v && v.time) >= pollStart).length;
+
+        const c0 = countCurrent(vData[0]), c1 = countCurrent(vData[1]), c2 = countCurrent(vData[2]), c3 = countCurrent(vData[3]);
         const total = c0 + c1 + c2 + c3;
 
         if (total > 0) {
           [c0, c1, c2, c3].forEach((cnt, i) => {
-            const p = Math.round((cnt / total) * 100);
             const span = document.getElementById(`pct_${i}`);
-            span.textContent = `${p}%`;
+            span.textContent = `${Math.round((cnt / total) * 100)}%`;
             span.classList.remove('hidden');
           });
         }
 
-        const correctVotesObj = vData[poll.correctAnswer] || {};
-        const winners = Object.values(correctVotesObj)
-          .filter(vote => Number(vote && vote.time) >= pollStart)
+        const winners = Object.values(vData[poll.correctAnswer] || {})
+          .filter(v => Number(v && v.time) >= pollStart)
           .sort((a, b) => Number(a.time) - Number(b.time))
           .slice(0, 3);
         if (winners.length > 0) {
-          const namesStr = winners.map((w, idx) => `${idx + 1}.${w.name}`).join(' ');
-          document.getElementById('top3WinnersText').textContent = `⚡ ${namesStr}`;
+          document.getElementById('top3WinnersText').textContent = `⚡ ${winners.map((w, idx) => `${idx + 1}.${w.name}`).join(' ')}`;
         }
       } catch (e) {}
     }
