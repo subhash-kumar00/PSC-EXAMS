@@ -1467,6 +1467,10 @@ function parseMainFolders(rawFolderValue) {
       }
 
       fetchFirebaseData();
+      refreshHomeLiveBanner();
+
+      // Admin Go Live / End Live മാറ്റങ്ങൾ ഹോം പേജിൽ 10 സെക്കൻഡിനുള്ളിൽ പ്രതിഫലിക്കും.
+      setInterval(refreshHomeLiveBanner, 10000);
 
       setInterval(() => {
         if (candidate) {
@@ -1479,9 +1483,47 @@ function parseMainFolders(rawFolderValue) {
       if (document.visibilityState === 'visible' && candidate) {
         sessionStorage.removeItem('sk_cache_time');
         fetchFirebaseData();
+        refreshHomeLiveBanner();
         listenForChatReplies();
       }
     });
+
+    // 🔴 100ms ലൈവ് ക്ലാസ് സ്റ്റാറ്റസ്: ഹോം പേജിൽ ബാനർ തത്സമയം പുതുക്കുന്നു
+    let homeLiveRefreshInProgress = false;
+
+    async function refreshHomeLiveBanner() {
+      if (homeLiveRefreshInProgress) return;
+      homeLiveRefreshInProgress = true;
+
+      const banner = document.getElementById('homeLiveClassBanner');
+      const title = document.getElementById('homeLiveTitleText');
+      const accessTag = document.getElementById('homeLiveAccessTag');
+
+      try {
+        const response = await fetch(`${FIREBASE_DB_URL}/live_session.json?_t=${Date.now()}`, {
+          cache: 'no-store'
+        });
+        if (!response.ok) throw new Error(`Firebase HTTP ${response.status}`);
+
+        const session = await response.json();
+        if (session && session.isLive === true) {
+          if (title) title.textContent = session.title || 'പ്രത്യേക ലൈവ് ക്ലാസ് ആരംഭിച്ചിരിക്കുന്നു!';
+          if (accessTag) {
+            accessTag.textContent = session.access_type === 'FREE'
+              ? '🟢 സൗജന്യ പ്രവേശനം'
+              : '🔒 പ്രീമിയം ബാച്ച്';
+          }
+          if (banner) banner.classList.remove('hidden');
+        } else {
+          if (banner) banner.classList.add('hidden');
+        }
+      } catch (error) {
+        // നെറ്റ്‌വർക്ക് തകരാറിൽ ബാനർ ഉടൻ മറയ്ക്കുന്നില്ല; അടുത്ത റിഫ്രഷിൽ വീണ്ടും പരിശോധിക്കും.
+        console.warn('Live status refresh failed:', error);
+      } finally {
+        homeLiveRefreshInProgress = false;
+      }
+    }
 
     async function fetchFirebaseData() {
       try {
@@ -1491,18 +1533,8 @@ function parseMainFolders(rawFolderValue) {
           fetch(`${FIREBASE_DB_URL}/portal_config.json`).then(r => r.json()).catch(() => ({})),
           candidate && candidate.phone ? fetch(`${FIREBASE_DB_URL}/users_history/${sanitizePhone(candidate.phone)}.json`).then(r => r.json()).catch(() => null) : Promise.resolve(null)
         ]);
-// 🔴 ഹോം പേജിലെ ലൈവ് സ്റ്റാറ്റസ് പരിശോധിക്കുന്നു
-try {
-  const liveRes = await fetch(`${FIREBASE_DB_URL}/live_session.json`).then(r => r.json()).catch(() => null);
-  const liveBanner = document.getElementById('homeLiveClassBanner');
-  if (liveRes && liveRes.isLive === true) {
-    if (liveBanner) liveBanner.classList.remove('hidden');
-    document.getElementById('homeLiveTitleText').textContent = liveRes.title || 'പ്രത്യേക ലൈവ് ക്ലാസ് ആരംഭിച്ചിരിക്കുന്നു!';
-    document.getElementById('homeLiveAccessTag').textContent = liveRes.access_type === 'FREE' ? '🟢 സൗജന്യ പ്രവേശനം' : '🔒 പ്രീമിയം ബാച്ച്';
-  } else {
-    if (liveBanner) liveBanner.classList.add('hidden');
-  }
-} catch(e) {}
+// 🔴 ലൈവ് ബാനർ നിലവിലെ Firebase സ്റ്റാറ്റസുമായി പുതുക്കുന്നു
+await refreshHomeLiveBanner();
         portalConfigCache = configData || {};
 
         // 🌟 അഡ്മിൻ ഉണ്ടാക്കിയ ഫോൾഡറുകൾ ഫയർബേസിൽ നിന്ന് എടുക്കുന്നു
