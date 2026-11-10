@@ -124,7 +124,7 @@
     // Paste the NEW student viewer-near-realtime room code here.
     // Never place the broadcaster room code in this public GitHub HTML.
     const HMS_SUBDOMAIN = "maya-livestream-053";
-    const HMS_STUDENT_ROOM_CODE = "utp-awit-pgf";
+    const HMS_STUDENT_ROOM_CODE = "utp-awit-pgf"; // viewer-near-realtime role code
 
     let currentUser = null;
     let isTeacher = false;
@@ -187,7 +187,8 @@
             is_premium: true,
             valid_until: "2099-12-31"
           };
-          document.getElementById('liveUserRoleBadge').textContent = "👨‍🏫 അധ്യാപകൻ (Host)";
+          const roleBadge = document.getElementById('liveUserRoleBadge');
+          if (roleBadge) roleBadge.textContent = "👨‍🏫 അധ്യാപകൻ (Host)";
           document.getElementById('pollAreaBox').style.display = 'none';
         } else {
           alert("Broadcaster Room Code നൽകിയിട്ടില്ല. Portal-ലേക്ക് മടങ്ങുന്നു.");
@@ -212,7 +213,8 @@
           window.location.replace("index.html");
           return;
         }
-        document.getElementById('liveUserRoleBadge').textContent = currentUser.Official_Name || currentUser.name || "വിദ്യാർത്ഥി";
+        const roleBadge = document.getElementById('liveUserRoleBadge');
+        if (roleBadge) roleBadge.textContent = currentUser.Official_Name || currentUser.name || "വിദ്യാർത്ഥി";
       }
 
       await verifyAccessAndStartMeeting();
@@ -254,6 +256,7 @@
     async function verifyAccessAndStartMeeting() {
       try {
         const res = await fetch(`${FIREBASE_DB_URL}/live_session.json?_t=${Date.now()}`);
+        if (!res.ok) throw new Error(`Firebase HTTP ${res.status}`);
         liveSessionData = await res.json() || {};
 
         if (liveSessionData.isLive !== true && !isTeacher) {
@@ -262,11 +265,12 @@
           return;
         }
 
-        document.getElementById('liveRoomTitleDisplay').textContent = liveSessionData.title || "SK PSC Live Class";
+        const titleDisplay = document.getElementById('liveRoomTitleDisplay');
+        if (titleDisplay) titleDisplay.textContent = liveSessionData.title || "SK PSC Live Class";
 
         const badge = document.getElementById('liveAccessBadge');
         const isFree = (liveSessionData.access_type === 'FREE');
-        badge.textContent = isTeacher ? "👑 HOST" : (isFree ? "🟢 FREE" : "🔒 PAID");
+        if (badge) badge.textContent = isTeacher ? "👑 HOST" : (isFree ? "🟢 FREE" : "🔒 PAID");
 
         if (!isFree && !isTeacher) {
           const now = new Date();
@@ -300,7 +304,7 @@
 
       if (!roomCode || roomCode.includes("PASTE_NEW_")) {
         const loading = document.getElementById('videoLoadingBox');
-        loading.innerHTML = '<p class="text-sm text-amber-300 font-bold">100ms Student Room Code ചേർത്തിട്ടില്ല. HTML-ലെ HMS_STUDENT_ROOM_CODE മാറ്റി വീണ്ടും അപ്‌ലോഡ് ചെയ്യുക.</p>';
+        loading.innerHTML = '<p class="text-sm text-amber-300 font-bold">100ms Viewer Room Code ലഭ്യമല്ല. live.html-ലെ HMS_STUDENT_ROOM_CODE പരിശോധിക്കുക.</p>';
         return;
       }
 
@@ -318,13 +322,26 @@
       frame.referrerPolicy = "strict-origin-when-cross-origin";
       frame.allowFullscreen = true;
       frame.style.cssText = "width:100%;height:100%;border:0;display:block;background:#000;";
+      let frameLoaded = false;
       frame.addEventListener('load', () => {
+        frameLoaded = true;
         const loading = document.getElementById('videoLoadingBox');
         if (loading) loading.style.display = 'none';
       });
 
       document.getElementById('liveVideoFrame').appendChild(frame);
       liveRoomFrame = frame;
+
+      // iframe load event തന്നെ വരാത്ത സാഹചര്യത്തിൽ ഉപകാരപ്രദമായ സന്ദേശം കാണിക്കുക.
+      setTimeout(() => {
+        if (!frameLoaded && liveRoomFrame === frame) {
+          const loading = document.getElementById('videoLoadingBox');
+          if (loading) {
+            loading.innerHTML = '<p class="text-sm text-amber-300 font-bold">100ms ക്ലാസ് ലോഡ് ആകുന്നില്ല. Room Code, 100ms Prebuilt configuration, browser iframe permissions എന്നിവ പരിശോധിക്കുക.</p>';
+            loading.style.display = 'flex';
+          }
+        }
+      }, 20000);
     }
 
     function leaveMeetingToHome() {
