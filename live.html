@@ -26,10 +26,10 @@
       50% { box-shadow: 0 0 5px rgba(6, 182, 212, 0.2); }
     }
     .poll-float-card { animation: compactGlow 1.2s infinite ease-in-out; }
-    #videoCardWrapper:fullscreen { width:100vw; height:100vh; background:#000; }
-    #videoCardWrapper:fullscreen #liveVideoFrame { min-height:0; flex:1 1 auto; }
+    #videoCardWrapper:fullscreen { width: 100vw; height: 100vh; background: #000; }
+    #videoCardWrapper:fullscreen #liveVideoFrame { min-height: 0; flex: 1 1 auto; }
     #videoCardWrapper:fullscreen #liveVideoFrame iframe {
-      width:100% !important; height:100% !important; border:0;
+      width: 100% !important; height: 100% !important; border: 0;
     }
   </style>
 </head>
@@ -38,12 +38,43 @@
   <!-- 🌟 മുഴുവൻ കണ്ടെന്റും ഉൾക്കൊള്ളുന്ന ഫുൾസ്ക്രീൻ റാപ്പർ -->
   <div id="videoCardWrapper" class="relative w-full h-full flex-1 flex flex-col bg-black overflow-hidden">
 
-    <!-- 100ms Prebuilt Room -->
+    <!-- 1. മുകളിലെ നാവിഗേഷൻ ഹെഡർ (Exit & Fullscreen സഹിതം) -->
+    <header class="bg-slate-900/95 backdrop-blur border-b border-slate-800 px-3 sm:px-4 py-2 flex items-center justify-between gap-2 z-40 shrink-0">
+      <div class="flex items-center space-x-2 min-w-0">
+        <a href="index.html" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-xs font-bold text-slate-300 transition shrink-0">‹</a>
+        <div class="min-w-0">
+          <h1 class="text-xs sm:text-sm font-bold text-white flex items-center space-x-1.5 truncate">
+            <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping shrink-0"></span>
+            <span id="liveRoomTitleDisplay" class="truncate">SK PSC ലൈവ് ക്ലാസ്</span>
+          </h1>
+          <p class="text-[9px] text-emerald-400 truncate font-mono" id="liveUserRoleBadge">പഠിതാവ്</p>
+        </div>
+      </div>
+      
+      <div class="flex items-center space-x-2 shrink-0">
+        <span id="liveAccessBadge" class="text-[9px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+          LIVE
+        </span>
+
+        <!-- ഫുൾ സ്ക്രീൻ ബട്ടൺ -->
+        <button onclick="toggleVideoFullScreen()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-cyan-300 rounded-lg text-xs font-bold border border-slate-700 cursor-pointer">
+          ⛶ Fullscreen
+        </button>
+
+        <!-- 🚪 ക്ലാസിൽ നിന്ന് പുറത്തിറങ്ങാനുള്ള EXIT ബട്ടൺ -->
+        <button onclick="exitLiveClassRoom()" class="px-3 py-1 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-xs font-black shadow cursor-pointer flex items-center space-x-1">
+          <span>🚪</span>
+          <span>Exit</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- 2. 100ms Prebuilt Room Video Container -->
     <div id="liveVideoFrame" class="w-full flex-1 bg-black relative overflow-hidden">
       <div id="videoLoadingBox" class="absolute inset-0 z-10 flex items-center justify-center text-center p-6 bg-black">
         <div>
           <div class="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-          <p class="text-xs text-slate-300 font-bold">100ms ക്ലാസിലേക്ക് കണക്റ്റ് ചെയ്യുന്നു...</p>
+          <p class="text-xs text-slate-300 font-bold">100ms ലൈവ് ക്ലാസിലേക്ക് കണക്റ്റ് ചെയ്യുന്നു...</p>
         </div>
       </div>
     </div>
@@ -82,7 +113,7 @@
       </div>
     </div>
 
-    <!-- 4. 🏆 ഫ്ലോട്ടിംഗ് റാങ്ക് ലിസ്റ്റ് പോപ്പ്-അപ്പ് (ഫുൾസ്ക്രീനിലും സ്ക്രീനിന് മുകളിൽ തെളിയും) -->
+    <!-- 4. 🏆 ഫ്ലോട്ടിംഗ് റാങ്ക് ലിസ്റ്റ് പോപ്പ്-അപ്പ് -->
     <div id="livePollRankModal" class="hidden absolute inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-3">
       <div class="bg-slate-900 border-2 border-amber-500/70 rounded-2xl max-w-sm w-full p-4 shadow-2xl space-y-2.5 flex flex-col max-h-[82vh]">
         <div class="flex items-center justify-between border-b border-slate-800 pb-2">
@@ -121,10 +152,8 @@
 
   <script>
     const FIREBASE_DB_URL = "https://sk-psc-portal-default-rtdb.asia-southeast1.firebasedatabase.app";
-    // Paste the NEW student viewer-near-realtime room code here.
-    // Never place the broadcaster room code in this public GitHub HTML.
     const HMS_SUBDOMAIN = "maya-livestream-053";
-    const HMS_STUDENT_ROOM_CODE = "ftf-buvy-fes"; // viewer-near-realtime role code
+    const HMS_STUDENT_ROOM_CODE = "ftf-buvy-fes"; 
 
     let currentUser = null;
     let isTeacher = false;
@@ -134,6 +163,7 @@
     let autoDismissTimeout = null;
     let currentVotedOption = null;
     let liveRoomFrame = null;
+    let isLeavingMeeting = false;
 
     function sanitizePhone(raw) {
       if (!raw) return "";
@@ -141,30 +171,22 @@
       return c.length >= 10 ? c.slice(-10) : c;
     }
 
-    let isLeavingMeeting = false;
-
     function toggleVideoFullScreen() {
       const wrapper = document.getElementById('videoCardWrapper');
       if (!document.fullscreenElement) {
-        const request = wrapper.requestFullscreen || wrapper.webkitRequestFullscreen;
-        if (request) Promise.resolve(request.call(wrapper)).then(enforceStageOnlyView).catch(() => {});
+        if (wrapper.requestFullscreen) {
+          wrapper.requestFullscreen().catch(() => {});
+        } else if (wrapper.webkitRequestFullscreen) {
+          wrapper.webkitRequestFullscreen();
+        }
       } else {
-        const exit = document.exitFullscreen || document.webkitExitFullscreen;
-        if (exit) Promise.resolve(exit.call(document)).catch(() => {});
+        if (document.exitFullscreen) {
+          document.exitFullscreen().catch(() => {});
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        }
       }
     }
-
-    function hideSideFilmstrip() {
-      // Filmstrip visibility is controlled by the 100ms Prebuilt UI.
-    }
-
-    function toggleLiveChat() {
-      alert("Chat തുറക്കാൻ 100ms ക്ലാസ് സ്ക്രീനിലെ Chat ബട്ടൺ ഉപയോഗിക്കുക.");
-    }
-
-    document.addEventListener('fullscreenchange', () => {
-      if (document.fullscreenElement) enforceStageOnlyView();
-    });
 
     function exitLiveClassRoom() {
       if (confirm("ലൈവ് ക്ലാസിൽ നിന്ന് പുറത്തിറങ്ങണമെന്നുറപ്പാണോ?")) {
@@ -172,17 +194,34 @@
       }
     }
 
+    function leaveMeetingToHome() {
+      if (isLeavingMeeting) return;
+      isLeavingMeeting = true;
+      try {
+        if (liveRoomFrame) {
+          liveRoomFrame.src = "about:blank";
+          liveRoomFrame.remove();
+          liveRoomFrame = null;
+        }
+      } catch (e) {}
+      window.location.replace("index.html");
+    }
+
     window.addEventListener('DOMContentLoaded', async () => {
       const urlParams = new URLSearchParams(window.location.search);
       const roleQuery = urlParams.get('role');
 
       if (roleQuery === 'admin') {
-        const broadcasterCode = prompt("അധ്യാപകന്റെ പുതിയ 100ms Broadcaster Room Code നൽകുക:");
+        let savedBroadcasterCode = localStorage.getItem('sk_hms_broadcaster_code') || '';
+        let broadcasterCode = prompt("അധ്യാപകന്റെ 100ms Broadcaster Room Code നൽകുക:", savedBroadcasterCode);
+        
         if (broadcasterCode && broadcasterCode.trim()) {
+          broadcasterCode = broadcasterCode.trim();
+          localStorage.setItem('sk_hms_broadcaster_code', broadcasterCode);
           isTeacher = true;
-          window.__SKPSC_BROADCASTER_ROOM_CODE__ = broadcasterCode.trim();
+          window.__SKPSC_BROADCASTER_ROOM_CODE__ = broadcasterCode;
           currentUser = {
-            name: "SK PSC Teacher",
+            name: "സുഭാഷ് സർ (Teacher)",
             phone: "admin_master",
             is_premium: true,
             valid_until: "2099-12-31"
@@ -191,7 +230,7 @@
           if (roleBadge) roleBadge.textContent = "👨‍🏫 അധ്യാപകൻ (Host)";
           document.getElementById('pollAreaBox').style.display = 'none';
         } else {
-          alert("Broadcaster Room Code നൽകിയിട്ടില്ല. Portal-ലേക്ക് മടങ്ങുന്നു.");
+          alert("Broadcaster Room Code നൽകിയിട്ടില്ല. പോർട്ടലിലേക്ക് മടങ്ങുന്നു.");
           window.location.replace("index.html");
           return;
         }
@@ -221,7 +260,7 @@
       setInterval(syncRealtimePollAndRank, 2000);
     });
 
-    // 🌟 ക്ലാസിൽ കയറുന്ന എല്ലാ കുട്ടികളെയും തത്സമയം റാങ്ക് ലിസ്റ്റിൽ (0 മാർക്കിൽ) രജിസ്റ്റർ ചെയ്യുന്നു
+    // വിദ്യാർത്ഥികളെ 0 മാർക്കിൽ രജിസ്റ്റർ ചെയ്യുന്നു
     async function registerStudentInLiveLeaderboard() {
       if (isTeacher || !currentUser || !currentUser.phone) return;
       const phone = sanitizePhone(currentUser.phone);
@@ -242,12 +281,6 @@
               attempted: 0,
               lastPollId: 0
             })
-          });
-        } else {
-          await fetch(`${FIREBASE_DB_URL}/live_session/pollLeaderboard/${phone}/name.json`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(studentName)
           });
         }
       } catch (e) {}
@@ -274,7 +307,7 @@
 
         if (!isFree && !isTeacher) {
           const now = new Date();
-            const today = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+          const today = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
           const isValid = currentUser.valid_until && (currentUser.valid_until >= today);
           if (!isValid) {
             alert("🔒 ഈ ക്ലാസ് പ്രീമിയം വിദ്യാർത്ഥികൾക്ക് മാത്രമുള്ളതാണ്!");
@@ -283,17 +316,13 @@
           }
         }
 
-        // അറ്റൻഡൻസ് & ലീഡർബോർഡ് രജിസ്ട്രേഷൻ
         await registerStudentInLiveLeaderboard();
-
         init100msPrebuiltRoom();
       } catch (err) {
         const loading = document.getElementById('videoLoadingBox');
         if (loading) {
-          loading.innerHTML = '<p class="text-sm text-rose-300 font-bold">ക്ലാസിലേക്ക് കണക്റ്റ് ചെയ്യാൻ കഴിഞ്ഞില്ല. ഇന്റർനെറ്റ് / Firebase കണക്ഷൻ പരിശോധിച്ച് വീണ്ടും ശ്രമിക്കുക.</p>';
-          loading.style.display = 'block';
+          loading.innerHTML = '<p class="text-sm text-rose-300 font-bold">ക്ലാസിലേക്ക് കണക്റ്റ് ചെയ്യാൻ കഴിഞ്ഞില്ല. കണക്ഷൻ പരിശോധിച്ച് വീണ്ടും ശ്രമിക്കുക.</p>';
         }
-        console.error('Live session verification failed:', err);
       }
     }
 
@@ -302,14 +331,14 @@
         ? window.__SKPSC_BROADCASTER_ROOM_CODE__
         : HMS_STUDENT_ROOM_CODE;
 
-      if (!roomCode || roomCode.includes("PASTE_NEW_")) {
+      if (!roomCode) {
         const loading = document.getElementById('videoLoadingBox');
-        loading.innerHTML = '<p class="text-sm text-amber-300 font-bold">100ms Viewer Room Code ലഭ്യമല്ല. live.html-ലെ HMS_STUDENT_ROOM_CODE പരിശോധിക്കുക.</p>';
+        if (loading) loading.innerHTML = '<p class="text-sm text-amber-300 font-bold">100ms Room Code ലഭ്യമല്ല!</p>';
         return;
       }
 
       const userName = isTeacher
-        ? "SK PSC Teacher"
+        ? "സുഭാഷ് സർ (Teacher)"
         : (currentUser.Official_Name || currentUser.name || "Student");
       const userId = isTeacher ? "skpsc_teacher" : sanitizePhone(currentUser.phone);
 
@@ -322,39 +351,14 @@
       frame.referrerPolicy = "strict-origin-when-cross-origin";
       frame.allowFullscreen = true;
       frame.style.cssText = "width:100%;height:100%;border:0;display:block;background:#000;";
-      let frameLoaded = false;
+
       frame.addEventListener('load', () => {
-        frameLoaded = true;
         const loading = document.getElementById('videoLoadingBox');
         if (loading) loading.style.display = 'none';
       });
 
       document.getElementById('liveVideoFrame').appendChild(frame);
       liveRoomFrame = frame;
-
-      // iframe load event തന്നെ വരാത്ത സാഹചര്യത്തിൽ ഉപകാരപ്രദമായ സന്ദേശം കാണിക്കുക.
-      setTimeout(() => {
-        if (!frameLoaded && liveRoomFrame === frame) {
-          const loading = document.getElementById('videoLoadingBox');
-          if (loading) {
-            loading.innerHTML = '<p class="text-sm text-amber-300 font-bold">100ms ക്ലാസ് ലോഡ് ആകുന്നില്ല. Room Code, 100ms Prebuilt configuration, browser iframe permissions എന്നിവ പരിശോധിക്കുക.</p>';
-            loading.style.display = 'flex';
-          }
-        }
-      }, 20000);
-    }
-
-    function leaveMeetingToHome() {
-      if (isLeavingMeeting) return;
-      isLeavingMeeting = true;
-      try {
-        if (liveRoomFrame) {
-          liveRoomFrame.src = "about:blank";
-          liveRoomFrame.remove();
-          liveRoomFrame = null;
-        }
-      } catch (e) {}
-      window.location.replace("index.html");
     }
 
     async function syncRealtimePollAndRank() {
@@ -365,7 +369,6 @@
         activePollObj = poll;
         const pollBox = document.getElementById('pollAreaBox');
 
-        // റാങ്ക് ലിസ്റ്റ് പോപ്പ്-അപ്പ് പരിശോധന
         if (session.showRankModal === true) {
           renderLivePollRankModal(session.pollLeaderboard || {});
           document.getElementById('livePollRankModal').classList.remove('hidden');
@@ -422,7 +425,6 @@
       } catch (err) {}
     }
 
-    // 🌟 കുട്ടി വോട്ട് ചെയ്യുമ്പോൾ തന്നെ ശരിയാണോ തെറ്റാണോ എന്ന് നോക്കി കൃത്യമായി മാർക്ക് സേവ് ചെയ്യുന്നു
     async function submitQuickVote(optionIndex) {
       if (currentVotedOption !== null || !activePollObj) return;
       currentVotedOption = optionIndex;
@@ -436,14 +438,12 @@
       const isCorrect = (Number(optionIndex) === Number(activePollObj.correctAnswer));
 
       try {
-        // 1. ഓപ്ഷൻ വോട്ട് രേഖപ്പെടുത്തുന്നു
         await fetch(`${FIREBASE_DB_URL}/live_session/activePoll/votes/${optionIndex}/${phone}.json`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name: studentName, time: Date.now() })
         });
 
-        // 2. കുട്ടിയുടെ ലീഡർബോർഡ് മാർക്ക് അപ്ഡേറ്റ് ചെയ്യുന്നു (ശരിയാണെങ്കിൽ മാത്രം +1, അല്ലെങ്കിൽ +0)
         const lbRes = await fetch(`${FIREBASE_DB_URL}/live_session/pollLeaderboard/${phone}.json`);
         let entry = await lbRes.json() || { name: studentName, phone: phone, score: 0, attempted: 0, lastPollId: 0 };
 
@@ -535,16 +535,11 @@
 
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-800/40 border-b border-slate-800/50";
-        const rankCell = document.createElement('td');
-        rankCell.className = "p-2 text-center font-bold text-amber-400";
-        rankCell.textContent = rankBadge;
-        const nameCell = document.createElement('td');
-        nameCell.className = "p-2 font-bold text-white truncate max-w-[150px]";
-        nameCell.textContent = String(item.name || 'Student');
-        const scoreCell = document.createElement('td');
-        scoreCell.className = `p-2 text-center font-bold ${scoreVal > 0 ? 'text-emerald-400' : 'text-slate-500'}`;
-        scoreCell.textContent = `${scoreVal} Pt`;
-        tr.append(rankCell, nameCell, scoreCell);
+        tr.innerHTML = `
+          <td class="p-2 text-center font-bold text-amber-400">${rankBadge}</td>
+          <td class="p-2 font-bold text-white truncate max-w-[150px]">${item.name || 'Student'}</td>
+          <td class="p-2 text-center font-bold ${scoreVal > 0 ? 'text-emerald-400' : 'text-slate-500'}">${scoreVal} Pt</td>
+        `;
         tbody.appendChild(tr);
       });
     }
