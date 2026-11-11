@@ -127,12 +127,17 @@
       </aside>
     </main>
     <div id="conferenceControls" class="control-dock shrink-0">
-      <button id="micBtn" class="control-btn off" type="button">🔇 Mic Off</button>
-      <button id="cameraBtn" class="control-btn off" type="button">📷 Camera Off</button>
-      <button id="screenBtn" class="control-btn" type="button">▣ Share Screen</button>
-      <button id="handBtn" class="control-btn" type="button">✋ Raise Hand</button>
+      <button id="micBtn" class="control-btn off teacher-only hidden" type="button">🔇 Mic Off</button>
+      <button id="cameraBtn" class="control-btn off teacher-only hidden" type="button">📷 Camera Off</button>
+      <button id="screenBtn" class="control-btn teacher-only hidden" type="button">▣ Share Screen</button>
+      <button id="handBtn" class="control-btn student-only" type="button">✋ Raise Hand</button>
       <button id="chatToggleBtn" class="control-btn" type="button">💬 Chat</button>
     </div>
+    <section id="chatPanel" class="hidden flex-col bg-slate-900 w-80 max-w-[90vw] overflow-hidden">
+      <div class="flex items-center justify-between p-3 border-b border-slate-700"><strong class="text-sm">💬 ക്ലാസ് ചാറ്റ്</strong><button id="chatCloseBtn" type="button" class="text-slate-300 px-2 py-1 rounded bg-slate-800">✕</button></div>
+      <div id="chatMessages" class="flex-1 overflow-y-auto p-3 space-y-2 text-sm"></div>
+      <form id="chatForm" class="p-3 border-t border-slate-700 flex gap-2"><input id="chatInput" autocomplete="off" placeholder="സന്ദേശം എഴുതുക..." class="min-w-0 flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm"><button class="bg-cyan-600 text-white rounded-lg px-3 py-2 text-sm font-bold" type="submit">Send</button></form>
+    </section>
     <div id="teacherPeerControls" class="hidden fixed bottom-20 left-3 z-30 bg-slate-900 border border-slate-700 rounded-xl p-2 max-w-xs text-xs"><div class="font-bold mb-1 text-amber-300">Raised Hands / Participants</div><div id="teacherPeerList" class="space-y-1 max-h-40 overflow-y-auto"></div></div>
 
     <!-- 3. ⚡ ഫ്ലോട്ടിംഗ് ഇൻസ്റ്റന്റ് പോൾ -->
@@ -237,6 +242,8 @@
         if(!currentUser?.phone){alert('ലൈവ് ക്ലാസിൽ പങ്കെടുക്കാൻ ദയവായി ലോഗിൻ ചെയ്യുക!');location.replace('index.html');return;}
         document.getElementById('liveUserRoleBadge').textContent=currentUser.Official_Name||currentUser.name||'വിദ്യാർത്ഥി';
       }
+      document.querySelectorAll('.teacher-only').forEach(el=>el.classList.toggle('hidden',!isTeacher));
+      document.querySelectorAll('.student-only').forEach(el=>el.classList.toggle('hidden',isTeacher));
       wireControls();
       await verifyAccessAndStartMeeting();
       window.__pollTimer=setInterval(syncRealtimePollAndRank,2000);
@@ -265,8 +272,10 @@
       document.getElementById('screenBtn').onclick=()=>{
         if(!dailyCall)return;
         const local=dailyCall.participants()?.local;
-        if(local?. screen) dailyCall.stopScreenShare();
-        else dailyCall.startScreenShare();
+        try {
+          if(local?.screen) { dailyCall.stopScreenShare(); document.getElementById('screenBtn').textContent='▣ Share Screen'; }
+          else { dailyCall.startScreenShare(); document.getElementById('screenBtn').textContent='■ Stop Sharing'; }
+        } catch(err) { console.error('Screen share failed',err); alert('Screen Share ആരംഭിക്കാനായില്ല: '+(err.message||'Browser permission പരിശോധിക്കുക')); }
       };
       document.getElementById('handBtn').onclick=()=>{
         if(!dailyCall)return;
@@ -302,7 +311,8 @@
       try{
         if(!window.DailyIframe)throw new Error('Daily SDK ലോഡ് ആയില്ല. പേജ് വീണ്ടും തുറക്കുക.');
         setStatus('Daily.co ക്ലാസ് ലോഡ് ചെയ്യുന്നു...');
-        dailyCall=window.DailyIframe.createCallObject({audioSource:false,videoSource:false});
+        // Keep device sources enabled so the host can turn on microphone and camera.
+        dailyCall=window.DailyIframe.createCallObject();
         dailyCall.on('joined-meeting',()=>{
           document.getElementById('videoLoadingBox').classList.add('hidden');
           const p=dailyCall.participants().local;
@@ -317,6 +327,8 @@
         dailyCall.on('participant-left',renderDailyParticipants);
         dailyCall.on('track-started',renderDailyParticipants);
         dailyCall.on('track-stopped',renderDailyParticipants);
+        dailyCall.on('local-screen-share-started',()=>{const b=document.getElementById('screenBtn');if(b)b.textContent='■ Stop Sharing';renderDailyParticipants();});
+        dailyCall.on('local-screen-share-stopped',()=>{const b=document.getElementById('screenBtn');if(b)b.textContent='▣ Share Screen';renderDailyParticipants();});
         dailyCall.on('app-message',e=>{
           const data=e?.data||{};
           if(data.type==='SKPSC_CHAT')appendChat(data.name||e?.fromId||'Participant',data.message||'',false);
@@ -331,8 +343,8 @@
         await dailyCall.join({
           url:DAILY_ROOM_URL,
           userName:name,
-          startAudioOff:true,
-          startVideoOff:true
+          startAudioOff:!isTeacher,
+          startVideoOff:!isTeacher
         });
         setControlState(false,false);
         if(isTeacher)document.getElementById('teacherPeerControls').classList.remove('hidden');
@@ -343,6 +355,8 @@
     }
 
     function getTrack(participant,key){
+      if(key==='video' && participant?.videoTrack) return participant.videoTrack;
+      if(key==='screenVideo' && participant?.screenVideoTrack) return participant.screenVideoTrack;
       const t=participant?.tracks?.[key];
       return t?.persistentTrack||t?.track||null;
     }
