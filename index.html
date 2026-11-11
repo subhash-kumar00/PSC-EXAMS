@@ -1531,7 +1531,7 @@ function parseMainFolders(rawFolderValue) {
           fetch(`${FIREBASE_DB_URL}/exams.json`).then(r => r.json()).catch(() => null),
           fetch(`${FIREBASE_DB_URL}/users.json`).then(r => r.json()).catch(() => null),
           fetch(`${FIREBASE_DB_URL}/portal_config.json`).then(r => r.json()).catch(() => ({})),
-          candidate && candidate.phone ? fetch(`${FIREBASE_DB_URL}/users_history/${sanitizePhone(candidate.phone)}.json`).then(r => r.json()).catch(() => null) : Promise.resolve(null)
+         candidate && candidate.phone ? fetch(`${FIREBASE_DB_URL}/users_history/${sanitizePhone(candidate.phone)}.json?_t=${Date.now()}`).then(r => r.json()).catch(() => null) : Promise.resolve(null)
         ]);
 // 🔴 ലൈവ് ബാനർ നിലവിലെ Firebase സ്റ്റാറ്റസുമായി പുതുക്കുന്നു
 await refreshHomeLiveBanner();
@@ -1557,16 +1557,16 @@ await refreshHomeLiveBanner();
         }
 
         userAttemptsMap = {};
-        if (userHistData) {
-          let hList = Object.values(userHistData);
-          hList.forEach(h => {
-            if (!h) return;
-            const cleanTitle = cleanTitleForMatch(h.title || '');
-            if (cleanTitle && !userAttemptsMap[cleanTitle]) {
-              userAttemptsMap[cleanTitle] = h;
-            }
-          });
-        }
+if (userHistData) {
+  let hList = Object.values(userHistData);
+  hList.forEach(h => {
+    if (!h) return;
+    const cleanTitle = cleanTitleForMatch(h.title || '');
+    const cleanKey = cleanTitleForMatch(h.key || h.cleanExamKey || '');
+    if (cleanTitle) userAttemptsMap[cleanTitle] = h;
+    if (cleanKey) userAttemptsMap[cleanKey] = h;
+  });
+}
 
         const blinkBox = document.getElementById('heroBlinkAlertBox');
         const blinkText = document.getElementById('heroBlinkAlertText');
@@ -2200,8 +2200,9 @@ await refreshHomeLiveBanner();
         const hasAccess = canStudentAccessExam(q);
         const isLatest = (q.badge === 'LATEST') && !lockedByTime;
         const cleanT = cleanTitleForMatch(q.title);
-        const previousAttempt = userAttemptsMap[cleanT] || null;
-        let userScore = extractActualScore(previousAttempt);
+const cleanK = cleanTitleForMatch(q.key || '');
+const previousAttempt = userAttemptsMap[cleanT] || (cleanK ? userAttemptsMap[cleanK] : null) || null;
+let userScore = extractActualScore(previousAttempt);
 
         let badgeMarkup = '';
         if (lockedByTime) {
@@ -2376,14 +2377,14 @@ await refreshHomeLiveBanner();
       document.getElementById('rankListModal').classList.add('hidden');
     }
 
-    async function fetchUserExamHistory(phone) {
-      const hList = document.getElementById('historyList');
-      hList.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">ഹിസ്റ്ററി ലഭ്യമാക്കുന്നു...</p>';
-      const cleanPhone = sanitizePhone(phone);
-      if (!cleanPhone || cleanPhone.length < 10) return;
+   async function fetchUserExamHistory(phone) {
+  const hList = document.getElementById('historyList');
+  hList.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">ഹിസ്റ്ററി ലഭ്യമാക്കുന്നു...</p>';
+  const cleanPhone = sanitizePhone(phone);
+  if (!cleanPhone || cleanPhone.length < 10) return;
 
-      try {
-        const histRes = await fetch(`${FIREBASE_DB_URL}/users_history/${cleanPhone}.json`).then(r => r.json()).catch(() => null);
+  try {
+    const histRes = await fetch(`${FIREBASE_DB_URL}/users_history/${cleanPhone}.json?_t=${Date.now()}`).then(r => r.json()).catch(() => null);
         let rawPool = histRes ? Object.values(histRes).filter(h => h && h.title) : [];
 
         if (rawPool.length === 0) {
@@ -2806,40 +2807,6 @@ function closePolicyModal() {
 }
 </script>
 
-<!-- 👇 പുതിയ Auto-Sync സ്ക്രിപ്റ്റ് 👇 -->
-<script>
-  window.addEventListener('DOMContentLoaded', () => {
-    try {
-      const localUserStr = localStorage.getItem('sk_candidate_user');
-      const localUser = localUserStr ? JSON.parse(localUserStr) : null;
-      const phone = localUser?.phone || localUser?.Phone || localStorage.getItem('sk_user_phone');
-
-      if (phone && phone.length >= 10) {
-        if (localUser) {
-          fetch(`https://sk-psc-portal-default-rtdb.asia-southeast1.firebasedatabase.app/users/${phone}.json`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(localUser)
-          }).catch(err => console.warn("User sync skipped"));
-        }
-
-        const historyKey = `sk_history_${phone}`;
-        const localHistoryStr = localStorage.getItem(historyKey);
-        const localHistory = localHistoryStr ? JSON.parse(localHistoryStr) : null;
-
-        if (localHistory && Array.isArray(localHistory) && localHistory.length > 0) {
-          fetch(`https://sk-psc-portal-default-rtdb.asia-southeast1.firebasedatabase.app/users_history/${phone}.json`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(localHistory)
-          }).catch(err => console.warn("History sync skipped"));
-        }
-      }
-    } catch (e) {
-      console.warn("Background auto-sync completed.");
-    }
-  });
-</script>
 
 </body>
 </html>
