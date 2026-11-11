@@ -35,19 +35,23 @@
     /* SK PSC responsive classroom layout */
     #classMain { display:flex; flex:1 1 auto; min-height:0; min-width:0; position:relative; overflow:hidden; }
     #classStage { flex:1 1 100%; min-width:0; min-height:0; display:flex; flex-direction:column; position:relative; }
-    #customVideoStage { flex:1 1 auto; min-height:0; overflow:hidden; padding:0; display:flex; align-items:stretch; justify-content:stretch; }
-    #screenShareContainer { width:100%; height:100%; min-height:0; margin:0 !important; display:flex; align-items:center; justify-content:center; background:#000; }
+    #customVideoStage { flex:1 1 auto; min-height:0; min-width:0; overflow:hidden; padding:0; position:relative; display:block; background:#000; }
+    #screenShareContainer { position:absolute; inset:0; z-index:2; width:100%; height:100%; min-width:0; min-height:0; margin:0 !important; display:flex; align-items:stretch; justify-content:stretch; background:#000; overflow:hidden; }
     #screenShareContainer.hidden { display:none !important; }
-    #screenShareContainer .screen-share-tile { width:100%; height:100%; min-height:0; display:flex; flex-direction:column; align-items:stretch; justify-content:center; background:#000; border:0; border-radius:0; }
+    #screenShareContainer .screen-share-tile { flex:1 1 auto; width:100%; height:100%; min-width:0; min-height:0; display:flex; flex-direction:column; align-items:stretch; justify-content:stretch; background:#000; border:0; border-radius:0; overflow:hidden; }
     #screenShareContainer .screen-share-title { flex:0 0 auto; padding:5px 10px; font-size:10px; }
-    #screenShareContainer video { display:block; width:100%; height:100%; max-height:none !important; aspect-ratio:16/9; object-fit:contain !important; background:#000; }
-    #peersContainer { width:100%; height:100%; min-height:0; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+    #screenShareContainer video { display:block; flex:1 1 auto; min-width:0; min-height:0; width:100% !important; height:100% !important; max-width:100%; max-height:100% !important; aspect-ratio:auto; object-fit:contain !important; background:#000; }
+    #peersContainer { position:absolute; inset:0; z-index:1; width:100%; height:100%; min-width:0; min-height:0; display:flex; align-items:center; justify-content:center; overflow:hidden; }
     #peersContainer:empty { display:none; }
+    #peersContainer.hidden { display:none !important; }
     #peersContainer .peer-tile { width:100%; height:100%; max-width:100%; max-height:100%; min-height:0; aspect-ratio:16/9; border:0; border-radius:0; background:#000; }
     #peersContainer .peer-tile video { object-fit:contain; }
     #chatPanel { flex:0 0 25%; width:25%; max-width:380px; min-width:220px; height:auto; max-width:380px; }
     #videoCardWrapper.chat-open #chatPanel { display:flex !important; }
     #videoCardWrapper:not(.chat-open) #chatPanel { display:none !important; }
+    #videoCardWrapper:not(.chat-open) #classStage { flex:1 1 100%; width:100%; }
+    #videoCardWrapper.chat-open #classStage { flex:1 1 75%; width:75%; }
+    #videoCardWrapper.chat-open #chatPanel { flex:0 0 25%; width:25%; min-width:0; max-width:none; }
     #videoCardWrapper.student-view #participantCount { display:none; }
     #videoCardWrapper.student-view #peersContainer .peer-label { display:none; }
     #emptyStageHint { margin:auto; text-align:center; padding:20px; color:#94a3b8; }
@@ -58,7 +62,8 @@
     #conferenceControls { gap:7px; padding:8px 10px calc(8px + env(safe-area-inset-bottom)); }
     #conferenceControls .control-btn { white-space:nowrap; }
     @media (max-width: 760px) and (orientation: landscape) {
-      #chatPanel { flex-basis:25%; width:25%; min-width:180px; max-width:30vw; }
+      #videoCardWrapper.chat-open #chatPanel { flex:0 0 25%; width:25%; min-width:0; max-width:none; }
+      #videoCardWrapper.chat-open #classStage { flex:1 1 75%; width:75%; }
       #classStage { flex:1 1 75%; }
       #screenShareContainer video { max-height:none !important; }
       #conferenceControls { padding:5px 7px; gap:5px; }
@@ -66,13 +71,97 @@
     }
     @media (orientation: portrait), (max-width: 600px) and (orientation: portrait) {
       #classMain { position:relative; }
-      #classStage { width:100%; flex:1 1 100%; }
+      #classStage { width:100% !important; flex:1 1 100% !important; }
+      #videoCardWrapper.chat-open #chatPanel { flex:0 0 auto; width:auto; }
       #chatPanel { position:absolute; left:8px; right:8px; bottom:8px; top:auto; width:auto; max-width:none; min-width:0; height:31%; max-height:38%; z-index:45; border:1px solid #334155; border-radius:14px; box-shadow:0 12px 35px #000b; }
       #videoCardWrapper.chat-open #chatPanel { display:flex !important; }
       #customVideoStage { padding:0; }
       #conferenceControls { padding:6px 5px calc(6px + env(safe-area-inset-bottom)); gap:4px; }
       #conferenceControls .control-btn { padding:7px 8px; font-size:10px; }
       #screenShareContainer video { aspect-ratio:16/9; }
+    }
+
+
+    /* 100ms-inspired SK PSC room UI: clean stage, compact toolbar, optional chat rail */
+    html, body { background:#080a10; }
+    #videoCardWrapper { background:#080a10 !important; }
+    #videoCardWrapper > header {
+      min-height:62px; padding:8px 18px !important; background:#101522 !important;
+      border-bottom:1px solid #252d3d !important;
+    }
+    #videoCardWrapper > header a { width:38px !important; height:38px !important; border-radius:12px !important; font-size:20px !important; }
+    #videoCardWrapper > header h1 { font-size:15px !important; letter-spacing:.1px; }
+    #videoCardWrapper > header p { font-size:11px !important; }
+    #liveAccessBadge { font-size:11px !important; padding:6px 10px !important; border-radius:8px !important; }
+    #videoCardWrapper > header button { padding:9px 13px !important; font-size:12px !important; border-radius:11px !important; }
+    #classMain { background:#080a10; gap:0; }
+    #classStage { background:#05070c !important; }
+    #classStage > .px-3.py-2 {
+      min-height:42px; padding:10px 18px !important; background:#090d16;
+      color:#aeb8ca !important; font-size:13px !important; border-bottom:1px solid #252d3d !important;
+    }
+    #customVideoStage { background:#05070c !important; }
+    #screenShareContainer { background:#05070c !important; }
+    #screenShareContainer .screen-share-title {
+      padding:10px 16px !important; font-size:13px !important; background:#080b12;
+    }
+    #screenShareContainer video { background:#000 !important; object-fit:contain !important; }
+    #peersContainer .peer-tile { background:#090d16 !important; }
+    #emptyStageHint { color:#d8dfeb !important; }
+    #emptyStageHint .font-bold { font-size:24px; }
+    #emptyStageHint .text-xs { font-size:13px !important; color:#9aa8bd !important; }
+    #conferenceControls {
+      min-height:64px; padding:10px 14px calc(10px + env(safe-area-inset-bottom)) !important;
+      background:#090c14 !important; border-top:1px solid #252d3d !important;
+    }
+    #conferenceControls .control-btn {
+      min-height:42px; min-width:44px; padding:9px 15px !important; border-radius:12px !important;
+      background:#1c2433 !important; border:1px solid #3b4659 !important; color:#f3f6fb !important;
+      font-size:13px !important; font-weight:700; box-shadow:none !important;
+    }
+    #conferenceControls .control-btn:hover { background:#283449 !important; border-color:#65748d !important; }
+    #conferenceControls .control-btn:disabled { opacity:.38; }
+    #chatPanel {
+      background:#111722 !important; border-left:1px solid #293348 !important;
+      min-width:280px; max-width:360px; box-shadow:-10px 0 30px #0003;
+    }
+    #chatPanel > div:first-child { min-height:58px; padding:14px 16px !important; background:#111722; }
+    #chatPanel strong { font-size:18px !important; }
+    #chatCloseBtn { font-size:20px; padding:3px 7px; }
+    #chatMessages { padding:14px !important; }
+    #chatMessages > div { background:#202a3b !important; border-radius:13px !important; padding:12px !important; }
+    #chatForm { padding:12px !important; background:#0d121c; }
+    #chatInput { min-height:44px; background:#202a3b !important; border:1px solid #303c50; }
+    #chatForm button { min-width:64px; border-radius:10px; background:#168eaa !important; }
+    #videoCardWrapper.student-view #participantCount { display:none !important; }
+    #videoCardWrapper.student-view #peersContainer .peer-tile:not(:has(video[src])) { border:0; }
+    #teacherPeerControls { background:#111722 !important; border-color:#3b4659 !important; }
+    @media (min-width:761px) {
+      #videoCardWrapper.chat-open #classStage { flex:1 1 75%; width:75%; }
+      #videoCardWrapper.chat-open #chatPanel { flex:0 0 25%; width:25%; min-width:280px; max-width:360px; }
+    }
+    @media (max-width:760px) and (orientation:landscape) {
+      #videoCardWrapper > header { min-height:48px; padding:5px 9px !important; }
+      #videoCardWrapper > header a { width:30px !important; height:30px !important; }
+      #videoCardWrapper > header button { padding:6px 8px !important; font-size:10px !important; }
+      #classStage > .px-3.py-2 { min-height:30px; padding:6px 10px !important; font-size:10px !important; }
+      #conferenceControls { min-height:48px; padding:5px 7px !important; }
+      #conferenceControls .control-btn { min-height:34px; padding:6px 9px !important; font-size:10px !important; }
+      #videoCardWrapper.chat-open #chatPanel { flex:0 0 25% !important; width:25% !important; min-width:190px !important; max-width:none !important; position:relative !important; inset:auto !important; height:auto !important; }
+      #videoCardWrapper.chat-open #classStage { flex:1 1 75% !important; width:75% !important; }
+    }
+    @media (orientation:portrait) {
+      #videoCardWrapper > header { min-height:56px; padding:7px 9px !important; }
+      #videoCardWrapper > header h1 { font-size:12px !important; }
+      #videoCardWrapper > header p { font-size:9px !important; }
+      #classStage > .px-3.py-2 { min-height:34px; padding:7px 10px !important; font-size:11px !important; }
+      #conferenceControls { min-height:58px; padding:7px 5px calc(7px + env(safe-area-inset-bottom)) !important; }
+      #conferenceControls .control-btn { min-height:38px; padding:7px 10px !important; font-size:11px !important; }
+      #videoCardWrapper.chat-open #chatPanel {
+        left:8px !important; right:8px !important; bottom:8px !important; top:auto !important;
+        width:auto !important; height:36% !important; max-height:42% !important; min-width:0 !important;
+        max-width:none !important; border:1px solid #3b4659 !important; border-radius:14px !important;
+      }
     }
 
   </style>
@@ -212,8 +301,8 @@
     } from 'https://esm.sh/@100mslive/hms-video-store@0.15.3?bundle';
 
     const FIREBASE_DB_URL = "https://sk-psc-portal-default-rtdb.asia-southeast1.firebasedatabase.app";
-    // Replace this with the current viewer-realtime Room Code before publishing.
-    const HMS_STUDENT_ROOM_CODE = "rsv-xgmu-aho";
+    // 100ms Dashboard: viewer-near-realtime role Room Code (verified from supplied screenshot).
+    const HMS_STUDENT_ROOM_CODE = "mwt-pwlu-yia";
     const ROLE_ON_STAGE = "guest";
     const ROLE_OFF_STAGE = "viewer-near-realtime";
 
@@ -292,12 +381,23 @@
         const name=isTeacher?'SK PSC Teacher':(currentUser.Official_Name||currentUser.name||'Student');
         const authToken=await hmsActions.getAuthTokenByRoomCode({roomCode});
         await hmsActions.join({userName:name,authToken,settings:{isAudioMuted:!isTeacher,isVideoMuted:!isTeacher}});
+        // Mobile browsers may block remote audio autoplay until a user gesture.
+        let audioUnlockDone=false;
+        const unlockRoomAudio=async()=>{
+          if(audioUnlockDone || !hmsActions) return;
+          audioUnlockDone=true;
+          try{ await hmsActions.unblockAudio(); }
+          catch(err){ console.warn('100ms audio unlock:',err); audioUnlockDone=false; }
+        };
+        document.addEventListener('pointerdown',unlockRoomAudio,{once:true,passive:true});
+        document.addEventListener('touchstart',unlockRoomAudio,{once:true,passive:true});
         if(!isTeacher){
           document.getElementById('micBtn').disabled=true;
           document.getElementById('cameraBtn').disabled=true;
           document.getElementById('screenBtn').disabled=true;
         }
         document.getElementById('videoLoadingBox').classList.add('hidden');
+        setStatus('ക്ലാസ് ശബ്ദം കേൾക്കാൻ സ്ക്രീനിൽ ഒരിക്കൽ Tap ചെയ്യുക.');
         hmsStore.subscribe(renderPeers,selectPeers);
         hmsStore.subscribe(renderScreenShares,selectTracksMap);
         messagesUnsubscribe=hmsStore.subscribe(renderMessages,selectHMSMessages);
