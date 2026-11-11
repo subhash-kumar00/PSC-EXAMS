@@ -156,7 +156,10 @@
         <div id="teacherHandPanel" class="hidden flex-col gap-1.5">
           <div class="flex items-center justify-between border-b border-slate-700/80 pb-1.5">
             <span class="text-[11px] font-bold text-amber-300 flex items-center gap-1">✋ സംശയങ്ങൾ (Raised Hands)</span>
-            <span id="handCountBadge" class="bg-amber-500/20 text-amber-300 text-[10px] px-2 py-0.2 rounded-full font-mono font-bold">0</span>
+            <div class="flex items-center gap-1.5">
+              <span id="handCountBadge" class="bg-amber-500/20 text-amber-300 text-[10px] px-2 py-0.2 rounded-full font-mono font-bold">0</span>
+              <button onclick="clearAllRaisedHands()" title="എല്ലാം ക്ലിയർ ചെയ്യുക" class="text-[9px] bg-slate-800 hover:bg-rose-900 text-slate-300 px-1.5 py-0.5 rounded border border-slate-700 cursor-pointer">Clear All</button>
+            </div>
           </div>
           <div id="teacherHandList" class="space-y-1.5 max-h-36 overflow-y-auto custom-scroll text-xs pt-1">
             <p class="text-[10px] text-slate-400 py-1">കൈ ഉയർത്തിയവർ ആരുമില്ല</p>
@@ -225,17 +228,16 @@
     const FIREBASE_DB_URL = "https://sk-psc-portal-default-rtdb.asia-southeast1.firebasedatabase.app";
     const HMS_STUDENT_ROOM_CODE = "mwt-pwlu-yia";
     
-    // 100ms Roles
-    const ROLE_ON_STAGE = "guest";
+    // 100ms Role (Fallback if role change is used)
+    const ROLE_ON_STAGE = "broadcaster"; 
     const ROLE_OFF_STAGE = "viewer-near-realtime";
 
     let currentUser = null, isTeacher = false, liveSessionData = null, activePollObj = null;
     let activePollInterval = null, autoDismissTimeout = null, currentVotedOption = null;
     let hmsStore = null, hmsActions = null;
-    let localHandRaised = false, chatOpen = false, audioUnlocked = false;
-    let lastRenderedMsgCount = 0;
+    let localHandRaised = false, localOnStage = false, chatOpen = false, audioUnlocked = false;
     const screenTiles = new Map();
-    const raisedHandsMap = new Map(); // key: phone or peerId, val: { name, peerId, phone, onStage }
+    const raisedHandsMap = new Map(); // Single source of truth keyed ONLY by sanitized phone
 
     function sanitizePhone(raw) {
       if (!raw) return "";
@@ -268,7 +270,15 @@
       document.getElementById('livePollRankModal').classList.add('hidden');
     };
 
-    // One-Tap Audio Unlocker for Mobile Browsers
+    window.clearAllRaisedHands = async function() {
+      if (!isTeacher) return;
+      try {
+        await fetch(`${FIREBASE_DB_URL}/live_session/raisedHands.json`, { method: 'DELETE' });
+        raisedHandsMap.clear();
+        renderTeacherRaisedHands();
+      } catch (e) {}
+    };
+
     window.forceUnlockAudio = async function() {
       if (!hmsActions) return;
       try {
@@ -361,11 +371,11 @@
             ? 'control-btn bg-emerald-700 border-emerald-400 text-white animate-pulse'
             : 'control-btn bg-slate-800 border-amber-400 text-amber-300';
         } catch (e) {
-          alert('മൈക്ക് ഓൺ ചെയ്യാൻ ബ്രൗസർ അനുമതി നൽകുക.');
+          alert('മൈക്ക് ഓൺ ചെയ്യാൻ ബ്രൗസർ അനുമതി നൽകുക (അല്ലെങ്കിൽ 100ms-ൽ Broadcaster/Guest കോഡ് ഉപയോഗിക്കുക).');
         }
       };
 
-      // Student Hand Raise (Synced via both 100ms + Firebase for 100% reliability)
+      // Student Hand Raise (Strictly Single-Keyed via Firebase to prevent duplicates)
       document.getElementById('handBtn').onclick = async () => {
         if (!hmsActions) return;
         forceUnlockAudio();
@@ -380,21 +390,12 @@
         document.getElementById('handBtn').classList.toggle('bg-amber-600', localHandRaised);
         document.getElementById('handBtn').classList.toggle('border-amber-300', localHandRaised);
 
-        try {
-          if (localHandRaised) await hmsActions.raiseLocalPeerHand();
-          else await hmsActions.lowerLocalPeerHand();
-        } catch (e) {}
+        if (!localHandRaised) {
+          localOnStage = false;
+          document.getElementById('studentMicBtn').classList.add('hidden');
+          try { await hmsActions.setLocalAudioEnabled(false); } catch (e) {}
+        }
 
-        try {
-          await hmsActions.sendBroadcastMessage(JSON.stringify({
-            raised: localHandRaised,
-            name: studentName,
-            phone: phone,
-            peerId: peerId
-          }), 'SKPSC_HAND_RAISE');
-        } catch (e) {}
-
-        // Firebase Sync so Host ALWAYS sees it immediately
         try {
           if (localHandRaised) {
             await fetch(`${FIREBASE_DB_URL}/live_session/raisedHands/${phone}.json`, {
@@ -445,26 +446,7 @@
       const existing = new Set([...box.children].map(x => x.dataset.mid));
 
       messages.forEach(m => {
-        if (m.type === 'SKPSC_HAND_RAISE') {
-          try {
-            const data = JSON.parse(m.message);
-            const key = data.phone || m.sender?.id || m.senderId;
-            if (key) {
-              if (data.raised) {
-                raisedHandsMap.set(key, {
-                  name: data.name || m.senderName || 'Student',
-                  peerId: data.peerId || m.sender?.id || m.senderId,
-                  phone: data.phone || ''
-                });
-              } else {
-                raisedHandsMap.delete(key);
-              }
-              if (isTeacher) renderTeacherRaisedHands();
-            }
-          } catch (e) {}
-          return;
-        }
-
+        if (m.type === 'SKPSC_HAND_RAISE') return;
         if (!m || !m.id || existing.has(m.id)) return;
 
         const peers = hmsStore?.getState(selectPeers) || [];
@@ -488,6 +470,7 @@
       box.scrollTop = box.scrollHeight;
     }
 
+    // Teacher's Raised Hands UI (No duplicate entries, No role-not-changed error popups)
     function renderTeacherRaisedHands() {
       if (!isTeacher) return;
       const container = document.getElementById('teacherHandList');
@@ -495,14 +478,6 @@
       const peers = hmsStore?.getState(selectPeers) || [];
 
       if (!container) return;
-
-      // Also detect native 100ms isHandRaised peers
-      peers.forEach(p => {
-        if (!p.isLocal && p.isHandRaised) {
-          raisedHandsMap.set(p.id, { name: p.name, peerId: p.id, phone: '' });
-        }
-      });
-
       badge.textContent = raisedHandsMap.size;
 
       if (raisedHandsMap.size === 0) {
@@ -511,48 +486,45 @@
       }
 
       container.innerHTML = '';
-      raisedHandsMap.forEach((info, key) => {
-        const peer = peers.find(p => p.id === info.peerId || p.name === info.name);
-        const isOnStage = (peer && peer.roleName === ROLE_ON_STAGE) || info.onStage === true;
+      raisedHandsMap.forEach((info, phoneKey) => {
+        const isOnStage = (info.onStage === true);
 
         const row = document.createElement('div');
         row.className = 'flex items-center justify-between gap-1.5 bg-slate-800/95 p-1.5 rounded-lg border border-slate-700';
         row.innerHTML = `
           <span class="truncate font-semibold text-white text-[11px]">✋ ${safeHtml(info.name)}</span>
-          <button type="button" class="bring-btn px-2.5 py-1 rounded text-[10px] font-bold text-white shadow cursor-pointer shrink-0 ${isOnStage ? 'bg-rose-600 hover:bg-rose-500' : 'bg-emerald-600 hover:bg-emerald-500'}">
-            ${isOnStage ? 'Remove' : 'Bring to Stage'}
-          </button>
+          <div class="flex items-center gap-1 shrink-0">
+            <button type="button" class="stage-btn px-2.5 py-1 rounded text-[10px] font-bold text-white shadow cursor-pointer ${isOnStage ? 'bg-rose-600 hover:bg-rose-500' : 'bg-emerald-600 hover:bg-emerald-500'}">
+              ${isOnStage ? 'Remove' : 'Bring to Stage'}
+            </button>
+          </div>
         `;
 
-        row.querySelector('.bring-btn').onclick = async () => {
-          const targetPeerId = peer?.id || info.peerId;
+        row.querySelector('.stage-btn').onclick = async () => {
           const nextStageState = !isOnStage;
           try {
-            if (targetPeerId) {
-              const nextRole = nextStageState ? ROLE_ON_STAGE : ROLE_OFF_STAGE;
-              await hmsActions.changeRoleOfPeer(targetPeerId, nextRole, true);
+            // Optional silent attempt to change 100ms role if configured, without throwing annoying error alert
+            const peer = peers.find(p => p.id === info.peerId || p.name === info.name);
+            if (peer && hmsActions) {
+              hmsActions.changeRoleOfPeer(peer.id, nextStageState ? ROLE_ON_STAGE : ROLE_OFF_STAGE, true).catch(() => {});
             }
-            if (info.phone) {
-              if (nextStageState) {
-                await fetch(`${FIREBASE_DB_URL}/live_session/raisedHands/${info.phone}/onStage.json`, {
-                  method: 'PUT',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify(true)
-                });
-              } else {
-                await fetch(`${FIREBASE_DB_URL}/live_session/raisedHands/${info.phone}.json`, { method: 'DELETE' });
-              }
-            }
-            if (!nextStageState) {
-              raisedHandsMap.delete(key);
-            } else {
+
+            if (nextStageState) {
+              // Grant Mic Permission via Firebase
+              await fetch(`${FIREBASE_DB_URL}/live_session/raisedHands/${phoneKey}/onStage.json`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(true)
+              });
               info.onStage = true;
-              raisedHandsMap.set(key, info);
+              raisedHandsMap.set(phoneKey, info);
+            } else {
+              // Remove from Stage & Clear Hand Raise completely
+              await fetch(`${FIREBASE_DB_URL}/live_session/raisedHands/${phoneKey}.json`, { method: 'DELETE' });
+              raisedHandsMap.delete(phoneKey);
             }
             renderTeacherRaisedHands();
-          } catch (err) {
-            alert('റോൾ മാറ്റാൻ സാധിച്ചില്ല (100ms Dashboard-ൽ viewer റോളിന് Change Role അനുമതി ഉറപ്പാക്കുക): ' + err.message);
-          }
+          } catch (err) {}
         };
 
         container.appendChild(row);
@@ -605,7 +577,6 @@
           settings: { isAudioMuted: !isTeacher, isVideoMuted: true }
         });
 
-        // Show One-Tap Audio Unlock Banner for Students
         if (!isTeacher) {
           document.getElementById('audioUnlockBanner').classList.remove('hidden');
         }
@@ -627,24 +598,6 @@
 
         hmsStore.subscribe(renderScreenShares, selectTracksMap);
         hmsStore.subscribe(renderMessages, selectHMSMessages);
-
-        hmsStore.subscribe((peers) => {
-          if (isTeacher) {
-            renderTeacherRaisedHands();
-            return;
-          }
-          const localPeer = peers?.find(p => p.isLocal);
-          if (localPeer) {
-            const onStage = (localPeer.roleName === ROLE_ON_STAGE);
-            const studMicBtn = document.getElementById('studentMicBtn');
-            if (onStage) {
-              studMicBtn.classList.remove('hidden');
-              hmsActions.setLocalAudioEnabled(true).catch(() => {});
-            } else {
-              studMicBtn.classList.add('hidden');
-            }
-          }
-        }, selectPeers);
 
       } catch (err) {
         document.getElementById('loadingStatusText').textContent = 'കണക്റ്റ് ചെയ്യാൻ കഴിഞ്ഞില്ല. റീഫ്രഷ് ചെയ്യുക.';
@@ -691,7 +644,7 @@
         activePollObj = poll;
         const pollBox = document.getElementById('pollAreaBox');
 
-        // Sync Raised Hands from Firebase so Host never misses a student's hand raise
+        // Single-source Raised Hands sync from Firebase
         const fbHands = session.raisedHands || {};
         if (isTeacher) {
           raisedHandsMap.clear();
@@ -702,15 +655,29 @@
           });
           renderTeacherRaisedHands();
         } else if (currentUser?.phone) {
-          const myHand = fbHands[sanitizePhone(currentUser.phone)];
+          const myPhone = sanitizePhone(currentUser.phone);
+          const myHand = fbHands[myPhone];
           const studMicBtn = document.getElementById('studentMicBtn');
+
           if (myHand && myHand.onStage === true) {
+            // Teacher clicked "Bring to Stage"
             studMicBtn.classList.remove('hidden');
-          } else if (!myHand && localHandRaised) {
-            localHandRaised = false;
-            document.getElementById('handBtn').textContent = '✋ Raise Hand';
-            document.getElementById('handBtn').classList.remove('bg-amber-600', 'border-amber-300');
+            if (!localOnStage) {
+              localOnStage = true;
+              hmsActions?.setLocalAudioEnabled(true).catch(() => {});
+            }
+          } else {
+            // Teacher clicked "Remove" or student lowered hand
+            if (localOnStage) {
+              localOnStage = false;
+              hmsActions?.setLocalAudioEnabled(false).catch(() => {});
+            }
             studMicBtn.classList.add('hidden');
+            if (!myHand && localHandRaised) {
+              localHandRaised = false;
+              document.getElementById('handBtn').textContent = '✋ Raise Hand';
+              document.getElementById('handBtn').classList.remove('bg-amber-600', 'border-amber-300');
+            }
           }
         }
 
