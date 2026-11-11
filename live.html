@@ -2,7 +2,7 @@
 <html lang="ml">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <title>SK PSC - ലൈവ് ക്ലാസ് റൂം</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
@@ -14,6 +14,7 @@
       background: #000000; color: #f8fafc;
       font-family: 'Noto Sans Malayalam', 'Manrope', sans-serif;
       overflow: hidden;
+      -webkit-tap-highlight-color: transparent;
     }
     .custom-scroll::-webkit-scrollbar { width: 4px; }
     .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
@@ -43,44 +44,44 @@
 
     .floating-top-bar {
       position: absolute; top: 8px; left: 8px; right: 8px; z-index: 40;
-      background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px);
-      border: 1px solid rgba(51, 65, 85, 0.7); border-radius: 12px;
+      background: rgba(15, 23, 42, 0.82); backdrop-filter: blur(10px);
+      border: 1px solid rgba(51, 65, 85, 0.65); border-radius: 12px;
       padding: 6px 12px; display: flex; justify-content: space-between; align-items: center;
     }
 
     .floating-bottom-bar {
       position: absolute; bottom: 12px; right: 12px; z-index: 40;
-      display: flex; gap: 8px; flex-wrap: wrap;
+      display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
     }
 
     .control-btn {
-      padding: 7px 12px; background: rgba(15, 23, 42, 0.9);
-      border: 1px solid #475569; border-radius: 10px;
+      padding: 8px 13px; background: rgba(15, 23, 42, 0.92);
+      border: 1px solid #475569; border-radius: 11px;
       font-size: 11px; font-weight: 700; color: #f8fafc;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.5); backdrop-filter: blur(6px);
-      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.6); backdrop-filter: blur(8px);
+      cursor: pointer; transition: all 0.15s ease; display: flex; align-items: center; gap: 5px;
     }
     .control-btn:hover { background: #1e293b; border-color: #06b6d4; }
+    .control-btn:active { transform: scale(0.96); }
 
     #chatPanel {
-      position: absolute; top: 54px; right: 8px; bottom: 54px; width: 280px; max-width: 80%;
-      background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px);
+      position: absolute; top: 56px; right: 8px; bottom: 58px; width: 290px; max-width: 85%;
+      background: rgba(15, 23, 42, 0.96); backdrop-filter: blur(14px);
       border: 1px solid #334155; border-radius: 14px; z-index: 45;
-      display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+      display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 12px 35px rgba(0,0,0,0.85);
     }
     #chatPanel.hidden { display: none !important; }
 
-    /* Teacher's Raised Hand Floating Box */
     #teacherHandPanel {
-      position: absolute; bottom: 64px; left: 12px; z-index: 45;
-      background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px);
-      border: 1px solid #f59e0b; border-radius: 12px; padding: 8px 12px;
-      max-width: 290px; width: 90%; box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+      position: absolute; bottom: 62px; left: 12px; z-index: 45;
+      background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px);
+      border: 1px solid rgba(245, 158, 11, 0.6); border-radius: 14px; padding: 10px 12px;
+      max-width: 300px; width: 88%; box-shadow: 0 10px 30px rgba(0,0,0,0.85);
     }
 
     @media (orientation: portrait) {
       #chatPanel {
-        left: 8px; right: 8px; bottom: 60px; top: auto; width: auto; max-width: none; height: 35%;
+        left: 8px; right: 8px; bottom: 62px; top: auto; width: auto; max-width: none; height: 38%;
       }
     }
   </style>
@@ -92,20 +93,26 @@
     <!-- 1. Top Header Bar -->
     <div class="floating-top-bar">
       <div class="flex items-center space-x-2 min-w-0">
-        <a href="index.html" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-xs font-bold text-slate-300">‹</a>
+        <a href="index.html" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-xs font-bold text-slate-300 shrink-0">‹</a>
         <div class="min-w-0">
           <h1 class="text-xs font-bold text-white flex items-center space-x-1.5 truncate">
-            <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+            <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping shrink-0"></span>
             <span id="liveRoomTitleDisplay" class="truncate">SK PSC ലൈവ് ക്ലാസ്</span>
           </h1>
           <p class="text-[9px] text-emerald-400 truncate font-mono" id="liveUserRoleBadge">പഠിതാവ്</p>
         </div>
       </div>
-      <div class="flex items-center space-x-1.5">
+      <div class="flex items-center space-x-1.5 shrink-0">
         <span id="liveAccessBadge" class="text-[9px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">LIVE</span>
-        <button onclick="toggleVideoFullScreen()" class="px-2 py-1 bg-slate-800 text-cyan-300 rounded-lg text-xs font-bold border border-slate-700 cursor-pointer">⛶ Fullscreen</button>
-        <button onclick="exitLiveClassRoom()" class="px-2.5 py-1 bg-rose-600 text-white rounded-lg text-xs font-black cursor-pointer">Exit</button>
+        <button onclick="toggleVideoFullScreen()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-cyan-300 rounded-lg text-xs font-bold border border-slate-700 cursor-pointer">⛶ Fullscreen</button>
+        <button onclick="exitLiveClassRoom()" class="px-2.5 py-1 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-xs font-black cursor-pointer">Exit</button>
       </div>
+    </div>
+
+    <!-- 🔊 One-Tap Audio Unlock Banner (For Students on Mobile) -->
+    <div id="audioUnlockBanner" onclick="forceUnlockAudio()" class="hidden absolute top-14 left-1/2 -translate-x-1/2 z-50 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs px-4 py-1.5 rounded-full shadow-xl cursor-pointer flex items-center gap-1.5 animate-bounce">
+      <span>🔊</span>
+      <span>ശബ്ദം കേൾക്കാൻ ഇവിടെ തൊടുക</span>
     </div>
 
     <!-- 2. Main Stage -->
@@ -123,26 +130,35 @@
           <div id="emptyStageHint" class="hidden text-center p-4 text-slate-400">
             <div class="text-3xl mb-1">🎓</div>
             <div class="font-bold text-sm text-slate-200">ക്ലാസ് ആരംഭിച്ചിരിക്കുന്നു</div>
-            <div class="text-xs text-slate-400" id="emptyHintText">അധ്യാപകൻ സ്ക്രീൻ ഷെയർ ചെയ്യുമ്പോൾ ഇവിടെ ഫുൾ ആയി കാണാം.</div>
+            <div class="text-xs text-slate-400 mt-0.5" id="emptyHintText">അധ്യാപകൻ സ്ക്രീൻ ഷെയർ ചെയ്യുമ്പോൾ ഇവിടെ ഫുൾ ആയി കാണാം.</div>
           </div>
         </div>
 
-        <!-- Controls -->
+        <!-- Floating Bottom Controls -->
         <div class="floating-bottom-bar" id="conferenceControls">
-          <button id="screenBtn" class="control-btn hidden bg-cyan-900 border-cyan-500 text-cyan-200" type="button">🖥️ Share Screen</button>
-          <button id="micBtn" class="control-btn hidden" type="button">🎙️ Mic On</button>
+          <!-- Teacher Controls -->
+          <button id="screenBtn" class="control-btn hidden bg-cyan-950 border-cyan-500 text-cyan-200" type="button">🖥️ Share Screen</button>
+          <button id="micBtn" class="control-btn hidden" type="button">🎙️ Mic Off</button>
           <button id="cameraBtn" class="control-btn hidden" type="button">📷 Camera On</button>
+          
+          <!-- Student Controls -->
+          <button id="studentMicBtn" class="control-btn hidden bg-emerald-700 border-emerald-400 text-white animate-pulse" type="button">🎙️ സംസാരിക്കാം (Mic On)</button>
           <button id="handBtn" class="control-btn hidden" type="button">✋ Raise Hand</button>
-          <button id="chatToggleBtn" class="control-btn" type="button">💬 Chat</button>
+          
+          <!-- Shared Chat Control -->
+          <button id="chatToggleBtn" class="control-btn relative" type="button">
+            <span>💬 Chat</span>
+            <span id="chatUnreadDot" class="hidden w-2 h-2 rounded-full bg-rose-500"></span>
+          </button>
         </div>
 
         <!-- Teacher's Raised Hand Monitor Box -->
         <div id="teacherHandPanel" class="hidden flex-col gap-1.5">
-          <div class="flex items-center justify-between border-b border-slate-700 pb-1">
+          <div class="flex items-center justify-between border-b border-slate-700/80 pb-1.5">
             <span class="text-[11px] font-bold text-amber-300 flex items-center gap-1">✋ സംശയങ്ങൾ (Raised Hands)</span>
-            <span id="handCountBadge" class="bg-amber-500/20 text-amber-300 text-[9px] px-1.5 py-0.2 rounded font-mono font-bold">0</span>
+            <span id="handCountBadge" class="bg-amber-500/20 text-amber-300 text-[10px] px-2 py-0.2 rounded-full font-mono font-bold">0</span>
           </div>
-          <div id="teacherHandList" class="space-y-1.5 max-h-36 overflow-y-auto custom-scroll text-xs">
+          <div id="teacherHandList" class="space-y-1.5 max-h-36 overflow-y-auto custom-scroll text-xs pt-1">
             <p class="text-[10px] text-slate-400 py-1">കൈ ഉയർത്തിയവർ ആരുമില്ല</p>
           </div>
         </div>
@@ -151,13 +167,13 @@
       <!-- Side Live Chat -->
       <aside id="chatPanel" class="hidden">
         <div class="p-2.5 border-b border-slate-700 flex justify-between items-center bg-slate-950">
-          <strong class="text-xs font-bold text-cyan-300">Live Chat</strong>
+          <strong class="text-xs font-bold text-cyan-300 flex items-center gap-1.5">💬 Live Chat</strong>
           <button id="chatCloseBtn" class="text-slate-400 hover:text-white text-xs px-2 py-0.5 cursor-pointer">✕</button>
         </div>
         <div id="chatMessages" class="flex-1 overflow-y-auto custom-scroll p-2.5 space-y-2 text-xs"></div>
         <form id="chatForm" class="p-2 border-t border-slate-700 flex gap-1.5 bg-slate-950">
-          <input id="chatInput" maxlength="200" autocomplete="off" placeholder="സന്ദേശം ടൈപ്പ് ചെയ്യുക..." class="min-w-0 flex-1 rounded-lg bg-slate-800 px-2.5 py-1.5 text-xs text-white outline-none">
-          <button class="rounded-lg bg-cyan-600 px-3 text-xs font-bold text-white cursor-pointer" type="submit">Send</button>
+          <input id="chatInput" maxlength="200" autocomplete="off" placeholder="സന്ദേശം ടൈപ്പ് ചെയ്യുക..." class="min-w-0 flex-1 rounded-lg bg-slate-800 px-2.5 py-1.5 text-xs text-white outline-none border border-slate-700 focus:border-cyan-400">
+          <button class="rounded-lg bg-cyan-600 hover:bg-cyan-500 px-3 text-xs font-bold text-white cursor-pointer" type="submit">Send</button>
         </form>
       </aside>
     </main>
@@ -170,10 +186,10 @@
       </div>
 
       <div class="grid grid-cols-4 gap-1.5 w-full">
-        <button type="button" onclick="submitQuickVote(0)" id="voteBtn_0" class="py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-black text-white flex flex-col items-center justify-center"><span>A</span><span id="pct_0" class="hidden text-[8px] text-cyan-300">0%</span></button>
-        <button type="button" onclick="submitQuickVote(1)" id="voteBtn_1" class="py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-black text-white flex flex-col items-center justify-center"><span>B</span><span id="pct_1" class="hidden text-[8px] text-cyan-300">0%</span></button>
-        <button type="button" onclick="submitQuickVote(2)" id="voteBtn_2" class="py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-black text-white flex flex-col items-center justify-center"><span>C</span><span id="pct_2" class="hidden text-[8px] text-cyan-300">0%</span></button>
-        <button type="button" onclick="submitQuickVote(3)" id="voteBtn_3" class="py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-black text-white flex flex-col items-center justify-center"><span>D</span><span id="pct_3" class="hidden text-[8px] text-cyan-300">0%</span></button>
+        <button type="button" onclick="submitQuickVote(0)" id="voteBtn_0" class="py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-black text-white flex flex-col items-center justify-center cursor-pointer"><span>A</span><span id="pct_0" class="hidden text-[8px] text-cyan-300">0%</span></button>
+        <button type="button" onclick="submitQuickVote(1)" id="voteBtn_1" class="py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-black text-white flex flex-col items-center justify-center cursor-pointer"><span>B</span><span id="pct_1" class="hidden text-[8px] text-cyan-300">0%</span></button>
+        <button type="button" onclick="submitQuickVote(2)" id="voteBtn_2" class="py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-black text-white flex flex-col items-center justify-center cursor-pointer"><span>C</span><span id="pct_2" class="hidden text-[8px] text-cyan-300">0%</span></button>
+        <button type="button" onclick="submitQuickVote(3)" id="voteBtn_3" class="py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-black text-white flex flex-col items-center justify-center cursor-pointer"><span>D</span><span id="pct_3" class="hidden text-[8px] text-cyan-300">0%</span></button>
       </div>
 
       <div class="w-full flex items-center justify-between text-[9px] px-1 font-mono">
@@ -202,7 +218,7 @@
 
   <script type="module">
     import {
-      HMSReactiveStore, selectTracksMap, selectHMSMessages, selectPeers,
+      HMSReactiveStore, selectTracksMap, selectHMSMessages, selectPeers, selectLocalPeer,
       selectIsLocalAudioEnabled, selectIsLocalVideoEnabled, selectIsLocalScreenShared
     } from 'https://esm.sh/@100mslive/hms-video-store@0.15.3?bundle';
 
@@ -216,14 +232,19 @@
     let currentUser = null, isTeacher = false, liveSessionData = null, activePollObj = null;
     let activePollInterval = null, autoDismissTimeout = null, currentVotedOption = null;
     let hmsStore = null, hmsActions = null;
-    let localHandRaised = false, chatOpen = false;
+    let localHandRaised = false, chatOpen = false, audioUnlocked = false;
+    let lastRenderedMsgCount = 0;
     const screenTiles = new Map();
-    const raisedHandsMap = new Map();
+    const raisedHandsMap = new Map(); // key: phone or peerId, val: { name, peerId, phone, onStage }
 
     function sanitizePhone(raw) {
       if (!raw) return "";
       let c = String(raw).replace(/\D/g, '');
       return c.length >= 10 ? c.slice(-10) : c;
+    }
+
+    function safeHtml(str) {
+      return String(str ?? '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
     }
 
     window.toggleVideoFullScreen = function() {
@@ -234,12 +255,27 @@
 
     window.exitLiveClassRoom = async function() {
       if (!confirm('ലൈവ് ക്ലാസിൽ നിന്ന് പുറത്തിറങ്ങണമെന്നുറപ്പാണോ?')) return;
-      try { if (hmsActions) await hmsActions.leave(); } catch (e) {}
+      try {
+        if (!isTeacher && currentUser?.phone) {
+          await fetch(`${FIREBASE_DB_URL}/live_session/raisedHands/${sanitizePhone(currentUser.phone)}.json`, { method: 'DELETE' });
+        }
+        if (hmsActions) await hmsActions.leave();
+      } catch (e) {}
       window.location.replace('index.html');
     };
 
     window.closePollRankModal = function() {
       document.getElementById('livePollRankModal').classList.add('hidden');
+    };
+
+    // One-Tap Audio Unlocker for Mobile Browsers
+    window.forceUnlockAudio = async function() {
+      if (!hmsActions) return;
+      try {
+        await hmsActions.unblockAudio();
+        audioUnlocked = true;
+        document.getElementById('audioUnlockBanner').classList.add('hidden');
+      } catch (e) {}
     };
 
     window.addEventListener('DOMContentLoaded', async () => {
@@ -281,6 +317,7 @@
     });
 
     function wireControls() {
+      // Teacher Screen Share
       document.getElementById('screenBtn').onclick = async () => {
         if (!hmsActions) return;
         try {
@@ -293,6 +330,7 @@
         }
       };
 
+      // Teacher Mic
       document.getElementById('micBtn').onclick = async () => {
         if (!hmsActions) return;
         try {
@@ -302,6 +340,7 @@
         } catch (e) {}
       };
 
+      // Teacher Camera
       document.getElementById('cameraBtn').onclick = async () => {
         if (!hmsActions) return;
         try {
@@ -311,27 +350,73 @@
         } catch (e) {}
       };
 
-      // കുട്ടികളുടെ ഹാൻഡ് റൈസ്
-      document.getElementById('handBtn').onclick = async () => {
+      // Student On-Stage Mic Toggle
+      document.getElementById('studentMicBtn').onclick = async () => {
         if (!hmsActions) return;
-        localHandRaised = !localHandRaised;
         try {
-          await hmsActions.sendBroadcastMessage(JSON.stringify({
-            raised: localHandRaised,
-            name: currentUser?.Official_Name || currentUser?.name || 'Student'
-          }), 'SKPSC_HAND_RAISE');
-          document.getElementById('handBtn').textContent = localHandRaised ? '✋ Hand Raised' : '✋ Raise Hand';
-          document.getElementById('handBtn').classList.toggle('bg-amber-600', localHandRaised);
+          const enabled = !hmsStore.getState(selectIsLocalAudioEnabled);
+          await hmsActions.setLocalAudioEnabled(enabled);
+          document.getElementById('studentMicBtn').textContent = enabled ? '🎙️ സംസാരിക്കാം (Mic On)' : '🔇 മൈക്ക് ഓഫ് ആണ് (Tap to Speak)';
+          document.getElementById('studentMicBtn').className = enabled
+            ? 'control-btn bg-emerald-700 border-emerald-400 text-white animate-pulse'
+            : 'control-btn bg-slate-800 border-amber-400 text-amber-300';
         } catch (e) {
-          localHandRaised = !localHandRaised;
+          alert('മൈക്ക് ഓൺ ചെയ്യാൻ ബ്രൗസർ അനുമതി നൽകുക.');
         }
       };
 
-      document.getElementById('chatToggleBtn').onclick = () => toggleChat(!chatOpen);
+      // Student Hand Raise (Synced via both 100ms + Firebase for 100% reliability)
+      document.getElementById('handBtn').onclick = async () => {
+        if (!hmsActions) return;
+        forceUnlockAudio();
+        localHandRaised = !localHandRaised;
+
+        const studentName = currentUser?.Official_Name || currentUser?.name || 'Student';
+        const phone = sanitizePhone(currentUser?.phone) || 'unknown';
+        const localPeer = hmsStore.getState(selectLocalPeer);
+        const peerId = localPeer?.id || '';
+
+        document.getElementById('handBtn').textContent = localHandRaised ? '✋ Hand Raised' : '✋ Raise Hand';
+        document.getElementById('handBtn').classList.toggle('bg-amber-600', localHandRaised);
+        document.getElementById('handBtn').classList.toggle('border-amber-300', localHandRaised);
+
+        try {
+          if (localHandRaised) await hmsActions.raiseLocalPeerHand();
+          else await hmsActions.lowerLocalPeerHand();
+        } catch (e) {}
+
+        try {
+          await hmsActions.sendBroadcastMessage(JSON.stringify({
+            raised: localHandRaised,
+            name: studentName,
+            phone: phone,
+            peerId: peerId
+          }), 'SKPSC_HAND_RAISE');
+        } catch (e) {}
+
+        // Firebase Sync so Host ALWAYS sees it immediately
+        try {
+          if (localHandRaised) {
+            await fetch(`${FIREBASE_DB_URL}/live_session/raisedHands/${phone}.json`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ name: studentName, phone: phone, peerId: peerId, raisedAt: Date.now(), onStage: false })
+            });
+          } else {
+            await fetch(`${FIREBASE_DB_URL}/live_session/raisedHands/${phone}.json`, { method: 'DELETE' });
+          }
+        } catch (e) {}
+      };
+
+      document.getElementById('chatToggleBtn').onclick = () => {
+        forceUnlockAudio();
+        toggleChat(!chatOpen);
+      };
       document.getElementById('chatCloseBtn').onclick = () => toggleChat(false);
 
       document.getElementById('chatForm').onsubmit = async (e) => {
         e.preventDefault();
+        forceUnlockAudio();
         const input = document.getElementById('chatInput');
         const msg = input.value.trim();
         if (!msg || !hmsActions) return;
@@ -347,7 +432,11 @@
     function toggleChat(open) {
       chatOpen = open;
       document.getElementById('chatPanel').classList.toggle('hidden', !chatOpen);
-      document.getElementById('chatToggleBtn').textContent = chatOpen ? '✕ Chat' : '💬 Chat';
+      if (chatOpen) {
+        document.getElementById('chatUnreadDot').classList.add('hidden');
+        const box = document.getElementById('chatMessages');
+        box.scrollTop = box.scrollHeight;
+      }
     }
 
     function renderMessages(messages) {
@@ -356,16 +445,19 @@
       const existing = new Set([...box.children].map(x => x.dataset.mid));
 
       messages.forEach(m => {
-        // ഹാൻഡ് റൈസ് മെസേജ് കൈകാര്യം ചെയ്യുന്നു
         if (m.type === 'SKPSC_HAND_RAISE') {
           try {
             const data = JSON.parse(m.message);
-            const peerId = m.sender?.id || m.senderId;
-            if (peerId) {
+            const key = data.phone || m.sender?.id || m.senderId;
+            if (key) {
               if (data.raised) {
-                raisedHandsMap.set(peerId, data.name || m.senderName || 'Student');
+                raisedHandsMap.set(key, {
+                  name: data.name || m.senderName || 'Student',
+                  peerId: data.peerId || m.sender?.id || m.senderId,
+                  phone: data.phone || ''
+                });
               } else {
-                raisedHandsMap.delete(peerId);
+                raisedHandsMap.delete(key);
               }
               if (isTeacher) renderTeacherRaisedHands();
             }
@@ -375,28 +467,42 @@
 
         if (!m || !m.id || existing.has(m.id)) return;
 
-        const sender = m.senderName || m.sender?.name || (m.sender?.isLocal ? (currentUser?.Official_Name || currentUser?.name || 'You') : 'പഠിതാവ്');
+        const peers = hmsStore?.getState(selectPeers) || [];
+        const matchedPeer = peers.find(p => p.id === (m.sender?.id || m.senderId));
+        const sender = m.senderName || m.sender?.name || matchedPeer?.name || (m.sender?.isLocal ? (currentUser?.Official_Name || currentUser?.name || 'You') : 'പഠിതാവ്');
         const isMine = !!(m.sender?.isLocal || sender === (currentUser?.Official_Name || currentUser?.name));
 
         const row = document.createElement('div');
         row.dataset.mid = m.id;
         row.className = 'rounded-lg p-2 ' + (isMine ? 'bg-cyan-950/70 border border-cyan-800/40' : 'bg-slate-800');
         row.innerHTML = `
-          <div class="text-[10px] ${isMine ? 'text-cyan-300' : 'text-amber-300'} font-bold mb-0.5">${sender}</div>
-          <div class="text-xs break-words text-slate-100">${m.message || ''}</div>
+          <div class="text-[10px] ${isMine ? 'text-cyan-300' : 'text-amber-300'} font-bold mb-0.5">${safeHtml(sender)}</div>
+          <div class="text-xs break-words text-slate-100">${safeHtml(m.message || '')}</div>
         `;
         box.append(row);
+
+        if (!chatOpen && !isMine) {
+          document.getElementById('chatUnreadDot').classList.remove('hidden');
+        }
       });
       box.scrollTop = box.scrollHeight;
     }
 
-    // ടീച്ചറുടെ പാനലിൽ കൈ ഉയർത്തിയ കുട്ടികളെ റെൻഡർ ചെയ്യുകയും Stage-ലേക്ക് കൊണ്ടുവരികയും ചെയ്യുന്നു
     function renderTeacherRaisedHands() {
+      if (!isTeacher) return;
       const container = document.getElementById('teacherHandList');
       const badge = document.getElementById('handCountBadge');
-      const peers = hmsStore.getState(selectPeers) || [];
+      const peers = hmsStore?.getState(selectPeers) || [];
 
       if (!container) return;
+
+      // Also detect native 100ms isHandRaised peers
+      peers.forEach(p => {
+        if (!p.isLocal && p.isHandRaised) {
+          raisedHandsMap.set(p.id, { name: p.name, peerId: p.id, phone: '' });
+        }
+      });
+
       badge.textContent = raisedHandsMap.size;
 
       if (raisedHandsMap.size === 0) {
@@ -405,27 +511,47 @@
       }
 
       container.innerHTML = '';
-      raisedHandsMap.forEach((name, peerId) => {
-        const peer = peers.find(p => p.id === peerId);
-        const isOnStage = peer && (peer.roleName === ROLE_ON_STAGE);
+      raisedHandsMap.forEach((info, key) => {
+        const peer = peers.find(p => p.id === info.peerId || p.name === info.name);
+        const isOnStage = (peer && peer.roleName === ROLE_ON_STAGE) || info.onStage === true;
 
         const row = document.createElement('div');
-        row.className = 'flex items-center justify-between gap-1.5 bg-slate-800/90 p-1.5 rounded-lg border border-slate-700';
+        row.className = 'flex items-center justify-between gap-1.5 bg-slate-800/95 p-1.5 rounded-lg border border-slate-700';
         row.innerHTML = `
-          <span class="truncate font-semibold text-white text-[11px]">✋ ${name}</span>
-          <button type="button" class="bring-btn px-2 py-0.5 rounded text-[10px] font-bold text-white shadow ${isOnStage ? 'bg-rose-600 hover:bg-rose-500' : 'bg-emerald-600 hover:bg-emerald-500'}">
+          <span class="truncate font-semibold text-white text-[11px]">✋ ${safeHtml(info.name)}</span>
+          <button type="button" class="bring-btn px-2.5 py-1 rounded text-[10px] font-bold text-white shadow cursor-pointer shrink-0 ${isOnStage ? 'bg-rose-600 hover:bg-rose-500' : 'bg-emerald-600 hover:bg-emerald-500'}">
             ${isOnStage ? 'Remove' : 'Bring to Stage'}
           </button>
         `;
 
         row.querySelector('.bring-btn').onclick = async () => {
+          const targetPeerId = peer?.id || info.peerId;
+          const nextStageState = !isOnStage;
           try {
-            const nextRole = isOnStage ? ROLE_OFF_STAGE : ROLE_ON_STAGE;
-            await hmsActions.changeRoleOfPeer(peerId, nextRole, true);
-            if (isOnStage) raisedHandsMap.delete(peerId);
+            if (targetPeerId) {
+              const nextRole = nextStageState ? ROLE_ON_STAGE : ROLE_OFF_STAGE;
+              await hmsActions.changeRoleOfPeer(targetPeerId, nextRole, true);
+            }
+            if (info.phone) {
+              if (nextStageState) {
+                await fetch(`${FIREBASE_DB_URL}/live_session/raisedHands/${info.phone}/onStage.json`, {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(true)
+                });
+              } else {
+                await fetch(`${FIREBASE_DB_URL}/live_session/raisedHands/${info.phone}.json`, { method: 'DELETE' });
+              }
+            }
+            if (!nextStageState) {
+              raisedHandsMap.delete(key);
+            } else {
+              info.onStage = true;
+              raisedHandsMap.set(key, info);
+            }
             renderTeacherRaisedHands();
           } catch (err) {
-            alert('റോൾ മാറ്റാൻ സാധിച്ചില്ല: ' + err.message);
+            alert('റോൾ മാറ്റാൻ സാധിച്ചില്ല (100ms Dashboard-ൽ viewer റോളിന് Change Role അനുമതി ഉറപ്പാക്കുക): ' + err.message);
           }
         };
 
@@ -476,10 +602,32 @@
         await hmsActions.join({
           userName: name,
           authToken,
-          settings: { isAudioMuted: !isTeacher, isVideoMuted: !isTeacher }
+          settings: { isAudioMuted: !isTeacher, isVideoMuted: true }
         });
 
-        // കുട്ടിയെ സ്റ്റേജിലേക്ക് ടീച്ചർ കൊണ്ടുവരുമ്പോൾ മൈക്ക് ഓൺ ചെയ്യാനുള്ള നോട്ടിഫിക്കേഷൻ
+        // Show One-Tap Audio Unlock Banner for Students
+        if (!isTeacher) {
+          document.getElementById('audioUnlockBanner').classList.remove('hidden');
+        }
+
+        const unlockOnGesture = async () => {
+          if (audioUnlocked || !hmsActions) return;
+          try {
+            await hmsActions.unblockAudio();
+            audioUnlocked = true;
+            document.getElementById('audioUnlockBanner').classList.add('hidden');
+            document.removeEventListener('pointerdown', unlockOnGesture);
+            document.removeEventListener('touchstart', unlockOnGesture);
+          } catch (e) {}
+        };
+        document.addEventListener('pointerdown', unlockOnGesture, { passive: true });
+        document.addEventListener('touchstart', unlockOnGesture, { passive: true });
+
+        document.getElementById('videoLoadingBox').classList.add('hidden');
+
+        hmsStore.subscribe(renderScreenShares, selectTracksMap);
+        hmsStore.subscribe(renderMessages, selectHMSMessages);
+
         hmsStore.subscribe((peers) => {
           if (isTeacher) {
             renderTeacherRaisedHands();
@@ -487,27 +635,16 @@
           }
           const localPeer = peers?.find(p => p.isLocal);
           if (localPeer) {
-            const hasStageRole = (localPeer.roleName === ROLE_ON_STAGE);
-            if (hasStageRole) {
-              // കുട്ടിക്ക് മൈക്ക് ഓൺ ചെയ്യാനുള്ള അനുമതി ലഭ്യമാകുന്നു
+            const onStage = (localPeer.roleName === ROLE_ON_STAGE);
+            const studMicBtn = document.getElementById('studentMicBtn');
+            if (onStage) {
+              studMicBtn.classList.remove('hidden');
               hmsActions.setLocalAudioEnabled(true).catch(() => {});
-              document.getElementById('handBtn').textContent = "🎙️ സംസാരിക്കാം (On Stage)";
-              document.getElementById('handBtn').className = "control-btn bg-emerald-600 text-white font-bold animate-pulse";
-            } else if (localHandRaised) {
-              document.getElementById('handBtn').textContent = "✋ Hand Raised";
-              document.getElementById('handBtn').className = "control-btn bg-amber-600 text-white";
+            } else {
+              studMicBtn.classList.add('hidden');
             }
           }
         }, selectPeers);
-
-        const unlockAudio = async () => {
-          try { await hmsActions.unblockAudio(); } catch (e) {}
-        };
-        document.addEventListener('pointerdown', unlockAudio, { once: true });
-
-        document.getElementById('videoLoadingBox').classList.add('hidden');
-        hmsStore.subscribe(renderScreenShares, selectTracksMap);
-        hmsStore.subscribe(renderMessages, selectHMSMessages);
 
       } catch (err) {
         document.getElementById('loadingStatusText').textContent = 'കണക്റ്റ് ചെയ്യാൻ കഴിഞ്ഞില്ല. റീഫ്രഷ് ചെയ്യുക.';
@@ -554,6 +691,29 @@
         activePollObj = poll;
         const pollBox = document.getElementById('pollAreaBox');
 
+        // Sync Raised Hands from Firebase so Host never misses a student's hand raise
+        const fbHands = session.raisedHands || {};
+        if (isTeacher) {
+          raisedHandsMap.clear();
+          Object.entries(fbHands).forEach(([phone, h]) => {
+            if (h && h.name) {
+              raisedHandsMap.set(phone, { name: h.name, peerId: h.peerId || '', phone: phone, onStage: !!h.onStage });
+            }
+          });
+          renderTeacherRaisedHands();
+        } else if (currentUser?.phone) {
+          const myHand = fbHands[sanitizePhone(currentUser.phone)];
+          const studMicBtn = document.getElementById('studentMicBtn');
+          if (myHand && myHand.onStage === true) {
+            studMicBtn.classList.remove('hidden');
+          } else if (!myHand && localHandRaised) {
+            localHandRaised = false;
+            document.getElementById('handBtn').textContent = '✋ Raise Hand';
+            document.getElementById('handBtn').classList.remove('bg-amber-600', 'border-amber-300');
+            studMicBtn.classList.add('hidden');
+          }
+        }
+
         if (session.showRankModal === true) {
           renderLivePollRankModal(session.pollLeaderboard || {});
           document.getElementById('livePollRankModal').classList.remove('hidden');
@@ -580,7 +740,7 @@
           [0, 1, 2, 3].forEach(i => {
             const b = document.getElementById(`voteBtn_${i}`);
             b.disabled = false;
-            b.className = 'py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-black text-white flex flex-col items-center justify-center';
+            b.className = 'py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-black text-white flex flex-col items-center justify-center cursor-pointer';
             document.getElementById(`pct_${i}`).classList.add('hidden');
           });
 
@@ -607,6 +767,7 @@
     }
 
     window.submitQuickVote = async function(index) {
+      forceUnlockAudio();
       if (currentVotedOption !== null || !activePollObj) return;
       currentVotedOption = index;
 
@@ -692,7 +853,7 @@
       list.forEach((item, i) => {
         const tr = document.createElement('tr');
         tr.className = 'border-b border-slate-800/50';
-        tr.innerHTML = `<td class="p-2 text-center text-amber-400 font-bold">${i + 1}</td><td class="p-2 font-bold text-white truncate max-w-[140px]">${item.name || 'Student'}</td><td class="p-2 text-center text-emerald-400 font-bold">${item.score || 0} Pt</td>`;
+        tr.innerHTML = `<td class="p-2 text-center text-amber-400 font-bold">${i + 1}</td><td class="p-2 font-bold text-white truncate max-w-[140px]">${safeHtml(item.name || 'Student')}</td><td class="p-2 text-center text-emerald-400 font-bold">${item.score || 0} Pt</td>`;
         tbody.append(tr);
       });
     }
