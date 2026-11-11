@@ -23,231 +23,128 @@
       50% { box-shadow: 0 0 5px rgba(6, 182, 212, 0.2); }
     }
     .poll-float-card { animation: compactGlow 1.2s infinite ease-in-out; }
+
+    /* ശുദ്ധമായ ഫുൾ സ്ക്രീൻ വ്യൂ */
+    #classMain { display: flex; flex: 1 1 auto; min-height: 0; width: 100%; height: 100%; position: relative; overflow: hidden; }
+    #classStage { flex: 1 1 100%; width: 100%; height: 100%; display: flex; flex-direction: column; position: relative; background: #000; }
+    #customVideoStage { flex: 1 1 auto; width: 100%; height: 100%; position: relative; background: #000; overflow: hidden; display: flex; align-items: center; justify-content: center; }
     
-    .screen-video-fit { width:100%; height:100%; object-fit:contain; background:#000; }
-    .control-btn{background:#1e293b;border:1px solid #475569;color:#f8fafc;border-radius:12px;padding:9px 13px;font-size:12px;font-weight:700}
-    .control-btn:disabled{opacity:.45;cursor:not-allowed}
-    .peer-tile{position:relative;min-height:190px;aspect-ratio:16/10;background:#111827;border:1px solid #334155;border-radius:14px;overflow:hidden}
-    .peer-tile video{width:100%;height:100%;object-fit:cover;background:#020617}
-    .peer-label{position:absolute;left:8px;bottom:8px;background:#020617d9;padding:5px 8px;border-radius:8px;font-size:11px}
-    .peer-avatar{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:42px;color:#94a3b8}
-
-    /* SK PSC responsive classroom layout */
-    #classMain { display:flex; flex:1 1 auto; min-height:0; min-width:0; position:relative; overflow:hidden; }
-    #classStage { flex:1 1 100%; min-width:0; min-height:0; display:flex; flex-direction:column; position:relative; }
-    #customVideoStage { flex:1 1 auto; min-height:0; min-width:0; overflow:hidden; padding:0; position:relative; display:block; background:#000; }
-    #screenShareContainer { position:absolute; inset:0; z-index:2; width:100%; height:100%; min-width:0; min-height:0; margin:0 !important; display:flex; align-items:stretch; justify-content:stretch; background:#000; overflow:hidden; }
-    #screenShareContainer.hidden { display:none !important; }
-    #screenShareContainer .screen-share-tile { flex:1 1 auto; width:100%; height:100%; min-width:0; min-height:0; display:flex; flex-direction:column; align-items:stretch; justify-content:stretch; background:#000; border:0; border-radius:0; overflow:hidden; }
-    #screenShareContainer .screen-share-title { flex:0 0 auto; padding:5px 10px; font-size:10px; }
-    #screenShareContainer video { display:block; flex:1 1 auto; min-width:0; min-height:0; width:100% !important; height:100% !important; max-width:100%; max-height:100% !important; aspect-ratio:auto; object-fit:contain !important; background:#000; }
-    #peersContainer { position:absolute; inset:0; z-index:1; width:100%; height:100%; min-width:0; min-height:0; display:flex; align-items:center; justify-content:center; overflow:hidden; }
-    #peersContainer:empty { display:none; }
-    #peersContainer.hidden { display:none !important; }
-    #peersContainer .peer-tile { width:100%; height:100%; max-width:100%; max-height:100%; min-height:0; aspect-ratio:16/9; border:0; border-radius:0; background:#000; }
-    #peersContainer .peer-tile video { object-fit:contain; }
-    #chatPanel { flex:0 0 25%; width:25%; max-width:380px; min-width:220px; height:auto; max-width:380px; }
-    #videoCardWrapper.chat-open #chatPanel { display:flex !important; }
-    #videoCardWrapper:not(.chat-open) #chatPanel { display:none !important; }
-    #videoCardWrapper:not(.chat-open) #classStage { flex:1 1 100%; width:100%; }
-    #videoCardWrapper.chat-open #classStage { flex:1 1 75%; width:75%; }
-    #videoCardWrapper.chat-open #chatPanel { flex:0 0 25%; width:25%; min-width:0; max-width:none; }
-    #videoCardWrapper.student-view #participantCount { display:none; }
-    #videoCardWrapper.student-view #peersContainer .peer-label { display:none; }
-    #emptyStageHint { margin:auto; text-align:center; padding:20px; color:#94a3b8; }
-    #videoCardWrapper.student-view #micBtn,
-    #videoCardWrapper.student-view #cameraBtn,
-    #videoCardWrapper.student-view #screenBtn { display:none; }
-    #videoCardWrapper.teacher-view #handBtn { display:none; }
-    #conferenceControls { gap:7px; padding:8px 10px calc(8px + env(safe-area-inset-bottom)); }
-    #conferenceControls .control-btn { white-space:nowrap; }
-    @media (max-width: 760px) and (orientation: landscape) {
-      #videoCardWrapper.chat-open #chatPanel { flex:0 0 25%; width:25%; min-width:0; max-width:none; }
-      #videoCardWrapper.chat-open #classStage { flex:1 1 75%; width:75%; }
-      #classStage { flex:1 1 75%; }
-      #screenShareContainer video { max-height:none !important; }
-      #conferenceControls { padding:5px 7px; gap:5px; }
-      #conferenceControls .control-btn { padding:7px 9px; font-size:10px; }
-    }
-    @media (orientation: portrait), (max-width: 600px) and (orientation: portrait) {
-      #classMain { position:relative; }
-      #classStage { width:100% !important; flex:1 1 100% !important; }
-      #videoCardWrapper.chat-open #chatPanel { flex:0 0 auto; width:auto; }
-      #chatPanel { position:absolute; left:8px; right:8px; bottom:8px; top:auto; width:auto; max-width:none; min-width:0; height:31%; max-height:38%; z-index:45; border:1px solid #334155; border-radius:14px; box-shadow:0 12px 35px #000b; }
-      #videoCardWrapper.chat-open #chatPanel { display:flex !important; }
-      #customVideoStage { padding:0; }
-      #conferenceControls { padding:6px 5px calc(6px + env(safe-area-inset-bottom)); gap:4px; }
-      #conferenceControls .control-btn { padding:7px 8px; font-size:10px; }
-      #screenShareContainer video { aspect-ratio:16/9; }
+    #screenShareContainer { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 5; background: #000; display: flex; align-items: center; justify-content: center; }
+    #screenShareContainer.hidden { display: none !important; }
+    #screenShareContainer .screen-share-tile { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #000; }
+    
+    /* നോട്ട്സ് സ്ക്രീനിന്റെ ഏറ്റവും കൂടിയ വലിപ്പത്തിൽ ഫിറ്റ് ആവാനുള്ള റൂൾ */
+    #screenShareContainer video {
+      width: 100% !important;
+      height: 100% !important;
+      max-width: 100vw;
+      max-height: 100vh;
+      object-fit: contain !important;
+      background: #000;
     }
 
+    /* ഫ്ലോട്ടിംഗ് കൺട്രോളുകൾ (വീഡിയോയുടെ മുകളിലേക്ക് കയറ്റി സ്ഥലം ലാഭിക്കുന്നു) */
+    .floating-top-bar {
+      position: absolute; top: 8px; left: 8px; right: 8px; z-index: 40;
+      background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px);
+      border: 1px solid rgba(51, 65, 85, 0.7); border-radius: 12px;
+      padding: 6px 12px; display: flex; justify-content: space-between; align-items: center;
+    }
 
-    /* 100ms-inspired SK PSC room UI: clean stage, compact toolbar, optional chat rail */
-    html, body { background:#080a10; }
-    #videoCardWrapper { background:#080a10 !important; }
-    #videoCardWrapper > header {
-      min-height:62px; padding:8px 18px !important; background:#101522 !important;
-      border-bottom:1px solid #252d3d !important;
+    .floating-bottom-bar {
+      position: absolute; bottom: 8px; right: 8px; z-index: 40;
+      display: flex; gap: 8px;
     }
-    #videoCardWrapper > header a { width:38px !important; height:38px !important; border-radius:12px !important; font-size:20px !important; }
-    #videoCardWrapper > header h1 { font-size:15px !important; letter-spacing:.1px; }
-    #videoCardWrapper > header p { font-size:11px !important; }
-    #liveAccessBadge { font-size:11px !important; padding:6px 10px !important; border-radius:8px !important; }
-    #videoCardWrapper > header button { padding:9px 13px !important; font-size:12px !important; border-radius:11px !important; }
-    #classMain { background:#080a10; gap:0; }
-    #classStage { background:#05070c !important; }
-    #classStage > .px-3.py-2 {
-      min-height:42px; padding:10px 18px !important; background:#090d16;
-      color:#aeb8ca !important; font-size:13px !important; border-bottom:1px solid #252d3d !important;
-    }
-    #customVideoStage { background:#05070c !important; }
-    #screenShareContainer { background:#05070c !important; }
-    #screenShareContainer .screen-share-title {
-      padding:10px 16px !important; font-size:13px !important; background:#080b12;
-    }
-    #screenShareContainer video { background:#000 !important; object-fit:contain !important; }
-    #peersContainer .peer-tile { background:#090d16 !important; }
-    #emptyStageHint { color:#d8dfeb !important; }
-    #emptyStageHint .font-bold { font-size:24px; }
-    #emptyStageHint .text-xs { font-size:13px !important; color:#9aa8bd !important; }
-    #conferenceControls {
-      min-height:64px; padding:10px 14px calc(10px + env(safe-area-inset-bottom)) !important;
-      background:#090c14 !important; border-top:1px solid #252d3d !important;
-    }
-    #conferenceControls .control-btn {
-      min-height:42px; min-width:44px; padding:9px 15px !important; border-radius:12px !important;
-      background:#1c2433 !important; border:1px solid #3b4659 !important; color:#f3f6fb !important;
-      font-size:13px !important; font-weight:700; box-shadow:none !important;
-    }
-    #conferenceControls .control-btn:hover { background:#283449 !important; border-color:#65748d !important; }
-    #conferenceControls .control-btn:disabled { opacity:.38; }
+
+    /* ചാറ്റ് പാനൽ (സൈഡിലോ താഴെയോ സുതാര്യമായി വരുന്നു) */
     #chatPanel {
-      background:#111722 !important; border-left:1px solid #293348 !important;
-      min-width:280px; max-width:360px; box-shadow:-10px 0 30px #0003;
+      position: absolute; top: 54px; right: 8px; bottom: 54px; width: 280px; max-width: 80%;
+      background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px);
+      border: 1px solid #334155; border-radius: 14px; z-index: 45;
+      display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
     }
-    #chatPanel > div:first-child { min-height:58px; padding:14px 16px !important; background:#111722; }
-    #chatPanel strong { font-size:18px !important; }
-    #chatCloseBtn { font-size:20px; padding:3px 7px; }
-    #chatMessages { padding:14px !important; }
-    #chatMessages > div { background:#202a3b !important; border-radius:13px !important; padding:12px !important; }
-    #chatForm { padding:12px !important; background:#0d121c; }
-    #chatInput { min-height:44px; background:#202a3b !important; border:1px solid #303c50; }
-    #chatForm button { min-width:64px; border-radius:10px; background:#168eaa !important; }
-    #videoCardWrapper.student-view #participantCount { display:none !important; }
-    #videoCardWrapper.student-view #peersContainer .peer-tile:not(:has(video[src])) { border:0; }
-    #teacherPeerControls { background:#111722 !important; border-color:#3b4659 !important; }
-    @media (min-width:761px) {
-      #videoCardWrapper.chat-open #classStage { flex:1 1 75%; width:75%; }
-      #videoCardWrapper.chat-open #chatPanel { flex:0 0 25%; width:25%; min-width:280px; max-width:360px; }
-    }
-    @media (max-width:760px) and (orientation:landscape) {
-      #videoCardWrapper > header { min-height:48px; padding:5px 9px !important; }
-      #videoCardWrapper > header a { width:30px !important; height:30px !important; }
-      #videoCardWrapper > header button { padding:6px 8px !important; font-size:10px !important; }
-      #classStage > .px-3.py-2 { min-height:30px; padding:6px 10px !important; font-size:10px !important; }
-      #conferenceControls { min-height:48px; padding:5px 7px !important; }
-      #conferenceControls .control-btn { min-height:34px; padding:6px 9px !important; font-size:10px !important; }
-      #videoCardWrapper.chat-open #chatPanel { flex:0 0 25% !important; width:25% !important; min-width:190px !important; max-width:none !important; position:relative !important; inset:auto !important; height:auto !important; }
-      #videoCardWrapper.chat-open #classStage { flex:1 1 75% !important; width:75% !important; }
-    }
-    @media (orientation:portrait) {
-      #videoCardWrapper > header { min-height:56px; padding:7px 9px !important; }
-      #videoCardWrapper > header h1 { font-size:12px !important; }
-      #videoCardWrapper > header p { font-size:9px !important; }
-      #classStage > .px-3.py-2 { min-height:34px; padding:7px 10px !important; font-size:11px !important; }
-      #conferenceControls { min-height:58px; padding:7px 5px calc(7px + env(safe-area-inset-bottom)) !important; }
-      #conferenceControls .control-btn { min-height:38px; padding:7px 10px !important; font-size:11px !important; }
-      #videoCardWrapper.chat-open #chatPanel {
-        left:8px !important; right:8px !important; bottom:8px !important; top:auto !important;
-        width:auto !important; height:36% !important; max-height:42% !important; min-width:0 !important;
-        max-width:none !important; border:1px solid #3b4659 !important; border-radius:14px !important;
+    #chatPanel.hidden { display: none !important; }
+
+    @media (orientation: portrait) {
+      #chatPanel {
+        left: 8px; right: 8px; bottom: 60px; top: auto; width: auto; max-width: none; height: 35%;
       }
     }
-
   </style>
 </head>
 <body class="h-screen w-screen flex flex-col justify-between select-none overflow-hidden bg-black text-slate-100">
 
-  <div id="videoCardWrapper" class="relative w-full h-full flex-1 flex flex-col bg-black overflow-hidden">
+  <div id="videoCardWrapper" class="relative w-full h-full flex-1 flex flex-col bg-black overflow-hidden student-view">
 
-    <!-- 1. Top Header -->
-    <header class="bg-slate-900/95 backdrop-blur border-b border-slate-800 px-3 sm:px-4 py-1.5 flex items-center justify-between gap-2 z-40 shrink-0">
+    <!-- 1. മുകളിലെ മിനിമൽ ഹെഡർ (Transparent Bar) -->
+    <div class="floating-top-bar">
       <div class="flex items-center space-x-2 min-w-0">
-        <a href="index.html" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-xs font-bold text-slate-300 transition shrink-0">‹</a>
-        <div class="min-w-0">
-          <h1 class="text-xs sm:text-sm font-bold text-white flex items-center space-x-1.5 truncate">
-            <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping shrink-0"></span>
-            <span id="liveRoomTitleDisplay" class="truncate">SK PSC ലൈവ് ക്ലാസ്</span>
-          </h1>
-          <p class="text-[9px] text-emerald-400 truncate font-mono" id="liveUserRoleBadge">പഠിതാവ്</p>
-        </div>
+        <a href="index.html" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-xs font-bold text-slate-300">‹</a>
+        <h1 class="text-xs font-bold text-white flex items-center space-x-1.5 truncate">
+          <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+          <span id="liveRoomTitleDisplay" class="truncate">SK PSC ലൈവ് ക്ലാസ്</span>
+        </h1>
       </div>
-      
-      <div class="flex items-center space-x-2 shrink-0">
-        <span id="liveAccessBadge" class="text-[9px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-          LIVE
-        </span>
-        <button onclick="toggleVideoFullScreen()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-cyan-300 rounded-lg text-xs font-bold border border-slate-700 cursor-pointer">
-          ⛶ Fullscreen
-        </button>
-        <button onclick="exitLiveClassRoom()" class="px-3 py-1 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-xs font-black shadow cursor-pointer flex items-center space-x-1">
-          <span>🚪</span>
-          <span>Exit</span>
-        </button>
+      <div class="flex items-center space-x-1.5">
+        <span id="liveAccessBadge" class="text-[9px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">PAID</span>
+        <button onclick="toggleVideoFullScreen()" class="px-2 py-1 bg-slate-800 text-cyan-300 rounded-lg text-xs font-bold border border-slate-700">⛶ Fullscreen</button>
+        <button onclick="exitLiveClassRoom()" class="px-2.5 py-1 bg-rose-600 text-white rounded-lg text-xs font-black">Exit</button>
       </div>
-    </header>
+    </div>
 
-    <!-- 2. Custom video conference stage -->
-    <main id="classMain" class="flex-1 min-h-0 flex overflow-hidden">
-      <section id="classStage" class="flex-1 min-w-0 flex flex-col bg-black relative">
+    <!-- 2. മെയിൻ സ്റ്റേജ് (നോട്ട്സ് 100% വലിപ്പത്തിൽ തെളിയുന്നു) -->
+    <main id="classMain">
+      <section id="classStage">
         <div id="videoLoadingBox" class="absolute inset-0 z-20 flex items-center justify-center text-center p-6 bg-black">
-          <div><div class="w-9 h-9 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div><p class="text-xs text-slate-300 font-bold" id="loadingStatusText">ക്ലാസിലേക്ക് കണക്റ്റ് ചെയ്യുന്നു...</p></div>
+          <div>
+            <div class="w-9 h-9 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+            <p class="text-xs text-slate-300 font-bold" id="loadingStatusText">ക്ലാസിലേക്ക് കണക്റ്റ് ചെയ്യുന്നു...</p>
+          </div>
         </div>
-        <div class="px-3 py-2 text-xs text-slate-400 flex justify-between border-b border-slate-800"><span>LIVE VIDEO CLASS</span><span id="participantCount">0 Participants</span></div>
-        <div id="customVideoStage" class="flex-1 min-h-0 overflow-hidden p-0">
+
+        <div id="customVideoStage">
+          <!-- സ്ക്രീൻ ഷെയർ ഫുൾ ഡിസ്‌പ്ലേ -->
           <div id="screenShareContainer" class="hidden"></div>
-          <div id="peersContainer"></div><div id="emptyStageHint" class="hidden"><div class="text-3xl mb-2">🎓</div><div class="font-bold text-slate-200">ക്ലാസ് ആരംഭിച്ചു</div><div class="text-xs mt-1">അധ്യാപകൻ Screen Share അല്ലെങ്കിൽ Camera ആരംഭിക്കുമ്പോൾ ഇവിടെ കാണാം.</div></div>
+          <div id="emptyStageHint" class="hidden text-center p-4 text-slate-400">
+            <div class="text-3xl mb-1">🎓</div>
+            <div class="font-bold text-sm text-slate-200">ക്ലാസ് ആരംഭിച്ചിരിക്കുന്നു</div>
+            <div class="text-xs text-slate-400">അധ്യാപകൻ സ്ക്രീൻ ഷെയർ ചെയ്യുമ്പോൾ ഇവിടെ ഫുൾ ആയി കാണാം.</div>
+          </div>
         </div>
-        <div id="conferenceControls" class="shrink-0 flex flex-wrap items-center justify-center gap-2 p-3 bg-slate-950 border-t border-slate-800">
-          <button id="micBtn" class="control-btn" type="button">🎙️ Mic On</button>
-          <button id="cameraBtn" class="control-btn" type="button">📷 Camera On</button>
-          <button id="screenBtn" class="control-btn" type="button">🖥️ Share Screen</button>
-          <button id="handBtn" class="control-btn" type="button">✋ Raise Hand</button>
-          <button id="chatToggleBtn" class="control-btn" type="button">💬 Chat</button>
+
+        <!-- ഫ്ലോട്ടിംഗ് കൺട്രോളുകൾ (മൈക്ക്, ചാറ്റ്, ഹാൻഡ് റൈസ്) -->
+        <div class="floating-bottom-bar">
+          <button id="handBtn" class="px-3 py-1.5 bg-slate-900/90 border border-slate-700 hover:border-cyan-400 rounded-xl text-xs font-bold text-white shadow-lg backdrop-blur">✋ Raise Hand</button>
+          <button id="chatToggleBtn" class="px-3 py-1.5 bg-slate-900/90 border border-slate-700 hover:border-cyan-400 rounded-xl text-xs font-bold text-cyan-300 shadow-lg backdrop-blur">💬 Chat</button>
         </div>
       </section>
-      <aside id="chatPanel" class="hidden bg-slate-900 border-l border-slate-700 flex-col min-h-0">
-        <div class="p-3 border-b border-slate-700 flex justify-between items-center"><strong class="text-sm">Live Chat</strong><button id="chatCloseBtn" class="text-slate-400">✕</button></div>
-        <div id="chatMessages" class="flex-1 overflow-y-auto custom-scroll p-3 space-y-2 text-sm"></div>
-        <form id="chatForm" class="p-2 border-t border-slate-700 flex gap-2"><input id="chatInput" maxlength="500" autocomplete="off" placeholder="സന്ദേശം എഴുതുക..." class="min-w-0 flex-1 rounded-lg bg-slate-800 px-3 py-2 text-sm outline-none"><button class="rounded-lg bg-cyan-600 px-3 text-sm font-bold" type="submit">Send</button></form>
+
+      <!-- സൈഡ് ചാറ്റ് ബോക്സ് -->
+      <aside id="chatPanel" class="hidden">
+        <div class="p-2.5 border-b border-slate-700 flex justify-between items-center bg-slate-950">
+          <strong class="text-xs font-bold text-cyan-300">Live Chat</strong>
+          <button id="chatCloseBtn" class="text-slate-400 hover:text-white text-xs px-2 py-0.5">✕</button>
+        </div>
+        <div id="chatMessages" class="flex-1 overflow-y-auto custom-scroll p-2.5 space-y-2 text-xs"></div>
+        <form id="chatForm" class="p-2 border-t border-slate-700 flex gap-1.5 bg-slate-950">
+          <input id="chatInput" maxlength="200" placeholder="സന്ദേശം ടൈപ്പ് ചെയ്യുക..." class="min-w-0 flex-1 rounded-lg bg-slate-800 px-2.5 py-1.5 text-xs text-white outline-none">
+          <button class="rounded-lg bg-cyan-600 px-3 text-xs font-bold text-white" type="submit">Send</button>
+        </form>
       </aside>
     </main>
-    <div id="teacherPeerControls" class="hidden fixed bottom-20 left-3 z-30 bg-slate-900 border border-slate-700 rounded-xl p-2 max-w-xs text-xs"><div class="font-bold mb-1 text-amber-300">Raised Hands / Participants</div><div id="teacherPeerList" class="space-y-1 max-h-40 overflow-y-auto"></div></div>
 
-    <!-- 3. ⚡ ഫ്ലോട്ടിംഗ് ഇൻസ്റ്റന്റ് പോൾ -->
-    <div id="pollAreaBox" class="hidden poll-float-card absolute bottom-4 left-1/2 -translate-x-1/2 z-50 bg-slate-950/90 backdrop-blur-md border border-cyan-400 rounded-2xl px-3 py-2 shadow-2xl flex flex-col items-center space-y-1.5 w-[92%] max-w-xs">
+    <!-- 3. ⚡ ഫ്ലോട്ടിംഗ് ഇൻസ്റ്റന്റ് പോൾ (A, B, C, D) -->
+    <div id="pollAreaBox" class="hidden poll-float-card absolute bottom-4 left-1/2 -translate-x-1/2 z-50 bg-slate-950/95 backdrop-blur border border-cyan-400 rounded-2xl px-3 py-2 shadow-2xl flex flex-col items-center space-y-1.5 w-[90%] max-w-xs">
       <div class="w-full flex items-center justify-between text-[10px] px-1 font-bold">
         <span class="text-cyan-300 truncate">⚡ ഉത്തരം തിരഞ്ഞെടുക്കുക:</span>
         <span id="pollTimerBadge" class="text-[10px] font-mono px-2 py-0.2 rounded bg-amber-950 text-amber-300 border border-amber-500/40">10s</span>
       </div>
 
       <div class="grid grid-cols-4 gap-1.5 w-full">
-        <button type="button" onclick="submitQuickVote(0)" id="voteBtn_0" class="py-1.5 bg-slate-900 border border-slate-700 hover:border-cyan-400 rounded-xl text-sm font-black text-white active:scale-95 cursor-pointer flex flex-col items-center justify-center">
-          <span>A</span>
-          <span id="pct_0" class="hidden text-[8px] text-cyan-300 font-mono">0%</span>
-        </button>
-        <button type="button" onclick="submitQuickVote(1)" id="voteBtn_1" class="py-1.5 bg-slate-900 border border-slate-700 hover:border-cyan-400 rounded-xl text-sm font-black text-white active:scale-95 cursor-pointer flex flex-col items-center justify-center">
-          <span>B</span>
-          <span id="pct_1" class="hidden text-[8px] text-cyan-300 font-mono">0%</span>
-        </button>
-        <button type="button" onclick="submitQuickVote(2)" id="voteBtn_2" class="py-1.5 bg-slate-900 border border-slate-700 hover:border-cyan-400 rounded-xl text-sm font-black text-white active:scale-95 cursor-pointer flex flex-col items-center justify-center">
-          <span>C</span>
-          <span id="pct_2" class="hidden text-[8px] text-cyan-300 font-mono">0%</span>
-        </button>
-        <button type="button" onclick="submitQuickVote(3)" id="voteBtn_3" class="py-1.5 bg-slate-900 border border-slate-700 hover:border-cyan-400 rounded-xl text-sm font-black text-white active:scale-95 cursor-pointer flex flex-col items-center justify-center">
-          <span>D</span>
-          <span id="pct_3" class="hidden text-[8px] text-cyan-300 font-mono">0%</span>
-        </button>
+        <button type="button" onclick="submitQuickVote(0)" id="voteBtn_0" class="py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-black text-white flex flex-col items-center justify-center"><span>A</span><span id="pct_0" class="hidden text-[8px] text-cyan-300">0%</span></button>
+        <button type="button" onclick="submitQuickVote(1)" id="voteBtn_1" class="py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-black text-white flex flex-col items-center justify-center"><span>B</span><span id="pct_1" class="hidden text-[8px] text-cyan-300">0%</span></button>
+        <button type="button" onclick="submitQuickVote(2)" id="voteBtn_2" class="py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-black text-white flex flex-col items-center justify-center"><span>C</span><span id="pct_2" class="hidden text-[8px] text-cyan-300">0%</span></button>
+        <button type="button" onclick="submitQuickVote(3)" id="voteBtn_3" class="py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-black text-white flex flex-col items-center justify-center"><span>D</span><span id="pct_3" class="hidden text-[8px] text-cyan-300">0%</span></button>
       </div>
 
       <div class="w-full flex items-center justify-between text-[9px] px-1 font-mono">
@@ -256,38 +153,19 @@
       </div>
     </div>
 
-    <!-- 4. 🏆 പോൾ റാങ്ക് ലിസ്റ്റ് -->
-    <div id="livePollRankModal" class="hidden absolute inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-3">
-      <div class="bg-slate-900 border-2 border-amber-500/70 rounded-2xl max-w-sm w-full p-4 shadow-2xl space-y-2.5 flex flex-col max-h-[82vh]">
+    <!-- 4. 🏆 റാങ്ക് ലിസ്റ്റ് മോഡൽ -->
+    <div id="livePollRankModal" class="hidden absolute inset-0 bg-slate-950/80 backdrop-blur z-50 flex items-center justify-center p-3">
+      <div class="bg-slate-900 border-2 border-amber-500/70 rounded-2xl max-w-sm w-full p-4 shadow-2xl space-y-2.5 flex flex-col max-h-[80vh]">
         <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-          <div>
-            <h3 class="text-xs sm:text-sm font-black text-amber-400 flex items-center space-x-1.5">
-              <span>🏆</span>
-              <span>തത്സമയ പോൾ റാങ്ക് ലിസ്റ്റ്</span>
-            </h3>
-            <p class="text-[9px] text-slate-400">ശരിയുത്തരത്തിന് +1 പോയിന്റ്</p>
-          </div>
-          <button onclick="closePollRankModal()" class="text-slate-400 hover:text-white text-sm font-bold p-1 bg-slate-800 rounded-lg w-6 h-6 flex items-center justify-center cursor-pointer">✕</button>
+          <h3 class="text-xs sm:text-sm font-black text-amber-400">🏆 തത്സമയ പോൾ റാങ്ക് ലിസ്റ്റ്</h3>
+          <button onclick="closePollRankModal()" class="text-slate-400 hover:text-white text-xs bg-slate-800 rounded px-2 py-1">✕</button>
         </div>
-
-        <div class="overflow-y-auto custom-scroll flex-1 pr-1">
+        <div class="overflow-y-auto custom-scroll flex-1">
           <table class="w-full text-left text-xs text-slate-300">
-            <thead class="bg-slate-950 text-slate-400 uppercase text-[9px] border-b border-slate-800 sticky top-0">
-              <tr>
-                <th class="p-1.5 text-center w-12">റാങ്ക്</th>
-                <th class="p-1.5">വിദ്യാർത്ഥി</th>
-                <th class="p-1.5 text-center w-20">മാർക്ക്</th>
-              </tr>
-            </thead>
-            <tbody id="livePollRankTableBody" class="divide-y divide-slate-800/60 font-mono text-[11px]">
-              <tr><td colspan="3" class="p-3 text-center text-slate-500">വിവരങ്ങൾ ശേഖരിക്കുന്നു...</td></tr>
-            </tbody>
+            <tbody id="livePollRankTableBody" class="divide-y divide-slate-800/60 font-mono text-[11px]"></tbody>
           </table>
         </div>
-
-        <div class="pt-1.5 border-t border-slate-800 flex justify-end">
-          <button onclick="closePollRankModal()" class="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-lg cursor-pointer">അടയ്ക്കുക</button>
-        </div>
+        <button onclick="closePollRankModal()" class="w-full py-1.5 bg-slate-800 text-white text-xs font-bold rounded-lg">അടയ്ക്കുക</button>
       </div>
     </div>
 
@@ -295,188 +173,372 @@
 
   <script type="module">
     import {
-      HMSReactiveStore, selectPeers, selectVideoTrackByPeerID,
-      selectIsLocalAudioEnabled, selectIsLocalVideoEnabled, selectIsLocalScreenShared,
-      selectTracksMap, selectHMSMessages
+      HMSReactiveStore, selectTracksMap, selectHMSMessages
     } from 'https://esm.sh/@100mslive/hms-video-store@0.15.3?bundle';
 
     const FIREBASE_DB_URL = "https://sk-psc-portal-default-rtdb.asia-southeast1.firebasedatabase.app";
-    // 100ms Dashboard: viewer-near-realtime role Room Code (verified from supplied screenshot).
     const HMS_STUDENT_ROOM_CODE = "mwt-pwlu-yia";
-    const ROLE_ON_STAGE = "guest";
-    const ROLE_OFF_STAGE = "viewer-near-realtime";
 
-    let currentUser=null, isTeacher=false, liveSessionData=null, activePollObj=null;
-    let activePollInterval=null, autoDismissTimeout=null, currentVotedOption=null;
-    let hmsStore=null, hmsActions=null, peersUnsubscribe=null, messagesUnsubscribe=null;
-    const peerTiles=new Map();
-    const handRaised=new Map();
-    let localHandRaised=false, chatOpen=false;
+    let currentUser = null, isTeacher = false, liveSessionData = null, activePollObj = null;
+    let activePollInterval = null, autoDismissTimeout = null, currentVotedOption = null;
+    let hmsStore = null, hmsActions = null;
+    let localHandRaised = false, chatOpen = false;
+    const screenTiles = new Map();
 
-    function sanitizePhone(raw){if(!raw)return "";const c=String(raw).replace(/\D/g,'');return c.length>=10?c.slice(-10):c;}
-    function safeText(value){return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-    function setStatus(msg){const el=document.getElementById('loadingStatusText');if(el)el.textContent=msg;}
+    function sanitizePhone(raw) {
+      if (!raw) return "";
+      let c = String(raw).replace(/\D/g, '');
+      return c.length >= 10 ? c.slice(-10) : c;
+    }
 
-    window.toggleVideoFullScreen=function(){const w=document.getElementById('videoCardWrapper');if(!document.fullscreenElement)w.requestFullscreen?.().catch(()=>{});else document.exitFullscreen?.().catch(()=>{});};
-    window.exitLiveClassRoom=async function(){if(!confirm('ലൈവ് ക്ലാസിൽ നിന്ന് പുറത്തിറങ്ങണമെന്നുറപ്പാണോ?'))return;try{if(hmsActions)await hmsActions.leave();}catch(e){}window.location.replace('index.html');};
-    window.closePollRankModal=function(){document.getElementById('livePollRankModal').classList.add('hidden');};
+    window.toggleVideoFullScreen = function() {
+      const w = document.getElementById('videoCardWrapper');
+      if (!document.fullscreenElement) w.requestFullscreen?.().catch(() => {});
+      else document.exitFullscreen?.().catch(() => {});
+    };
 
-    window.addEventListener('DOMContentLoaded',async()=>{
-      const params=new URLSearchParams(location.search);
-      isTeacher=params.get('role')==='admin';
-      document.getElementById('videoCardWrapper').classList.add(isTeacher?'teacher-view':'student-view');
-      if(isTeacher){
-        currentUser={name:'SK PSC Teacher',phone:'admin_master',is_premium:true,valid_until:'2099-12-31'};
-        document.getElementById('liveUserRoleBadge').textContent='👨‍🏫 അധ്യാപകൻ (Host)';
-        document.getElementById('pollAreaBox').style.display='none';
-        document.getElementById('teacherPeerControls').classList.remove('hidden');
-      }else{
-        try{currentUser=JSON.parse(localStorage.getItem('sk_candidate_user')||'null');if(currentUser?.phone)currentUser.phone=sanitizePhone(currentUser.phone);}catch(e){}
-        if(!currentUser?.phone){alert('ലൈവ് ക്ലാസിൽ പങ്കെടുക്കാൻ ദയവായി ലോഗിൻ ചെയ്യുക!');location.replace('index.html');return;}
-        document.getElementById('liveUserRoleBadge').textContent=currentUser.Official_Name||currentUser.name||'വിദ്യാർത്ഥി';
+    window.exitLiveClassRoom = async function() {
+      if (!confirm('ലൈവ് ക്ലാസിൽ നിന്ന് പുറത്തിറങ്ങണമെന്നുറപ്പാണോ?')) return;
+      try { if (hmsActions) await hmsActions.leave(); } catch (e) {}
+      window.location.replace('index.html');
+    };
+
+    window.closePollRankModal = function() {
+      document.getElementById('livePollRankModal').classList.add('hidden');
+    };
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      const params = new URLSearchParams(location.search);
+      isTeacher = (params.get('role') === 'admin');
+
+      if (isTeacher) {
+        currentUser = { name: 'SK PSC Teacher', phone: 'admin_master', is_premium: true, valid_until: '2099-12-31' };
+        document.getElementById('pollAreaBox').style.display = 'none';
+      } else {
+        try {
+          currentUser = JSON.parse(localStorage.getItem('sk_candidate_user') || 'null');
+          if (currentUser?.phone) currentUser.phone = sanitizePhone(currentUser.phone);
+        } catch (e) {}
+
+        if (!currentUser?.phone) {
+          alert('ലൈവ് ക്ലാസിൽ പങ്കെടുക്കാൻ ലോഗിൻ ചെയ്യുക!');
+          location.replace('index.html');
+          return;
+        }
       }
+
       wireControls();
       await verifyAccessAndStartMeeting();
-      window.__pollTimer=setInterval(syncRealtimePollAndRank,2000);
+      setInterval(syncRealtimePollAndRank, 2000);
     });
 
-    function wireControls(){
-      document.getElementById('micBtn').onclick=async()=>{if(!hmsActions)return;const on=!hmsStore.getState(selectIsLocalAudioEnabled);try{await hmsActions.setLocalAudioEnabled(on);document.getElementById('micBtn').textContent=on?'🎙️ Mic On':'🔇 Mic Off';}catch(e){alert('Microphone അനുവദനീയമല്ല: '+e.message);}};
-      document.getElementById('cameraBtn').onclick=async()=>{if(!hmsActions)return;const on=!hmsStore.getState(selectIsLocalVideoEnabled);try{await hmsActions.setLocalVideoEnabled(on);document.getElementById('cameraBtn').textContent=on?'📷 Camera On':'🚫 Camera Off';}catch(e){alert('Camera അനുവദനീയമല്ല: '+e.message);}};
-      document.getElementById('screenBtn').onclick=async()=>{if(!hmsActions)return;try{const sharing=!!hmsStore.getState(selectIsLocalScreenShared);await hmsActions.setScreenShareEnabled(!sharing);document.getElementById('screenBtn').textContent=sharing?'🖥️ Share Screen':'⏹️ Stop Sharing';}catch(e){alert('Screen Share ആരംഭിക്കാനായില്ല: '+e.message);}};
-      document.getElementById('handBtn').onclick=async()=>{if(!hmsActions)return;localHandRaised=!localHandRaised;try{await hmsActions.sendBroadcastMessage(JSON.stringify({name:currentUser?.Official_Name||currentUser?.name||'Student',phone:currentUser?.phone||'',raised:localHandRaised}), 'SKPSC_HAND_RAISE');document.getElementById('handBtn').textContent=localHandRaised?'✋ Hand Raised':'✋ Raise Hand';}catch(e){localHandRaised=!localHandRaised;alert('Raise Hand അയക്കാനായില്ല.');}};
-      document.getElementById('chatToggleBtn').onclick=()=>toggleChat(true);
-      document.getElementById('chatCloseBtn').onclick=()=>toggleChat(false);
-      document.getElementById('chatForm').onsubmit=async e=>{e.preventDefault();const input=document.getElementById('chatInput');const msg=input.value.trim();if(!msg||!hmsActions)return;try{await hmsActions.sendBroadcastMessage(msg);appendChat(currentUser?.Official_Name||currentUser?.name||'You',msg,true);input.value='';}catch(err){alert('സന്ദേശം അയക്കാനായില്ല: '+err.message);}};
-    }
-    function toggleChat(open){
-      chatOpen=!!open;
-      const wrapper=document.getElementById('videoCardWrapper');
-      const panel=document.getElementById('chatPanel');
-      wrapper.classList.toggle('chat-open',chatOpen);
-      panel.classList.toggle('hidden',!chatOpen);
-      panel.classList.toggle('flex',chatOpen);
-      const btn=document.getElementById('chatToggleBtn');
-      if(btn)btn.textContent=chatOpen?'✕ Chat അടയ്ക്കുക':'💬 Chat';
-    }
-    function appendChat(name,message,mine=false){const box=document.getElementById('chatMessages');const row=document.createElement('div');row.className='rounded-lg p-2 '+(mine?'bg-cyan-950/70':'bg-slate-800');const who=document.createElement('div');who.className='text-[10px] text-cyan-300 font-bold mb-1';who.textContent=name;const body=document.createElement('div');body.className='text-sm break-words';body.textContent=message;row.append(who,body);box.append(row);box.scrollTop=box.scrollHeight;}
+    function wireControls() {
+      document.getElementById('handBtn').onclick = async () => {
+        if (!hmsActions) return;
+        localHandRaised = !localHandRaised;
+        try {
+          await hmsActions.sendBroadcastMessage(JSON.stringify({
+            name: currentUser?.Official_Name || currentUser?.name || 'Student',
+            phone: currentUser?.phone || '',
+            raised: localHandRaised
+          }), 'SKPSC_HAND_RAISE');
+          document.getElementById('handBtn').textContent = localHandRaised ? '✋ Hand Raised' : '✋ Raise Hand';
+        } catch (e) {
+          localHandRaised = !localHandRaised;
+        }
+      };
 
-    async function registerStudentInLiveLeaderboard(){if(isTeacher||!currentUser?.phone)return;const phone=sanitizePhone(currentUser.phone),name=currentUser.Official_Name||currentUser.name||'Student';try{const r=await fetch(`${FIREBASE_DB_URL}/live_session/pollLeaderboard/${phone}.json`);const old=await r.json();if(!old)await fetch(`${FIREBASE_DB_URL}/live_session/pollLeaderboard/${phone}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,phone,score:0,attempted:0,lastPollId:0})});}catch(e){console.warn('Leaderboard registration',e);}}
+      document.getElementById('chatToggleBtn').onclick = () => toggleChat(!chatOpen);
+      document.getElementById('chatCloseBtn').onclick = () => toggleChat(false);
 
-    async function verifyAccessAndStartMeeting(){
-      try{const res=await fetch(`${FIREBASE_DB_URL}/live_session.json?_t=${Date.now()}`);liveSessionData=await res.json()||{};
-        if(liveSessionData.isLive!==true&&!isTeacher){alert('അധ്യാപകൻ നിലവിൽ ലൈവ് ആരംഭിച്ചിട്ടില്ല!');location.replace('index.html');return;}
-        document.getElementById('liveRoomTitleDisplay').textContent=liveSessionData.title||'SK PSC Live Class';
-        const free=liveSessionData.access_type==='FREE';document.getElementById('liveAccessBadge').textContent=isTeacher?'👑 HOST':(free?'🟢 FREE':'🔒 PAID');
-        if(!free&&!isTeacher){const now=new Date(),today=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;if(!currentUser.valid_until||currentUser.valid_until<today){alert('🔒 ഈ ക്ലാസ് പ്രീമിയം വിദ്യാർത്ഥികൾക്ക് മാത്രമുള്ളതാണ്!');location.replace('index.html');return;}}
-        await registerStudentInLiveLeaderboard();await connectCustom100msSDK();
-      }catch(err){console.error(err);setStatus('ക്ലാസ് കണക്ഷനിൽ തടസ്സം നേരിട്ടു. വീണ്ടും ശ്രമിക്കുക.');}
+      document.getElementById('chatForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const input = document.getElementById('chatInput');
+        const msg = input.value.trim();
+        if (!msg || !hmsActions) return;
+        try {
+          await hmsActions.sendBroadcastMessage(msg);
+          appendChat(currentUser?.Official_Name || currentUser?.name || 'You', msg, true);
+          input.value = '';
+        } catch (err) {}
+      };
     }
 
-    async function connectCustom100msSDK(){
-      try{setStatus('100ms ക്ലാസ് ലോഡ് ചെയ്യുന്നു...');
-        const manager=new HMSReactiveStore();manager.triggerOnSubscribe();hmsStore=manager.getStore();hmsActions=manager.getActions();
-        let roomCode=HMS_STUDENT_ROOM_CODE;
-        if(isTeacher){const saved=localStorage.getItem('sk_hms_host_code')||'';const entered=prompt('അധ്യാപകന്റെ Broadcaster Room Code നൽകുക:',saved);if(!entered?.trim()){setStatus('Host Room Code നൽകിയിട്ടില്ല.');return;}roomCode=entered.trim();localStorage.setItem('sk_hms_host_code',roomCode);}
-        const name=isTeacher?'SK PSC Teacher':(currentUser.Official_Name||currentUser.name||'Student');
-        const authToken=await hmsActions.getAuthTokenByRoomCode({roomCode});
-        await hmsActions.join({userName:name,authToken,settings:{isAudioMuted:!isTeacher,isVideoMuted:!isTeacher}});
-        // Mobile browsers may block remote audio autoplay until a user gesture.
-        let audioUnlockDone=false;
-        const unlockRoomAudio=async()=>{
-          if(audioUnlockDone || !hmsActions) return;
-          audioUnlockDone=true;
-          try{ await hmsActions.unblockAudio(); }
-          catch(err){ console.warn('100ms audio unlock:',err); audioUnlockDone=false; }
+    function toggleChat(open) {
+      chatOpen = open;
+      document.getElementById('chatPanel').classList.toggle('hidden', !chatOpen);
+      document.getElementById('chatToggleBtn').textContent = chatOpen ? '✕ Chat' : '💬 Chat';
+    }
+
+    function appendChat(name, message, mine = false) {
+      const box = document.getElementById('chatMessages');
+      const row = document.createElement('div');
+      row.className = 'rounded-lg p-2 ' + (mine ? 'bg-cyan-950/70 border border-cyan-800/40' : 'bg-slate-800');
+      row.innerHTML = `<div class="text-[9px] text-cyan-300 font-bold">${name}</div><div class="text-xs break-words">${message}</div>`;
+      box.append(row);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    async function verifyAccessAndStartMeeting() {
+      try {
+        const res = await fetch(`${FIREBASE_DB_URL}/live_session.json?_t=${Date.now()}`);
+        liveSessionData = await res.json() || {};
+
+        if (liveSessionData.isLive !== true && !isTeacher) {
+          alert('അധ്യാപകൻ നിലവിൽ ലൈവ് ആരംഭിച്ചിട്ടില്ല!');
+          location.replace('index.html');
+          return;
+        }
+
+        document.getElementById('liveRoomTitleDisplay').textContent = liveSessionData.title || 'SK PSC Live Class';
+        await connectCustom100msSDK();
+      } catch (err) {
+        document.getElementById('loadingStatusText').textContent = 'ക്ലാസ് കണക്ഷനിൽ തടസ്സം നേരിട്ടു.';
+      }
+    }
+
+    async function connectCustom100msSDK() {
+      try {
+        const manager = new HMSReactiveStore();
+        manager.triggerOnSubscribe();
+        hmsStore = manager.getStore();
+        hmsActions = manager.getActions();
+
+        let roomCode = HMS_STUDENT_ROOM_CODE;
+        if (isTeacher) {
+          const saved = localStorage.getItem('sk_hms_host_code') || '';
+          const entered = prompt('അധ്യാപകന്റെ Broadcaster Room Code നൽകുക:', saved);
+          if (!entered?.trim()) return;
+          roomCode = entered.trim();
+          localStorage.setItem('sk_hms_host_code', roomCode);
+        }
+
+        const name = isTeacher ? 'SK PSC Teacher' : (currentUser.Official_Name || currentUser.name || 'Student');
+        const authToken = await hmsActions.getAuthTokenByRoomCode({ roomCode });
+        
+        await hmsActions.join({
+          userName: name,
+          authToken,
+          settings: { isAudioMuted: !isTeacher, isVideoMuted: !isTeacher }
+        });
+
+        // ഓഡിയോ അൺലോക്ക്
+        const unlockAudio = async () => {
+          try { await hmsActions.unblockAudio(); } catch (e) {}
         };
-        document.addEventListener('pointerdown',unlockRoomAudio,{once:true,passive:true});
-        document.addEventListener('touchstart',unlockRoomAudio,{once:true,passive:true});
-        if(!isTeacher){
-          document.getElementById('micBtn').disabled=true;
-          document.getElementById('cameraBtn').disabled=true;
-          document.getElementById('screenBtn').disabled=true;
-        }
+        document.addEventListener('pointerdown', unlockAudio, { once: true });
+
         document.getElementById('videoLoadingBox').classList.add('hidden');
-        setStatus('ക്ലാസ് ശബ്ദം കേൾക്കാൻ സ്ക്രീനിൽ ഒരിക്കൽ Tap ചെയ്യുക.');
-        hmsStore.subscribe(renderPeers,selectPeers);
-        hmsStore.subscribe(renderScreenShares,selectTracksMap);
-        messagesUnsubscribe=hmsStore.subscribe(renderMessages,selectHMSMessages);
-        if(isTeacher)hmsStore.subscribe(renderTeacherPeerList,selectPeers);
-      }catch(err){console.error('100ms SDK Error',err);setStatus('100ms കണക്ഷൻ പരാജയപ്പെട്ടു: '+(err.message||'Room Code / Role പരിശോധിക്കുക'));}
+        hmsStore.subscribe(renderScreenShares, selectTracksMap);
+        hmsStore.subscribe(renderMessages, selectHMSMessages);
+
+      } catch (err) {
+        document.getElementById('loadingStatusText').textContent = 'കണക്റ്റ് ചെയ്യാൻ കഴിഞ്ഞില്ല. റീഫ്രഷ് ചെയ്യുക.';
+      }
     }
 
-    function createPeerTile(peer){
-      const tile=document.createElement('div');tile.className='peer-tile';tile.dataset.peerId=peer.id;
-      const video=document.createElement('video');video.autoplay=true;video.playsInline=true;video.muted=!!peer.isLocal;
-      const avatar=document.createElement('div');avatar.className='peer-avatar';avatar.textContent='👤';
-      const label=document.createElement('div');label.className='peer-label';label.textContent=peer.name+(peer.isLocal?' (You)':'');
-      tile.append(video,avatar,label);
-      let attached=null;
-      const unsubscribe=hmsStore.subscribe(track=>{const next=track?.id||null;if(next===attached)return;if(attached)hmsActions.detachVideo(attached,video);attached=next;const peerObj=peerTiles.get(peer.id);if(peerObj)peerObj.attached=next;if(next){hmsActions.attachVideo(next,video).then(()=>avatar.classList.add('hidden')).catch(console.warn);}else avatar.classList.remove('hidden');},selectVideoTrackByPeerID(peer.id));
-      peerTiles.set(peer.id,{tile,video,unsubscribe,attached:null});return tile;
-    }
-    function renderPeers(){
-      const peers=hmsStore.getState(selectPeers)||[];
-      const container=document.getElementById('peersContainer');
-      // Student view shows only the teacher (host). Teacher view shows host + promoted guest speakers.
-      const visiblePeers=peers.filter(p=>{
-        if(p.roleName==='host') return true;
-        return isTeacher && p.roleName===ROLE_ON_STAGE;
-      });
-      for(const [id,obj] of peerTiles){
-        if(!visiblePeers.some(p=>p.id===id)){
-          obj.unsubscribe?.();
-          try{if(obj.attached)hmsActions.detachVideo(obj.attached,obj.video);}catch(e){}
-          obj.tile.remove();peerTiles.delete(id);
+    function renderScreenShares(tracksMap) {
+      const wrap = document.getElementById('screenShareContainer');
+      const hint = document.getElementById('emptyStageHint');
+      const shares = Object.values(tracksMap || {}).filter(t => t && t.source === 'screen' && t.type === 'video' && t.enabled);
+
+      for (const [id, obj] of screenTiles) {
+        if (!shares.some(t => t.id === id)) {
+          try { hmsActions.detachVideo(id, obj.video); } catch (e) {}
+          obj.tile.remove();
+          screenTiles.delete(id);
         }
       }
-      visiblePeers.forEach(peer=>{
-        if(!peerTiles.has(peer.id))container.append(createPeerTile(peer));
-        const obj=peerTiles.get(peer.id);
-        const label=obj?.tile.querySelector('.peer-label');
-        if(label)label.textContent=peer.name+(peer.isLocal?' (You)':'');
+
+      shares.forEach(track => {
+        if (screenTiles.has(track.id)) return;
+        const tile = document.createElement('div');
+        tile.className = 'screen-share-tile';
+        const video = document.createElement('video');
+        video.autoplay = true;
+        video.playsInline = true;
+        video.muted = true;
+        tile.append(video);
+        wrap.append(tile);
+        screenTiles.set(track.id, { tile, video });
+        hmsActions.attachVideo(track.id, video).catch(console.warn);
       });
-      const shareActive=screenTiles.size>0;
-      container.classList.toggle('hidden',shareActive || visiblePeers.length===0);
-      const hint=document.getElementById('emptyStageHint');
-      if(hint)hint.classList.toggle('hidden',shareActive || visiblePeers.length>0);
-      const count=document.getElementById('participantCount');
-      if(count)count.textContent=`${peers.length} Participants`;
+
+      const active = screenTiles.size > 0;
+      wrap.classList.toggle('hidden', !active);
+      hint.classList.toggle('hidden', active);
     }
-    const screenTiles=new Map();
-    function renderScreenShares(tracksMap){
-      const wrap=document.getElementById('screenShareContainer');
-      const shares=Object.values(tracksMap||{}).filter(t=>t&&t.source==='screen'&&t.type==='video'&&t.enabled);
-      for(const [id,obj] of screenTiles){
-        if(!shares.some(t=>t.id===id)){
-          try{hmsActions.detachVideo(id,obj.video);}catch(e){}
-          obj.tile.remove();screenTiles.delete(id);
+
+    function renderMessages(messages) {
+      if (!Array.isArray(messages)) return;
+      const box = document.getElementById('chatMessages');
+      const existing = new Set([...box.children].map(x => x.dataset.mid));
+      messages.forEach(m => {
+        if (m.type !== 'chat' || !m.id || existing.has(m.id)) return;
+        const row = document.createElement('div');
+        row.dataset.mid = m.id;
+        row.className = 'rounded-lg p-2 bg-slate-800';
+        row.innerHTML = `<div class="text-[9px] text-cyan-300 font-bold">${m.sender?.name || 'Participant'}</div><div class="text-xs break-words">${m.message || ''}</div>`;
+        box.append(row);
+      });
+      box.scrollTop = box.scrollHeight;
+    }
+
+    // ഫയർബേസ് തത്സമയ പോൾ & റാങ്ക് സിങ്ക്
+    async function syncRealtimePollAndRank() {
+      try {
+        const res = await fetch(`${FIREBASE_DB_URL}/live_session.json?_t=${Date.now()}`);
+        const session = await res.json() || {};
+        const poll = session.activePoll;
+        activePollObj = poll;
+        const pollBox = document.getElementById('pollAreaBox');
+
+        if (session.showRankModal === true) {
+          renderLivePollRankModal(session.pollLeaderboard || {});
+          document.getElementById('livePollRankModal').classList.remove('hidden');
+        } else {
+          document.getElementById('livePollRankModal').classList.add('hidden');
         }
-      }
-      shares.forEach(track=>{
-        if(screenTiles.has(track.id))return;
-        const tile=document.createElement('div');tile.className='screen-share-tile';
-        const title=document.createElement('div');title.className='screen-share-title text-cyan-300 font-bold';title.textContent='🖥️ അധ്യാപകന്റെ Screen Share';
-        const video=document.createElement('video');video.autoplay=true;video.playsInline=true;video.muted=true;
-        tile.append(title,video);wrap.append(tile);screenTiles.set(track.id,{tile,video});
-        hmsActions.attachVideo(track.id,video).catch(console.warn);
-      });
-      const active=screenTiles.size>0;
-      wrap.classList.toggle('hidden',!active);
-      document.getElementById('peersContainer').classList.toggle('hidden',active);
-      const hint=document.getElementById('emptyStageHint');
-      if(hint)hint.classList.toggle('hidden',active || document.getElementById('peersContainer').children.length>0);
+
+        if (isTeacher) return;
+
+        if (!poll || !poll.startedAt) {
+          pollBox.classList.add('hidden');
+          currentVotedOption = null;
+          if (activePollInterval) clearInterval(activePollInterval);
+          return;
+        }
+
+        if (pollBox.dataset.pollStarted !== String(poll.startedAt)) {
+          pollBox.dataset.pollStarted = String(poll.startedAt);
+          pollBox.classList.remove('hidden');
+          currentVotedOption = null;
+          document.getElementById('pollFeedbackStatus').textContent = '';
+          document.getElementById('top3WinnersText').textContent = '';
+
+          [0, 1, 2, 3].forEach(i => {
+            const b = document.getElementById(`voteBtn_${i}`);
+            b.disabled = false;
+            b.className = 'py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-black text-white flex flex-col items-center justify-center';
+            document.getElementById(`pct_${i}`).classList.add('hidden');
+          });
+
+          const elapsed = Math.floor((Date.now() - Number(poll.startedAt)) / 1000);
+          let left = Math.max(0, (poll.duration || 10) - elapsed);
+          const badge = document.getElementById('pollTimerBadge');
+          badge.textContent = `${left}s`;
+
+          if (activePollInterval) clearInterval(activePollInterval);
+          activePollInterval = setInterval(() => {
+            left--;
+            if (left <= 0) {
+              clearInterval(activePollInterval);
+              badge.textContent = 'Over';
+              showPollResults(poll);
+              if (autoDismissTimeout) clearTimeout(autoDismissTimeout);
+              autoDismissTimeout = setTimeout(() => pollBox.classList.add('hidden'), 4000);
+            } else {
+              badge.textContent = `${left}s`;
+            }
+          }, 1000);
+        }
+      } catch (e) {}
     }
-    function renderMessages(messages){const box=document.getElementById('chatMessages');if(!Array.isArray(messages))return;const existing=new Set([...box.children].map(x=>x.dataset.mid));messages.forEach(m=>{if(m.type==='SKPSC_HAND_RAISE'){try{const d=JSON.parse(m.message);if(d.raised)handRaised.set(m.sender?.id||d.phone,d.name);else handRaised.delete(m.sender?.id||d.phone);if(isTeacher)renderTeacherPeerList(hmsStore.getState(selectPeers)||[]);}catch(e){}return;}if(m.type!=='chat'||!m.id||existing.has(m.id))return;const row=document.createElement('div');row.dataset.mid=m.id;row.className='rounded-lg p-2 bg-slate-800';const who=document.createElement('div');who.className='text-[10px] text-cyan-300 font-bold mb-1';who.textContent=m.sender?.name||'Participant';const body=document.createElement('div');body.className='text-sm break-words';body.textContent=m.message||'';row.append(who,body);box.append(row);});box.scrollTop=box.scrollHeight;}
-    function renderTeacherPeerList(peers){const box=document.getElementById('teacherPeerList');if(!box)return;box.innerHTML='';peers.filter(p=>!p.isLocal).forEach(p=>{const row=document.createElement('div');row.className='flex items-center justify-between gap-2 bg-slate-800 rounded p-1.5';const label=document.createElement('span');label.textContent=(handRaised.has(p.id)?'✋ ':'')+p.name;const btn=document.createElement('button');btn.className='bg-emerald-700 rounded px-2 py-1';btn.textContent=p.roleName===ROLE_ON_STAGE?'Make Viewer':'Bring On Stage';btn.onclick=async()=>{try{await hmsActions.changeRoleOfPeer(p.id,p.roleName===ROLE_ON_STAGE?ROLE_OFF_STAGE:ROLE_ON_STAGE,true);}catch(e){alert('Role മാറ്റാൻ കഴിഞ്ഞില്ല: '+e.message);}};row.append(label,btn);box.append(row);});}
 
-    // Firebase poll and rank-list logic retained from the supplied file.
-    async function syncRealtimePollAndRank(){try{const res=await fetch(`${FIREBASE_DB_URL}/live_session.json?_t=${Date.now()}`);const session=await res.json()||{};const poll=session.activePoll;activePollObj=poll;const pollBox=document.getElementById('pollAreaBox');if(session.showRankModal===true){renderLivePollRankModal(session.pollLeaderboard||{});document.getElementById('livePollRankModal').classList.remove('hidden');}else document.getElementById('livePollRankModal').classList.add('hidden');if(isTeacher)return;if(!poll||!poll.startedAt){pollBox.classList.add('hidden');currentVotedOption=null;if(activePollInterval)clearInterval(activePollInterval);return;}if(pollBox.dataset.pollStarted!==String(poll.startedAt)){pollBox.dataset.pollStarted=String(poll.startedAt);pollBox.classList.remove('hidden');currentVotedOption=null;document.getElementById('pollFeedbackStatus').textContent='';document.getElementById('top3WinnersText').textContent='';[0,1,2,3].forEach(i=>{const b=document.getElementById(`voteBtn_${i}`);b.disabled=false;b.className='py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-black text-white';document.getElementById(`pct_${i}`).classList.add('hidden');});const elapsed=Math.floor((Date.now()-Number(poll.startedAt))/1000);let left=Math.max(0,(poll.duration||10)-elapsed);const badge=document.getElementById('pollTimerBadge');badge.textContent=`${left}s`;if(activePollInterval)clearInterval(activePollInterval);activePollInterval=setInterval(()=>{left--;if(left<=0){clearInterval(activePollInterval);badge.textContent='Over';showPollResults(poll);if(autoDismissTimeout)clearTimeout(autoDismissTimeout);autoDismissTimeout=setTimeout(()=>pollBox.classList.add('hidden'),4000);}else badge.textContent=`${left}s`;},1000);}}catch(e){console.warn('Poll sync',e);}}
-    window.submitQuickVote=async function(index){if(currentVotedOption!==null||!activePollObj)return;currentVotedOption=index;document.getElementById(`voteBtn_${index}`).className='py-1.5 bg-cyan-600 border border-cyan-300 rounded-xl text-sm font-black text-slate-950';document.getElementById('pollFeedbackStatus').textContent='✓ രേഖപ്പെടുത്തി!';const phone=sanitizePhone(currentUser?.phone)||('stud_'+Date.now().toString().slice(-4)),name=currentUser.Official_Name||currentUser.name||'Student',pollId=Number(activePollObj.startedAt),correct=index===Number(activePollObj.correctAnswer);try{await fetch(`${FIREBASE_DB_URL}/live_session/activePoll/votes/${index}/${phone}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,time:Date.now()})});const r=await fetch(`${FIREBASE_DB_URL}/live_session/pollLeaderboard/${phone}.json`);let entry=await r.json()||{name,phone,score:0,attempted:0,lastPollId:0};if(Number(entry.lastPollId)!==pollId){entry.name=name;entry.attempted=(Number(entry.attempted)||0)+1;if(correct)entry.score=(Number(entry.score)||0)+1;entry.lastPollId=pollId;await fetch(`${FIREBASE_DB_URL}/live_session/pollLeaderboard/${phone}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(entry)});}}catch(e){console.warn('Vote save',e);}};
-    async function showPollResults(poll){[0,1,2,3].forEach(i=>{const b=document.getElementById(`voteBtn_${i}`);b.disabled=true;if(i===Number(poll.correctAnswer))b.className='py-1.5 bg-emerald-600 border border-emerald-300 rounded-xl text-sm font-black text-white';else if(i===currentVotedOption)b.className='py-1.5 bg-rose-600 border border-rose-300 rounded-xl text-sm font-black text-white';});if(currentVotedOption!==null){const right=currentVotedOption===Number(poll.correctAnswer),fb=document.getElementById('pollFeedbackStatus');fb.textContent=right?'🎉 ശരിയുത്തരം (+1)':'❌ തെറ്റായ ഉത്തരം (0)';fb.className=right?'font-bold text-emerald-400':'font-bold text-rose-400';}try{const r=await fetch(`${FIREBASE_DB_URL}/live_session/activePoll/votes.json?_t=${Date.now()}`),data=await r.json()||{},start=Number(poll.startedAt)||0,count=o=>Object.values(o||{}).filter(v=>Number(v?.time)>=start).length,counts=[0,1,2,3].map(i=>count(data[i])),total=counts.reduce((a,b)=>a+b,0);if(total)counts.forEach((n,i)=>{const s=document.getElementById(`pct_${i}`);s.textContent=`${Math.round(n/total*100)}%`;s.classList.remove('hidden');});const winners=Object.values(data[poll.correctAnswer]||{}).filter(v=>Number(v?.time)>=start).sort((a,b)=>Number(a.time)-Number(b.time)).slice(0,3);if(winners.length)document.getElementById('top3WinnersText').textContent='⚡ '+winners.map((w,i)=>`${i+1}.${w.name}`).join(' ');}catch(e){}}
-    function renderLivePollRankModal(obj){const tbody=document.getElementById('livePollRankTableBody'),list=Object.values(obj||{}).sort((a,b)=>(Number(b.score)||0)-(Number(a.score)||0));tbody.innerHTML='';if(!list.length){tbody.innerHTML='<tr><td colspan="3" class="p-3 text-center text-slate-500">വിദ്യാർത്ഥികൾ ആരും ചേർന്നിട്ടില്ല.</td></tr>';return;}list.forEach((item,i)=>{const tr=document.createElement('tr');tr.className='border-b border-slate-800/50';const vals=[i+1,item.name||'Student',(Number(item.score)||0)+' Pt'];vals.forEach((v,j)=>{const td=document.createElement('td');td.className='p-2 '+(j===0?'text-center text-amber-400 font-bold':'');td.textContent=v;tr.append(td);});tbody.append(tr);});}
+    window.submitQuickVote = async function(index) {
+      if (currentVotedOption !== null || !activePollObj) return;
+      currentVotedOption = index;
 
-    window.addEventListener('beforeunload',()=>{try{hmsActions?.leave();}catch(e){}});
+      document.getElementById(`voteBtn_${index}`).className = 'py-1.5 bg-cyan-600 border border-cyan-300 rounded-xl text-sm font-black text-slate-950 flex flex-col items-center justify-center shadow-lg';
+      document.getElementById('pollFeedbackStatus').textContent = '✓ രേഖപ്പെടുത്തി!';
+
+      const phone = sanitizePhone(currentUser?.phone) || ('stud_' + Date.now().toString().slice(-4));
+      const name = currentUser?.Official_Name || currentUser?.name || 'Student';
+      const pollId = Number(activePollObj.startedAt);
+      const correct = (index === Number(activePollObj.correctAnswer));
+
+      try {
+        await fetch(`${FIREBASE_DB_URL}/live_session/activePoll/votes/${index}/${phone}.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, time: Date.now() })
+        });
+
+        const r = await fetch(`${FIREBASE_DB_URL}/live_session/pollLeaderboard/${phone}.json`);
+        let entry = await r.json() || { name, phone, score: 0, attempted: 0, lastPollId: 0 };
+
+        if (Number(entry.lastPollId) !== pollId) {
+          entry.name = name;
+          entry.attempted = (Number(entry.attempted) || 0) + 1;
+          if (correct) entry.score = (Number(entry.score) || 0) + 1;
+          entry.lastPollId = pollId;
+          await fetch(`${FIREBASE_DB_URL}/live_session/pollLeaderboard/${phone}.json`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(entry)
+          });
+        }
+      } catch (e) {}
+    };
+
+    async function showPollResults(poll) {
+      [0, 1, 2, 3].forEach(i => {
+        const b = document.getElementById(`voteBtn_${i}`);
+        b.disabled = true;
+        if (i === Number(poll.correctAnswer)) b.className = 'py-1.5 bg-emerald-600 border border-emerald-300 rounded-xl text-sm font-black text-white flex flex-col items-center justify-center shadow-lg';
+        else if (i === currentVotedOption) b.className = 'py-1.5 bg-rose-600 border border-rose-300 rounded-xl text-sm font-black text-white flex flex-col items-center justify-center';
+      });
+
+      if (currentVotedOption !== null) {
+        const right = (currentVotedOption === Number(poll.correctAnswer));
+        const fb = document.getElementById('pollFeedbackStatus');
+        fb.textContent = right ? '🎉 ശരിയുത്തരം (+1)' : '❌ തെറ്റായ ഉത്തരം (0)';
+        fb.className = right ? 'font-bold text-emerald-400' : 'font-bold text-rose-400';
+      }
+
+      try {
+        const r = await fetch(`${FIREBASE_DB_URL}/live_session/activePoll/votes.json?_t=${Date.now()}`);
+        const data = await r.json() || {};
+        const start = Number(poll.startedAt) || 0;
+        const count = o => Object.values(o || {}).filter(v => Number(v?.time) >= start).length;
+        const counts = [0, 1, 2, 3].map(i => count(data[i]));
+        const total = counts.reduce((a, b) => a + b, 0);
+
+        if (total) {
+          counts.forEach((n, i) => {
+            const s = document.getElementById(`pct_${i}`);
+            s.textContent = `${Math.round(n / total * 100)}%`;
+            s.classList.remove('hidden');
+          });
+        }
+
+        const winners = Object.values(data[poll.correctAnswer] || {})
+          .filter(v => Number(v?.time) >= start)
+          .sort((a, b) => Number(a.time) - Number(b.time))
+          .slice(0, 3);
+        if (winners.length) document.getElementById('top3WinnersText').textContent = '⚡ ' + winners.map((w, i) => `${i + 1}.${w.name}`).join(' ');
+      } catch (e) {}
+    }
+
+    function renderLivePollRankModal(obj) {
+      const tbody = document.getElementById('livePollRankTableBody');
+      const list = Object.values(obj || {}).sort((a, b) => (Number(b.score) || 0) - (Number(a.score) || 0));
+      tbody.innerHTML = '';
+      if (!list.length) {
+        tbody.innerHTML = '<tr><td colspan="3" class="p-3 text-center text-slate-500">ആരും പങ്കെടുത്തിട്ടില്ല.</td></tr>';
+        return;
+      }
+      list.forEach((item, i) => {
+        const tr = document.createElement('tr');
+        tr.className = 'border-b border-slate-800/50';
+        tr.innerHTML = `<td class="p-2 text-center text-amber-400 font-bold">${i + 1}</td><td class="p-2 font-bold text-white truncate max-w-[140px]">${item.name || 'Student'}</td><td class="p-2 text-center text-emerald-400 font-bold">${item.score || 0} Pt</td>`;
+        tbody.append(tr);
+      });
+    }
+
+    window.addEventListener('beforeunload', () => {
+      try { hmsActions?.leave(); } catch (e) {}
+    });
   </script>
 </body>
 </html>
