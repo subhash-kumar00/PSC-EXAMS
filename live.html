@@ -24,7 +24,6 @@
     }
     .poll-float-card { animation: compactGlow 1.2s infinite ease-in-out; }
 
-    /* ശുദ്ധമായ ഫുൾ സ്ക്രീൻ വ്യൂ */
     #classMain { display: flex; flex: 1 1 auto; min-height: 0; width: 100%; height: 100%; position: relative; overflow: hidden; }
     #classStage { flex: 1 1 100%; width: 100%; height: 100%; display: flex; flex-direction: column; position: relative; background: #000; }
     #customVideoStage { flex: 1 1 auto; width: 100%; height: 100%; position: relative; background: #000; overflow: hidden; display: flex; align-items: center; justify-content: center; }
@@ -33,7 +32,6 @@
     #screenShareContainer.hidden { display: none !important; }
     #screenShareContainer .screen-share-tile { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #000; }
     
-    /* നോട്ട്സ് സ്ക്രീനിന്റെ ഏറ്റവും കൂടിയ വലിപ്പത്തിൽ ഫിറ്റ് ആവാനുള്ള റൂൾ */
     #screenShareContainer video {
       width: 100% !important;
       height: 100% !important;
@@ -43,7 +41,6 @@
       background: #000;
     }
 
-    /* ഫ്ലോട്ടിംഗ് കൺട്രോളുകൾ (വീഡിയോയുടെ മുകളിലേക്ക് കയറ്റി സ്ഥലം ലാഭിക്കുന്നു) */
     .floating-top-bar {
       position: absolute; top: 8px; left: 8px; right: 8px; z-index: 40;
       background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px);
@@ -52,11 +49,19 @@
     }
 
     .floating-bottom-bar {
-      position: absolute; bottom: 8px; right: 8px; z-index: 40;
-      display: flex; gap: 8px;
+      position: absolute; bottom: 12px; right: 12px; z-index: 40;
+      display: flex; gap: 8px; flex-wrap: wrap;
     }
 
-    /* ചാറ്റ് പാനൽ (സൈഡിലോ താഴെയോ സുതാര്യമായി വരുന്നു) */
+    .control-btn {
+      padding: 7px 12px; background: rgba(15, 23, 42, 0.9);
+      border: 1px solid #475569; border-radius: 10px;
+      font-size: 11px; font-weight: 700; color: #f8fafc;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5); backdrop-filter: blur(6px);
+      cursor: pointer;
+    }
+    .control-btn:hover { background: #1e293b; border-color: #06b6d4; }
+
     #chatPanel {
       position: absolute; top: 54px; right: 8px; bottom: 54px; width: 280px; max-width: 80%;
       background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px);
@@ -74,25 +79,28 @@
 </head>
 <body class="h-screen w-screen flex flex-col justify-between select-none overflow-hidden bg-black text-slate-100">
 
-  <div id="videoCardWrapper" class="relative w-full h-full flex-1 flex flex-col bg-black overflow-hidden student-view">
+  <div id="videoCardWrapper" class="relative w-full h-full flex-1 flex flex-col bg-black overflow-hidden">
 
-    <!-- 1. മുകളിലെ മിനിമൽ ഹെഡർ (Transparent Bar) -->
+    <!-- 1. മുകളിലെ ഹെഡർ ബാർ -->
     <div class="floating-top-bar">
       <div class="flex items-center space-x-2 min-w-0">
         <a href="index.html" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-xs font-bold text-slate-300">‹</a>
-        <h1 class="text-xs font-bold text-white flex items-center space-x-1.5 truncate">
-          <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
-          <span id="liveRoomTitleDisplay" class="truncate">SK PSC ലൈവ് ക്ലാസ്</span>
-        </h1>
+        <div class="min-w-0">
+          <h1 class="text-xs font-bold text-white flex items-center space-x-1.5 truncate">
+            <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+            <span id="liveRoomTitleDisplay" class="truncate">SK PSC ലൈവ് ക്ലാസ്</span>
+          </h1>
+          <p class="text-[9px] text-emerald-400 truncate font-mono" id="liveUserRoleBadge">പഠിതാവ്</p>
+        </div>
       </div>
       <div class="flex items-center space-x-1.5">
-        <span id="liveAccessBadge" class="text-[9px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">PAID</span>
-        <button onclick="toggleVideoFullScreen()" class="px-2 py-1 bg-slate-800 text-cyan-300 rounded-lg text-xs font-bold border border-slate-700">⛶ Fullscreen</button>
-        <button onclick="exitLiveClassRoom()" class="px-2.5 py-1 bg-rose-600 text-white rounded-lg text-xs font-black">Exit</button>
+        <span id="liveAccessBadge" class="text-[9px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">LIVE</span>
+        <button onclick="toggleVideoFullScreen()" class="px-2 py-1 bg-slate-800 text-cyan-300 rounded-lg text-xs font-bold border border-slate-700 cursor-pointer">⛶ Fullscreen</button>
+        <button onclick="exitLiveClassRoom()" class="px-2.5 py-1 bg-rose-600 text-white rounded-lg text-xs font-black cursor-pointer">Exit</button>
       </div>
     </div>
 
-    <!-- 2. മെയിൻ സ്റ്റേജ് (നോട്ട്സ് 100% വലിപ്പത്തിൽ തെളിയുന്നു) -->
+    <!-- 2. മെയിൻ സ്റ്റേജ് -->
     <main id="classMain">
       <section id="classStage">
         <div id="videoLoadingBox" class="absolute inset-0 z-20 flex items-center justify-center text-center p-6 bg-black">
@@ -103,37 +111,44 @@
         </div>
 
         <div id="customVideoStage">
-          <!-- സ്ക്രീൻ ഷെയർ ഫുൾ ഡിസ്‌പ്ലേ -->
           <div id="screenShareContainer" class="hidden"></div>
           <div id="emptyStageHint" class="hidden text-center p-4 text-slate-400">
             <div class="text-3xl mb-1">🎓</div>
             <div class="font-bold text-sm text-slate-200">ക്ലാസ് ആരംഭിച്ചിരിക്കുന്നു</div>
-            <div class="text-xs text-slate-400">അധ്യാപകൻ സ്ക്രീൻ ഷെയർ ചെയ്യുമ്പോൾ ഇവിടെ ഫുൾ ആയി കാണാം.</div>
+            <div class="text-xs text-slate-400" id="emptyHintText">അധ്യാപകൻ സ്ക്രീൻ ഷെയർ ചെയ്യുമ്പോൾ ഇവിടെ ഫുൾ ആയി കാണാം.</div>
           </div>
         </div>
 
-        <!-- ഫ്ലോട്ടിംഗ് കൺട്രോളുകൾ (മൈക്ക്, ചാറ്റ്, ഹാൻഡ് റൈസ്) -->
-        <div class="floating-bottom-bar">
-          <button id="handBtn" class="px-3 py-1.5 bg-slate-900/90 border border-slate-700 hover:border-cyan-400 rounded-xl text-xs font-bold text-white shadow-lg backdrop-blur">✋ Raise Hand</button>
-          <button id="chatToggleBtn" class="px-3 py-1.5 bg-slate-900/90 border border-slate-700 hover:border-cyan-400 rounded-xl text-xs font-bold text-cyan-300 shadow-lg backdrop-blur">💬 Chat</button>
+        <!-- ഡൈനാമിക് കൺട്രോളുകൾ -->
+        <div class="floating-bottom-bar" id="conferenceControls">
+          <!-- അധ്യാപകന് മാത്രം കാണുന്ന ബട്ടണുകൾ -->
+          <button id="screenBtn" class="control-btn hidden bg-cyan-900 border-cyan-500 text-cyan-200" type="button">🖥️ Share Screen</button>
+          <button id="micBtn" class="control-btn hidden" type="button">🎙️ Mic On</button>
+          <button id="cameraBtn" class="control-btn hidden" type="button">📷 Camera On</button>
+          
+          <!-- വിദ്യാർത്ഥിക്ക് മാത്രം കാണുന്ന ബട്ടൺ -->
+          <button id="handBtn" class="control-btn hidden" type="button">✋ Raise Hand</button>
+          
+          <!-- എല്ലാവർക്കും പൊതുവായത് -->
+          <button id="chatToggleBtn" class="control-btn" type="button">💬 Chat</button>
         </div>
       </section>
 
-      <!-- സൈഡ് ചാറ്റ് ബോക്സ് -->
+      <!-- സൈഡ് ലൈവ് ചാറ്റ് -->
       <aside id="chatPanel" class="hidden">
         <div class="p-2.5 border-b border-slate-700 flex justify-between items-center bg-slate-950">
           <strong class="text-xs font-bold text-cyan-300">Live Chat</strong>
-          <button id="chatCloseBtn" class="text-slate-400 hover:text-white text-xs px-2 py-0.5">✕</button>
+          <button id="chatCloseBtn" class="text-slate-400 hover:text-white text-xs px-2 py-0.5 cursor-pointer">✕</button>
         </div>
         <div id="chatMessages" class="flex-1 overflow-y-auto custom-scroll p-2.5 space-y-2 text-xs"></div>
         <form id="chatForm" class="p-2 border-t border-slate-700 flex gap-1.5 bg-slate-950">
           <input id="chatInput" maxlength="200" placeholder="സന്ദേശം ടൈപ്പ് ചെയ്യുക..." class="min-w-0 flex-1 rounded-lg bg-slate-800 px-2.5 py-1.5 text-xs text-white outline-none">
-          <button class="rounded-lg bg-cyan-600 px-3 text-xs font-bold text-white" type="submit">Send</button>
+          <button class="rounded-lg bg-cyan-600 px-3 text-xs font-bold text-white cursor-pointer" type="submit">Send</button>
         </form>
       </aside>
     </main>
 
-    <!-- 3. ⚡ ഫ്ലോട്ടിംഗ് ഇൻസ്റ്റന്റ് പോൾ (A, B, C, D) -->
+    <!-- 3. ⚡ ഫ്ലോട്ടിംഗ് ഇൻസ്റ്റന്റ് പോൾ -->
     <div id="pollAreaBox" class="hidden poll-float-card absolute bottom-4 left-1/2 -translate-x-1/2 z-50 bg-slate-950/95 backdrop-blur border border-cyan-400 rounded-2xl px-3 py-2 shadow-2xl flex flex-col items-center space-y-1.5 w-[90%] max-w-xs">
       <div class="w-full flex items-center justify-between text-[10px] px-1 font-bold">
         <span class="text-cyan-300 truncate">⚡ ഉത്തരം തിരഞ്ഞെടുക്കുക:</span>
@@ -158,14 +173,14 @@
       <div class="bg-slate-900 border-2 border-amber-500/70 rounded-2xl max-w-sm w-full p-4 shadow-2xl space-y-2.5 flex flex-col max-h-[80vh]">
         <div class="flex items-center justify-between border-b border-slate-800 pb-2">
           <h3 class="text-xs sm:text-sm font-black text-amber-400">🏆 തത്സമയ പോൾ റാങ്ക് ലിസ്റ്റ്</h3>
-          <button onclick="closePollRankModal()" class="text-slate-400 hover:text-white text-xs bg-slate-800 rounded px-2 py-1">✕</button>
+          <button onclick="closePollRankModal()" class="text-slate-400 hover:text-white text-xs bg-slate-800 rounded px-2 py-1 cursor-pointer">✕</button>
         </div>
         <div class="overflow-y-auto custom-scroll flex-1">
           <table class="w-full text-left text-xs text-slate-300">
             <tbody id="livePollRankTableBody" class="divide-y divide-slate-800/60 font-mono text-[11px]"></tbody>
           </table>
         </div>
-        <button onclick="closePollRankModal()" class="w-full py-1.5 bg-slate-800 text-white text-xs font-bold rounded-lg">അടയ്ക്കുക</button>
+        <button onclick="closePollRankModal()" class="w-full py-1.5 bg-slate-800 text-white text-xs font-bold rounded-lg cursor-pointer">അടയ്ക്കുക</button>
       </div>
     </div>
 
@@ -173,7 +188,8 @@
 
   <script type="module">
     import {
-      HMSReactiveStore, selectTracksMap, selectHMSMessages
+      HMSReactiveStore, selectTracksMap, selectHMSMessages,
+      selectIsLocalAudioEnabled, selectIsLocalVideoEnabled, selectIsLocalScreenShared
     } from 'https://esm.sh/@100mslive/hms-video-store@0.15.3?bundle';
 
     const FIREBASE_DB_URL = "https://sk-psc-portal-default-rtdb.asia-southeast1.firebasedatabase.app";
@@ -211,10 +227,22 @@
       const params = new URLSearchParams(location.search);
       isTeacher = (params.get('role') === 'admin');
 
+      const wrapper = document.getElementById('videoCardWrapper');
       if (isTeacher) {
-        currentUser = { name: 'SK PSC Teacher', phone: 'admin_master', is_premium: true, valid_until: '2099-12-31' };
+        wrapper.classList.add('teacher-view');
+        currentUser = { name: 'സുഭാഷ് സർ (Teacher)', phone: 'admin_master', is_premium: true, valid_until: '2099-12-31' };
+        document.getElementById('liveUserRoleBadge').textContent = '👨‍🏫 അധ്യാപകൻ (Host)';
+        document.getElementById('liveAccessBadge').textContent = '👑 HOST';
         document.getElementById('pollAreaBox').style.display = 'none';
+        
+        // അധ്യാപകന്റെ ബട്ടണുകൾ കാണിക്കുക
+        document.getElementById('screenBtn').classList.remove('hidden');
+        document.getElementById('micBtn').classList.remove('hidden');
+        document.getElementById('cameraBtn').classList.remove('hidden');
+        document.getElementById('emptyHintText').textContent = 'താഴെയുള്ള "🖥️ Share Screen" ക്ലിക്ക് ചെയ്ത് നോട്ട്സ് ഷെയർ ചെയ്യുക.';
       } else {
+        wrapper.classList.add('student-view');
+        document.getElementById('handBtn').classList.remove('hidden');
         try {
           currentUser = JSON.parse(localStorage.getItem('sk_candidate_user') || 'null');
           if (currentUser?.phone) currentUser.phone = sanitizePhone(currentUser.phone);
@@ -225,6 +253,7 @@
           location.replace('index.html');
           return;
         }
+        document.getElementById('liveUserRoleBadge').textContent = currentUser.Official_Name || currentUser.name || 'വിദ്യാർത്ഥി';
       }
 
       wireControls();
@@ -233,6 +262,40 @@
     });
 
     function wireControls() {
+      // അധ്യാപകന്റെ സ്ക്രീൻഷെയർ ബട്ടൺ
+      document.getElementById('screenBtn').onclick = async () => {
+        if (!hmsActions) return;
+        try {
+          const sharing = !!hmsStore.getState(selectIsLocalScreenShared);
+          await hmsActions.setScreenShareEnabled(!sharing);
+          document.getElementById('screenBtn').textContent = sharing ? '🖥️ Share Screen' : '⏹️ Stop Sharing';
+          document.getElementById('screenBtn').classList.toggle('bg-rose-700', !sharing);
+        } catch (err) {
+          alert('Screen Share പരാജയപ്പെട്ടു: ' + err.message);
+        }
+      };
+
+      // അധ്യാപകന്റെ മൈക്ക് ബട്ടൺ
+      document.getElementById('micBtn').onclick = async () => {
+        if (!hmsActions) return;
+        try {
+          const enabled = !hmsStore.getState(selectIsLocalAudioEnabled);
+          await hmsActions.setLocalAudioEnabled(enabled);
+          document.getElementById('micBtn').textContent = enabled ? '🎙️ Mic Off' : '🔇 Mic On';
+        } catch (e) {}
+      };
+
+      // അധ്യാപകന്റെ ക്യാമറ ബട്ടൺ
+      document.getElementById('cameraBtn').onclick = async () => {
+        if (!hmsActions) return;
+        try {
+          const enabled = !hmsStore.getState(selectIsLocalVideoEnabled);
+          await hmsActions.setLocalVideoEnabled(enabled);
+          document.getElementById('cameraBtn').textContent = enabled ? '📷 Camera Off' : '🚫 Camera On';
+        } catch (e) {}
+      };
+
+      // കുട്ടികളുടെ ഹാൻഡ് റൈസ്
       document.getElementById('handBtn').onclick = async () => {
         if (!hmsActions) return;
         localHandRaised = !localHandRaised;
@@ -308,12 +371,15 @@
         if (isTeacher) {
           const saved = localStorage.getItem('sk_hms_host_code') || '';
           const entered = prompt('അധ്യാപകന്റെ Broadcaster Room Code നൽകുക:', saved);
-          if (!entered?.trim()) return;
+          if (!entered?.trim()) {
+            location.replace('index.html');
+            return;
+          }
           roomCode = entered.trim();
           localStorage.setItem('sk_hms_host_code', roomCode);
         }
 
-        const name = isTeacher ? 'SK PSC Teacher' : (currentUser.Official_Name || currentUser.name || 'Student');
+        const name = isTeacher ? 'സുഭാഷ് സർ (Teacher)' : (currentUser.Official_Name || currentUser.name || 'Student');
         const authToken = await hmsActions.getAuthTokenByRoomCode({ roomCode });
         
         await hmsActions.join({
@@ -322,7 +388,6 @@
           settings: { isAudioMuted: !isTeacher, isVideoMuted: !isTeacher }
         });
 
-        // ഓഡിയോ അൺലോക്ക്
         const unlockAudio = async () => {
           try { await hmsActions.unblockAudio(); } catch (e) {}
         };
@@ -384,7 +449,6 @@
       box.scrollTop = box.scrollHeight;
     }
 
-    // ഫയർബേസ് തത്സമയ പോൾ & റാങ്ക് സിങ്ക്
     async function syncRealtimePollAndRank() {
       try {
         const res = await fetch(`${FIREBASE_DB_URL}/live_session.json?_t=${Date.now()}`);
