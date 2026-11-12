@@ -72,12 +72,21 @@
     }
     #chatPanel.hidden { display: none !important; }
 
+    /* Teacher Panels */
     #teacherHandPanel {
       position: absolute; bottom: 62px; left: 12px; z-index: 45;
       background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px);
       border: 1px solid rgba(245, 158, 11, 0.6); border-radius: 14px; padding: 10px 12px;
       max-width: 300px; width: 88%; box-shadow: 0 10px 30px rgba(0,0,0,0.85);
     }
+
+    #teacherParticipantsPanel {
+      position: absolute; top: 60px; left: 12px; z-index: 45;
+      background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px);
+      border: 1px solid rgba(6, 182, 212, 0.6); border-radius: 14px; padding: 10px 12px;
+      max-width: 260px; width: 80%; max-height: 45vh; display: flex; flex-direction: column;
+    }
+    #teacherParticipantsPanel.hidden { display: none !important; }
 
     @media (orientation: portrait) {
       #chatPanel {
@@ -109,7 +118,7 @@
       </div>
     </div>
 
-    <!-- 🔊 One-Tap Audio Unlock Banner (For Students on Mobile) -->
+    <!-- 🔊 One-Tap Audio Unlock Banner -->
     <div id="audioUnlockBanner" onclick="forceUnlockAudio()" class="hidden absolute top-14 left-1/2 -translate-x-1/2 z-50 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs px-4 py-1.5 rounded-full shadow-xl cursor-pointer flex items-center gap-1.5 animate-bounce">
       <span>🔊</span>
       <span>ശബ്ദം കേൾക്കാൻ ഇവിടെ തൊടുക</span>
@@ -140,6 +149,7 @@
           <button id="screenBtn" class="control-btn hidden bg-cyan-950 border-cyan-500 text-cyan-200" type="button">🖥️ Share Screen</button>
           <button id="micBtn" class="control-btn hidden" type="button">🎙️ Mic Off</button>
           <button id="cameraBtn" class="control-btn hidden" type="button">📷 Camera On</button>
+          <button id="participantsToggleBtn" class="control-btn hidden bg-slate-800 border-cyan-500 text-cyan-300" type="button">👥 Students (<span id="totalPeerCount">0</span>)</button>
           
           <!-- Student Controls -->
           <button id="studentMicBtn" class="control-btn hidden bg-emerald-700 border-emerald-400 text-white animate-pulse" type="button">🎙️ സംസാരിക്കാം (Mic On)</button>
@@ -150,6 +160,17 @@
             <span>💬 Chat</span>
             <span id="chatUnreadDot" class="hidden w-2 h-2 rounded-full bg-rose-500"></span>
           </button>
+        </div>
+
+        <!-- Teacher's Participants List Panel -->
+        <div id="teacherParticipantsPanel" class="hidden">
+          <div class="flex items-center justify-between border-b border-slate-700 pb-1 mb-2">
+            <span class="text-[11px] font-bold text-cyan-300">👥 ലൈവ് ജോയിൻ ചെയ്തവർ</span>
+            <button onclick="document.getElementById('teacherParticipantsPanel').classList.add('hidden')" class="text-slate-400 text-xs">✕</button>
+          </div>
+          <div id="teacherParticipantsList" class="space-y-1 overflow-y-auto custom-scroll text-xs flex-1 pr-1">
+            <p class="text-[10px] text-slate-400">ആരും ജോയിൻ ചെയ്തിട്ടില്ല</p>
+          </div>
         </div>
 
         <!-- Teacher's Raised Hand Monitor Box -->
@@ -228,16 +249,15 @@
     const FIREBASE_DB_URL = "https://sk-psc-portal-default-rtdb.asia-southeast1.firebasedatabase.app";
     const HMS_STUDENT_ROOM_CODE = "mwt-pwlu-yia";
     
-    // 100ms Role (Fallback if role change is used)
     const ROLE_ON_STAGE = "broadcaster"; 
     const ROLE_OFF_STAGE = "viewer-near-realtime";
 
     let currentUser = null, isTeacher = false, liveSessionData = null, activePollObj = null;
     let activePollInterval = null, autoDismissTimeout = null, currentVotedOption = null;
     let hmsStore = null, hmsActions = null;
-    let localHandRaised = false, localOnStage = false, chatOpen = false, audioUnlocked = false;
+    let localHandRaised = false, localOnStage = false, chatOpen = false, audioUnlocked = false, participantsOpen = false;
     const screenTiles = new Map();
-    const raisedHandsMap = new Map(); // Single source of truth keyed ONLY by sanitized phone
+    const raisedHandsMap = new Map();
 
     function sanitizePhone(raw) {
       if (!raw) return "";
@@ -249,10 +269,24 @@
       return String(str ?? '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
     }
 
-    window.toggleVideoFullScreen = function() {
+    window.toggleVideoFullScreen = async function() {
       const w = document.getElementById('videoCardWrapper');
-      if (!document.fullscreenElement) w.requestFullscreen?.().catch(() => {});
-      else document.exitFullscreen?.().catch(() => {});
+      if (!document.fullscreenElement) {
+        try {
+          await w.requestFullscreen?.();
+          // Force Android to lock landscape orientation on fullscreen
+          if (screen.orientation && screen.orientation.lock) {
+            screen.orientation.lock('landscape').catch(() => {});
+          }
+        } catch (e) {}
+      } else {
+        try {
+          if (document.exitFullscreen) await document.exitFullscreen?.();
+          if (screen.orientation && screen.orientation.unlock) {
+            screen.orientation.unlock();
+          }
+        } catch (e) {}
+      }
     };
 
     window.exitLiveClassRoom = async function() {
@@ -304,6 +338,7 @@
         document.getElementById('micBtn').classList.remove('hidden');
         document.getElementById('cameraBtn').classList.remove('hidden');
         document.getElementById('teacherHandPanel').classList.remove('hidden');
+        document.getElementById('participantsToggleBtn').classList.remove('hidden');
         document.getElementById('emptyHintText').textContent = 'താഴെയുള്ള "🖥️ Share Screen" ക്ലിക്ക് ചെയ്ത് നോട്ട്സ് ഷെയർ ചെയ്യുക.';
       } else {
         wrapper.classList.add('student-view');
@@ -327,7 +362,6 @@
     });
 
     function wireControls() {
-      // Teacher Screen Share
       document.getElementById('screenBtn').onclick = async () => {
         if (!hmsActions) return;
         try {
@@ -340,7 +374,6 @@
         }
       };
 
-      // Teacher Mic
       document.getElementById('micBtn').onclick = async () => {
         if (!hmsActions) return;
         try {
@@ -350,7 +383,6 @@
         } catch (e) {}
       };
 
-      // Teacher Camera
       document.getElementById('cameraBtn').onclick = async () => {
         if (!hmsActions) return;
         try {
@@ -360,7 +392,6 @@
         } catch (e) {}
       };
 
-      // Student On-Stage Mic Toggle
       document.getElementById('studentMicBtn').onclick = async () => {
         if (!hmsActions) return;
         try {
@@ -370,12 +401,9 @@
           document.getElementById('studentMicBtn').className = enabled
             ? 'control-btn bg-emerald-700 border-emerald-400 text-white animate-pulse'
             : 'control-btn bg-slate-800 border-amber-400 text-amber-300';
-        } catch (e) {
-          alert('മൈക്ക് ഓൺ ചെയ്യാൻ ബ്രൗസർ അനുമതി നൽകുക (അല്ലെങ്കിൽ 100ms-ൽ Broadcaster/Guest കോഡ് ഉപയോഗിക്കുക).');
-        }
+        } catch (e) {}
       };
 
-      // Student Hand Raise (Strictly Single-Keyed via Firebase to prevent duplicates)
       document.getElementById('handBtn').onclick = async () => {
         if (!hmsActions) return;
         forceUnlockAudio();
@@ -414,6 +442,11 @@
         toggleChat(!chatOpen);
       };
       document.getElementById('chatCloseBtn').onclick = () => toggleChat(false);
+
+      document.getElementById('participantsToggleBtn').onclick = () => {
+        participantsOpen = !participantsOpen;
+        document.getElementById('teacherParticipantsPanel').classList.toggle('hidden', !participantsOpen);
+      };
 
       document.getElementById('chatForm').onsubmit = async (e) => {
         e.preventDefault();
@@ -470,12 +503,37 @@
       box.scrollTop = box.scrollHeight;
     }
 
-    // Teacher's Raised Hands UI (No duplicate entries, No role-not-changed error popups)
+    // Teacher's Participants & Raised Hands Renderer
+    function renderTeacherPanelData(peers) {
+      if (!isTeacher) return;
+      
+      // Update Participant Count & List
+      const countEl = document.getElementById('totalPeerCount');
+      const listEl = document.getElementById('teacherParticipantsList');
+      if (countEl) countEl.textContent = peers.length;
+
+      if (listEl) {
+        if (peers.length === 0) {
+          listEl.innerHTML = '<p class="text-[10px] text-slate-400">ആരും ജോയിൻ ചെയ്തിട്ടില്ല</p>';
+        } else {
+          listEl.innerHTML = '';
+          peers.forEach(p => {
+            const item = document.createElement('div');
+            item.className = 'flex items-center justify-between bg-slate-800/80 px-2 py-1 rounded text-[11px]';
+            item.innerHTML = `
+              <span class="truncate text-white font-medium">${safeHtml(p.name)} ${p.isLocal ? '(You)' : ''}</span>
+              <span class="text-[9px] font-mono px-1.5 py-0.2 rounded ${p.roleName === 'host' ? 'bg-amber-500/20 text-amber-300' : 'bg-slate-700 text-slate-300'}">${p.roleName}</span>
+            `;
+            listEl.appendChild(item);
+          });
+        }
+      }
+    }
+
     function renderTeacherRaisedHands() {
       if (!isTeacher) return;
       const container = document.getElementById('teacherHandList');
       const badge = document.getElementById('handCountBadge');
-      const peers = hmsStore?.getState(selectPeers) || [];
 
       if (!container) return;
       badge.textContent = raisedHandsMap.size;
@@ -503,14 +561,7 @@
         row.querySelector('.stage-btn').onclick = async () => {
           const nextStageState = !isOnStage;
           try {
-            // Optional silent attempt to change 100ms role if configured, without throwing annoying error alert
-            const peer = peers.find(p => p.id === info.peerId || p.name === info.name);
-            if (peer && hmsActions) {
-              hmsActions.changeRoleOfPeer(peer.id, nextStageState ? ROLE_ON_STAGE : ROLE_OFF_STAGE, true).catch(() => {});
-            }
-
             if (nextStageState) {
-              // Grant Mic Permission via Firebase
               await fetch(`${FIREBASE_DB_URL}/live_session/raisedHands/${phoneKey}/onStage.json`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
@@ -519,7 +570,6 @@
               info.onStage = true;
               raisedHandsMap.set(phoneKey, info);
             } else {
-              // Remove from Stage & Clear Hand Raise completely
               await fetch(`${FIREBASE_DB_URL}/live_session/raisedHands/${phoneKey}.json`, { method: 'DELETE' });
               raisedHandsMap.delete(phoneKey);
             }
@@ -598,6 +648,23 @@
 
         hmsStore.subscribe(renderScreenShares, selectTracksMap);
         hmsStore.subscribe(renderMessages, selectHMSMessages);
+        
+        hmsStore.subscribe((peers) => {
+          renderTeacherPanelData(peers);
+          if (!isTeacher) {
+            const localPeer = peers?.find(p => p.isLocal);
+            if (localPeer) {
+              const onStage = (localPeer.roleName === ROLE_ON_STAGE);
+              const studMicBtn = document.getElementById('studentMicBtn');
+              if (onStage) {
+                studMicBtn.classList.remove('hidden');
+                hmsActions.setLocalAudioEnabled(true).catch(() => {});
+              } else {
+                studMicBtn.classList.add('hidden');
+              }
+            }
+          }
+        }, selectPeers);
 
       } catch (err) {
         document.getElementById('loadingStatusText').textContent = 'കണക്റ്റ് ചെയ്യാൻ കഴിഞ്ഞില്ല. റീഫ്രഷ് ചെയ്യുക.';
@@ -644,7 +711,6 @@
         activePollObj = poll;
         const pollBox = document.getElementById('pollAreaBox');
 
-        // Single-source Raised Hands sync from Firebase
         const fbHands = session.raisedHands || {};
         if (isTeacher) {
           raisedHandsMap.clear();
@@ -660,14 +726,12 @@
           const studMicBtn = document.getElementById('studentMicBtn');
 
           if (myHand && myHand.onStage === true) {
-            // Teacher clicked "Bring to Stage"
             studMicBtn.classList.remove('hidden');
             if (!localOnStage) {
               localOnStage = true;
               hmsActions?.setLocalAudioEnabled(true).catch(() => {});
             }
           } else {
-            // Teacher clicked "Remove" or student lowered hand
             if (localOnStage) {
               localOnStage = false;
               hmsActions?.setLocalAudioEnabled(false).catch(() => {});
@@ -683,7 +747,7 @@
 
         if (session.showRankModal === true) {
           renderLivePollRankModal(session.pollLeaderboard || {});
-          document.getElementById('livePollRankModal').classList.remove('hidden');
+          document.getElementById('livePollRankModal').classList.add('hidden');
         } else {
           document.getElementById('livePollRankModal').classList.add('hidden');
         }
