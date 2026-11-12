@@ -1527,17 +1527,15 @@ function parseMainFolders(rawFolderValue) {
 
     async function fetchFirebaseData() {
       try {
-        const [examsData, usersData, configData, userHistData] = await Promise.all([
+        const [examsData, usersData, configData] = await Promise.all([
           fetch(`${FIREBASE_DB_URL}/exams.json`).then(r => r.json()).catch(() => null),
           fetch(`${FIREBASE_DB_URL}/users.json`).then(r => r.json()).catch(() => null),
-          fetch(`${FIREBASE_DB_URL}/portal_config.json`).then(r => r.json()).catch(() => ({})),
-         candidate && candidate.phone ? fetch(`${FIREBASE_DB_URL}/users_history/${sanitizePhone(candidate.phone)}.json?_t=${Date.now()}`).then(r => r.json()).catch(() => null) : Promise.resolve(null)
+          fetch(`${FIREBASE_DB_URL}/portal_config.json`).then(r => r.json()).catch(() => ({}))
         ]);
-// 🔴 ലൈവ് ബാനർ നിലവിലെ Firebase സ്റ്റാറ്റസുമായി പുതുക്കുന്നു
-await refreshHomeLiveBanner();
+
+        await refreshHomeLiveBanner();
         portalConfigCache = configData || {};
 
-        // 🌟 അഡ്മിൻ ഉണ്ടാക്കിയ ഫോൾഡറുകൾ ഫയർബേസിൽ നിന്ന് എടുക്കുന്നു
         if (configData && configData.main_folders) {
           let fbFolders = Array.isArray(configData.main_folders) ? configData.main_folders : Object.values(configData.main_folders);
           fbFolders = fbFolders.filter(f => f && f.id);
@@ -1555,18 +1553,6 @@ await refreshHomeLiveBanner();
         } else {
           trialBadge.classList.add('hidden');
         }
-
-        userAttemptsMap = {};
-if (userHistData) {
-  let hList = Object.values(userHistData);
-  hList.forEach(h => {
-    if (!h) return;
-    const cleanTitle = cleanTitleForMatch(h.title || '');
-    const cleanKey = cleanTitleForMatch(h.key || h.cleanExamKey || '');
-    if (cleanTitle) userAttemptsMap[cleanTitle] = h;
-    if (cleanKey) userAttemptsMap[cleanKey] = h;
-  });
-}
 
         const blinkBox = document.getElementById('heroBlinkAlertBox');
         const blinkText = document.getElementById('heroBlinkAlertText');
@@ -1636,11 +1622,18 @@ if (userHistData) {
           });
 
           rawQuizList = parsedList;
+        }
+
+        // 🌟 റാങ്ക് ലിസ്റ്റും ഹിസ്റ്ററിയും ഒരുമിച്ച് ലോഡ് ചെയ്ത് userAttemptsMap തയ്യാറാക്കുന്നു
+        if (candidate && candidate.phone) {
+          await loadCompleteStudentHistory(candidate.phone);
+        }
+
+        if (rawQuizList.length > 0) {
           renderMainExamFolders();
           renderLatestReel();
           renderTimetableSection();
 
-          // 🌟 ഡെയ്ലി ക്വിസ് കൃത്യമായി ഇവിടെ കോൾ ചെയ്യുന്നു
           if (portalConfigCache && portalConfigCache.daily_quiz) {
             renderDailyQuizCard(portalConfigCache.daily_quiz);
           }
@@ -1661,7 +1654,6 @@ if (userHistData) {
               candidate.is_premium = myDbData.is_premium || false;
               candidate.purchased_course = myDbData.purchased_course || 'all';
               localStorage.setItem('sk_candidate_user', JSON.stringify(candidate));
-              updateProfileAnalytics();
             }
           }
         }
@@ -1674,6 +1666,7 @@ if (userHistData) {
         console.log("Fetch error:", err);
       }
     }
+
 
     function renderMainExamFolders() {
       const container = document.getElementById('mainFoldersContainer');
@@ -2377,22 +2370,158 @@ let userScore = extractActualScore(previousAttempt);
       document.getElementById('rankListModal').classList.add('hidden');
     }
 
-   async function fetchUserExamHistory(phone) {
-  const hList = document.getElementById('historyList');
-  hList.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">ഹിസ്റ്ററി ലഭ്യമാക്കുന്നു...</p>';
-  const cleanPhone = sanitizePhone(phone);
-  if (!cleanPhone || cleanPhone.length < 10) return;
+   // 🌟 users_history, live_ranks, ranks എന്നിവയിൽ നിന്ന് മുഴുവൻ പരീക്ഷകളും ശേഖരിച്ച് Sync ചെയ്യുന്ന ഫങ്ഷൻ
+    async function loadCompleteStudentHistory(phone) {
+      const cleanPhone = sanitizePhone(phone);
+      if (!cleanPhone || cleanPhone.length < 10) return [];
 
-  try {
-    const histRes = await fetch(`${FIREBASE_DB_URL}/users_history/${cleanPhone}.json?_t=${Date.now()}`).then(r => r.json()).catch(() => null);
-        let rawPool = histRes ? Object.values(histRes).filter(h => h && h.title) : [];
+      const [histData, liveRanksData, ranksData] = await Promise.all([
+        fetch(`${FIREBASE_DB_URL}/users_history/${cleanPhone}.json?_t=${Date.now()}`).then(r => r.json()).catch(() => null),
+        fetch(`${FIREBASE_DB_URL}/live_ranks.json?_t=${Date.now()}`).then(r => r.json()).catch(() => null),
+        fetch(`${FIREBASE_DB_URL}/ranks.json?_t=${Date.now()}`).then(r => r.json()).catch(() => null)
+      ]);
+
+      const collectedRecords = [];
+      const existingHistoryKeys = new Set();
+
+      // 1. users_history-ൽ നിന്നുള്ള ഡാറ്റ എടുക്കുന്നു (nested ആയാലും എടുക്കും)
+      function extractHistoryNode(node, parentKey = '') {
+        if (!node || typeof node !== 'object') return;
+        const hasScore = node.score !== undefined || node.MARK !== undefined || node.mark !== undefined || node.Score !== undefined;
+        const rawTitle = node.title || node.TITLE || node.examTitle || node.exam || '';
+        if (hasScore || rawTitle) {
+          if (parentKey) existingHistoryKeys.add(cleanTitleForMatch(parentKey));
+          if (rawTitle) existingHistoryKeys.add(cleanTitleForMatch(rawTitle));
+          collectedRecords.push({
+            ...node,
+            title: String(rawTitle || parentKey || 'Model Exam').trim(),
+            _nodeKey: parentKey
+          });
+          return;
+        }
+        Object.entries(node).forEach(([k, v]) => {
+          const nextKey = parentKey ? `${parentKey}_${k}` : k;
+          extractHistoryNode(v, nextKey);
+        });
+      }
+
+      if (histData) {
+        if (Array.isArray(histData)) {
+          histData.forEach((item, idx) => extractHistoryNode(item, String(idx)));
+        } else {
+          Object.entries(histData).forEach(([k, v]) => extractHistoryNode(v, k));
+        }
+      }
+
+      // 2. live_ranks, ranks എന്നിവയിൽ ഈ വിദ്യാർത്ഥി എഴുതിയ പരീക്ഷകൾ കണ്ടെത്തുന്നു
+      const missingBackfill = {};
+      const scanRankNode = (rankRoot) => {
+        if (!rankRoot || typeof rankRoot !== 'object') return;
+        Object.entries(rankRoot).forEach(([examNodeKey, entries]) => {
+          if (!entries || typeof entries !== 'object') return;
+          let matchedEntry = entries[cleanPhone] || null;
+          if (!matchedEntry) {
+            matchedEntry = Object.values(entries).find(r => r && sanitizePhone(r.phone || r.Phone || '') === cleanPhone) || null;
+          }
+          if (matchedEntry) {
+            const matchedExamMeta = rawQuizList.find(q =>
+              cleanTitleForMatch(q.key) === cleanTitleForMatch(examNodeKey) ||
+              cleanTitleForMatch(q.title) === cleanTitleForMatch(examNodeKey)
+            );
+            const resolvedTitle = String(
+              matchedEntry.title || matchedEntry.TITLE || (matchedExamMeta ? matchedExamMeta.title : examNodeKey)
+            ).trim();
+
+            collectedRecords.push({
+              ...matchedEntry,
+              title: resolvedTitle,
+              _nodeKey: examNodeKey
+            });
+
+            const cNode = cleanTitleForMatch(examNodeKey);
+            const cTit = cleanTitleForMatch(resolvedTitle);
+            if (!existingHistoryKeys.has(cNode) && !existingHistoryKeys.has(cTit)) {
+              missingBackfill[examNodeKey] = {
+                title: resolvedTitle,
+                name: matchedEntry.name || matchedEntry.Official_Name || (candidate ? candidate.name : 'Student'),
+                phone: cleanPhone,
+                score: extractActualScore(matchedEntry),
+                MARK: extractActualScore(matchedEntry),
+                correct: matchedEntry.correct || 0,
+                wrong: matchedEntry.wrong || 0,
+                skipped: matchedEntry.skipped || 0,
+                date: matchedEntry.date || matchedEntry.Date || '-',
+                timestamp: matchedEntry.timestamp || Date.now()
+              };
+            }
+          }
+        });
+      };
+
+      scanRankNode(liveRanksData);
+      scanRankNode(ranksData);
+
+      // 3. users_history-ൽ വിട്ടുപോയ പരീക്ഷകൾ ഫയർബേസിലേക്ക് തനിയെ റീസ്റ്റോർ ചെയ്യുന്നു
+      if (Object.keys(missingBackfill).length > 0) {
+        fetch(`${FIREBASE_DB_URL}/users_history/${cleanPhone}.json`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(missingBackfill)
+        }).catch(() => null);
+      }
+
+      // 4. ഡ്യൂപ്ലിക്കേറ്റുകൾ ഒഴിവാക്കി userAttemptsMap അപ്ഡേറ്റ് ചെയ്യുന്നു
+      const uniqueByExam = {};
+      userAttemptsMap = {};
+
+      collectedRecords.forEach(item => {
+        const cTitle = cleanTitleForMatch(item.title);
+        const cKey = cleanTitleForMatch(item._nodeKey || item.key || '');
+        const groupId = cTitle || cKey;
+        if (!groupId) return;
+
+        const existing = uniqueByExam[groupId];
+        if (!existing || (Number(item.timestamp || 0) >= Number(existing.timestamp || 0))) {
+          uniqueByExam[groupId] = item;
+        }
+      });
+
+      const finalHistoryList = Object.values(uniqueByExam);
+      finalHistoryList.forEach(item => {
+        const cTitle = cleanTitleForMatch(item.title);
+        const cKey = cleanTitleForMatch(item._nodeKey || item.key || '');
+        if (cTitle) userAttemptsMap[cTitle] = item;
+        if (cKey) userAttemptsMap[cKey] = item;
+
+        const matchedQuiz = rawQuizList.find(q =>
+          (cTitle && cleanTitleForMatch(q.title) === cTitle) ||
+          (cKey && (cleanTitleForMatch(q.key) === cKey || cleanTitleForMatch(q.title) === cKey))
+        );
+        if (matchedQuiz) {
+          userAttemptsMap[cleanTitleForMatch(matchedQuiz.title)] = item;
+          if (matchedQuiz.key) userAttemptsMap[cleanTitleForMatch(matchedQuiz.key)] = item;
+        }
+      });
+
+      finalHistoryList.sort((a, b) => (Number(b.timestamp) || 0) - (Number(a.timestamp) || 0));
+      return finalHistoryList;
+    }
+
+    async function fetchUserExamHistory(phone) {
+      const hList = document.getElementById('historyList');
+      hList.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">ഹിസ്റ്ററി ലഭ്യമാക്കുന്നു...</p>';
+      const cleanPhone = sanitizePhone(phone);
+      if (!cleanPhone || cleanPhone.length < 10) return;
+
+      try {
+        const rawPool = await loadCompleteStudentHistory(cleanPhone);
+        updateProfileAnalytics();
 
         if (rawPool.length === 0) {
           hList.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">ഇതുവരെ പരീക്ഷകൾ ഒന്നും എഴുതിയിട്ടില്ല.</p>';
           return;
         }
 
-        rawPool.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
         let histHTML = '';
         rawPool.forEach(item => {
           let scoreVal = extractActualScore(item);
