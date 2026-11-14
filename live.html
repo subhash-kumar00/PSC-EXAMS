@@ -137,8 +137,8 @@
         <div id="customVideoStage">
           <div id="screenShareContainer" class="hidden"></div>
           <div id="emptyStageHint" class="hidden text-center p-4 text-slate-400">
-            <div class="text-3xl mb-1">🎓</div>
-            <div class="font-bold text-sm text-slate-200">ക്ലാസ് ആരംഭിച്ചിരിക്കുന്നു</div>
+            <div class="text-3xl mb-1" id="emptyStageIcon">🎓</div>
+            <div class="font-bold text-sm text-slate-200" id="emptyStageTitle">ക്ലാസ് ആരംഭിച്ചിരിക്കുന്നു</div>
             <div class="text-xs text-slate-400 mt-0.5" id="emptyHintText">അധ്യാപകൻ സ്ക്രീൻ ഷെയർ ചെയ്യുമ്പോൾ ഇവിടെ ഫുൾ ആയി കാണാം.</div>
           </div>
         </div>
@@ -222,19 +222,44 @@
       </div>
     </div>
 
-    <!-- 4. Rank List Modal -->
-    <div id="livePollRankModal" class="hidden absolute inset-0 bg-slate-950/80 backdrop-blur z-50 flex items-center justify-center p-3">
-      <div class="bg-slate-900 border-2 border-amber-500/70 rounded-2xl max-w-sm w-full p-4 shadow-2xl space-y-2.5 flex flex-col max-h-[80vh]">
+    <!-- 4. Rank List Modal (Fixed Popup) -->
+    <div id="livePollRankModal" class="hidden absolute inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-3">
+      <div class="bg-slate-900 border-2 border-amber-500/80 rounded-2xl max-w-sm w-full p-4 shadow-2xl space-y-3 flex flex-col max-h-[82vh]">
         <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-          <h3 class="text-xs sm:text-sm font-black text-amber-400">🏆 തത്സമയ പോൾ റാങ്ക് ലിസ്റ്റ്</h3>
-          <button onclick="closePollRankModal()" class="text-slate-400 hover:text-white text-xs bg-slate-800 rounded px-2 py-1 cursor-pointer">✕</button>
+          <div>
+            <h3 class="text-xs sm:text-sm font-black text-amber-400 flex items-center gap-1.5">
+              <span>🏆</span>
+              <span>തത്സമയ പോൾ റാങ്ക് ലിസ്റ്റ്</span>
+            </h3>
+            <p class="text-[9px] text-slate-400">ശരിയുത്തരത്തിന് +1 പോയിന്റ്</p>
+          </div>
+          <button onclick="closePollRankModal()" class="text-slate-400 hover:text-white text-xs bg-slate-800 rounded-lg w-7 h-7 flex items-center justify-center cursor-pointer">✕</button>
         </div>
-        <div class="overflow-y-auto custom-scroll flex-1">
+        <div class="overflow-y-auto custom-scroll flex-1 pr-1">
           <table class="w-full text-left text-xs text-slate-300">
+            <thead class="bg-slate-950 text-slate-400 uppercase text-[9px] border-b border-slate-800 sticky top-0">
+              <tr>
+                <th class="p-1.5 text-center w-12">റാങ്ക്</th>
+                <th class="p-1.5">വിദ്യാർത്ഥി</th>
+                <th class="p-1.5 text-center w-20">മാർക്ക്</th>
+              </tr>
+            </thead>
             <tbody id="livePollRankTableBody" class="divide-y divide-slate-800/60 font-mono text-[11px]"></tbody>
           </table>
         </div>
-        <button onclick="closePollRankModal()" class="w-full py-1.5 bg-slate-800 text-white text-xs font-bold rounded-lg cursor-pointer">അടയ്ക്കുക</button>
+        <button onclick="closePollRankModal()" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl cursor-pointer">അടയ്ക്കുക</button>
+      </div>
+    </div>
+
+    <!-- 5. 🛑 Class Ended Fullscreen Overlay (For Students when Teacher Ends Class) -->
+    <div id="classEndedOverlay" class="hidden absolute inset-0 bg-slate-950/95 backdrop-blur-lg z-[60] flex items-center justify-center p-6 text-center">
+      <div class="bg-slate-900 border border-rose-500/50 rounded-2xl p-6 max-w-xs w-full shadow-2xl space-y-3">
+        <div class="w-14 h-14 bg-rose-500/20 border border-rose-500/40 rounded-full flex items-center justify-center text-2xl mx-auto">🛑</div>
+        <h2 class="text-base font-black text-white">ലൈവ് ക്ലാസ് അവസാനിച്ചു!</h2>
+        <p class="text-xs text-slate-300 leading-relaxed">അധ്യാപകൻ ഈ ലൈവ് സെഷൻ അവസാനിപ്പിച്ചിരിക്കുന്നു. ഉടൻ തന്നെ ഹോം പേജിലേക്ക് മടങ്ങുന്നതാണ്...</p>
+        <div class="pt-2">
+          <a href="index.html" class="block w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow">🏠 ഹോം പേജിലേക്ക് മടങ്ങുക</a>
+        </div>
       </div>
     </div>
 
@@ -256,6 +281,8 @@
     let activePollInterval = null, autoDismissTimeout = null, currentVotedOption = null;
     let hmsStore = null, hmsActions = null;
     let localHandRaised = false, localOnStage = false, chatOpen = false, audioUnlocked = false, participantsOpen = false;
+    let rankModalDismissedByUser = false;
+    let classEndTriggered = false;
     const screenTiles = new Map();
     const raisedHandsMap = new Map();
 
@@ -274,7 +301,6 @@
       if (!document.fullscreenElement) {
         try {
           await w.requestFullscreen?.();
-          // Force Android to lock landscape orientation on fullscreen
           if (screen.orientation && screen.orientation.lock) {
             screen.orientation.lock('landscape').catch(() => {});
           }
@@ -290,7 +316,13 @@
     };
 
     window.exitLiveClassRoom = async function() {
-      if (!confirm('ലൈവ് ക്ലാസിൽ നിന്ന് പുറത്തിറങ്ങണമെന്നുറപ്പാണോ?')) return;
+      if (isTeacher) {
+        const endForAll = confirm('നിങ്ങൾ ക്ലാസിൽ നിന്ന് പുറത്തിറങ്ങുകയാണോ?\n\n"OK" അമർത്തിയാൽ ക്ലാസിൽ നിന്ന് പുറത്തിറങ്ങും (ലൈവ് പൂർണ്ണമായി അവസാനിപ്പിക്കാൻ അഡ്മിൻ പാനലിൽ End Live കൊടുക്കുക അല്ലെങ്കിൽ ഇവിടെ നിന്ന് പുറത്തിറങ്ങാം).');
+        if (!endForAll) return;
+      } else {
+        if (!confirm('ലൈവ് ക്ലാസിൽ നിന്ന് പുറത്തിറങ്ങണമെന്നുറപ്പാണോ?')) return;
+      }
+
       try {
         if (!isTeacher && currentUser?.phone) {
           await fetch(`${FIREBASE_DB_URL}/live_session/raisedHands/${sanitizePhone(currentUser.phone)}.json`, { method: 'DELETE' });
@@ -301,6 +333,7 @@
     };
 
     window.closePollRankModal = function() {
+      rankModalDismissedByUser = true;
       document.getElementById('livePollRankModal').classList.add('hidden');
     };
 
@@ -321,6 +354,18 @@
         document.getElementById('audioUnlockBanner').classList.add('hidden');
       } catch (e) {}
     };
+
+    function triggerStudentClassEnded() {
+      if (isTeacher || classEndTriggered) return;
+      classEndTriggered = true;
+      try {
+        if (hmsActions) hmsActions.leave();
+      } catch (e) {}
+      document.getElementById('classEndedOverlay').classList.remove('hidden');
+      setTimeout(() => {
+        window.location.replace('index.html');
+      }, 3000);
+    }
 
     window.addEventListener('DOMContentLoaded', async () => {
       const params = new URLSearchParams(location.search);
@@ -503,11 +548,9 @@
       box.scrollTop = box.scrollHeight;
     }
 
-    // Teacher's Participants & Raised Hands Renderer
     function renderTeacherPanelData(peers) {
       if (!isTeacher) return;
       
-      // Update Participant Count & List
       const countEl = document.getElementById('totalPeerCount');
       const listEl = document.getElementById('teacherParticipantsList');
       if (countEl) countEl.textContent = peers.length;
@@ -581,6 +624,24 @@
       });
     }
 
+    async function registerStudentInLiveLeaderboard() {
+      if (isTeacher || !currentUser || !currentUser.phone) return;
+      const phone = sanitizePhone(currentUser.phone);
+      const studentName = currentUser.Official_Name || currentUser.name || "Student";
+
+      try {
+        const res = await fetch(`${FIREBASE_DB_URL}/live_session/pollLeaderboard/${phone}.json`);
+        const existing = await res.json();
+        if (!existing) {
+          await fetch(`${FIREBASE_DB_URL}/live_session/pollLeaderboard/${phone}.json`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: studentName, phone: phone, score: 0, attempted: 0, lastPollId: 0 })
+          });
+        }
+      } catch (e) {}
+    }
+
     async function verifyAccessAndStartMeeting() {
       try {
         const res = await fetch(`${FIREBASE_DB_URL}/live_session.json?_t=${Date.now()}`);
@@ -593,6 +654,7 @@
         }
 
         document.getElementById('liveRoomTitleDisplay').textContent = liveSessionData.title || 'SK PSC Live Class';
+        await registerStudentInLiveLeaderboard();
         await connectCustom100msSDK();
       } catch (err) {
         document.getElementById('loadingStatusText').textContent = 'ക്ലാസ് കണക്ഷനിൽ തടസ്സം നേരിട്ടു.';
@@ -707,10 +769,18 @@
       try {
         const res = await fetch(`${FIREBASE_DB_URL}/live_session.json?_t=${Date.now()}`);
         const session = await res.json() || {};
+
+        // 1. Check if Teacher Ended the Live Class -> Auto Redirect Students to Home
+        if (!isTeacher && session.isLive === false) {
+          triggerStudentClassEnded();
+          return;
+        }
+
         const poll = session.activePoll;
         activePollObj = poll;
         const pollBox = document.getElementById('pollAreaBox');
 
+        // 2. Sync Raised Hands
         const fbHands = session.raisedHands || {};
         if (isTeacher) {
           raisedHandsMap.clear();
@@ -745,15 +815,20 @@
           }
         }
 
+        // 3. FIXED: Show Rank List Modal when Teacher clicks Show Rank List
         if (session.showRankModal === true) {
           renderLivePollRankModal(session.pollLeaderboard || {});
-          document.getElementById('livePollRankModal').classList.add('hidden');
+          if (!rankModalDismissedByUser) {
+            document.getElementById('livePollRankModal').classList.remove('hidden');
+          }
         } else {
+          rankModalDismissedByUser = false;
           document.getElementById('livePollRankModal').classList.add('hidden');
         }
 
         if (isTeacher) return;
 
+        // 4. Sync Active Poll for Students
         if (!poll || !poll.startedAt) {
           pollBox.classList.add('hidden');
           currentVotedOption = null;
@@ -882,9 +957,19 @@
         return;
       }
       list.forEach((item, i) => {
+        const scoreVal = Number(item.score) || 0;
+        let rankBadge = `${i + 1}`;
+        if (i === 0 && scoreVal > 0) rankBadge = `🥇 1`;
+        else if (i === 1 && scoreVal > 0) rankBadge = `🥈 2`;
+        else if (i === 2 && scoreVal > 0) rankBadge = `🥉 3`;
+
         const tr = document.createElement('tr');
-        tr.className = 'border-b border-slate-800/50';
-        tr.innerHTML = `<td class="p-2 text-center text-amber-400 font-bold">${i + 1}</td><td class="p-2 font-bold text-white truncate max-w-[140px]">${safeHtml(item.name || 'Student')}</td><td class="p-2 text-center text-emerald-400 font-bold">${item.score || 0} Pt</td>`;
+        tr.className = 'border-b border-slate-800/50 hover:bg-slate-800/40';
+        tr.innerHTML = `
+          <td class="p-2 text-center text-amber-400 font-bold">${rankBadge}</td>
+          <td class="p-2 font-bold text-white truncate max-w-[140px]">${safeHtml(item.name || 'Student')}</td>
+          <td class="p-2 text-center ${scoreVal > 0 ? 'text-emerald-400' : 'text-slate-500'} font-bold">${scoreVal} Pt</td>
+        `;
         tbody.append(tr);
       });
     }
