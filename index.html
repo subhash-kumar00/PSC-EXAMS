@@ -2997,18 +2997,28 @@ function closePolicyModal() {
     }
 
     container.innerHTML = '';
-    Object.values(data).forEach(vid => {
+    Object.values(data).reverse().forEach(vid => {
+      const isPaid = vid.accessType === 'PAID';
+      const hasAccess = canStudentAccessExam({ accessType: vid.accessType || 'FREE' });
+
+      let actionBtn = '';
+      if (isPaid && !hasAccess) {
+        actionBtn = `<button onclick="openSubscriptionModal('${vid.title}')" class="px-3.5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-xl text-xs cursor-pointer shadow whitespace-nowrap">🔒 പ്രീമിയം</button>`;
+      } else {
+        actionBtn = `<a href="${vid.youtubeUrl}" target="_blank" class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-xl text-xs transition whitespace-nowrap shadow">▶ കാണുക</a>`;
+      }
+
       const card = document.createElement('div');
       card.className = "bg-slate-950 p-3.5 rounded-2xl border border-slate-800 flex items-center justify-between gap-3";
       card.innerHTML = `
-        <div>
-          <span class="text-[9px] text-cyan-400 bg-cyan-950 px-2 py-0.5 rounded font-bold">RECORDED CLASS</span>
-          <h5 class="text-xs sm:text-sm font-bold text-white mt-1">${vid.title}</h5>
+        <div class="min-w-0">
+          <span class="text-[9px] ${isPaid ? 'bg-amber-950 text-amber-300 border border-amber-500/30' : 'bg-cyan-950 text-cyan-400'} px-2 py-0.5 rounded font-bold">
+            ${isPaid ? '🔒 PAID CLASS' : 'RECORDED CLASS'}
+          </span>
+          <h5 class="text-xs sm:text-sm font-bold text-white mt-1 truncate">${vid.title}</h5>
           <span class="text-[10px] text-slate-400 font-mono">${vid.date || ''}</span>
         </div>
-        <a href="${vid.youtubeUrl}" target="_blank" class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-xl text-xs transition whitespace-nowrap shadow">
-          ▶ കാണുക
-        </a>
+        ${actionBtn}
       `;
       container.appendChild(card);
     });
@@ -3036,7 +3046,7 @@ async function openStudyNotesModal() {
     }
 
     container.innerHTML = '';
-    Object.values(data).forEach(note => {
+    Object.values(data).reverse().forEach(note => {
       const isPaid = note.accessType === 'PAID';
       const hasAccess = canStudentAccessExam({ accessType: note.accessType });
 
