@@ -307,6 +307,43 @@
         </div>
       </div>
 
+      <!-- 🌟 റെക്കോർഡഡ് വീഡിയോകളും നോട്ട്സുകളും ഡൗൺലോഡ് ചെയ്യാനുള്ള സെക്ഷൻ -->
+<div id="studyResourcesSection" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-4 my-4">
+  
+  <!-- 1. റെക്കോർഡഡ് ക്ലാസുകൾ കാണാൻ -->
+  <div class="bg-gradient-to-r from-slate-900 to-cyan-950/60 border border-cyan-500/40 rounded-3xl p-4 sm:p-5 shadow-xl flex items-center justify-between gap-3">
+    <div class="flex items-center space-x-3">
+      <div class="w-12 h-12 rounded-2xl bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 flex items-center justify-center text-2xl shrink-0">
+        📼
+      </div>
+      <div>
+        <h4 class="text-xs sm:text-sm font-black text-white">റെക്കോർഡഡ് ക്ലാസുകൾ</h4>
+        <p class="text-[11px] text-slate-400 mt-0.5">മുൻകാല ലൈവ് ക്ലാസുകൾ വീണ്ടും കാണാം.</p>
+      </div>
+    </div>
+    <button onclick="openRecordedVideosModal()" class="px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black rounded-xl text-xs transition shadow shrink-0 cursor-pointer">
+      കാണുക ›
+    </button>
+  </div>
+
+  <!-- 2. പ്രീമിയം നോട്ട്സ് ഡൗൺലോഡ് ചെയ്യാൻ -->
+  <div class="bg-gradient-to-r from-slate-900 to-emerald-950/60 border border-emerald-500/40 rounded-3xl p-4 sm:p-5 shadow-xl flex items-center justify-between gap-3">
+    <div class="flex items-center space-x-3">
+      <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center text-2xl shrink-0">
+        📚
+      </div>
+      <div>
+        <h4 class="text-xs sm:text-sm font-black text-white">സ്റ്റഡി നോട്ട്സ് (PDF)</h4>
+        <p class="text-[11px] text-slate-400 mt-0.5">ഫ്രീ & പ്രീമിയം പിഡിഎഫ് നോട്ട്സുകൾ.</p>
+      </div>
+    </div>
+    <button onclick="openStudyNotesModal()" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl text-xs transition shadow shrink-0 cursor-pointer">
+      ഡൗൺലോഡ് ›
+    </button>
+  </div>
+
+</div>
+
       <!-- ടൈംടേബിൾ & ലോക്കിംഗ് കാർഡ് -->
       <div id="timetableWrapper" class="hidden bg-slate-900 border border-emerald-500/40 rounded-2xl p-4 sm:p-5 shadow-xl space-y-3">
         <div class="flex items-center justify-between border-b border-slate-800/80 pb-2.5">
@@ -1629,18 +1666,18 @@ function parseMainFolders(rawFolderValue) {
           await loadCompleteStudentHistory(candidate.phone);
         }
 
-        if (rawQuizList.length > 0) {
-          renderMainExamFolders();
-          renderLatestReel();
-          renderTimetableSection();
+        if (rawQuizList.length > 0 && candidate && candidate.phone) {
+  renderMainExamFolders();
+  renderLatestReel();
+  renderTimetableSection();
 
-          if (portalConfigCache && portalConfigCache.daily_quiz) {
-            renderDailyQuizCard(portalConfigCache.daily_quiz);
-          }
+  if (portalConfigCache && portalConfigCache.daily_quiz) {
+    renderDailyQuizCard(portalConfigCache.daily_quiz);
+  }
 
-          if (selectedMainFolder) renderSubjectFolders();
-          if (selectedCategory) applyFiltersAndRender();
-        }
+  if (selectedMainFolder) renderSubjectFolders();
+  if (selectedCategory) applyFiltersAndRender();
+}
 
         if (usersData) {
           let uList = Array.isArray(usersData) ? usersData : Object.values(usersData);
@@ -2780,53 +2817,60 @@ let userScore = extractActualScore(previousAttempt);
     }
 
 function activateUserSession() {
-      if (!candidate) return;
-      document.getElementById('homeLoginCard').classList.add('hidden');
-      
-      // 👇 ഈ വരി ഉണ്ടെന്ന് ഉറപ്പാക്കുക 👇
-      const mfSec = document.getElementById('mainFolderSection');
-      if (mfSec) mfSec.classList.remove('hidden');
+  if (!candidate) return;
+  document.getElementById('homeLoginCard').classList.add('hidden');
+  
+  const mfSec = document.getElementById('mainFolderSection');
+  if (mfSec) mfSec.classList.remove('hidden');
 
-      document.getElementById('navUserName').innerText = candidate.name;
-      document.getElementById('navUserBox').classList.remove('hidden');
-      document.getElementById('floatingChatBtn').classList.remove('hidden');
-      document.getElementById('profileDisplayName').innerText = candidate.name;
-      document.getElementById('profileDisplayPhone').innerText = `ഫോൺ: +91 ${candidate.phone}`;
-      updateProfileAnalytics();
+  const studySec = document.getElementById('studyResourcesSection');
+  if (studySec) studySec.classList.remove('hidden');
 
-      if (window.OneSignalDeferred && candidate.phone) {
-        window.OneSignalDeferred.push(async function(OneSignal) {
-          try {
-            const cleanPhone = sanitizePhone(candidate.phone);
-            await OneSignal.login(cleanPhone);
-            await OneSignal.User.PushSubscription.optIn();
-          } catch(err) {}
-        });
-      }
+  document.getElementById('navUserName').innerText = candidate.name;
+  document.getElementById('navUserBox').classList.remove('hidden');
+  document.getElementById('floatingChatBtn').classList.remove('hidden');
+  document.getElementById('profileDisplayName').innerText = candidate.name;
+  document.getElementById('profileDisplayPhone').innerText = `ഫോൺ: +91 ${candidate.phone}`;
+  updateProfileAnalytics();
 
-      requestNotificationPermission();
-      listenForChatReplies();
+  if (window.OneSignalDeferred && candidate.phone) {
+    window.OneSignalDeferred.push(async function(OneSignal) {
+      try {
+        const cleanPhone = sanitizePhone(candidate.phone);
+        await OneSignal.login(cleanPhone);
+        await OneSignal.User.PushSubscription.optIn();
+      } catch(err) {}
+    });
+  }
+
+  requestNotificationPermission();
+  listenForChatReplies();
+}
+
+function logoutCandidate() {
+  if (confirm('ലോഗ് ഔട്ട് ചെയ്യണമെന്നുറപ്പാണോ?')) {
+    if (window.OneSignalDeferred) {
+      window.OneSignalDeferred.push(async function(OneSignal) {
+        try { await OneSignal.logout(); } catch(e) {}
+      });
     }
+    localStorage.removeItem('sk_candidate_user');
+    candidate = null;
+    userAttemptsMap = {};
+    if (chatRefreshInterval) clearInterval(chatRefreshInterval);
     
-    function logoutCandidate() {
-      if (confirm('ലോഗ് ഔട്ട് ചെയ്യണമെന്നുറപ്പാണോ?')) {
-        if (window.OneSignalDeferred) {
-          window.OneSignalDeferred.push(async function(OneSignal) {
-            try { await OneSignal.logout(); } catch(e) {}
-          });
-        }
-        localStorage.removeItem('sk_candidate_user');
-        candidate = null;
-        userAttemptsMap = {};
-        if (chatRefreshInterval) clearInterval(chatRefreshInterval);
-        document.getElementById('homeLoginCard').classList.remove('hidden');
-        const mfSec = document.getElementById('mainFolderSection');
-        if (mfSec) mfSec.classList.add('hidden');
-        goBackToHomeView();
-        document.getElementById('navUserBox').classList.add('hidden');
-        resetAuthView();
-      }
-    }
+    document.getElementById('homeLoginCard').classList.remove('hidden');
+    document.getElementById('mainFolderSection')?.classList.add('hidden');
+    document.getElementById('studyResourcesSection')?.classList.add('hidden');
+    document.getElementById('dailyQuizSection')?.classList.add('hidden');
+    document.getElementById('timetableWrapper')?.classList.add('hidden');
+    document.getElementById('latestReelWrapper')?.classList.add('hidden');
+    
+    goBackToHomeView();
+    document.getElementById('navUserBox').classList.add('hidden');
+    resetAuthView();
+  }
+}
 
     function updateProfileAnalytics() {
       if (!candidate || !candidate.phone) return;
@@ -2934,8 +2978,121 @@ function openPolicyModal(type) {
 function closePolicyModal() {
   document.getElementById('legalPolicyModal').classList.add('hidden');
 }
+   async function openRecordedVideosModal() {
+  if (!candidate || !candidate.phone) {
+    alert("🔒 റെക്കോർഡഡ് ക്ലാസുകൾ കാണാൻ ദയവായി ആദ്യം ലോഗിൻ ചെയ്യുക!");
+    document.getElementById('homeLoginCard')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+  document.getElementById('recordedVideosModal').classList.remove('hidden');
+   const container = document.getElementById('recordedVideosListContainer');
+  container.innerHTML = '<p class="text-xs text-slate-500 text-center py-6">ലോഡ് ചെയ്യുന്നു...</p>';
+
+  try {
+    const res = await fetch(`${FIREBASE_DB_URL}/recorded_videos.json`);
+    const data = await res.json();
+    if (!data) {
+      container.innerHTML = '<p class="text-xs text-slate-500 text-center py-6">റെക്കോർഡഡ് ക്ലാസുകൾ ഒന്നും ലഭ്യമല്ല.</p>';
+      return;
+    }
+
+    container.innerHTML = '';
+    Object.values(data).forEach(vid => {
+      const card = document.createElement('div');
+      card.className = "bg-slate-950 p-3.5 rounded-2xl border border-slate-800 flex items-center justify-between gap-3";
+      card.innerHTML = `
+        <div>
+          <span class="text-[9px] text-cyan-400 bg-cyan-950 px-2 py-0.5 rounded font-bold">RECORDED CLASS</span>
+          <h5 class="text-xs sm:text-sm font-bold text-white mt-1">${vid.title}</h5>
+          <span class="text-[10px] text-slate-400 font-mono">${vid.date || ''}</span>
+        </div>
+        <a href="${vid.youtubeUrl}" target="_blank" class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-xl text-xs transition whitespace-nowrap shadow">
+          ▶ കാണുക
+        </a>
+      `;
+      container.appendChild(card);
+    });
+  } catch(e) {
+    container.innerHTML = '<p class="text-xs text-rose-400 text-center py-6">ലോഡ് ചെയ്യാൻ കഴിഞ്ഞില്ല.</p>';
+  }
+}
+
+async function openStudyNotesModal() {
+  if (!candidate || !candidate.phone) {
+    alert("🔒 സ്റ്റഡി നോട്ട്സ് ഡൗൺലോഡ് ചെയ്യാൻ ദയവായി ആദ്യം ലോഗിൻ ചെയ്യുക!");
+    document.getElementById('homeLoginCard')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+  document.getElementById('studyNotesModal').classList.remove('hidden');
+  const container = document.getElementById('studyNotesListContainer');
+  container.innerHTML = '<p class="text-xs text-slate-500 text-center py-6">ലോഡ് ചെയ്യുന്നു...</p>';
+
+  try {
+    const res = await fetch(`${FIREBASE_DB_URL}/study_notes.json`);
+    const data = await res.json();
+    if (!data) {
+      container.innerHTML = '<p class="text-xs text-slate-500 text-center py-6">നോട്ട്സുകൾ ഒന്നും ലഭ്യമല്ല.</p>';
+      return;
+    }
+
+    container.innerHTML = '';
+    Object.values(data).forEach(note => {
+      const isPaid = note.accessType === 'PAID';
+      const hasAccess = canStudentAccessExam({ accessType: note.accessType });
+
+      let actionBtn = '';
+      if (isPaid && !hasAccess) {
+        actionBtn = `<button onclick="openSubscriptionModal('${note.title}')" class="px-3.5 py-1.5 bg-amber-500 text-slate-950 font-bold rounded-xl text-xs cursor-pointer shadow">🔒 പ്രീമിയം</button>`;
+      } else {
+        actionBtn = `<a href="${note.pdfUrl}" target="_blank" class="px-3.5 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl text-xs transition shadow whitespace-nowrap">📥 ഡൗൺലോഡ്</a>`;
+      }
+
+      const card = document.createElement('div');
+      card.className = "bg-slate-950 p-3.5 rounded-2xl border border-slate-800 flex items-center justify-between gap-3";
+      card.innerHTML = `
+        <div>
+          <span class="text-[9px] ${isPaid ? 'bg-amber-950 text-amber-300 border border-amber-500/30' : 'bg-emerald-950 text-emerald-300'} px-2 py-0.5 rounded font-bold">${isPaid ? 'PAID NOTE' : 'FREE NOTE'}</span>
+          <h5 class="text-xs sm:text-sm font-bold text-white mt-1">${note.title}</h5>
+        </div>
+        ${actionBtn}
+      `;
+      container.appendChild(card);
+    });
+  } catch(e) {
+    container.innerHTML = '<p class="text-xs text-rose-400 text-center py-6">ലോഡ് ചെയ്യാൻ കഴിഞ്ഞില്ല.</p>';
+  }
+}
+
 </script>
 
+<!-- 📼 റെക്കോർഡഡ് വീഡിയോസ് മോഡൽ -->
+<div id="recordedVideosModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+  <div class="bg-slate-900 border border-cyan-500/40 rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl space-y-4 flex flex-col max-h-[85vh]">
+    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+      <h3 class="text-base font-bold text-cyan-400 flex items-center space-x-2">
+        <span>📼</span><span>റെക്കോർഡഡ് ക്ലാസുകൾ (Recorded Classes)</span>
+      </h3>
+      <button onclick="document.getElementById('recordedVideosModal').classList.add('hidden')" class="text-slate-400 hover:text-white text-xl font-bold p-1 bg-slate-800 rounded-xl w-8 h-8 flex items-center justify-center cursor-pointer">✕</button>
+    </div>
+    <div id="recordedVideosListContainer" class="flex-1 overflow-y-auto custom-scroll space-y-2.5 pr-1">
+      <p class="text-xs text-slate-500 text-center py-8">റെക്കോർഡഡ് ക്ലാസുകൾ ലഭ്യമാക്കുന്നു...</p>
+    </div>
+  </div>
+</div>
 
+<!-- 📚 സ്റ്റഡി നോട്ട്സ് മോഡൽ -->
+<div id="studyNotesModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+  <div class="bg-slate-900 border border-emerald-500/40 rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl space-y-4 flex flex-col max-h-[85vh]">
+    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+      <h3 class="text-base font-bold text-emerald-400 flex items-center space-x-2">
+        <span>📚</span><span>പ്രധാന സ്റ്റഡി നോട്ട്സ് (PDF Notes)</span>
+      </h3>
+      <button onclick="document.getElementById('studyNotesModal').classList.add('hidden')" class="text-slate-400 hover:text-white text-xl font-bold p-1 bg-slate-800 rounded-xl w-8 h-8 flex items-center justify-center cursor-pointer">✕</button>
+    </div>
+    <div id="studyNotesListContainer" class="flex-1 overflow-y-auto custom-scroll space-y-2.5 pr-1">
+      <p class="text-xs text-slate-500 text-center py-8">നോട്ട്സുകൾ ലഭ്യമാക്കുന്നു...</p>
+    </div>
+  </div>
+</div>
 </body>
 </html>
