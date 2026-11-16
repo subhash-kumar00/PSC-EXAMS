@@ -2985,25 +2985,44 @@ function closePolicyModal() {
     return;
   }
   document.getElementById('recordedVideosModal').classList.remove('hidden');
-   const container = document.getElementById('recordedVideosListContainer');
+  const container = document.getElementById('recordedVideosListContainer');
   container.innerHTML = '<p class="text-xs text-slate-500 text-center py-6">ലോഡ് ചെയ്യുന്നു...</p>';
 
   try {
-    const res = await fetch(`${FIREBASE_DB_URL}/recorded_videos.json`);
-    const data = await res.json();
+    const cleanPhone = sanitizePhone(candidate.phone);
+    // ഫയർബേസിൽ നിന്ന് വീഡിയോകളും കുട്ടിയുടെ ഏറ്റവും പുതിയ പ്രീമിയം സ്റ്റാറ്റസും എടുക്കുന്നു
+    const [vidRes, userRes] = await Promise.all([
+      fetch(`${FIREBASE_DB_URL}/recorded_videos.json?_t=${Date.now()}`),
+      fetch(`${FIREBASE_DB_URL}/users/${cleanPhone}.json?_t=${Date.now()}`)
+    ]);
+
+    const data = await vidRes.json();
+    const latestUser = await userRes.json();
+
+    if (latestUser) {
+      candidate.valid_until = latestUser.valid_until || candidate.valid_until;
+      candidate.is_premium = latestUser.is_premium || candidate.is_premium;
+      candidate.purchased_course = latestUser.purchased_course || candidate.purchased_course;
+      localStorage.setItem('sk_candidate_user', JSON.stringify(candidate));
+    }
+
     if (!data) {
       container.innerHTML = '<p class="text-xs text-slate-500 text-center py-6">റെക്കോർഡഡ് ക്ലാസുകൾ ഒന്നും ലഭ്യമല്ല.</p>';
       return;
     }
 
+    const todayStr = new Date().toISOString().split('T')[0];
+    const isGlobalFree = !portalConfigCache || portalConfigCache.global_trial_active !== false;
+    const isActivePremium = candidate.valid_until && candidate.valid_until >= todayStr;
+
     container.innerHTML = '';
-    Object.values(data).reverse().forEach(vid => {
+    Object.values(data).forEach(vid => {
       const isPaid = vid.accessType === 'PAID';
-      const hasAccess = canStudentAccessExam({ accessType: vid.accessType || 'FREE' });
+      const canWatch = !isPaid || isGlobalFree || isActivePremium;
 
       let actionBtn = '';
-      if (isPaid && !hasAccess) {
-        actionBtn = `<button onclick="openSubscriptionModal('${vid.title}')" class="px-3.5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-xl text-xs cursor-pointer shadow whitespace-nowrap">🔒 പ്രീമിയം</button>`;
+      if (!canWatch) {
+        actionBtn = `<button onclick="openSubscriptionModal('${vid.title}')" class="px-3.5 py-1.5 bg-amber-500 text-slate-950 font-bold rounded-xl text-xs cursor-pointer shadow whitespace-nowrap">🔒 പ്രീമിയം</button>`;
       } else {
         actionBtn = `<a href="${vid.youtubeUrl}" target="_blank" class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-xl text-xs transition whitespace-nowrap shadow">▶ കാണുക</a>`;
       }
@@ -3011,11 +3030,9 @@ function closePolicyModal() {
       const card = document.createElement('div');
       card.className = "bg-slate-950 p-3.5 rounded-2xl border border-slate-800 flex items-center justify-between gap-3";
       card.innerHTML = `
-        <div class="min-w-0">
-          <span class="text-[9px] ${isPaid ? 'bg-amber-950 text-amber-300 border border-amber-500/30' : 'bg-cyan-950 text-cyan-400'} px-2 py-0.5 rounded font-bold">
-            ${isPaid ? '🔒 PAID CLASS' : 'RECORDED CLASS'}
-          </span>
-          <h5 class="text-xs sm:text-sm font-bold text-white mt-1 truncate">${vid.title}</h5>
+        <div>
+          <span class="text-[9px] ${isPaid ? 'bg-amber-950 text-amber-300 border border-amber-500/30' : 'bg-cyan-950 text-cyan-400'} px-2 py-0.5 rounded font-bold">${isPaid ? 'PAID CLASS' : 'FREE CLASS'}</span>
+          <h5 class="text-xs sm:text-sm font-bold text-white mt-1">${vid.title}</h5>
           <span class="text-[10px] text-slate-400 font-mono">${vid.date || ''}</span>
         </div>
         ${actionBtn}
@@ -3038,20 +3055,40 @@ async function openStudyNotesModal() {
   container.innerHTML = '<p class="text-xs text-slate-500 text-center py-6">ലോഡ് ചെയ്യുന്നു...</p>';
 
   try {
-    const res = await fetch(`${FIREBASE_DB_URL}/study_notes.json`);
-    const data = await res.json();
+    const cleanPhone = sanitizePhone(candidate.phone);
+    // 1. ഫയർബേസിൽ നിന്ന് നോട്ട്സുകളും കുട്ടിയുടെ ഏറ്റവും പുതിയ പ്രീമിയം സ്റ്റാറ്റസും ഒരുമിച്ച് എടുക്കുന്നു
+    const [notesRes, userRes] = await Promise.all([
+      fetch(`${FIREBASE_DB_URL}/study_notes.json?_t=${Date.now()}`),
+      fetch(`${FIREBASE_DB_URL}/users/${cleanPhone}.json?_t=${Date.now()}`)
+    ]);
+
+    const data = await notesRes.json();
+    const latestUser = await userRes.json();
+
+    if (latestUser) {
+      candidate.valid_until = latestUser.valid_until || candidate.valid_until;
+      candidate.is_premium = latestUser.is_premium || candidate.is_premium;
+      candidate.purchased_course = latestUser.purchased_course || candidate.purchased_course;
+      localStorage.setItem('sk_candidate_user', JSON.stringify(candidate));
+    }
+
     if (!data) {
       container.innerHTML = '<p class="text-xs text-slate-500 text-center py-6">നോട്ട്സുകൾ ഒന്നും ലഭ്യമല്ല.</p>';
       return;
     }
 
+    // 2. പ്രീമിയം ആക്സസ് ഉണ്ടോ എന്ന് പരിശോധിക്കുന്നു (Global Trial അഥവാ Valid Date ഉണ്ടെങ്കിൽ True)
+    const todayStr = new Date().toISOString().split('T')[0];
+    const isGlobalFree = !portalConfigCache || portalConfigCache.global_trial_active !== false;
+    const isActivePremium = candidate.valid_until && candidate.valid_until >= todayStr;
+
     container.innerHTML = '';
-    Object.values(data).reverse().forEach(note => {
+    Object.values(data).forEach(note => {
       const isPaid = note.accessType === 'PAID';
-      const hasAccess = canStudentAccessExam({ accessType: note.accessType });
+      const canDownload = !isPaid || isGlobalFree || isActivePremium;
 
       let actionBtn = '';
-      if (isPaid && !hasAccess) {
+      if (!canDownload) {
         actionBtn = `<button onclick="openSubscriptionModal('${note.title}')" class="px-3.5 py-1.5 bg-amber-500 text-slate-950 font-bold rounded-xl text-xs cursor-pointer shadow">🔒 പ്രീമിയം</button>`;
       } else {
         actionBtn = `<a href="${note.pdfUrl}" target="_blank" class="px-3.5 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl text-xs transition shadow whitespace-nowrap">📥 ഡൗൺലോഡ്</a>`;
